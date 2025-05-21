@@ -10,6 +10,8 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+   <link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#f9ffff">
     <style>
         * {
             margin: 0;
@@ -309,7 +311,7 @@
             <div class="card">
                 <i class="fas fa-clock"></i>
                 <h5>آخر تحديث</h5>
-                <h3 id="lastUpdate">08:01 PM GMT, 21 May 2025</h3>
+                <h3 id="lastUpdate">08:19 PM GMT, 21 May 2025</h3>
             </div>
         </div>
         <div class="actions">
@@ -333,6 +335,7 @@
                         <th>رقم بطاقة التعريف</th>
                         <th>رقم الهاتف</th>
                         <th>التاريخ</th>
+                        <th>الملاحظة</th>
                         <th>الإجراءات</th>
                     </tr>
                 </thead>
@@ -364,6 +367,10 @@
                         <div class="mb-3">
                             <label for="date" class="form-label">التاريخ <i class="fas fa-calendar"></i></label>
                             <input type="date" class="form-control" id="date" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="note" class="form-label">الملاحظة <i class="fas fa-sticky-note"></i> (اختياري)</label>
+                            <textarea class="form-control" id="note" rows="3"></textarea>
                         </div>
                     </form>
                 </div>
@@ -400,6 +407,10 @@
                             <label for="editDate" class="form-label">التاريخ <i class="fas fa-calendar"></i></label>
                             <input type="date" class="form-control" id="editDate" required>
                         </div>
+                        <div class="mb-3">
+                            <label for="editNote" class="form-label">الملاحظة <i class="fas fa-sticky-note"></i> (اختياري)</label>
+                            <textarea class="form-control" id="editNote" rows="3"></textarea>
+                        </div>
                     </form>
                 </div>
                 <div class="modal-footer">
@@ -425,7 +436,8 @@
                 notary.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 notary.idNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 notary.phone.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                notary.date.toLowerCase().includes(searchQuery.toLowerCase())
+                notary.date.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                (notary.note || '').toLowerCase().includes(searchQuery.toLowerCase())
             );
             filteredNotaries.forEach((notary, index) => {
                 const originalIndex = notaries.indexOf(notary);
@@ -437,6 +449,7 @@
                     <td>${notary.idNumber}</td>
                     <td>${notary.phone}</td>
                     <td>${notary.date}</td>
+                    <td>${notary.note || '-'}</td>
                     <td>
                         <i class="fas fa-edit action-btn edit" onclick="editNotary(${originalIndex})"></i>
                         <i class="fas fa-trash action-btn delete" onclick="deleteNotary(${originalIndex})"></i>
@@ -481,6 +494,7 @@
             const idNumber = document.getElementById('idNumber').value;
             const phone = document.getElementById('phone').value;
             const date = document.getElementById('date').value;
+            const note = document.getElementById('note').value;
 
             if (name && idNumber && phone && date) {
                 if (checkDuplicate(idNumber, phone)) {
@@ -496,7 +510,7 @@
                     });
                     if (!result.isConfirmed) return;
                 }
-                notaries.push({ name, idNumber, phone, date });
+                notaries.push({ name, idNumber, phone, date, note });
                 localStorage.setItem('notaries', JSON.stringify(notaries));
                 renderTable();
                 bootstrap.Modal.getInstance(document.getElementById('addNotaryModal')).hide();
@@ -516,6 +530,7 @@
             document.getElementById('editIdNumber').value = notaries[index].idNumber;
             document.getElementById('editPhone').value = notaries[index].phone;
             document.getElementById('editDate').value = notaries[index].date;
+            document.getElementById('editNote').value = notaries[index].note || '';
             new bootstrap.Modal(document.getElementById('editNotaryModal')).show();
         }
 
@@ -525,6 +540,7 @@
             const idNumber = document.getElementById('editIdNumber').value;
             const phone = document.getElementById('editPhone').value;
             const date = document.getElementById('editDate').value;
+            const note = document.getElementById('editNote').value;
 
             if (name && idNumber && phone && date) {
                 if (checkDuplicate(idNumber, phone, index)) {
@@ -540,7 +556,7 @@
                     });
                     if (!result.isConfirmed) return;
                 }
-                notaries[index] = { name, idNumber, phone, date };
+                notaries[index] = { name, idNumber, phone, date, note };
                 localStorage.setItem('notaries', JSON.stringify(notaries));
                 renderTable();
                 bootstrap.Modal.getInstance(document.getElementById('editNotaryModal')).hide();
@@ -578,18 +594,19 @@
         }
 
         function exportToExcel() {
-            const titleRow = [{ '#': 'لائحة موثقي غزة إبي', 'الاسم': '', 'رقم بطاقة التعريف': '', 'رقم الهاتف': '', 'التاريخ': '' }];
+            const titleRow = [{ '#': 'لائحة موثقي غزة إبي', 'الاسم': '', 'رقم بطاقة التعريف': '', 'رقم الهاتف': '', 'التاريخ': '', 'الملاحظة': '' }];
             sortNotariesByDate();
             const data = notaries.map((notary, index) => ({
                 '#': index + 1,
                 'الاسم': notary.name,
                 'رقم بطاقة التعريف': notary.idNumber,
                 'رقم الهاتف': notary.phone,
-                'التاريخ': notary.date
+                'التاريخ': notary.date,
+                'الملاحظة': notary.note || '-'
             }));
             const ws = XLSX.utils.json_to_sheet([...titleRow, ...data], { skipHeader: true });
 
-            ws['!cols'] = [{ wpx: 50 }, { wpx: 150 }, { wpx: 150 }, { wpx: 120 }, { wpx: 100 }];
+            ws['!cols'] = [{ wpx: 50 }, { wpx: 150 }, { wpx: 150 }, { wpx: 120 }, { wpx: 100 }, { wpx: 200 }];
             const range = XLSX.utils.decode_range(ws['!ref']);
             for (let R = range.s.r; R <= range.e.r; ++R) {
                 for (let C = range.s.c; C <= range.e.c; ++C) {
@@ -617,7 +634,7 @@
                     }
                 }
             }
-            ws['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 4 } }];
+            ws['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 5 } }];
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, 'Notaries');
             XLSX.writeFile(wb, 'notaries.xlsx');
@@ -655,13 +672,13 @@
                 }
                 printWindow.document.write('<h2>لائحة موثقي غزة إبي</h2>');
                 printWindow.document.write('<table>');
-                printWindow.document.write('<thead><tr><th>#</th><th>الاسم</th><th>رقم بطاقة التعريف</th><th>رقم الهاتف</th><th>التاريخ</th></tr></thead>');
+                printWindow.document.write('<thead><tr><th>#</th><th>الاسم</th><th>رقم بطاقة التعريف</th><th>رقم الهاتف</th><th>التاريخ</th><th>الملاحظة</th></tr></thead>');
                 printWindow.document.write('<tbody>');
                 const start = page * itemsPerPage;
                 const end = Math.min(start + itemsPerPage, notaries.length);
                 for (let i = start; i < end; i++) {
                     const notary = notaries[i];
-                    printWindow.document.write(`<tr><td>${i + 1}</td><td>${notary.name}</td><td>${notary.idNumber}</td><td>${notary.phone}</td><td>${notary.date}</td></tr>`);
+                    printWindow.document.write(`<tr><td>${i + 1}</td><td>${notary.name}</td><td>${notary.idNumber}</td><td>${notary.phone}</td><td>${notary.date}</td><td>${notary.note || '-'}</td></tr>`);
                 }
                 printWindow.document.write('</tbody></table>');
                 printWindow.document.write(`<div class="footer">هذا المستند هو من نظام طيبة المدينة تلكوم</div>`);
@@ -687,8 +704,8 @@
 
         function exportToCSV() {
             sortNotariesByDate();
-            const headers = ['الاسم,رقم بطاقة التعريف,رقم الهاتف,التاريخ'];
-            const rows = notaries.map(n => `${n.name},${n.idNumber},${n.phone},${n.date}`);
+            const headers = ['الاسم,رقم بطاقة التعريف,رقم الهاتف,التاريخ,الملاحظة'];
+            const rows = notaries.map(n => `${n.name},${n.idNumber},${n.phone},${n.date},${n.note || '-'}`);
             const csv = [headers, ...rows].join('\n');
             const blob = new Blob([csv], { type: 'text/csv' });
             const url = URL.createObjectURL(blob);
@@ -710,8 +727,8 @@
                     const data = e.target.result;
                     const rows = data.split('\n').slice(1).filter(row => row.trim());
                     newNotaries = rows.map(row => {
-                        const [name, idNumber, phone, date] = row.split(',');
-                        return { name, idNumber, phone, date };
+                        const [name, idNumber, phone, date, note] = row.split(',');
+                        return { name, idNumber, phone, date, note };
                     });
                 }
                 let duplicates = newNotaries.filter(n => checkDuplicate(n.idNumber, n.phone));
