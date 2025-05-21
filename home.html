@@ -296,34 +296,6 @@
             .modal-body .form-control { font-size: 0.9rem; }
             .search-container input { width: 100%; max-width: 100%; }
         }
-        /* تنسيق مخصص لنافذة SweetAlert2 */
-        .swal2-popup {
-            background: rgba(255, 255, 255, 0.1) !important;
-            backdrop-filter: blur(10px) !important;
-            border: 1px solid rgba(255, 255, 255, 0.2) !important;
-            border-radius: 15px !important;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2) !important;
-        }
-        .swal2-title {
-            font-family: 'Cairo', sans-serif !important;
-            color: #3F2A56 !important;
-            font-size: 1.5rem !important;
-            font-weight: 700 !important;
-        }
-        .swal2-content {
-            font-family: 'Cairo', sans-serif !important;
-            color: #3F2A56 !important;
-            font-size: 1.1rem !important;
-        }
-        .swal2-confirm {
-            background: linear-gradient(90deg, #3F2A56, #5a3f73) !important;
-            border-radius: 25px !important;
-            padding: 10px 25px !important;
-            font-family: 'Cairo', sans-serif !important;
-        }
-        .swal2-confirm:hover {
-            background: linear-gradient(90deg, #5a3f73, #3F2A56) !important;
-        }
     </style>
 </head>
 <body>
@@ -342,7 +314,7 @@
             <div class="card">
                 <i class="fas fa-clock"></i>
                 <h5>آخر تحديث</h5>
-                <h3 id="lastUpdate">08:19 PM GMT, 21 May 2025</h3>
+                <h3 id="lastUpdate">08:35 PM GMT, 21 May 2025</h3>
             </div>
         </div>
         <div class="actions">
@@ -431,7 +403,7 @@
                             <input type="number" class="form-control" id="editIdNumber" required>
                         </div>
                         <div class="mb-3">
-                            <label for="editPhone" class="form-label">رقم الهاتف <i class="fas fa-phone"></i></label>
+                            <label for="editPhone" class="form-label">ر(nr)رقم الهاتف <i class="fas fa-phone"></i></label>
                             <input type="number" class="form-control" id="editPhone" required>
                         </div>
                         <div class="mb-3">
@@ -465,8 +437,8 @@
             sortNotariesByDate();
             const filteredNotaries = notaries.filter(notary =>
                 notary.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                notary.idNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                notary.phone.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                notary.idNumber.toString().includes(searchQuery.toLowerCase()) ||
+                notary.phone.toString().includes(searchQuery.toLowerCase()) ||
                 notary.date.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 (notary.note || '').toLowerCase().includes(searchQuery.toLowerCase())
             );
@@ -482,15 +454,11 @@
                     <td>${notary.date}</td>
                     <td>${notary.note || '-'}</td>
                     <td>
-                        <i class="fas fa-edit action-btn edit" onclick="editNotary(${originalIndex})"></i>
-                        <i class="fas fa-trash action-btn delete" onclick="deleteNotary(${originalIndex})"></i>
+                        <i class="fas fa-edit action-btn edit" onclick="editNotary(${originalIndex});event.stopPropagation();"></i>
+                        <i class="fas fa-trash action-btn delete" onclick="deleteNotary(${originalIndex});event.stopPropagation();"></i>
                     </td>
                 `;
-                row.addEventListener('click', (event) => {
-                    if (!event.target.classList.contains('action-btn')) {
-                        showNotaryDetails(originalIndex);
-                    }
-                });
+                row.addEventListener('click', () => showNotaryDetails(originalIndex));
                 tableBody.appendChild(row);
             });
             updateDashboard();
@@ -501,29 +469,12 @@
             Swal.fire({
                 title: 'تفاصيل الموثق',
                 html: `
-                    <div style="text-align: right; font-family: 'Cairo', sans-serif; color: #3F2A56; padding: 20px;">
-                        <div style="background: rgba(255, 255, 255, 0.2); border-radius: 10px; padding: 15px; margin-bottom: 10px;">
-                            <p style="margin: 5px 0; font-size: 1.1rem;">
-                                <i class="fas fa-user me-2" style="color: #5a3f73;"></i>
-                                <strong>الاسم:</strong> ${notary.name}
-                            </p>
-                            <p style="margin: 5px 0; font-size: 1.1rem;">
-                                <i class="fas fa-id-card me-2" style="color: #5a3f73;"></i>
-                                <strong>رقم بطاقة التعريف:</strong> ${notary.idNumber}
-                            </p>
-                            <p style="margin: 5px 0; font-size: 1.1rem;">
-                                <i class="fas fa-phone me-2" style="color: #5a3f73;"></i>
-                                <strong>رقم الهاتف:</strong> ${notary.phone}
-                            </p>
-                            <p style="margin: 5px 0; font-size: 1.1rem;">
-                                <i class="fas fa-calendar me-2" style="color: #5a3f73;"></i>
-                                <strong>التاريخ:</strong> ${notary.date}
-                            </p>
-                            <p style="margin: 5px 0; font-size: 1.1rem;">
-                                <i class="fas fa-sticky-note me-2" style="color: #5a3f73;"></i>
-                                <strong>الملاحظة:</strong> ${notary.note || '-'}
-                            </p>
-                        </div>
+                    <div style="text-align: right; font-family: 'Cairo', sans-serif; color: #3F2A56;">
+                        <p><strong>الاسم:</strong> ${notary.name}</p>
+                        <p><strong>رقم بطاقة التعريف:</strong> ${notary.idNumber}</p>
+                        <p><strong>رقم الهاتف:</strong> ${notary.phone}</p>
+                        <p><strong>التاريخ:</strong> ${notary.date}</p>
+                        <p><strong>الملاحظة:</strong> ${notary.note || '-'}</p>
                     </div>
                 `,
                 icon: 'info',
@@ -562,7 +513,7 @@
 
         function checkDuplicate(idNumber, phone, excludeIndex = -1) {
             return notaries.some((notary, index) => 
-                index !== excludeIndex && (notary.idNumber === idNumber || notary.phone === phone)
+                index !== excludeIndex && (notary.idNumber == idNumber || notary.phone == phone)
             );
         }
 
@@ -612,7 +563,7 @@
         }
 
         async function updateNotary() {
-            const index = document.getElementById('editIndex').value;
+            const index = parseInt(document.getElementById('editIndex').value);
             const name = document.getElementById('editName').value;
             const idNumber = document.getElementById('editIdNumber').value;
             const phone = document.getElementById('editPhone').value;
@@ -620,7 +571,11 @@
             const note = document.getElementById('editNote').value;
 
             if (name && idNumber && phone && date) {
-                if (checkDuplicate(idNumber, phone, index)) {
+                const originalNotary = notaries[index];
+                const idNumberChanged = idNumber != originalNotary.idNumber;
+                const phoneChanged = phone != originalNotary.phone;
+
+                if ((idNumberChanged || phoneChanged) && checkDuplicate(idNumber, phone, index)) {
                     const result = await Swal.fire({
                         title: 'تكرار المعلومات',
                         text: 'رقم بطاقة التعريف أو رقم الهاتف موجود مسبقًا. هل تريد المتابعة؟',
@@ -633,6 +588,7 @@
                     });
                     if (!result.isConfirmed) return;
                 }
+
                 notaries[index] = { name, idNumber, phone, date, note };
                 localStorage.setItem('notaries', JSON.stringify(notaries));
                 renderTable();
@@ -758,7 +714,7 @@
                     printWindow.document.write(`<tr><td>${i + 1}</td><td>${notary.name}</td><td>${notary.idNumber}</td><td>${notary.phone}</td><td>${notary.date}</td><td>${notary.note || '-'}</td></tr>`);
                 }
                 printWindow.document.write('</tbody></table>');
-                printWindow.document.write(`<div class="footer"> هذا المستند من نظام طيبة المدينة تلكوم وهو موقع رقميا </div>`);
+                printWindow.document.write(`<div class="footer">هذا المستند من نظام طيبة المدينة تلكوم وهو موقع رقميًا</div>`);
                 printWindow.document.write(`<div class="page-number">الصفحة ${page + 1} من ${totalPages}</div>`);
             }
 
