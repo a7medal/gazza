@@ -10,8 +10,8 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-   <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#f9ffff">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#f9ffff">
     <style>
         * {
             margin: 0;
@@ -206,6 +206,9 @@
         td {
             color: #3F2A56;
         }
+        tr {
+            cursor: pointer;
+        }
         tr:hover {
             background-color: #f7f9fc;
         }
@@ -311,7 +314,7 @@
             <div class="card">
                 <i class="fas fa-clock"></i>
                 <h5>آخر تحديث</h5>
-                <h3 id="lastUpdate">08:19 PM GMT, 21 May 2025</h3>
+                <h3 id="lastUpdate">08:35 PM GMT, 21 May 2025</h3>
             </div>
         </div>
         <div class="actions">
@@ -400,7 +403,7 @@
                             <input type="number" class="form-control" id="editIdNumber" required>
                         </div>
                         <div class="mb-3">
-                            <label for="editPhone" class="form-label">رقم الهاتف <i class="fas fa-phone"></i></label>
+                            <label for="editPhone" class="form-label">ر(nr)رقم الهاتف <i class="fas fa-phone"></i></label>
                             <input type="number" class="form-control" id="editPhone" required>
                         </div>
                         <div class="mb-3">
@@ -434,8 +437,8 @@
             sortNotariesByDate();
             const filteredNotaries = notaries.filter(notary =>
                 notary.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                notary.idNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                notary.phone.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                notary.idNumber.toString().includes(searchQuery.toLowerCase()) ||
+                notary.phone.toString().includes(searchQuery.toLowerCase()) ||
                 notary.date.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 (notary.note || '').toLowerCase().includes(searchQuery.toLowerCase())
             );
@@ -451,13 +454,38 @@
                     <td>${notary.date}</td>
                     <td>${notary.note || '-'}</td>
                     <td>
-                        <i class="fas fa-edit action-btn edit" onclick="editNotary(${originalIndex})"></i>
-                        <i class="fas fa-trash action-btn delete" onclick="deleteNotary(${originalIndex})"></i>
+                        <i class="fas fa-edit action-btn edit" onclick="editNotary(${originalIndex});event.stopPropagation();"></i>
+                        <i class="fas fa-trash action-btn delete" onclick="deleteNotary(${originalIndex});event.stopPropagation();"></i>
                     </td>
                 `;
+                row.addEventListener('click', () => showNotaryDetails(originalIndex));
                 tableBody.appendChild(row);
             });
             updateDashboard();
+        }
+
+        function showNotaryDetails(index) {
+            const notary = notaries[index];
+            Swal.fire({
+                title: 'تفاصيل الموثق',
+                html: `
+                    <div style="text-align: right; font-family: 'Cairo', sans-serif; color: #3F2A56;">
+                        <p><strong>الاسم:</strong> ${notary.name}</p>
+                        <p><strong>رقم بطاقة التعريف:</strong> ${notary.idNumber}</p>
+                        <p><strong>رقم الهاتف:</strong> ${notary.phone}</p>
+                        <p><strong>التاريخ:</strong> ${notary.date}</p>
+                        <p><strong>الملاحظة:</strong> ${notary.note || '-'}</p>
+                    </div>
+                `,
+                icon: 'info',
+                confirmButtonText: 'إغلاق',
+                confirmButtonColor: '#3F2A56',
+                customClass: {
+                    popup: 'swal2-rtl',
+                    title: 'swal2-title',
+                    content: 'swal2-content'
+                }
+            });
         }
 
         function searchTable() {
@@ -485,7 +513,7 @@
 
         function checkDuplicate(idNumber, phone, excludeIndex = -1) {
             return notaries.some((notary, index) => 
-                index !== excludeIndex && (notary.idNumber === idNumber || notary.phone === phone)
+                index !== excludeIndex && (notary.idNumber == idNumber || notary.phone == phone)
             );
         }
 
@@ -535,7 +563,7 @@
         }
 
         async function updateNotary() {
-            const index = document.getElementById('editIndex').value;
+            const index = parseInt(document.getElementById('editIndex').value);
             const name = document.getElementById('editName').value;
             const idNumber = document.getElementById('editIdNumber').value;
             const phone = document.getElementById('editPhone').value;
@@ -543,7 +571,11 @@
             const note = document.getElementById('editNote').value;
 
             if (name && idNumber && phone && date) {
-                if (checkDuplicate(idNumber, phone, index)) {
+                const originalNotary = notaries[index];
+                const idNumberChanged = idNumber != originalNotary.idNumber;
+                const phoneChanged = phone != originalNotary.phone;
+
+                if ((idNumberChanged || phoneChanged) && checkDuplicate(idNumber, phone, index)) {
                     const result = await Swal.fire({
                         title: 'تكرار المعلومات',
                         text: 'رقم بطاقة التعريف أو رقم الهاتف موجود مسبقًا. هل تريد المتابعة؟',
@@ -556,6 +588,7 @@
                     });
                     if (!result.isConfirmed) return;
                 }
+
                 notaries[index] = { name, idNumber, phone, date, note };
                 localStorage.setItem('notaries', JSON.stringify(notaries));
                 renderTable();
@@ -681,7 +714,7 @@
                     printWindow.document.write(`<tr><td>${i + 1}</td><td>${notary.name}</td><td>${notary.idNumber}</td><td>${notary.phone}</td><td>${notary.date}</td><td>${notary.note || '-'}</td></tr>`);
                 }
                 printWindow.document.write('</tbody></table>');
-                printWindow.document.write(`<div class="footer"> هذا المستند من نظام طيبة المدينة تلكوم وهو موقع رقميا </div>`);
+                printWindow.document.write(`<div class="footer">هذا المستند من نظام طيبة المدينة تلكوم وهو موقع رقميًا</div>`);
                 printWindow.document.write(`<div class="page-number">الصفحة ${page + 1} من ${totalPages}</div>`);
             }
 
