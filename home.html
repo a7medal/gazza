@@ -311,7 +311,7 @@
             <div class="card">
                 <i class="fas fa-clock"></i>
                 <h5>آخر تحديث</h5>
-                <h3 id="lastUpdate">07:57 PM GMT, 21 May 2025</h3>
+                <h3 id="lastUpdate">08:01 PM GMT, 21 May 2025</h3>
             </div>
         </div>
         <div class="actions">
@@ -430,7 +430,9 @@
                 notary.date.toLowerCase().includes(searchQuery.toLowerCase())
             );
             filteredNotaries.forEach((notary, index) => {
+                const originalIndex = notaries.indexOf(notary);
                 const row = document.createElement('tr');
+                row.setAttribute('data-index', originalIndex);
                 row.innerHTML = `
                     <td>${index + 1}</td>
                     <td>${notary.name}</td>
@@ -438,8 +440,8 @@
                     <td>${notary.phone}</td>
                     <td>${notary.date}</td>
                     <td>
-                        <i class="fas fa-edit action-btn edit" onclick="editNotary(${notaries.indexOf(notary)};"></i>
-                        <i class="fas fa-trash action-btn delete" onclick="deleteNotary(${notaries.indexOf(notary)};"></i>
+                        <i class="fas fa-edit action-btn edit" onclick="editNotary(${originalIndex})"></i>
+                        <i class="fas fa-trash action-btn delete" onclick="deleteNotary(${originalIndex})"></i>
                     </td>
                 `;
                 tableBody.appendChild(row);
@@ -718,35 +720,3 @@
                 if (duplicates.length > 0) {
                     const result = await Swal.fire({
                         title: 'تكرار المعلومات',
-                        text: 'تم العثور على معلومات مكررة في الملف المستورد. هل تريد المتابعة؟',
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonText: 'متابعة',
-                        cancelButtonText: 'إلغاء',
-                        confirmButtonColor: '#3F2A56',
-                        cancelButtonColor: '#6c757d'
-                    });
-                    if (!result.isConfirmed) return;
-                }
-                notaries = [...notaries, ...newNotaries];
-                localStorage.setItem('notaries', JSON.stringify(notaries));
-                renderTable();
-                Swal.fire({
-                    title: 'تم الاستيراد',
-                    text: 'تم استيراد الملف بنجاح!',
-                    icon: 'success',
-                    confirmButtonColor: '#3F2A56'
-                });
-            };
-            if (file.name.endsWith('.json') || file.name.endsWith('.csv')) {
-                reader.readAsText(file);
-            }
-        }
-
-        window.onload = () => {
-            sortNotariesByDate();
-            renderTable();
-        };
-    </script>
-</body>
-</html>
