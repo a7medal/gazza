@@ -314,7 +314,7 @@
             <div class="card">
                 <i class="fas fa-clock"></i>
                 <h5>آخر تحديث</h5>
-                <h3 id="lastUpdate">08:35 PM GMT, 21 May 2025</h3>
+                <h3 id="lastUpdate">01:12 PM GMT, 22 May 2025</h3>
             </div>
         </div>
         <div class="actions">
@@ -677,11 +677,11 @@
             const itemsPerPage = 20;
             const totalPages = Math.ceil(notaries.length / itemsPerPage);
             const printWindow = window.open('', '_blank');
-            const printDate = new Date().toLocaleString('ar-EG', { 
+            const printDate = new Date().toLocaleString('en-US', { 
                 day: '2-digit', 
                 month: '2-digit', 
                 year: 'numeric'
-            });
+            }).replace(/(\d+)\/(\d+)\/(\d+)/, '$1/$2/$3'); // Ensures 22/05/2025 format
             printWindow.document.write(`
                 <html>
                 <head>
@@ -701,25 +701,25 @@
                         }
                         .header { 
                             display: flex; 
-                            justify-content: flex-end; 
+                            justify-content: space-between; 
                             align-items: center; 
                             margin-bottom: 20px; 
-                            border-bottom: 2px solid #000; 
                             padding-bottom: 10px; 
                         }
                         .header img { 
                             height: 70px; 
-                            filter: grayscale(100%); 
                             clip-path: polygon(10% 0%, 100% 0%, 90% 100%, 0% 100%); 
-                            margin-left: 15px; 
+                            margin-right: 0; 
                         }
                         .header h1 { 
                             font-size: 1.6rem; 
                             font-weight: 700; 
                             margin: 0; 
+                            text-align: center; 
+                            flex-grow: 1; 
                         }
                         .agency-card { 
-                            border: 2px solid #000; 
+                            border: 1px solid #000; 
                             padding: 15px; 
                             margin-bottom: 20px; 
                             background: #fff; 
@@ -766,7 +766,7 @@
                             width: 100%; 
                             border-collapse: collapse; 
                             margin: 20px 0; 
-                            border: 2px solid #000; 
+                            border: 1px solid #000; 
                         }
                         th, td { 
                             padding: 12px; 
@@ -775,8 +775,8 @@
                             font-size: 1rem; 
                         }
                         th { 
-                            background: #000; 
-                            color: #fff; 
+                            background: #fff; 
+                            color: #000; 
                             font-weight: 700; 
                             font-size: 1.1rem; 
                         }
@@ -785,7 +785,7 @@
                         }
                         .footer { 
                             position: fixed; 
-                            bottom: 15mm; 
+                            bottom: 5mm; 
                             width: 100%; 
                             text-align: center; 
                             font-size: 0.8rem; 
@@ -793,7 +793,7 @@
                         }
                         .page-number { 
                             position: fixed; 
-                            bottom: 10mm; 
+                            bottom: 5mm; 
                             left: 15mm; 
                             font-size: 0.8rem; 
                             font-weight: 600; 
@@ -820,6 +820,7 @@
                     <div class="header">
                         <img src="logo.png" alt="شعار طيبة المدينة تلكوم">
                         <h1>طيبة المدينة تلكوم</h1>
+                        <div style="width: 70px;"></div> <!-- Spacer for symmetry -->
                     </div>
                     <div class="agency-card">
                         <h3>معلومات الوكالة</h3>
