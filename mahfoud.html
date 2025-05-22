@@ -241,7 +241,6 @@
         .action-btn.delete:hover {
             color: #dc3545;
         }
-        /* تحسين تصميم النوافذ المنبثقة */
         .modal-content {
             border-radius: 20px;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
@@ -351,7 +350,6 @@
             .modal-body .form-control, .modal-body .form-select { font-size: 0.9rem; }
             .search-container .filter-group { width: 100%; max-width: 100%; }
         }
-        /* إصلاح مشكلة aria-hidden */
         .actions, .btn {
             aria-hidden: false !important;
         }
@@ -859,7 +857,7 @@
                 });
 
                 const totalPages = Math.ceil(filteredTransactions.length / itemsPerPage);
-                const printWindow = window.open('', '_blank');
+                const printWindow = window.open('', '_blank', 'height=700,width=1000');
                 if (!printWindow) {
                     throw new Error('فشل في فتح نافذة الطباعة. تحقق من إعدادات المتصفح.');
                 }
@@ -1038,16 +1036,30 @@
                                 font-size: 0.8rem; 
                                 font-weight: 600; 
                             }
+                            .print-button { 
+                                background: linear-gradient(90deg, #3F2A56, #5a3f73); 
+                                color: white; 
+                                padding: 10px 20px; 
+                                border: none; 
+                                border-radius: 20px; 
+                                font-size: 1rem; 
+                                cursor: pointer; 
+                                margin: 10px auto; 
+                                display: block; 
+                                text-align: center; 
+                            }
                             @media print {
                                 .page-break { page-break-before: always; }
                                 .container { margin: 0; width: 100%; }
                                 .footer, .page-number { position: fixed; }
                                 body { margin: 10mm; }
+                                .print-button { display: none; }
                             }
                         </style>
                     </head>
                     <body>
                         <div class="container">
+                            <button class="print-button" onclick="window.print()">طباعة</button>
                 `);
 
                 sortTransactionsByDate();
@@ -1128,20 +1140,6 @@
                     </html>
                 `);
                 printWindow.document.close();
-                setTimeout(() => {
-                    try {
-                        printWindow.print();
-                        printWindow.close();
-                    } catch (printError) {
-                        console.error('خطأ أثناء الطباعة:', printError);
-                        Swal.fire({
-                            title: 'خطأ في الطباعة',
-                            text: 'تعذر فتح نافذة الطباعة. تحقق من إعدادات المتصفح أو جرب متصفحًا آخر.',
-                            icon: 'error',
-                            confirmButtonColor: '#3F2A56'
-                        });
-                    }
-                }, 1000);
             } catch (error) {
                 console.error('خطأ في دالة printTable:', error);
                 Swal.fire({
@@ -1156,7 +1154,6 @@
         window.onload = () => {
             sortTransactionsByDate();
             filterTable();
-            // إصلاح مشكلة aria-hidden
             document.querySelectorAll('.btn').forEach(btn => {
                 btn.removeAttribute('aria-hidden');
                 if (btn.closest('[aria-hidden="true"]')) {
