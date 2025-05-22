@@ -683,19 +683,107 @@
                     <title>لائحة موثقي غزة إبي</title>
                     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
                     <style>
-                        body { font-family: 'Cairo', sans-serif; direction: rtl; }
-                        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-                        th, td { padding: 10px; text-align: center; border: 1px solid #ddd; }
-                        th { background: linear-gradient(90deg, #3F2A56, #5a3f73); color: white; }
-                        h2 { text-align: center; margin: 20px 0; }
-                        .footer { position: fixed; bottom: 20px; width: 100%; text-align: center; font-size: 10px; color: #3F2A56; }
-                        .page-number { position: fixed; bottom: 10px; left: 20px; font-size: 10px; color: #3F2A56; }
+                        body { 
+                            font-family: 'Cairo', sans-serif; 
+                            direction: rtl; 
+                            margin: 20px; 
+                            background: #f9f9f9; 
+                        }
+                        .container { 
+                            max-width: 1000px; 
+                            margin: 0 auto; 
+                        }
+                        .header { 
+                            text-align: center; 
+                            margin-bottom: 20px; 
+                        }
+                        .header img { 
+                            height: 100px; 
+                            filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.2)); 
+                        }
+                        .header h1 { 
+                            font-size: 2rem; 
+                            color: #3F2A56; 
+                            margin: 10px 0; 
+                            font-weight: 700; 
+                            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1); 
+                        }
+                        .agency-card { 
+                            background: linear-gradient(135deg, #3F2A56, #5a3f73); 
+                            color: white; 
+                            padding: 20px; 
+                            border-radius: 15px; 
+                            margin-bottom: 20px; 
+                            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); 
+                            text-align: right; 
+                        }
+                        .agency-card p { 
+                            margin: 8px 0; 
+                            font-size: 1rem; 
+                        }
+                        .agency-card strong { 
+                            font-weight: 700; 
+                        }
+                        h2 { 
+                            text-align: center; 
+                            font-size: 1.8rem; 
+                            color: #3F2A56; 
+                            margin: 20px 0; 
+                        }
+                        .notaries-count { 
+                            text-align: center; 
+                            font-size: 1.2rem; 
+                            color: #3F2A56; 
+                            margin-bottom: 20px; 
+                            font-weight: 600; 
+                        }
+                        table { 
+                            width: 100%; 
+                            border-collapse: collapse; 
+                            margin: 20px 0; 
+                            background: white; 
+                            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); 
+                            border-radius: 10px; 
+                            overflow: hidden; 
+                        }
+                        th, td { 
+                            padding: 12px; 
+                            text-align: center; 
+                            border: 1px solid #ddd; 
+                        }
+                        th { 
+                            background: linear-gradient(90deg, #3F2A56, #5a3f73); 
+                            color: white; 
+                            font-weight: 700; 
+                        }
+                        td { 
+                            color: #3F2A56; 
+                        }
+                        .footer { 
+                            position: fixed; 
+                            bottom: 20px; 
+                            width: 100%; 
+                            text-align: center; 
+                            font-size: 10px; 
+                            color: #3F2A56; 
+                            font-weight: 600; 
+                        }
+                        .page-number { 
+                            position: fixed; 
+                            bottom: 10px; 
+                            left: 20px; 
+                            font-size: 10px; 
+                            color: #3F2A56; 
+                        }
                         @media print {
                             .page-break { page-break-before: always; }
+                            .container { margin: 0; width: 100%; }
+                            .footer, .page-number { position: fixed; }
                         }
                     </style>
                 </head>
                 <body>
+                    <div class="container">
             `);
 
             sortNotariesByDate();
@@ -703,22 +791,60 @@
                 if (page > 0) {
                     printWindow.document.write('<div class="page-break"></div>');
                 }
-                printWindow.document.write('<h2>لائحة موثقي غزة إبي</h2>');
-                printWindow.document.write('<table>');
-                printWindow.document.write('<thead><tr><th>#</th><th>الاسم</th><th>رقم بطاقة التعريف</th><th>رقم الهاتف</th><th>التاريخ</th><th>الملاحظة</th></tr></thead>');
-                printWindow.document.write('<tbody>');
+                printWindow.document.write(`
+                    <div class="header">
+                        <img src="logo.png" alt="شعار طيبة المدينة تلكوم">
+                        <h1>طيبة المدينة تلكوم</h1>
+                    </div>
+                    <div class="agency-card">
+                        <p><strong>الرقم:</strong> 46361138</p>
+                        <p><strong>الإسم:</strong> Ahmedbedy Ahmedal Mouhamedou Ammy</p>
+                        <p><strong>قانون الوكالة:</strong> A0295</p>
+                        <p><strong>المكتب:</strong> R'KIZ - BARAYNA - 436</p>
+                    </div>
+                    <h2>لائحة موثقي غزة إبي</h2>
+                    <div class="notaries-count">عدد الموثقين: ${notaries.length}</div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>الاسم</th>
+                                <th>رقم بطاقة التعريف</th>
+                                <th>رقم الهاتف</th>
+                                <th>التاريخ</th>
+                                <th>الملاحظة</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `);
                 const start = page * itemsPerPage;
                 const end = Math.min(start + itemsPerPage, notaries.length);
                 for (let i = start; i < end; i++) {
                     const notary = notaries[i];
-                    printWindow.document.write(`<tr><td>${i + 1}</td><td>${notary.name}</td><td>${notary.idNumber}</td><td>${notary.phone}</td><td>${notary.date}</td><td>${notary.note || '-'}</td></tr>`);
+                    printWindow.document.write(`
+                        <tr>
+                            <td>${i + 1}</td>
+                            <td>${notary.name}</td>
+                            <td>${notary.idNumber}</td>
+                            <td>${notary.phone}</td>
+                            <td>${notary.date}</td>
+                            <td>${notary.note || '-'}</td>
+                        </tr>
+                    `);
                 }
-                printWindow.document.write('</tbody></table>');
-                printWindow.document.write(`<div class="footer">هذا المستند من نظام طيبة المدينة تلكوم وهو موقع رقميًا</div>`);
-                printWindow.document.write(`<div class="page-number">الصفحة ${page + 1} من ${totalPages}</div>`);
+                printWindow.document.write(`
+                        </tbody>
+                    </table>
+                    <div class="footer">هذا المستند من نظام طيبة المدينة تلكوم وهو موقع رقميًا</div>
+                    <div class="page-number">الصفحة ${page + 1} من ${totalPages}</div>
+                `);
             }
 
-            printWindow.document.write('</body></html>');
+            printWindow.document.write(`
+                    </div>
+                </body>
+                </html>
+            `);
             printWindow.document.close();
             printWindow.print();
         }
