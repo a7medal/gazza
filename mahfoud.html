@@ -809,7 +809,7 @@
         }
 
         function printTable() {
-            const itemsPerPage = 15; // Reduced to accommodate dashboard
+            const itemsPerPage = 12; // Adjusted for A4 and dashboard
             const startDate = document.getElementById('startDate').value;
             const endDate = document.getElementById('endDate').value;
             const typeFilter = document.getElementById('typeFilter').value;
@@ -854,39 +854,42 @@
                     <title>حساب محفوظ</title>
                     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
                     <style>
+                        @page { 
+                            size: A4; 
+                            margin: 10mm; 
+                        }
                         body { 
                             font-family: 'Cairo', sans-serif; 
                             direction: rtl; 
-                            margin: 15mm; 
-                            background: #f0f2f5; 
+                            margin: 10mm; 
+                            background: #fff; 
                             color: #3F2A56; 
                         }
                         .container { 
-                            max-width: 1000px; 
+                            max-width: 190mm; 
                             margin: 0 auto; 
                             background: #fff; 
-                            padding: 20px; 
-                            border-radius: 15px; 
-                            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1); 
+                            padding: 15mm; 
+                            border-radius: 10px; 
+                            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1); 
                         }
                         .header { 
                             display: flex; 
                             justify-content: space-between; 
                             align-items: center; 
-                            margin-bottom: 20px; 
-                            padding-bottom: 10px; 
+                            margin-bottom: 15mm; 
+                            padding: 10mm; 
                             background: linear-gradient(135deg, #3F2A56, #5a3f73); 
                             color: white; 
-                            border-radius: 10px; 
-                            padding: 15px; 
+                            border-radius: 8px; 
                         }
                         .header img { 
-                            height: 70px; 
+                            height: 60px; 
                             clip-path: polygon(10% 0%, 100% 0%, 90% 100%, 0% 100%); 
                             margin-right: 0; 
                         }
                         .header h1 { 
-                            font-size: 1.6rem; 
+                            font-size: 1.5rem; 
                             font-weight: 700; 
                             margin: 0; 
                             text-align: center; 
@@ -895,24 +898,24 @@
                         }
                         .account-card { 
                             border: 1px solid #3F2A56; 
-                            padding: 15px; 
-                            margin-bottom: 20px; 
+                            padding: 10mm; 
+                            margin-bottom: 10mm; 
                             background: #f7f9fc; 
                             text-align: right; 
-                            border-radius: 10px; 
-                            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1); 
+                            border-radius: 8px; 
+                            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); 
                         }
                         .account-card h3 { 
-                            font-size: 1.3rem; 
+                            font-size: 1.2rem; 
                             font-weight: 700; 
-                            margin: 0 0 10px; 
+                            margin: 0 0 8px; 
                             border-bottom: 1px solid #3F2A56; 
                             padding-bottom: 5px; 
                             color: #3F2A56; 
                         }
                         .account-card p { 
                             margin: 5px 0; 
-                            font-size: 1rem; 
+                            font-size: 0.9rem; 
                             line-height: 1.5; 
                             color: #3F2A56; 
                         }
@@ -921,80 +924,80 @@
                         }
                         .dashboard-print { 
                             display: grid; 
-                            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); 
-                            gap: 15px; 
-                            margin-bottom: 20px; 
-                            padding: 15px; 
+                            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); 
+                            gap: 10px; 
+                            margin-bottom: 10mm; 
+                            padding: 10mm; 
                             background: #f7f9fc; 
-                            border-radius: 10px; 
-                            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1); 
+                            border-radius: 8px; 
+                            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); 
                         }
                         .dashboard-card { 
                             background: #fff; 
-                            padding: 15px; 
-                            border-radius: 8px; 
+                            padding: 8px; 
+                            border-radius: 6px; 
                             text-align: center; 
-                            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); 
+                            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1); 
                             color: #3F2A56; 
                         }
                         .dashboard-card h5 { 
-                            font-size: 1.1rem; 
+                            font-size: 0.9rem; 
                             font-weight: 600; 
-                            margin-bottom: 8px; 
+                            margin-bottom: 5px; 
                         }
                         .dashboard-card h3 { 
-                            font-size: 1.4rem; 
+                            font-size: 1.1rem; 
                             font-weight: 700; 
                         }
                         h2 { 
                             text-align: center; 
-                            font-size: 1.7rem; 
+                            font-size: 1.4rem; 
                             font-weight: 700; 
-                            margin: 20px 0; 
+                            margin: 15mm 0 10mm; 
                             border-bottom: 1px solid #3F2A56; 
                             padding-bottom: 5px; 
                             color: #3F2A56; 
                         }
                         .transactions-count { 
                             text-align: center; 
-                            font-size: 1.1rem; 
+                            font-size: 0.9rem; 
                             font-weight: 600; 
-                            margin-bottom: 10px; 
+                            margin-bottom: 8mm; 
                             color: #3F2A56; 
                         }
                         .print-date { 
                             text-align: center; 
-                            font-size: 1.1rem; 
+                            font-size: 0.9rem; 
                             font-weight: 600; 
-                            margin-bottom: 20px; 
+                            margin-bottom: 10mm; 
                             color: #3F2A56; 
                         }
                         table { 
                             width: 100%; 
                             border-collapse: collapse; 
-                            margin: 20px 0; 
+                            margin: 10mm 0; 
                             border: 1px solid #3F2A56; 
                         }
                         th, td { 
-                            padding: 12px; 
+                            padding: 8px; 
                             text-align: center; 
                             border: 1px solid #3F2A56; 
-                            font-size: 1rem; 
+                            font-size: 0.9rem; 
                         }
                         th { 
                             background: linear-gradient(90deg, #3F2A56, #5a3f73); 
                             color: white; 
                             font-weight: 700; 
-                            font-size: 1.1rem; 
+                            font-size: 1rem; 
                         }
                         td { 
                             background: #fff; 
                             color: #3F2A56; 
                         }
                         .table-title { 
-                            font-size: 1.4rem; 
+                            font-size: 1.2rem; 
                             font-weight: 700; 
-                            margin: 15px 0 10px; 
+                            margin: 10mm 0 8mm; 
                             color: #3F2A56; 
                         }
                         .footer { 
@@ -1005,21 +1008,36 @@
                             font-size: 0.8rem; 
                             font-weight: 600; 
                             color: #3F2A56; 
+                            background: #f7f9fc; 
+                            padding: 2mm; 
+                            border-top: 1px solid #3F2A56; 
                         }
                         .page-number { 
                             position: fixed; 
                             bottom: 5mm; 
-                            left: 15mm; 
+                            left: 10mm; 
                             font-size: 0.8rem; 
                             font-weight: 600; 
                             color: #3F2A56; 
                         }
+                        .page-break { 
+                            page-break-before: always; 
+                        }
                         @media print {
-                            .page-break { page-break-before: always; }
-                            .container { margin: 0; width: 100%; }
-                            .footer, .page-number { position: fixed; }
-                            body { margin: 10mm; }
-                            @page { size: A4; margin: 10mm; }
+                            .container { 
+                                margin: 0; 
+                                width: 190mm; 
+                                padding: 0; 
+                            }
+                            .footer, .page-number { 
+                                position: fixed; 
+                            }
+                            body { 
+                                margin: 10mm; 
+                            }
+                            .header, .account-card, .dashboard-print, table { 
+                                page-break-inside: avoid; 
+                            }
                         }
                     </style>
                 </head>
@@ -1037,7 +1055,7 @@
                     <div class="header">
                         <img src="logo.png" alt="شعار طيبة المدينة تلكوم">
                         <h1>طيبة المدينة تلكوم</h1>
-                        <div style="width: 70px;"></div>
+                        <div style="width: 60px;"></div>
                     </div>
                     <div class="account-card">
                         <h3>معلومات الحساب</h3>
@@ -1158,7 +1176,10 @@
                 </html>
             `);
             printWindow.document.close();
-            printWindow.print();
+            setTimeout(() => {
+                printWindow.print();
+                printWindow.close();
+            }, 500); // Delay to ensure content loads
         }
 
         window.onload = () => {
