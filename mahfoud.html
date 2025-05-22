@@ -809,7 +809,7 @@
         }
 
         function printTable() {
-            const itemsPerPage = 12; // Adjusted for A4 and dashboard
+            const itemsPerPage = 15; // Adjusted for A4
             const startDate = document.getElementById('startDate').value;
             const endDate = document.getElementById('endDate').value;
             const typeFilter = document.getElementById('typeFilter').value;
@@ -827,9 +827,7 @@
                 return matchesDate && matchesType;
             });
 
-            const creditTransactions = filteredTransactions.filter(t => t.type === 'credit');
-            const debitTransactions = filteredTransactions.filter(t => t.type === 'debit');
-            const totalPages = Math.ceil((creditTransactions.length + debitTransactions.length) / itemsPerPage);
+            const totalPages = Math.ceil(filteredTransactions.length / itemsPerPage);
             const printWindow = window.open('', '_blank');
             const printDate = new Date().toLocaleString('en-US', { 
                 day: '2-digit', 
@@ -845,33 +843,32 @@
                 .filter(t => t.type === 'debit')
                 .reduce((sum, t) => sum + parseFloat(t.amount), 0);
             const balance = creditTotal - debitTotal;
-            const creditCount = creditTransactions.length;
-            const debitCount = debitTransactions.length;
+            const creditCount = filteredTransactions.filter(t => t.type === 'credit').length;
+            const debitCount = filteredTransactions.filter(t => t.type === 'debit').length;
 
             printWindow.document.write(`
                 <html>
                 <head>
                     <title>حساب محفوظ</title>
                     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+                    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
                     <style>
                         @page { 
                             size: A4; 
-                            margin: 10mm; 
+                            margin: 15mm; 
                         }
                         body { 
                             font-family: 'Cairo', sans-serif; 
                             direction: rtl; 
-                            margin: 10mm; 
+                            margin: 15mm; 
                             background: #fff; 
                             color: #3F2A56; 
                         }
                         .container { 
-                            max-width: 190mm; 
+                            max-width: 180mm; 
                             margin: 0 auto; 
                             background: #fff; 
-                            padding: 15mm; 
-                            border-radius: 10px; 
-                            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1); 
+                            padding: 10mm; 
                         }
                         .header { 
                             display: flex; 
@@ -882,11 +879,11 @@
                             background: linear-gradient(135deg, #3F2A56, #5a3f73); 
                             color: white; 
                             border-radius: 8px; 
+                            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); 
                         }
                         .header img { 
                             height: 60px; 
                             clip-path: polygon(10% 0%, 100% 0%, 90% 100%, 0% 100%); 
-                            margin-right: 0; 
                         }
                         .header h1 { 
                             font-size: 1.5rem; 
@@ -896,7 +893,7 @@
                             flex-grow: 1; 
                             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); 
                         }
-                        .account-card { 
+                        .account-card, .dashboard-card { 
                             border: 1px solid #3F2A56; 
                             padding: 10mm; 
                             margin-bottom: 10mm; 
@@ -905,19 +902,25 @@
                             border-radius: 8px; 
                             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); 
                         }
-                        .account-card h3 { 
+                        .account-card h3, .dashboard-card h3 { 
                             font-size: 1.2rem; 
                             font-weight: 700; 
-                            margin: 0 0 8px; 
+                            margin: 0 0 8mm; 
                             border-bottom: 1px solid #3F2A56; 
                             padding-bottom: 5px; 
                             color: #3F2A56; 
                         }
-                        .account-card p { 
+                        .account-card p, .dashboard-card p { 
                             margin: 5px 0; 
                             font-size: 0.9rem; 
                             line-height: 1.5; 
                             color: #3F2A56; 
+                        }
+                        .dashboard-card i { 
+                            font-size: 1.5rem; 
+                            color: #3F2A56; 
+                            margin-left: 5px; 
+                            vertical-align: middle; 
                         }
                         .account-card strong { 
                             font-weight: 600; 
@@ -927,27 +930,6 @@
                             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); 
                             gap: 10px; 
                             margin-bottom: 10mm; 
-                            padding: 10mm; 
-                            background: #f7f9fc; 
-                            border-radius: 8px; 
-                            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); 
-                        }
-                        .dashboard-card { 
-                            background: #fff; 
-                            padding: 8px; 
-                            border-radius: 6px; 
-                            text-align: center; 
-                            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1); 
-                            color: #3F2A56; 
-                        }
-                        .dashboard-card h5 { 
-                            font-size: 0.9rem; 
-                            font-weight: 600; 
-                            margin-bottom: 5px; 
-                        }
-                        .dashboard-card h3 { 
-                            font-size: 1.1rem; 
-                            font-weight: 700; 
                         }
                         h2 { 
                             text-align: center; 
@@ -994,12 +976,6 @@
                             background: #fff; 
                             color: #3F2A56; 
                         }
-                        .table-title { 
-                            font-size: 1.2rem; 
-                            font-weight: 700; 
-                            margin: 10mm 0 8mm; 
-                            color: #3F2A56; 
-                        }
                         .footer { 
                             position: fixed; 
                             bottom: 5mm; 
@@ -1015,7 +991,7 @@
                         .page-number { 
                             position: fixed; 
                             bottom: 5mm; 
-                            left: 10mm; 
+                            left: 15mm; 
                             font-size: 0.8rem; 
                             font-weight: 600; 
                             color: #3F2A56; 
@@ -1026,14 +1002,14 @@
                         @media print {
                             .container { 
                                 margin: 0; 
-                                width: 190mm; 
+                                width: 180mm; 
                                 padding: 0; 
                             }
                             .footer, .page-number { 
                                 position: fixed; 
                             }
                             body { 
-                                margin: 10mm; 
+                                margin: 15mm; 
                             }
                             .header, .account-card, .dashboard-print, table { 
                                 page-break-inside: avoid; 
@@ -1046,7 +1022,6 @@
             `);
 
             sortTransactionsByDate();
-            let currentIndex = 0;
             for (let page = 0; page < totalPages; page++) {
                 if (page > 0) {
                     printWindow.document.write('<div class="page-break"></div>');
@@ -1065,106 +1040,60 @@
                     </div>
                     <div class="dashboard-print">
                         <div class="dashboard-card">
-                            <h5>الرصيد</h5>
-                            <h3>${balance.toFixed(2)}</h3>
+                            <h3>الرصيد</h3>
+                            <p><i class="fas fa-wallet"></i> ${balance.toFixed(2)}</p>
                         </div>
                         <div class="dashboard-card">
-                            <h5>مجموع له</h5>
-                            <h3>${creditTotal.toFixed(2)}</h3>
+                            <h3>مجموع له</h3>
+                            <p><i class="fas fa-arrow-up"></i> ${creditTotal.toFixed(2)}</p>
                         </div>
                         <div class="dashboard-card">
-                            <h5>مجموع عليه</h5>
-                            <h3>${debitTotal.toFixed(2)}</h3>
+                            <h3>مجموع عليه</h3>
+                            <p><i class="fas fa-arrow-down"></i> ${debitTotal.toFixed(2)}</p>
                         </div>
                         <div class="dashboard-card">
-                            <h5>عدد له</h5>
-                            <h3>${creditCount}</h3>
+                            <h3>عدد له</h3>
+                            <p><i class="fas fa-list"></i> ${creditCount}</p>
                         </div>
                         <div class="dashboard-card">
-                            <h5>عدد عليه</h5>
-                            <h3>${debitCount}</h3>
+                            <h3>عدد عليه</h3>
+                            <p><i class="fas fa-list"></i> ${debitCount}</p>
                         </div>
                     </div>
                     <h2>حساب محفوظ</h2>
                     <div class="transactions-count">عدد المعاملات: ${filteredTransactions.length}</div>
                     <div class="print-date">تاريخ الطباعة: ${printDate}</div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>له/عليه</th>
+                                <th>التاريخ</th>
+                                <th>المبلغ</th>
+                                <th>رمز المعاملة</th>
+                                <th>تطبيق المعاملة</th>
+                            </tr>
+                        </thead>
+                        <tbody>
                 `);
-
-                // Credit Table
-                if (creditTransactions.length > 0) {
+                const start = page * itemsPerPage;
+                const end = Math.min(start + itemsPerPage, filteredTransactions.length);
+                for (let i = start; i < end; i++) {
+                    const transaction = filteredTransactions[i];
                     printWindow.document.write(`
-                        <div class="table-title">معاملات له</div>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>التاريخ</th>
-                                    <th>المبلغ</th>
-                                    <th>رمز المعاملة</th>
-                                    <th>تطبيق المعاملة</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                    `);
-                    const creditStart = currentIndex;
-                    const creditEnd = Math.min(creditStart + itemsPerPage, creditTransactions.length);
-                    for (let i = creditStart; i < creditEnd; i++) {
-                        const transaction = creditTransactions[i];
-                        printWindow.document.write(`
-                            <tr>
-                                <td>${i + 1}</td>
-                                <td>${transaction.date}</td>
-                                <td>${transaction.amount}</td>
-                                <td>${formatTransactionCode(transaction.transactionCode)}</td>
-                                <td>${transaction.app}</td>
-                            </tr>
-                        `);
-                        currentIndex++;
-                    }
-                    printWindow.document.write(`
-                            </tbody>
-                        </table>
+                        <tr>
+                            <td>${i + 1}</td>
+                            <td>${transaction.type === 'credit' ? 'له' : 'عليه'}</td>
+                            <td>${transaction.date}</td>
+                            <td>${transaction.amount}</td>
+                            <td>${formatTransactionCode(transaction.transactionCode)}</td>
+                            <td>${transaction.app}</td>
+                        </tr>
                     `);
                 }
-
-                // Debit Table
-                if (debitTransactions.length > 0 && currentIndex < filteredTransactions.length) {
-                    printWindow.document.write(`
-                        <div class="table-title">معاملات عليه</div>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>التاريخ</th>
-                                    <th>المبلغ</th>
-                                    <th>رمز المعاملة</th>
-                                    <th>تطبيق المعاملة</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                    `);
-                    const debitStart = currentIndex - creditTransactions.length;
-                    const debitEnd = Math.min(debitStart + (itemsPerPage - (creditEnd - creditStart)), debitTransactions.length);
-                    for (let i = debitStart; i < debitEnd; i++) {
-                        const transaction = debitTransactions[i];
-                        printWindow.document.write(`
-                            <tr>
-                                <td>${i + 1}</td>
-                                <td>${transaction.date}</td>
-                                <td>${transaction.amount}</td>
-                                <td>${formatTransactionCode(transaction.transactionCode)}</td>
-                                <td>${transaction.app}</td>
-                            </tr>
-                        `);
-                        currentIndex++;
-                    }
-                    printWindow.document.write(`
-                            </tbody>
-                        </table>
-                    `);
-                }
-
                 printWindow.document.write(`
+                        </tbody>
+                    </table>
                     <div class="footer">هذا المستند من نظام طيبة المدينة تلكوم وهو موقع رقميًا</div>
                     <div class="page-number">الصفحة ${page + 1} من ${totalPages}</div>
                 `);
