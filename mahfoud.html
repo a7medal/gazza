@@ -809,306 +809,329 @@
         }
 
         function printTable() {
-            const itemsPerPage = 15; // Adjusted for A4
-            const startDate = document.getElementById('startDate').value;
-            const endDate = document.getElementById('endDate').value;
-            const typeFilter = document.getElementById('typeFilter').value;
+            try {
+                const itemsPerPage = 15; // Adjusted for A4
+                const startDate = document.getElementById('startDate').value;
+                const endDate = document.getElementById('endDate').value;
+                const typeFilter = document.getElementById('typeFilter').value;
 
-            const filteredTransactions = transactions.filter(transaction => {
-                const matchesDate = (
-                    (!startDate || new Date(transaction.date) >= new Date(startDate)) &&
-                    (!endDate || new Date(transaction.date) <= new Date(endDate))
-                );
-                const matchesType = (
-                    typeFilter === 'all' ||
-                    (typeFilter === 'credit' && transaction.type === 'credit') ||
-                    (typeFilter === 'debit' && transaction.type === 'debit')
-                );
-                return matchesDate && matchesType;
-            });
+                const filteredTransactions = transactions.filter(transaction => {
+                    const matchesDate = (
+                        (!startDate || new Date(transaction.date) >= new Date(startDate)) &&
+                        (!endDate || new Date(transaction.date) <= new Date(endDate))
+                    );
+                    const matchesType = (
+                        typeFilter === 'all' ||
+                        (typeFilter === 'credit' && transaction.type === 'credit') ||
+                        (typeFilter === 'debit' && transaction.type === 'debit')
+                    );
+                    return matchesDate && matchesType;
+                });
 
-            const totalPages = Math.ceil(filteredTransactions.length / itemsPerPage);
-            const printWindow = window.open('', '_blank');
-            const printDate = new Date().toLocaleString('en-US', { 
-                day: '2-digit', 
-                month: '2-digit', 
-                year: 'numeric'
-            }).replace(/(\d+)\/(\d+)\/(\d+)/, '$1/$2/$3');
+                const totalPages = Math.ceil(filteredTransactions.length / itemsPerPage);
+                const printWindow = window.open('', '_blank');
+                if (!printWindow) {
+                    throw new Error('فشل في فتح نافذة الطباعة. تحقق من إعدادات المتصفح.');
+                }
 
-            // Calculate dashboard data for printing
-            const creditTotal = filteredTransactions
-                .filter(t => t.type === 'credit')
-                .reduce((sum, t) => sum + parseFloat(t.amount), 0);
-            const debitTotal = filteredTransactions
-                .filter(t => t.type === 'debit')
-                .reduce((sum, t) => sum + parseFloat(t.amount), 0);
-            const balance = creditTotal - debitTotal;
-            const creditCount = filteredTransactions.filter(t => t.type === 'credit').length;
-            const debitCount = filteredTransactions.filter(t => t.type === 'debit').length;
+                const printDate = new Date().toLocaleString('en-US', { 
+                    day: '2-digit', 
+                    month: '2-digit', 
+                    year: 'numeric'
+                }).replace(/(\d+)\/(\d+)\/(\d+)/, '$1/$2/$3');
 
-            printWindow.document.write(`
-                <html>
-                <head>
-                    <title>حساب محفوظ</title>
-                    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
-                    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-                    <style>
-                        @page { 
-                            size: A4; 
-                            margin: 15mm; 
-                        }
-                        body { 
-                            font-family: 'Cairo', sans-serif; 
-                            direction: rtl; 
-                            margin: 15mm; 
-                            background: #fff; 
-                            color: #3F2A56; 
-                        }
-                        .container { 
-                            max-width: 180mm; 
-                            margin: 0 auto; 
-                            background: #fff; 
-                            padding: 10mm; 
-                        }
-                        .header { 
-                            display: flex; 
-                            justify-content: space-between; 
-                            align-items: center; 
-                            margin-bottom: 15mm; 
-                            padding: 10mm; 
-                            background: linear-gradient(135deg, #3F2A56, #5a3f73); 
-                            color: white; 
-                            border-radius: 8px; 
-                            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); 
-                        }
-                        .header img { 
-                            height: 60px; 
-                            clip-path: polygon(10% 0%, 100% 0%, 90% 100%, 0% 100%); 
-                        }
-                        .header h1 { 
-                            font-size: 1.5rem; 
-                            font-weight: 700; 
-                            margin: 0; 
-                            text-align: center; 
-                            flex-grow: 1; 
-                            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); 
-                        }
-                        .account-card, .dashboard-card { 
-                            border: 1px solid #3F2A56; 
-                            padding: 10mm; 
-                            margin-bottom: 10mm; 
-                            background: #f7f9fc; 
-                            text-align: right; 
-                            border-radius: 8px; 
-                            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); 
-                        }
-                        .account-card h3, .dashboard-card h3 { 
-                            font-size: 1.2rem; 
-                            font-weight: 700; 
-                            margin: 0 0 8mm; 
-                            border-bottom: 1px solid #3F2A56; 
-                            padding-bottom: 5px; 
-                            color: #3F2A56; 
-                        }
-                        .account-card p, .dashboard-card p { 
-                            margin: 5px 0; 
-                            font-size: 0.9rem; 
-                            line-height: 1.5; 
-                            color: #3F2A56; 
-                        }
-                        .dashboard-card i { 
-                            font-size: 1.5rem; 
-                            color: #3F2A56; 
-                            margin-left: 5px; 
-                            vertical-align: middle; 
-                        }
-                        .account-card strong { 
-                            font-weight: 600; 
-                        }
-                        .dashboard-print { 
-                            display: grid; 
-                            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); 
-                            gap: 10px; 
-                            margin-bottom: 10mm; 
-                        }
-                        h2 { 
-                            text-align: center; 
-                            font-size: 1.4rem; 
-                            font-weight: 700; 
-                            margin: 15mm 0 10mm; 
-                            border-bottom: 1px solid #3F2A56; 
-                            padding-bottom: 5px; 
-                            color: #3F2A56; 
-                        }
-                        .transactions-count { 
-                            text-align: center; 
-                            font-size: 0.9rem; 
-                            font-weight: 600; 
-                            margin-bottom: 8mm; 
-                            color: #3F2A56; 
-                        }
-                        .print-date { 
-                            text-align: center; 
-                            font-size: 0.9rem; 
-                            font-weight: 600; 
-                            margin-bottom: 10mm; 
-                            color: #3F2A56; 
-                        }
-                        table { 
-                            width: 100%; 
-                            border-collapse: collapse; 
-                            margin: 10mm 0; 
-                            border: 1px solid #3F2A56; 
-                        }
-                        th, td { 
-                            padding: 8px; 
-                            text-align: center; 
-                            border: 1px solid #3F2A56; 
-                            font-size: 0.9rem; 
-                        }
-                        th { 
-                            background: linear-gradient(90deg, #3F2A56, #5a3f73); 
-                            color: white; 
-                            font-weight: 700; 
-                            font-size: 1rem; 
-                        }
-                        td { 
-                            background: #fff; 
-                            color: #3F2A56; 
-                        }
-                        .footer { 
-                            position: fixed; 
-                            bottom: 5mm; 
-                            width: 100%; 
-                            text-align: center; 
-                            font-size: 0.8rem; 
-                            font-weight: 600; 
-                            color: #3F2A56; 
-                            background: #f7f9fc; 
-                            padding: 2mm; 
-                            border-top: 1px solid #3F2A56; 
-                        }
-                        .page-number { 
-                            position: fixed; 
-                            bottom: 5mm; 
-                            left: 15mm; 
-                            font-size: 0.8rem; 
-                            font-weight: 600; 
-                            color: #3F2A56; 
-                        }
-                        .page-break { 
-                            page-break-before: always; 
-                        }
-                        @media print {
-                            .container { 
-                                margin: 0; 
-                                width: 180mm; 
-                                padding: 0; 
-                            }
-                            .footer, .page-number { 
-                                position: fixed; 
-                            }
-                            body { 
+                // Calculate dashboard data
+                const creditTotal = filteredTransactions
+                    .filter(t => t.type === 'credit')
+                    .reduce((sum, t) => sum + parseFloat(t.amount), 0);
+                const debitTotal = filteredTransactions
+                    .filter(t => t.type === 'debit')
+                    .reduce((sum, t) => sum + parseFloat(t.amount), 0);
+                const balance = creditTotal - debitTotal;
+                const creditCount = filteredTransactions.filter(t => t.type === 'credit').length;
+                const debitCount = filteredTransactions.filter(t => t.type === 'debit').length;
+
+                printWindow.document.write(`
+                    <html>
+                    <head>
+                        <title>حساب محفوظ</title>
+                        <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+                        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+                        <style>
+                            @page { 
+                                size: A4; 
                                 margin: 15mm; 
                             }
-                            .header, .account-card, .dashboard-print, table { 
-                                page-break-inside: avoid; 
+                            body { 
+                                font-family: 'Cairo', sans-serif; 
+                                direction: rtl; 
+                                margin: 15mm; 
+                                background: #fff; 
+                                color: #3F2A56; 
                             }
-                        }
-                    </style>
-                </head>
-                <body>
-                    <div class="container">
-            `);
-
-            sortTransactionsByDate();
-            for (let page = 0; page < totalPages; page++) {
-                if (page > 0) {
-                    printWindow.document.write('<div class="page-break"></div>');
-                }
-                printWindow.document.write(`
-                    <div class="header">
-                        <img src="logo.png" alt="شعار طيبة المدينة تلكوم">
-                        <h1>طيبة المدينة تلكوم</h1>
-                        <div style="width: 60px;"></div>
-                    </div>
-                    <div class="account-card">
-                        <h3>معلومات الحساب</h3>
-                        <p><strong>الإسم:</strong> محفوظ ولد بوشعاب</p>
-                        <p><strong>رقم الهاتف:</strong> 36924949</p>
-                        <p><strong>العنوان:</strong> -</p>
-                    </div>
-                    <div class="dashboard-print">
-                        <div class="dashboard-card">
-                            <h3>الرصيد</h3>
-                            <p><i class="fas fa-wallet"></i> ${balance.toFixed(2)}</p>
-                        </div>
-                        <div class="dashboard-card">
-                            <h3>مجموع له</h3>
-                            <p><i class="fas fa-arrow-up"></i> ${creditTotal.toFixed(2)}</p>
-                        </div>
-                        <div class="dashboard-card">
-                            <h3>مجموع عليه</h3>
-                            <p><i class="fas fa-arrow-down"></i> ${debitTotal.toFixed(2)}</p>
-                        </div>
-                        <div class="dashboard-card">
-                            <h3>عدد له</h3>
-                            <p><i class="fas fa-list"></i> ${creditCount}</p>
-                        </div>
-                        <div class="dashboard-card">
-                            <h3>عدد عليه</h3>
-                            <p><i class="fas fa-list"></i> ${debitCount}</p>
-                        </div>
-                    </div>
-                    <h2>حساب محفوظ</h2>
-                    <div class="transactions-count">عدد المعاملات: ${filteredTransactions.length}</div>
-                    <div class="print-date">تاريخ الطباعة: ${printDate}</div>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>له/عليه</th>
-                                <th>التاريخ</th>
-                                <th>المبلغ</th>
-                                <th>رمز المعاملة</th>
-                                <th>تطبيق المعاملة</th>
-                            </tr>
-                        </thead>
-                        <tbody>
+                            .container { 
+                                max-width: 180mm; 
+                                margin: 0 auto; 
+                                background: #fff; 
+                                padding: 10mm; 
+                            }
+                            .header { 
+                                display: flex; 
+                                justify-content: space-between; 
+                                align-items: center; 
+                                margin-bottom: 10mm; 
+                                padding: 8mm; 
+                                background: linear-gradient(135deg, #3F2A56, #5a3f73); 
+                                color: white; 
+                                border-radius: 5mm; 
+                                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); 
+                            }
+                            .header img { 
+                                height: 50mm; 
+                                clip-path: polygon(10% 0%, 100% 0%, 90% 100%, 0% 100%); 
+                            }
+                            .header h1 { 
+                                font-size: 1.5rem; 
+                                font-weight: 700; 
+                                margin: 0; 
+                                text-align: center; 
+                                flex-grow: 1; 
+                            }
+                            .account-card, .dashboard-card { 
+                                border: 1px solid #3F2A56; 
+                                padding: 8mm; 
+                                margin-bottom: 10mm; 
+                                background: #f7f9fc; 
+                                text-align: right; 
+                                border-radius: 5mm; 
+                                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); 
+                            }
+                            .account-card h3, .dashboard-card h3 { 
+                                font-size: 1.2rem; 
+                                font-weight: 700; 
+                                margin: 0 0 5mm; 
+                                border-bottom: 1px solid #3F2A56; 
+                                padding-bottom: 3mm; 
+                                color: #3F2A56; 
+                            }
+                            .account-card p, .dashboard-card p { 
+                                margin: 3mm 0; 
+                                font-size: 0.9rem; 
+                                line-height: 1.5; 
+                                color: #3F2A56; 
+                            }
+                            .dashboard-card i { 
+                                font-size: 1.3rem; 
+                                color: #3F2A56; 
+                                margin-left: 3mm; 
+                                vertical-align: middle; 
+                            }
+                            .account-card strong { 
+                                font-weight: 600; 
+                            }
+                            .dashboard-print { 
+                                display: grid; 
+                                grid-template-columns: repeat(auto-fit, minmax(120mm, 1fr)); 
+                                gap: 8mm; 
+                                margin-bottom: 10mm; 
+                            }
+                            h2 { 
+                                text-align: center; 
+                                font-size: 1.4rem; 
+                                font-weight: 700; 
+                                margin: 10mm 0 8mm; 
+                                border-bottom: 1px solid #3F2A56; 
+                                padding-bottom: 3mm; 
+                                color: #3F2A56; 
+                            }
+                            .transactions-count { 
+                                text-align: center; 
+                                font-size: 0.9rem; 
+                                font-weight: 600; 
+                                margin-bottom: 8mm; 
+                                color: #3F2A56; 
+                            }
+                            .print-date { 
+                                text-align: center; 
+                                font-size: 0.9rem; 
+                                font-weight: 600; 
+                                margin-bottom: 8mm; 
+                                color: #3F2A56; 
+                            }
+                            table { 
+                                width: 100%; 
+                                border-collapse: collapse; 
+                                margin: 8mm 0; 
+                                border: 1px solid #3F2A56; 
+                            }
+                            th, td { 
+                                padding: 6mm; 
+                                text-align: center; 
+                                border: 1px solid #3F2A56; 
+                                font-size: 0.9rem; 
+                            }
+                            th { 
+                                background: linear-gradient(90deg, #3F2A56, #5a3f73); 
+                                color: white; 
+                                font-weight: 700; 
+                                font-size: 0.95rem; 
+                            }
+                            td { 
+                                background: #fff; 
+                                color: #3F2A56; 
+                            }
+                            .footer { 
+                                position: fixed; 
+                                bottom: 5mm; 
+                                width: 100%; 
+                                text-align: center; 
+                                font-size: 0.8rem; 
+                                font-weight: 600; 
+                                color: #3F2A56; 
+                                background: #f7f9fc; 
+                                padding: 2mm; 
+                                border-top: 1px solid #3F2A56; 
+                            }
+                            .page-number { 
+                                position: fixed; 
+                                bottom: 5mm; 
+                                left: 15mm; 
+                                font-size: 0.8rem; 
+                                font-weight: 600; 
+                                color: #3F2A56; 
+                            }
+                            .page-break { 
+                                page-break-before: always; 
+                            }
+                            @media print {
+                                .container { 
+                                    margin: 0; 
+                                    width: 180mm; 
+                                    padding: 0; 
+                                }
+                                .footer, .page-number { 
+                                    position: fixed; 
+                                }
+                                body { 
+                                    margin: 15mm; 
+                                }
+                                .header, .account-card, .dashboard-print, table { 
+                                    page-break-inside: avoid; 
+                                }
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="container">
                 `);
-                const start = page * itemsPerPage;
-                const end = Math.min(start + itemsPerPage, filteredTransactions.length);
-                for (let i = start; i < end; i++) {
-                    const transaction = filteredTransactions[i];
+
+                sortTransactionsByDate();
+                for (let page = 0; page < totalPages; page++) {
+                    if (page > 0) {
+                        printWindow.document.write('<div class="page-break"></div>');
+                    }
                     printWindow.document.write(`
-                        <tr>
-                            <td>${i + 1}</td>
-                            <td>${transaction.type === 'credit' ? 'له' : 'عليه'}</td>
-                            <td>${transaction.date}</td>
-                            <td>${transaction.amount}</td>
-                            <td>${formatTransactionCode(transaction.transactionCode)}</td>
-                            <td>${transaction.app}</td>
-                        </tr>
+                        <div class="header">
+                            <img src="logo.png" alt="شعار طيبة المدينة تلكوم" onerror="this.src='https://via.placeholder.com/50x50.png?text=Logo';">
+                            <h1>طيبة المدينة تلكوم</h1>
+                            <div style="width: 50mm;"></div>
+                        </div>
+                        <div class="account-card">
+                            <h3>معلومات الحساب</h3>
+                            <p><strong>الإسم:</strong> محفوظ ولد بوشعاب</p>
+                            <p><strong>رقم الهاتف:</strong> 36924949</p>
+                            <p><strong>العنوان:</strong> -</p>
+                        </div>
+                        <div class="dashboard-print">
+                            <div class="dashboard-card">
+                                <h3>الرصيد</h3>
+                                <p><i class="fas fa-wallet"></i> ${balance.toFixed(2)}</p>
+                            </div>
+                            <div class="dashboard-card">
+                                <h3>مجموع له</h3>
+                                <p><i class="fas fa-arrow-up"></i> ${creditTotal.toFixed(2)}</p>
+                            </div>
+                            <div class="dashboard-card">
+                                <h3>مجموع عليه</h3>
+                                <p><i class="fas fa-arrow-down"></i> ${debitTotal.toFixed(2)}</p>
+                            </div>
+                            <div class="dashboard-card">
+                                <h3>عدد له</h3>
+                                <p><i class="fas fa-list"></i> ${creditCount}</p>
+                            </div>
+                            <div class="dashboard-card">
+                                <h3>عدد عليه</h3>
+                                <p><i class="fas fa-list"></i> ${debitCount}</p>
+                            </div>
+                        </div>
+                        <h2>حساب محفوظ</h2>
+                        <div class="transactions-count">عدد المعاملات: ${filteredTransactions.length}</div>
+                        <div class="print-date">تاريخ الطباعة: ${printDate}</div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>له/عليه</th>
+                                    <th>التاريخ</th>
+                                    <th>المبلغ</th>
+                                    <th>رمز المعاملة</th>
+                                    <th>تطبيق المعاملة</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                    `);
+                    const start = page * itemsPerPage;
+                    const end = Math.min(start + itemsPerPage, filteredTransactions.length);
+                    for (let i = start; i < end; i++) {
+                        const transaction = filteredTransactions[i];
+                        printWindow.document.write(`
+                            <tr>
+                                <td>${i + 1}</td>
+                                <td>${transaction.type === 'credit' ? 'له' : 'عليه'}</td>
+                                <td>${transaction.date}</td>
+                                <td>${transaction.amount}</td>
+                                <td>${formatTransactionCode(transaction.transactionCode)}</td>
+                                <td>${transaction.app}</td>
+                            </tr>
+                        `);
+                    }
+                    printWindow.document.write(`
+                            </tbody>
+                        </table>
+                        <div class="footer">هذا المستند من نظام طيبة المدينة تلكوم وهو موقع رقميًا</div>
+                        <div class="page-number">الصفحة ${page + 1} من ${totalPages}</div>
                     `);
                 }
-                printWindow.document.write(`
-                        </tbody>
-                    </table>
-                    <div class="footer">هذا المستند من نظام طيبة المدينة تلكوم وهو موقع رقميًا</div>
-                    <div class="page-number">الصفحة ${page + 1} من ${totalPages}</div>
-                `);
-            }
 
-            printWindow.document.write(`
-                    </div>
-                </body>
-                </html>
-            `);
-            printWindow.document.close();
-            setTimeout(() => {
-                printWindow.print();
-                printWindow.close();
-            }, 500); // Delay to ensure content loads
+                printWindow.document.write(`
+                        </div>
+                    </body>
+                    </html>
+                `);
+                printWindow.document.close();
+                setTimeout(() => {
+                    try {
+                        printWindow.print();
+                        printWindow.close();
+                    } catch (printError) {
+                        console.error('خطأ أثناء الطباعة:', printError);
+                        Swal.fire({
+                            title: 'خطأ في الطباعة',
+                            text: 'تعذر فتح نافذة الطباعة. تحقق من إعدادات المتصفح أو جرب متصفحًا آخر.',
+                            icon: 'error',
+                            confirmButtonColor: '#3F2A56'
+                        });
+                    }
+                }, 1000); // Increased delay for resource loading
+            } catch (error) {
+                console.error('خطأ في دالة printTable:', error);
+                Swal.fire({
+                    title: 'خطأ',
+                    text: 'حدث خطأ أثناء تحضير الطباعة: ' + error.message,
+                    icon: 'error',
+                    confirmButtonColor: '#3F2A56'
+                });
+            }
         }
 
         window.onload = () => {
