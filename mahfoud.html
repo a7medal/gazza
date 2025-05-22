@@ -153,6 +153,10 @@
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
         }
+        .btn:focus {
+            outline: 2px solid #3F2A56;
+            outline-offset: 2px;
+        }
         .btn i {
             font-size: 1.3rem;
         }
@@ -327,6 +331,10 @@
             .modal-title { font-size: 1.2rem; }
             .modal-body .form-control, .modal-body .form-select { font-size: 0.9rem; }
             .search-container .search-input, .search-container .filter-group { width: 100%; max-width: 100%; }
+        }
+        /* Ensure no aria-hidden on buttons or their containers */
+        .actions, .btn {
+            aria-hidden: false !important;
         }
     </style>
 </head>
@@ -810,7 +818,7 @@
 
         function printTable() {
             try {
-                const itemsPerPage = 15; // Adjusted for A4
+                const itemsPerPage = 15;
                 const startDate = document.getElementById('startDate').value;
                 const endDate = document.getElementById('endDate').value;
                 const typeFilter = document.getElementById('typeFilter').value;
@@ -840,7 +848,6 @@
                     year: 'numeric'
                 }).replace(/(\d+)\/(\d+)\/(\d+)/, '$1/$2/$3');
 
-                // Calculate dashboard data
                 const creditTotal = filteredTransactions
                     .filter(t => t.type === 'credit')
                     .reduce((sum, t) => sum + parseFloat(t.amount), 0);
@@ -1122,7 +1129,7 @@
                             confirmButtonColor: '#3F2A56'
                         });
                     }
-                }, 1000); // Increased delay for resource loading
+                }, 1500);
             } catch (error) {
                 console.error('خطأ في دالة printTable:', error);
                 Swal.fire({
@@ -1137,6 +1144,13 @@
         window.onload = () => {
             sortTransactionsByDate();
             filterTable();
+            // Ensure no aria-hidden on buttons
+            document.querySelectorAll('.btn').forEach(btn => {
+                btn.removeAttribute('aria-hidden');
+                if (btn.closest('[aria-hidden="true"]')) {
+                    btn.closest('[aria-hidden="true"]').removeAttribute('aria-hidden');
+                }
+            });
         };
     </script>
 </body>
