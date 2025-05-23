@@ -9,7 +9,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2@11/sweetalert2.all.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jsqr/1.4.0/jsQR.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
@@ -317,7 +317,7 @@
             <div class="card">
                 <i class="fas fa-clock"></i>
                 <h5>آخر تحديث</h5>
-                <h3 id="lastUpdate">01:12 PM GMT, 22 May 2025</h3>
+                <h3 id="lastUpdate">05:46 PM GMT, 23 May 2025</h3>
             </div>
         </div>
         <div class="actions">
@@ -926,7 +926,7 @@
                 }
                 const duplicates = newNotaries.filter(n => checkDuplicate(n.idNumber, n.phone));
                 if (duplicates.length > 0) {
-                    const result = bangingSwal.fire({
+                    const result = await Swal.fire({
                         title: 'تكرار المعلومات',
                         text: 'تم العثور على معلومات مكررة في الملف المستورد. اختر خيارًا:',
                         icon: 'warning',
@@ -981,20 +981,22 @@
                     return;
                 }
 
-                // تحويل البيانات إلى JSON وضغطها
-                const qrData = JSON.stringify(filteredNotaries);
+                // تحديد عدد السجلات القصوى لتجنب حجم بيانات كبير
+                const maxRecords = 10; // يمكن تعديل هذا العدد حسب الحاجة
+                const limitedNotaries = filteredNotaries.slice(0, maxRecords);
+                const qrData = JSON.stringify(limitedNotaries);
                 console.log('حجم البيانات الأصلية:', qrData.length, 'بايت');
 
                 // ضغط البيانات باستخدام pako
                 const compressedData = pako.deflate(qrData, { to: 'string' });
-                const encodedData = btoa(compressedData); // تحويل إلى base64
+                const encodedData = btoa(compressedData);
                 console.log('حجم البيانات المضغوطة:', encodedData.length, 'بايت');
 
                 // فحص حجم البيانات
-                if (encodedData.length > 2953) { // الحد الأقصى لرمز QR (الإصدار 40)
+                if (encodedData.length > 2953) {
                     Swal.fire({
                         title: 'البيانات كبيرة جدًا',
-                        text: 'البيانات المختارة كبيرة جدًا لإنشاء رمز QR. جرب تقليل عدد الموثقين أو إزالة استعلام البحث.',
+                        text: `البيانات كبيرة جدًا (${encodedData.length} بايت). تم تقليل عدد السجلات إلى ${maxRecords}. جرب تقليل عدد السجلات أو إزالة استعلام البحث.`,
                         icon: 'warning',
                         confirmButtonColor: '#3F2A56'
                     });
@@ -1006,9 +1008,10 @@
                 tempCanvas.id = 'tempQRCanvas';
                 tempCanvas.style.display = 'none';
                 document.body.appendChild(tempCanvas);
+                console.log('تم إنشاء القماش المؤقت:', tempCanvas);
 
                 // إنشاء رمز QR
-                const qr = new QRCode(tempCanvas, {
+                new QRCode(tempCanvas, {
                     text: encodedData,
                     width: 300,
                     height: 300,
@@ -1017,10 +1020,10 @@
                     correctLevel: QRCode.CorrectLevel.H
                 });
 
-                // الانتظار للتأكد من اكتمال إنشاء رمز QR
+                // عرض رمز QR في نافذة منبثقة
                 setTimeout(() => {
                     Swal.fire({
-                        title: 'رمز QR للمعاملات',
+                        title: `رمز QR لـ ${limitedNotaries.length} موثق`,
                         html: `
                             <div style="text-align: center;">
                                 <canvas id="qrDisplayCanvas" style="margin: 20px auto;"></canvas>
@@ -1051,13 +1054,13 @@
                         },
                         willClose: () => {
                             tempCanvas.remove();
+                            console.log('تم إزالة القماش المؤقت');
                         },
                         customClass: {
                             popup: 'swal2-rtl'
                         }
                     });
                 }, 100);
-
             } catch (error) {
                 console.error('خطأ في إنشاء رمز QR:', error);
                 Swal.fire({
