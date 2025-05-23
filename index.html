@@ -23,112 +23,136 @@
             justify-content: center;
             align-items: center;
             padding: 20px;
+            overflow: hidden;
         }
         .login-container {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
             padding: 40px;
             width: 100%;
             max-width: 450px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
             text-align: center;
             position: relative;
-            overflow: hidden;
+            border: 1px solid rgba(63, 42, 86, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
-        .login-container::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle, rgba(255, 255, 255, 0.1), transparent);
-            z-index: -1;
+        .login-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
         }
         .logo {
-            height: 80px;
-            margin-bottom: 20px;
-            filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.3));
-            transition: transform 0.3s ease;
-            clip-path: polygon(10% 0%, 100% 0%, 90% 100%, 0% 100%);
+            height: 90px;
+            margin-bottom: 25px;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+            transition: transform 0.4s ease, filter 0.4s ease;
+            clip-path: polygon(10% 0%, 90% 0%, 100% 100%, 0% 100%);
         }
         .logo:hover {
-            transform: scale(1.05);
+            transform: scale(1.1) rotate(2deg);
+            filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.3));
         }
         .login-container h2 {
-            font-size: 1.8rem;
+            font-size: 2rem;
             font-weight: 700;
             color: #3F2A56;
-            margin-bottom: 10px;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+            margin-bottom: 15px;
+            letter-spacing: 0.5px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         }
         .login-container p {
             font-size: 1rem;
-            color: #5a3f73;
-            margin-bottom: 25px;
+            color: #5A3F73;
+            margin-bottom: 30px;
+            opacity: 0.9;
         }
         .form-group {
             position: relative;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
         .form-group input {
             width: 100%;
-            padding: 12px 20px 12px 45px;
-            border-radius: 30px;
-            border: none;
-            background: rgba(255, 255, 255, 0.2);
+            padding: 14px 50px 14px 20px;
+            border-radius: 50px;
+            border: 1px solid rgba(63, 42, 86, 0.2);
+            background: #fff;
             color: #3F2A56;
             font-size: 1rem;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            transition: box-shadow 0.3s ease, background 0.3s ease;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            text-align: right;
         }
         .form-group input:focus {
             outline: none;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
-            background: rgba(255, 255, 255, 0.3);
+            border-color: #3F2A56;
+            box-shadow: 0 4px 15px rgba(63, 42, 86, 0.2);
+            background: #f9f9f9;
         }
         .form-group input::placeholder {
-            color: #5a3f73;
-            opacity: 0.7;
+            color: #5A3F73;
+            opacity: 0.6;
+            transition: opacity 0.3s ease;
         }
-        .form-group i {
+        .form-group input:focus::placeholder {
+            opacity: 0.4;
+        }
+        .form-group i.icon {
             position: absolute;
-            right: 15px;
+            right: 20px;
             top: 50%;
             transform: translateY(-50%);
             color: #3F2A56;
-            font-size: 1.2rem;
-        }
-        .btn-login {
-            background: linear-gradient(90deg, #3F2A56, #5a3f73);
-            color: white;
-            padding: 12px 30px;
-            border-radius: 30px;
-            border: none;
-            font-size: 1.1rem;
-            width: 100%;
-            cursor: pointer;
-            transition: transform 0.2s ease, background 0.3s ease, box-shadow 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        }
-        .btn-login:hover {
-            background: linear-gradient(90deg, #5a3f73, #3F2A56);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-        }
-        .forgot-password {
-            display: block;
-            margin-top: 15px;
-            color: #3F2A56;
-            font-size: 0.9rem;
-            text-decoration: none;
+            font-size: 1.3rem;
             transition: color 0.3s ease;
         }
-        .forgot-password:hover {
-            color: #5a3f73;
-            text-decoration: underline;
+        .form-group input:focus + i.icon {
+            color: #5A3F73;
+        }
+        .form-group .toggle-password {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #3F2A56;
+            font-size: 1.2rem;
+            transition: color 0.3s ease;
+        }
+        .form-group .toggle-password:hover {
+            color: #5A3F73;
+        }
+        .btn-login {
+            background: linear-gradient(90deg, #3F2A56, #5A3F73);
+            color: white;
+            padding: 14px;
+            border-radius: 50px;
+            border: none;
+            font-size: 1.1rem;
+            font-weight: 600;
+            width: 100%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-login::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+        .btn-login:hover::before {
+            left: 100%;
+        }
+        .btn-login:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(90deg, #5A3F73, #3F2A56);
         }
         @media (max-width: 576px) {
             .login-container {
@@ -136,16 +160,16 @@
                 border-radius: 15px;
             }
             .logo {
-                height: 60px;
+                height: 70px;
             }
             .login-container h2 {
-                font-size: 1.5rem;
+                font-size: 1.7rem;
             }
             .login-container p {
-                font-size: 0.9rem;
+                font-size: 0.95rem;
             }
             .btn-login {
-                padding: 10px 20px;
+                padding: 12px;
                 font-size: 1rem;
             }
         }
@@ -159,21 +183,21 @@
         <form id="loginForm" onsubmit="handleLogin(event)">
             <div class="form-group">
                 <input type="text" id="username" placeholder="اسم المستخدم" required>
-                <i class="fas fa-user"></i>
+                <i class="fas fa-user icon"></i>
             </div>
             <div class="form-group">
                 <input type="password" id="password" placeholder="كلمة المرور" required>
-                <i class="fas fa-lock"></i>
+                <i class="fas fa-lock icon"></i>
+                <i class="fas fa-eye toggle-password" onclick="togglePassword()"></i>
             </div>
             <button type="submit" class="btn-login">تسجيل الدخول</button>
         </form>
-   
     </div>
 
     <script>
         function handleLogin(event) {
             event.preventDefault();
-            
+
             const username = document.getElementById('username').value.trim();
             const password = document.getElementById('password').value.trim();
             const validUsername = '27101138';
@@ -197,6 +221,20 @@
                     icon: 'error',
                     confirmButtonColor: '#3F2A56'
                 });
+            }
+        }
+
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const toggleIcon = document.querySelector('.toggle-password');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.classList.remove('fa-eye');
+                toggleIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.classList.remove('fa-eye-slash');
+                toggleIcon.classList.add('fa-eye');
             }
         }
     </script>
