@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         * {
@@ -124,6 +125,37 @@
             font-weight: 700;
             color: #3F2A56;
         }
+        .accounts-section {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .accounts-section h3 {
+            font-size: 1.7rem;
+            font-weight: 700;
+            color: #3F2A56;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .accounts-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .accounts-table th, .accounts-table td {
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .accounts-table th {
+            background: linear-gradient(90deg, #3F2A56, #5a3f73);
+            color: white;
+            font-weight: 700;
+        }
+        .accounts-table td {
+            color: #3F2A56;
+        }
         .actions {
             display: flex;
             flex-wrap: wrap;
@@ -225,6 +257,18 @@
         }
         tr:hover {
             background-color: #f7f9fc;
+        }
+        .action-btn {
+            cursor: pointer;
+            margin: 0 6px;
+            font-size: 1.3rem;
+            transition: color 0.3s ease;
+        }
+        .action-btn.edit:hover {
+            color: #007bff;
+        }
+        .action-btn.delete:hover {
+            color: #dc3545;
         }
         .modal-content {
             border-radius: 20px;
@@ -335,6 +379,28 @@
             .modal-body .form-control, .modal-body .form-select { font-size: 0.9rem; }
             .search-container .filter-group { width: 100%; max-width: 100%; }
         }
+        .swal2-popup {
+            font-family: 'Cairo', sans-serif !important;
+            border-radius: 15px !important;
+        }
+        .swal2-title {
+            color: #3F2A56 !important;
+            font-weight: 700 !important;
+        }
+        .swal2-html-container {
+            text-align: right !important;
+            color: #3F2A56 !important;
+        }
+        .swal2-confirm {
+            background: linear-gradient(90deg, #3F2A56, #5a3f73) !important;
+            border-radius: 20px !important;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+        }
+        .swal2-cancel {
+            background: linear-gradient(90deg, #6c757d, #5a6268) !important;
+            border-radius: 20px !important;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+        }
     </style>
 </head>
 <body>
@@ -361,9 +427,29 @@
                 <h3 id="totalOut">0</h3>
             </div>
         </div>
+        <div class="accounts-section">
+            <h3>الحسابات الموجودة</h3>
+            <div class="table-container">
+                <table class="accounts-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>اسم الحساب</th>
+                            <th>الرصيد</th>
+                        </tr>
+                    </thead>
+                    <tbody id="accountsTable"></tbody>
+                </table>
+            </div>
+        </div>
         <div class="actions">
             <button class="btn" data-bs-toggle="modal" data-bs-target="#addTransactionModal"><i class="fas fa-plus"></i> إضافة معاملة</button>
             <button class="btn" data-bs-toggle="modal" data-bs-target="#addAccountModal"><i class="fas fa-user-plus"></i> إضافة حساب</button>
+            <button class="btn" onclick="exportToJSON()"><i class="fas fa-file-code"></i> تصدير إلى JSON</button>
+            <button class="btn" onclick="exportToCSV()"><i class="fas fa-file-csv"></i> تصدير إلى CSV</button>
+            <input type="file" id="importFile" accept=".json,.csv" style="display: none;" onchange="importFile(event)">
+            <button class="btn" onclick="document.getElementById('importFile').click()"><i class="fas fa-file-import"></i> استيراد ملف</button>
+            <button class="btn" onclick="printTable()"><i class="fas fa-print"></i> طباعة</button>
         </div>
         <div class="search-container">
             <div class="filter-group">
@@ -393,6 +479,7 @@
                         <th>المبلغ</th>
                         <th>البيان</th>
                         <th>الحساب</th>
+                        <th>الإجراءات</th>
                     </tr>
                 </thead>
                 <tbody id="transactionsTable"></tbody>
@@ -440,6 +527,52 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
                     <button type="button" class="btn" onclick="addTransaction()">حفظ</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة تعديل معاملة -->
+    <div class="modal fade" id="editTransactionModal" tabindex="-1" aria-labelledby="editTransactionModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editTransactionModalLabel"><i class="fas fa-edit"></i> تعديل معاملة</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editTransactionForm">
+                        <input type="hidden" id="editIndex">
+                        <div class="mb-3">
+                            <label for="editType" class="form-label"><i class="fas fa-exchange-alt"></i> نوع المعاملة</label>
+                            <select class="form-select" id="editType" required>
+                                <option value="in">داخل</option>
+                                <option value="out">خارج</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editDatetime" class="form-label"><i class="fas fa-calendar"></i> التاريخ والوقت</label>
+                            <input type="datetime-local" class="form-control" id="editDatetime" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editAmount" class="form-label"><i class="fas fa-money-bill"></i> المبلغ</label>
+                            <input type="number" class="form-control" id="editAmount" step="0.01" min="0" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editDescription" class="form-label"><i class="fas fa-comment"></i> البيان</label>
+                            <input type="text" class="form-control" id="editDescription" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editAccount" class="form-label"><i class="fas fa-user"></i> الحساب</label>
+                            <select class="form-select" id="editAccount" required>
+                                <option value="">اختر حسابًا</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="button" class="btn" onclick="updateTransaction()">حفظ</button>
                 </div>
             </div>
         </div>
@@ -503,14 +636,38 @@
             document.getElementById('totalOut').innerText = totalOut.toFixed(2);
         }
 
+        function updateAccountsTable() {
+            const tableBody = document.getElementById('accountsTable');
+            tableBody.innerHTML = '';
+            accounts.forEach((account, index) => {
+                const totalIn = transactions
+                    .filter(t => t.account === account && t.type === 'in')
+                    .reduce((sum, t) => sum + parseFloat(t.amount), 0);
+                const totalOut = transactions
+                    .filter(t => t.account === account && t.type === 'out')
+                    .reduce((sum, t) => sum + parseFloat(t.amount), 0);
+                const balance = totalIn - totalOut;
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${account}</td>
+                    <td>${balance.toFixed(2)}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
         function populateAccounts() {
             const accountSelect = document.getElementById('account');
+            const editAccountSelect = document.getElementById('editAccount');
             accountSelect.innerHTML = '<option value="">اختر حسابًا</option>';
+            editAccountSelect.innerHTML = '<option value="">اختر حسابًا</option>';
             accounts.forEach(account => {
                 const option = document.createElement('option');
                 option.value = account;
                 option.text = account;
-                accountSelect.appendChild(option);
+                accountSelect.appendChild(option.cloneNode(true));
+                editAccountSelect.appendChild(option);
             });
         }
 
@@ -538,7 +695,9 @@
             });
 
             filteredTransactions.forEach((transaction, index) => {
+                const originalIndex = transactions.indexOf(transaction);
                 const row = document.createElement('tr');
+                row.setAttribute('data-index', originalIndex);
                 row.innerHTML = `
                     <td>${index + 1}</td>
                     <td>${transaction.type === 'in' ? 'داخل' : 'خارج'}</td>
@@ -546,11 +705,39 @@
                     <td>${transaction.amount}</td>
                     <td>${transaction.description}</td>
                     <td>${transaction.account}</td>
+                    <td>
+                        <i class="fas fa-edit action-btn edit" onclick="editTransaction(${originalIndex});event.stopPropagation();"></i>
+                        <i class="fas fa-trash action-btn delete" onclick="deleteTransaction(${originalIndex});event.stopPropagation();"></i>
+                    </td>
                 `;
+                row.addEventListener('click', () => showTransactionDetails(originalIndex));
                 tableBody.appendChild(row);
             });
 
             updateDashboard();
+            updateAccountsTable();
+        }
+
+        function showTransactionDetails(index) {
+            const transaction = transactions[index];
+            Swal.fire({
+                title: 'تفاصيل المعاملة',
+                html: `
+                    <div style="text-align: right; font-family: 'Cairo', sans-serif; color: #3F2A56;">
+                        <p><strong>نوع المعاملة:</strong> ${transaction.type === 'in' ? 'داخل' : 'خارج'}</p>
+                        <p><strong>التاريخ والوقت:</strong> ${transaction.datetime}</p>
+                        <p><strong>المبلغ:</strong> ${transaction.amount}</p>
+                        <p><strong>البيان:</strong> ${transaction.description}</p>
+                        <p><strong>الحساب:</strong> ${transaction.account}</p>
+                    </div>
+                `,
+                icon: 'info',
+                confirmButtonText: 'إغلاق',
+                confirmButtonColor: '#3F2A56',
+                customClass: {
+                    popup: 'swal2-rtl'
+                }
+            });
         }
 
         function addAccount() {
@@ -558,8 +745,8 @@
             if (accountName) {
                 if (accounts.includes(accountName)) {
                     Swal.fire({
-                        title: 'خطأ',
-                        text: 'اسم الحساب موجود مسبقًا!',
+                        title: 'خطأ في الإدخال',
+                        text: 'اسم الحساب موجود مسبقًا! الرجاء اختيار اسم آخر.',
                         icon: 'error',
                         confirmButtonColor: '#3F2A56'
                     });
@@ -568,11 +755,12 @@
                 accounts.push(accountName);
                 localStorage.setItem('cashBoxAccounts', JSON.stringify(accounts));
                 populateAccounts();
+                updateAccountsTable();
                 bootstrap.Modal.getInstance(document.getElementById('addAccountModal')).hide();
                 document.getElementById('addAccountForm').reset();
                 Swal.fire({
-                    title: 'تم الإضافة',
-                    text: 'تم إضافة الحساب بنجاح!',
+                    title: 'نجاح',
+                    text: `تم إضافة الحساب "${accountName}" بنجاح!`,
                     icon: 'success',
                     confirmButtonColor: '#3F2A56'
                 });
@@ -594,9 +782,185 @@
                 document.getElementById('addTransactionForm').reset();
                 setCurrentDateTime();
                 Swal.fire({
-                    title: 'تم الإضافة',
+                    title: 'نجاح',
                     text: 'تم إضافة المعاملة بنجاح!',
                     icon: 'success',
+                    confirmButtonColor: '#3F2A56'
+                });
+            } else {
+                Swal.fire({
+                    title: 'خطأ في الإدخال',
+                    text: 'الرجاء ملء جميع الحقول المطلوبة!',
+                    icon: 'error',
+                    confirmButtonColor: '#3F2A56'
+                });
+            }
+        }
+
+        function editTransaction(index) {
+            document.getElementById('editIndex').value = index;
+            document.getElementById('editType').value = transactions[index].type;
+            document.getElementById('editDatetime').value = transactions[index].datetime.replace(' ', 'T');
+            document.getElementById('editAmount').value = transactions[index].amount;
+            document.getElementById('editDescription').value = transactions[index].description;
+            document.getElementById('editAccount').value = transactions[index].account;
+            new bootstrap.Modal(document.getElementById('editTransactionModal')).show();
+        }
+
+        async function updateTransaction() {
+            const index = parseInt(document.getElementById('editIndex').value);
+            const type = document.getElementById('editType').value;
+            const datetime = document.getElementById('editDatetime').value;
+            const amount = document.getElementById('editAmount').value;
+            const description = document.getElementById('editDescription').value.trim();
+            const account = document.getElementById('editAccount').value;
+
+            if (type && datetime && amount && description && account) {
+                transactions[index] = { type, datetime: datetime.replace('T', ' '), amount, description, account };
+                localStorage.setItem('cashBoxTransactions', JSON.stringify(transactions));
+                filterTable();
+                bootstrap.Modal.getInstance(document.getElementById('editTransactionModal')).hide();
+                Swal.fire({
+                    title: 'نجاح',
+                    text: 'تم تعديل المعاملة بنجاح!',
+                    icon: 'success',
+                    confirmButtonColor: '#3F2A56'
+                });
+            } else {
+                Swal.fire({
+                    title: 'خطأ في الإدخال',
+                    text: 'الرجاء ملء جميع الحقول المطلوبة!',
+                    icon: 'error',
+                    confirmButtonColor: '#3F2A56'
+                });
+            }
+        }
+
+        async function deleteTransaction(index) {
+            const result = await Swal.fire({
+                title: 'تأكيد الحذف',
+                text: 'هل أنت متأكد من حذف هذه المعاملة؟ لا يمكن التراجع عن هذا الإجراء.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'حذف',
+                cancelButtonText: 'إلغاء',
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d'
+            });
+            if (result.isConfirmed) {
+                transactions.splice(index, 1);
+                localStorage.setItem('cashBoxTransactions', JSON.stringify(transactions));
+                filterTable();
+                Swal.fire({
+                    title: 'نجاح',
+                    text: 'تم حذف المعاملة بنجاح!',
+                    icon: 'success',
+                    confirmButtonColor: '#3F2A56'
+                });
+            }
+        }
+
+        function exportToJSON() {
+            sortTransactionsByDate();
+            const dataStr = JSON.stringify(transactions, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'cashbox_transactions.json';
+            a.click();
+            URL.revokeObjectURL(url);
+            Swal.fire({
+                title: 'نجاح',
+                text: 'تم تصدير البيانات إلى ملف JSON بنجاح!',
+                icon: 'success',
+                confirmButtonColor: '#3F2A56'
+            });
+        }
+
+        function exportToCSV() {
+            sortTransactionsByDate();
+            const headers = ['نوع المعاملة,التاريخ والوقت,المبلغ,البيان,الحساب'];
+            const rows = transactions.map(t => `${t.type === 'in' ? 'داخل' : 'خارج'},${t.datetime},${t.amount},${t.description},${t.account}`);
+            const csv = [headers, ...rows].join('\n');
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'cashbox_transactions.csv';
+            a.click();
+            URL.revokeObjectURL(url);
+            Swal.fire({
+                title: 'نجاح',
+                text: 'تم تصدير البيانات إلى ملف CSV بنجاح!',
+                icon: 'success',
+                confirmButtonColor: '#3F2A56'
+            });
+        }
+
+        async function importFile(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                let newTransactions = [];
+                if (file.name.endsWith('.json')) {
+                    newTransactions = JSON.parse(e.target.result);
+                } else if (file.name.endsWith('.csv')) {
+                    const data = e.target.result;
+                    const rows = data.split('\n').slice(1).filter(row => row.trim());
+                    newTransactions = rows.map(row => {
+                        const [type, datetime, amount, description, account] = row.split(',');
+                        return {
+                            type: type === 'داخل' ? 'in' : 'out',
+                            datetime,
+                            amount,
+                            description,
+                            account
+                        };
+                    });
+                }
+                const invalidAccounts = newTransactions.filter(t => !accounts.includes(t.account));
+                if (invalidAccounts.length > 0) {
+                    const result = await Swal.fire({
+                        title: 'حسابات غير موجودة',
+                        text: 'تم العثور على معاملات تحتوي على حسابات غير موجودة. هل تريد إضافتها تلقائيًا؟',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'إضافة الحسابات',
+                        cancelButtonText: 'إلغاء',
+                        confirmButtonColor: '#3F2A56',
+                        cancelButtonColor: '#6c757d'
+                    });
+                    if (result.isConfirmed) {
+                        invalidAccounts.forEach(t => {
+                            if (!accounts.includes(t.account)) {
+                                accounts.push(t.account);
+                            }
+                        });
+                        localStorage.setItem('cashBoxAccounts', JSON.stringify(accounts));
+                        populateAccounts();
+                        updateAccountsTable();
+                    } else {
+                        return;
+                    }
+                }
+                transactions = [...transactions, ...newTransactions];
+                localStorage.setItem('cashBoxTransactions', JSON.stringify(transactions));
+                filterTable();
+                Swal.fire({
+                    title: 'نجاح',
+                    text: 'تم استيراد البيانات بنجاح!',
+                    icon: 'success',
+                    confirmButtonColor: '#3F2A56'
+                });
+            };
+            if (file.name.endsWith('.json') || file.name.endsWith('.csv')) {
+                reader.readAsText(file);
+            } else {
+                Swal.fire({
+                    title: 'خطأ',
+                    text: 'الرجاء تحميل ملف بصيغة JSON أو CSV!',
+                    icon: 'error',
                     confirmButtonColor: '#3F2A56'
                 });
             }
@@ -606,6 +970,371 @@
             const now = new Date();
             const formattedDateTime = now.toISOString().slice(0, 16);
             document.getElementById('datetime').value = formattedDateTime;
+            document.getElementById('editDatetime').value = formattedDateTime;
+        }
+
+        function printTable() {
+            try {
+                const itemsPerPage = 20;
+                const startDate = document.getElementById('startDate').value;
+                const endDate = document.getElementById('endDate').value;
+                const typeFilter = document.getElementById('typeFilter').value;
+
+                const inTransactions = transactions.filter(transaction => {
+                    const transactionDate = transaction.datetime.split(' ')[0];
+                    const matchesDate = (
+                        (!startDate || transactionDate >= startDate) &&
+                        (!endDate || transactionDate <= endDate)
+                    );
+                    return matchesDate && (typeFilter === 'all' || typeFilter === 'in') && transaction.type === 'in';
+                });
+
+                const outTransactions = transactions.filter(transaction => {
+                    const transactionDate = transaction.datetime.split(' ')[0];
+                    const matchesDate = (
+                        (!startDate || transactionDate >= startDate) &&
+                        (!endDate || transactionDate <= endDate)
+                    );
+                    return matchesDate && (typeFilter === 'all' || typeFilter === 'out') && transaction.type === 'out';
+                });
+
+                const totalIn = inTransactions.reduce((sum, t) => sum + parseFloat(t.amount), 0);
+                const totalOut = outTransactions.reduce((sum, t) => sum + parseFloat(t.amount), 0);
+                const balance = totalIn - totalOut;
+
+                const inPages = Math.ceil(inTransactions.length / itemsPerPage);
+                const outPages = Math.ceil(outTransactions.length / itemsPerPage);
+                const totalPages = Math.max(inPages, outPages);
+
+                const printWindow = window.open('', '_blank', 'height=700,width=1000');
+                if (!printWindow) {
+                    throw new Error('فشل في فتح نافذة الطباعة. تحقق من إعدادات المتصفح.');
+                }
+
+                const printDate = new Date().toLocaleString('en-US', { 
+                    day: '2-digit', 
+                    month: '2-digit', 
+                    year: 'numeric'
+                }).replace(/(\d+)\/(\d+)\/(\d+)/, '$1/$2/$3');
+
+                printWindow.document.write(`
+                    <html>
+                    <head>
+                        <title>ضبط الصندوق</title>
+                        <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+                        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+                        <style>
+                            @page { 
+                                size: A4; 
+                                margin: 10mm; 
+                            }
+                            body { 
+                                font-family: 'Cairo', sans-serif; 
+                                direction: rtl; 
+                                margin: 10mm; 
+                                background: #fff; 
+                                color: #000; 
+                            }
+                            .container { 
+                                max-width: 1000px; 
+                                margin: 0 auto; 
+                            }
+                            .header { 
+                                display: flex; 
+                                justify-content: space-between; 
+                                align-items: center; 
+                                margin-bottom: 20px; 
+                                padding-bottom: 10px; 
+                            }
+                            .header img { 
+                                height: 70px; 
+                                clip-path: polygon(10% 0%, 100% 0%, 90% 100%, 0% 100%); 
+                                margin-right: 0; 
+                            }
+                            .header h1 { 
+                                font-size: 1.6rem; 
+                                font-weight: 700; 
+                                margin: 0; 
+                                text-align: center; 
+                                flex-grow: 1; 
+                            }
+                            .dashboard-card { 
+                                border: 1px solid #000; 
+                                padding: 15px; 
+                                margin-bottom: 20px; 
+                                background: #fff; 
+                                text-align: right; 
+                                border-radius: 5px; 
+                            }
+                            .dashboard-card h3 { 
+                                font-size: 1.3rem; 
+                                font-weight: 700; 
+                                margin: 0 0 10px; 
+                                border-bottom: 1px solid #000; 
+                                padding-bottom: 5px; 
+                            }
+                            .dashboard-card p { 
+                                margin: 5px 0; 
+                                font-size: 1rem; 
+                                line-height: 1.5; 
+                            }
+                            .dashboard-card strong { 
+                                font-weight: 600; 
+                            }
+                            .dashboard-container { 
+                                display: flex; 
+                                justify-content: space-between; 
+                                gap: 20px; 
+                                margin-bottom: 20px; 
+                            }
+                            .dashboard-section { 
+                                flex: 1; 
+                                border: 1px solid #000; 
+                                padding: 15px; 
+                                border-radius: 5px; 
+                                background: #fff; 
+                            }
+                            .dashboard-section h4 { 
+                                font-size: 1.2rem; 
+                                font-weight: 700; 
+                                margin: 0 0 10px; 
+                                border-bottom: 1px solid #000; 
+                                padding-bottom: 5px; 
+                            }
+                            .balance-container { 
+                                text-align: center; 
+                                margin: 20px 0; 
+                                border: 1px solid #000; 
+                                padding: 10px; 
+                                border-radius: 5px; 
+                                background: #fff; 
+                            }
+                            .balance-container h4 { 
+                                font-size: 1.2rem; 
+                                font-weight: 700; 
+                                margin: 0 0 10px; 
+                            }
+                            .balance-container p { 
+                                font-size: 1.1rem; 
+                                font-weight: 600; 
+                                margin: 0; 
+                            }
+                            h2 { 
+                                text-align: center; 
+                                font-size: 1.7rem; 
+                                font-weight: 700; 
+                                margin: 20px 0; 
+                                border-bottom: 1px solid #000; 
+                                padding-bottom: 5px; 
+                            }
+                            .transactions-count { 
+                                text-align: center; 
+                                font-size: 1.1rem; 
+                                font-weight: 600; 
+                                margin-bottom: 10px; 
+                            }
+                            .print-date { 
+                                text-align: center; 
+                                font-size: 1.1rem; 
+                                font-weight: 600; 
+                                margin-bottom: 20px; 
+                            }
+                            table { 
+                                width: 100%; 
+                                border-collapse: collapse; 
+                                margin: 20px 0; 
+                                border: 1px solid #000; 
+                            }
+                            th, td { 
+                                padding: 12px; 
+                                text-align: center; 
+                                border: 1px solid #000; 
+                                font-size: 1rem; 
+                            }
+                            th { 
+                                background: #fff; 
+                                color: #000; 
+                                font-weight: 700; 
+                                font-size: 1.1rem; 
+                            }
+                            td { 
+                                background: #fff; 
+                            }
+                            .footer { 
+                                position: fixed; 
+                                bottom: 5mm; 
+                                width: 100%; 
+                                text-align: center; 
+                                font-size: 0.8rem; 
+                                font-weight: 600; 
+                            }
+                            .page-number { 
+                                position: fixed; 
+                                bottom: 5mm; 
+                                left: 15mm; 
+                                font-size: 0.8rem; 
+                                font-weight: 600; 
+                            }
+                            .print-button { 
+                                background: linear-gradient(90deg, #3F2A56, #5a3f73); 
+                                color: white; 
+                                padding: 10px 20px; 
+                                border: none; 
+                                border-radius: 20px; 
+                                font-size: 1rem; 
+                                cursor: pointer; 
+                                margin: 10px auto; 
+                                display: block; 
+                                text-align: center; 
+                            }
+                            @media print {
+                                .page-break { page-break-before: always; }
+                                .container { margin: 0; width: 100%; }
+                                .footer, .page-number { position: fixed; }
+                                body { margin: 10mm; }
+                                .print-button { display: none; }
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="container">
+                            <button class="print-button" onclick="window.print()">طباعة</button>
+                            <div class="header">
+                                <img src="logo.png" alt="شعار طيبة المدينة تلكوم" onerror="this.src='https://via.placeholder.com/70x70.png?text=Logo';">
+                                <h1>طيبة المدينة تلكوم</h1>
+                                <div style="width: 70px;"></div>
+                            </div>
+                            <div class="dashboard-container">
+                                <div class="dashboard-section">
+                                    <h4>الرصيد الداخل</h4>
+                                    <p><strong>المجموع:</strong> ${totalIn.toFixed(2)}</p>
+                                    <p><strong>العدد:</strong> ${inTransactions.length}</p>
+                                </div>
+                                <div class="dashboard-section">
+                                    <h4>الرصيد الخارج</h4>
+                                    <p><strong>المجموع:</strong> ${totalOut.toFixed(2)}</p>
+                                    <p><strong>العدد:</strong> ${outTransactions.length}</p>
+                                </div>
+                            </div>
+                            <div class="balance-container">
+                                <h4>الرصيد الإجمالي</h4>
+                                <p>${balance.toFixed(2)}</p>
+                            </div>
+                            <div class="print-date">تاريخ الطباعة: ${printDate}</div>
+                `);
+
+                sortTransactionsByDate();
+
+                // جدول المعاملات "داخل"
+                if (inTransactions.length > 0) {
+                    printWindow.document.write(`
+                        <h2>المعاملات الداخلة</h2>
+                        <div class="transactions-count">عدد المعاملات: ${inTransactions.length}</div>
+                    `);
+                    for (let page = 0; page < inPages; page++) {
+                        if (page > 0) {
+                            printWindow.document.write('<div class="page-break"></div>');
+                        }
+                        printWindow.document.write(`
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>التاريخ والوقت</th>
+                                        <th>المبلغ</th>
+                                        <th>البيان</th>
+                                        <th>الحساب</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                        `);
+                        const start = page * itemsPerPage;
+                        const end = Math.min(start + itemsPerPage, inTransactions.length);
+                        for (let i = start; i < end; i++) {
+                            const transaction = inTransactions[i];
+                            printWindow.document.write(`
+                                <tr>
+                                    <td>${i + 1}</td>
+                                    <td>${transaction.datetime}</td>
+                                    <td>${transaction.amount}</td>
+                                    <td>${transaction.description}</td>
+                                    <td>${transaction.account}</td>
+                                </tr>
+                            `);
+                        }
+                        printWindow.document.write(`
+                                </tbody>
+                            </table>
+                            <div class="footer">هذا المستند من نظام طيبة المدينة تلكوم وهو موقع رقميًا</div>
+                            <div class="page-number">الصفحة ${page + 1} من ${totalPages}</div>
+                        `);
+                    }
+                }
+
+                // جدول المعاملات "خارج"
+                if (outTransactions.length > 0) {
+                    if (inTransactions.length > 0) {
+                        printWindow.document.write('<div class="page-break"></div>');
+                    }
+                    printWindow.document.write(`
+                        <h2>المعاملات الخارجة</h2>
+                        <div class="transactions-count">عدد المعاملات: ${outTransactions.length}</div>
+                    `);
+                    for (let page = 0; page < outPages; page++) {
+                        if (page > 0) {
+                            printWindow.document.write('<div class="page-break"></div>');
+                        }
+                        printWindow.document.write(`
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>التاريخ والوقت</th>
+                                        <th>المبلغ</th>
+                                        <th>البيان</th>
+                                        <th>الحساب</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                        `);
+                        const start = page * itemsPerPage;
+                        const end = Math.min(start + itemsPerPage, outTransactions.length);
+                        for (let i = start; i < end; i++) {
+                            const transaction = outTransactions[i];
+                            printWindow.document.write(`
+                                <tr>
+                                    <td>${i + 1}</td>
+                                    <td>${transaction.datetime}</td>
+                                    <td>${transaction.amount}</td>
+                                    <td>${transaction.description}</td>
+                                    <td>${transaction.account}</td>
+                                </tr>
+                            `);
+                        }
+                        printWindow.document.write(`
+                                </tbody>
+                            </table>
+                            <div class="footer">هذا المستند من نظام طيبة المدينة تلكوم وهو موقع رقميًا</div>
+                            <div class="page-number">الصفحة ${page + inPages + 1} من ${totalPages}</div>
+                        `);
+                    }
+                }
+
+                printWindow.document.write(`
+                        </div>
+                    </body>
+                    </html>
+                `);
+                printWindow.document.close();
+            } catch (error) {
+                console.error('خطأ في دالة printTable:', error);
+                Swal.fire({
+                    title: 'خطأ',
+                    text: 'حدث خطأ أثناء تحضير الطباعة: ' + error.message,
+                    icon: 'error',
+                    confirmButtonColor: '#3F2A56'
+                });
+            }
         }
 
         window.onload = () => {
