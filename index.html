@@ -184,7 +184,6 @@
                 border-radius: 10px;
             }
         }
-        /* تأثير التمرير السلس */
         .scroll-reveal {
             opacity: 0;
             transform: translateY(30px);
@@ -208,17 +207,23 @@
                 <a href="home.html">
                     <i class="fas fa-list"></i>
                     <h3>لائحة موثقي غزة</h3>
-                    <p>استعرض وإدارة قائمة الموثقين </p>
+                    <p>استعرض وإدارة قائمة الموثقين</p>
                 </a>
             </div>
             <div class="service-card scroll-reveal">
                 <a href="mahfoud.html">
                     <i class="fas fa-wallet"></i>
                     <h3>حساب محفوظ</h3>
-                    <p>تتبع معاملات محفوظ المالية  </p>
+                    <p>تتبع معاملات محفوظ المالية</p>
                 </a>
             </div>
-            <!-- يمكن إضافة المزيد من البطاقات هنا -->
+            <div class="service-card scroll-reveal">
+                <a href="caisse.html">
+                    <i class="fas fa-cash-register"></i>
+                    <h3>ضبط الصندوق</h3>
+                    <p>إدارة المعاملات المالية والحسابات</p>
+                </a>
+            </div>
             <div class="service-card scroll-reveal">
                 <a href="#coming-soon" onclick="showComingSoon()">
                     <i class="fas fa-cogs"></i>
@@ -229,12 +234,10 @@
         </div>
         <div class="footer">
             <p>© 2025 طيبة المدينة تلكوم. جميع الحقوق محفوظة.</p>
-           
         </div>
     </div>
 
     <script>
-        // تأثير الظهور عند التمرير
         document.addEventListener('DOMContentLoaded', () => {
             const elements = document.querySelectorAll('.scroll-reveal');
             const observer = new IntersectionObserver((entries) => {
@@ -249,7 +252,6 @@
             elements.forEach(el => observer.observe(el));
         });
 
-        // تنبيه للخدمات القادمة
         function showComingSoon() {
             Swal.fire({
                 title: 'قريبًا!',
