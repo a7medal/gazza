@@ -10,6 +10,8 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsqr/1.4.0/jsQR.min.js"></script>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#f9ffff">
     <style>
@@ -325,6 +327,9 @@
             <button class="btn" onclick="exportToCSV()"><i class="fas fa-file-csv"></i> تصدير إلى CSV</button>
             <input type="file" id="importFile" accept=".json,.csv" style="display: none;" onchange="importFile(event)">
             <button class="btn" onclick="document.getElementById('importFile').click()"><i class="fas fa-file-import"></i> استيراد ملف</button>
+            <button class="btn" onclick="generateQRCode()"><i class="fas fa-qrcode"></i> إنشاء رمز QR</button>
+            <button class="btn" onclick="scanQRCode()"><i class="fas fa-camera"></i> مسح رمز QR</button>
+            <input type="file" id="importQRImage" accept="image/*" style="display: none;" onchange="importQRFromImage(event)">
         </div>
         <div class="search-container">
             <input type="text" id="searchInput" placeholder="ابحث في الجدول..." onkeyup="searchTable()">
@@ -423,7 +428,8 @@
             </div>
         </div>
     </div>
-
+    <canvas id="tempQRCanvas" style="display: none;"></canvas>
+    <audio id="successSound" src="https://www.soundjay.com/buttons/beep-01a.mp3" preload="auto"></audio>
     <script>
         let notaries = JSON.parse(localStorage.getItem('notaries')) || [];
 
@@ -552,7 +558,7 @@
             }
         }
 
-        function editNotary(index) {
+        async function editNotary(index) {
             document.getElementById('editIndex').value = index;
             document.getElementById('editName').value = notaries[index].name;
             document.getElementById('editIdNumber').value = notaries[index].idNumber;
@@ -681,7 +687,7 @@
                 day: '2-digit', 
                 month: '2-digit', 
                 year: 'numeric'
-            }).replace(/(\d+)\/(\d+)\/(\d+)/, '$1/$2/$3'); // Ensures 22/05/2025 format
+            }).replace(/(\d+)\/(\d+)\/(\d+)/, '$1/$2/$3');
             printWindow.document.write(`
                 <html>
                 <head>
@@ -775,8 +781,8 @@
                             font-size: 1rem; 
                         }
                         th { 
-                            background: #fff; 
-                            color: #000; 
+                            background: linear-gradient(90deg, #3F2A56, #5a3f73);
+                            color: white; 
                             font-weight: 700; 
                             font-size: 1.1rem; 
                         }
@@ -820,7 +826,7 @@
                     <div class="header">
                         <img src="logo.png" alt="شعار طيبة المدينة تلكوم">
                         <h1>طيبة المدينة تلكوم</h1>
-                        <div style="width: 70px;"></div> <!-- Spacer for symmetry -->
+                        <div style="width: 70px;"></div>
                     </div>
                     <div class="agency-card">
                         <h3>معلومات الوكالة</h3>
@@ -918,19 +924,25 @@
                         return { name, idNumber, phone, date, note };
                     });
                 }
-                let duplicates = newNotaries.filter(n => checkDuplicate(n.idNumber, n.phone));
+                const duplicates = newNotaries.filter(n => checkDuplicate(n.idNumber, n.phone));
                 if (duplicates.length > 0) {
                     const result = await Swal.fire({
                         title: 'تكرار المعلومات',
-                        text: 'تم العثور على معلومات مكررة في الملف المستورد. هل تريد المتابعة؟',
+                        text: 'تم العثور على معلومات مكررة في الملف المستورد. اختر خيارًا:',
                         icon: 'warning',
                         showCancelButton: true,
-                        confirmButtonText: 'متابعة',
+                        showDenyButton: true,
+                        confirmButtonText: 'الاحتفاظ بالتكرارات',
+                        denyButtonText: 'حذف التكرارات',
                         cancelButtonText: 'إلغاء',
                         confirmButtonColor: '#3F2A56',
+                        denyButtonColor: '#007bff',
                         cancelButtonColor: '#6c757d'
                     });
-                    if (!result.isConfirmed) return;
+                    if (result.isDismissed) return;
+                    if (result.isDenied) {
+                        newNotaries = newNotaries.filter(n => !checkDuplicate(n.idNumber, n.phone));
+                    }
                 }
                 notaries = [...notaries, ...newNotaries];
                 localStorage.setItem('notaries', JSON.stringify(notaries));
@@ -945,6 +957,260 @@
             if (file.name.endsWith('.json') || file.name.endsWith('.csv')) {
                 reader.readAsText(file);
             }
+        }
+
+        // دالة إنشاء رمز QR
+        function generateQRCode() {
+            try {
+                const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+                const filteredNotaries = notaries.filter(notary =>
+                    notary.name.toLowerCase().includes(searchQuery) ||
+                    notary.idNumber.toString().includes(searchQuery) ||
+                    notary.phone.toString().includes(searchQuery) ||
+                    notary.date.toLowerCase().includes(searchQuery) ||
+                    (notary.note || '').toLowerCase().includes(searchQuery)
+                );
+
+                if (filteredNotaries.length === 0) {
+                    Swal.fire({
+                        title: 'لا توجد بيانات',
+                        text: 'لا توجد بيانات موثقين لإنشاء رمز QR بناءً على البحث الحالي.',
+                        icon: 'warning',
+                        confirmButtonColor: '#3F2A56'
+                    });
+                    return;
+                }
+
+                const qrData = JSON.stringify(filteredNotaries);
+                const tempCanvas = document.getElementById('tempQRCanvas');
+                tempCanvas.width = 300;
+                tempCanvas.height = 300;
+
+                new QRCode(tempCanvas, {
+                    text: qrData,
+                    width: 300,
+                    height: 300,
+                    colorDark: '#3F2A56',
+                    colorLight: '#ffffff'
+                });
+
+                Swal.fire({
+                    title: 'رمز QR للمعاملات',
+                    html: `
+                        <div style="text-align: center;">
+                            <canvas id="qrDisplayCanvas" style="margin: 20px auto;"></canvas>
+                            <div>
+                                <button class="btn btn-secondary" onclick="Swal.close()">إغلاق</button>
+                                <button class="btn" onclick="exportQRAsImage()">تصدير كصورة</button>
+                            </div>
+                        </div>
+                    `,
+                    showConfirmButton: false,
+                    didOpen: () => {
+                        const qrDisplayCanvas = document.getElementById('qrDisplayCanvas');
+                        qrDisplayCanvas.width = 300;
+                        qrDisplayCanvas.height = 300;
+                        const ctx = qrDisplayCanvas.getContext('2d');
+                        ctx.drawImage(tempCanvas, 0, 0);
+                    },
+                    customClass: {
+                        popup: 'swal2-rtl'
+                    }
+                });
+            } catch (error) {
+                console.error('خطأ في إنشاء رمز QR:', error);
+                Swal.fire({
+                    title: 'خطأ',
+                    text: 'حدث خطأ أثناء إنشاء رمز QR.',
+                    icon: 'error',
+                    confirmButtonColor: '#3F2A56'
+                });
+            }
+        }
+
+        // دالة تصدير رمز QR كصورة
+        function exportQRAsImage() {
+            const qrCanvas = document.getElementById('qrDisplayCanvas');
+            const dataURL = qrCanvas.toDataURL('image/png');
+            const a = document.createElement('a');
+            a.href = dataURL;
+            a.download = 'notaries_qr.png';
+            a.click();
+        }
+
+        // دالة بدء مسح رمز QR
+        function scanQRCode() {
+            Swal.fire({
+                title: 'مسح رمز QR',
+                html: `
+                    <div style="text-align: center;">
+                        <video id="qrVideo" style="width: 100%; max-width: 400px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);"></video>
+                        <div style="margin-top: 20px;">
+                            <button class="btn btn-secondary" onclick="stopQRScanner(); Swal.close()">إيقاف المسح</button>
+                            <button class="btn" onclick="document.getElementById('importQRImage').click()">استيراد من صورة</button>
+                        </div>
+                    </div>
+                `,
+                showConfirmButton: false,
+                didOpen: () => {
+                    startQRScanner();
+                },
+                willClose: () => {
+                    stopQRScanner();
+                },
+                customClass: {
+                    popup: 'swal2-rtl'
+                }
+            });
+        }
+
+        // دالة بدء الكاميرا لمسح رمز QR
+        let videoStream = null;
+        async function startQRScanner() {
+            try {
+                const video = document.getElementById('qrVideo');
+                videoStream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: 'environment' }
+                });
+                video.srcObject = videoStream;
+                video.play();
+
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+
+                function scanFrame() {
+                    if (!video.videoWidth) {
+                        requestAnimationFrame(scanFrame);
+                        return;
+                    }
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    const code = jsQR(imageData.data, imageData.width, imageData.height);
+                    if (code) {
+                        processQRData(code.data);
+                        stopQRScanner();
+                        Swal.close();
+                    } else {
+                        requestAnimationFrame(scanFrame);
+                    }
+                }
+                scanFrame();
+            } catch (error) {
+                console.error('خطأ في بدء الكاميرا:', error);
+                Swal.fire({
+                    title: 'خطأ',
+                    text: 'تعذر الوصول إلى الكاميرا. تحقق من الأذونات أو المعدات.',
+                    icon: 'error',
+                    confirmButtonColor: '#3F2A56'
+                });
+                Swal.close();
+            }
+        }
+
+        // دالة إيقاف الكاميرا
+        function stopQRScanner() {
+            if (videoStream) {
+                videoStream.getTracks().forEach(track => track.stop());
+                videoStream = null;
+            }
+        }
+
+        // دالة معالجة بيانات رمز QR
+        async function processQRData(data) {
+            try {
+                const newNotaries = JSON.parse(data);
+                if (!Array.isArray(newNotaries)) {
+                    throw new Error('البيانات ليست قائمة موثقين صالحة.');
+                }
+
+                const valid = newNotaries.every(n => 
+                    n.name && n.idNumber && n.phone && n.date
+                );
+                if (!valid) {
+                    throw new Error('البيانات تحتوي على موثقين غير صالحين.');
+                }
+
+                const duplicates = newNotaries.filter(n => checkDuplicate(n.idNumber, n.phone));
+                if (duplicates.length > 0) {
+                    const result = await Swal.fire({
+                        title: 'تكرار المعلومات',
+                        text: 'تم العثور على معلومات مكررة في رمز QR. اختر خيارًا:',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        showDenyButton: true,
+                        confirmButtonText: 'الاحتفاظ بالتكرارات',
+                        denyButtonText: 'حذف التكرارات',
+                        cancelButtonText: 'إلغاء',
+                        confirmButtonColor: '#3F2A56',
+                        denyButtonText: 'حذف التكرارات',
+                        cancelButtonText: 'إلغاء',
+                        confirmButtonColor: '#3F2A56',
+                        denyButtonColor: '#007bff',
+                        cancelButtonColor: '#6c757d'
+                    });
+                    if (result.isDismissed) return;
+                    if (result.isDenied) {
+                        newNotaries = newNotaries.filter(n => !checkDuplicate(n.idNumber, n.phone));
+                    }
+                }
+
+                notaries = [...notaries, ...newNotaries];
+                localStorage.setItem('notaries', JSON.stringify(notaries));
+                renderTable();
+
+                const successSound = document.getElementById('successSound');
+                successSound.play().catch(error => console.warn('فشل تشغيل الصوت:', error));
+
+                Swal.fire({
+                    title: 'تم الاستيراد',
+                    text: 'تم استيراد الموثقين من رمز QR بنجاح!',
+                    icon: 'success',
+                    confirmButtonColor: '#3F2A56'
+                });
+            } catch (error) {
+                console.error('خطأ في معالجة بيانات QR:', error);
+                Swal.fire({
+                    title: 'خطأ',
+                    text: 'البيانات في رمز QR غير صالحة أو تالفة.',
+                    icon: 'error',
+                    confirmButtonColor: '#3F2A56'
+                });
+            }
+        }
+
+        // دالة استيراد رمز QR من صورة
+        function importQRFromImage(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0);
+                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    const code = jsQR(imageData.data, imageData.width, imageData.height);
+                    if (code) {
+                        processQRData(code.data);
+                        Swal.close();
+                    } else {
+                        Swal.fire({
+                            title: 'خطأ',
+                            text: 'تعذر العثور على رمز QR في الصورة.',
+                            icon: 'error',
+                            confirmButtonColor: '#3F2A56'
+                        });
+                    }
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
         }
 
         window.onload = () => {
