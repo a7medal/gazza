@@ -156,6 +156,12 @@
         .accounts-table td {
             color: #3F2A56;
         }
+        .accounts-table tr {
+            cursor: pointer;
+        }
+        .accounts-table tr:hover {
+            background-color: #f7f9fc;
+        }
         .actions {
             display: flex;
             flex-wrap: wrap;
@@ -622,6 +628,13 @@
             transactions.sort((a, b) => new Date(b.datetime) - new Date(a.datetime));
         }
 
+        function getAccountBalance(account, excludeIndex = -1) {
+            return transactions.reduce((balance, t, index) => {
+                if (t.account !== account || index === excludeIndex) return balance;
+                return balance + (t.type === 'in' ? parseFloat(t.amount) : -parseFloat(t.amount));
+            }, 0);
+        }
+
         function updateDashboard() {
             const totalIn = transactions
                 .filter(t => t.type === 'in')
@@ -640,20 +653,68 @@
             const tableBody = document.getElementById('accountsTable');
             tableBody.innerHTML = '';
             accounts.forEach((account, index) => {
-                const totalIn = transactions
-                    .filter(t => t.account === account && t.type === 'in')
-                    .reduce((sum, t) => sum + parseFloat(t.amount), 0);
-                const totalOut = transactions
-                    .filter(t => t.account === account && t.type === 'out')
-                    .reduce((sum, t) => sum + parseFloat(t.amount), 0);
-                const balance = totalIn - totalOut;
+                const balance = getAccountBalance(account);
                 const row = document.createElement('tr');
+                row.setAttribute('data-account', account);
                 row.innerHTML = `
                     <td>${index + 1}</td>
                     <td>${account}</td>
                     <td>${balance.toFixed(2)}</td>
                 `;
+                row.addEventListener('click', () => showAccountTransactions(account));
                 tableBody.appendChild(row);
+            });
+        }
+
+        function showAccountTransactions(account) {
+            const accountTransactions = transactions.filter(t => t.account === account);
+            sortTransactionsByDate();
+            let tableHTML = `
+                <table style="width: 100%; border-collapse: collapse; font-family: 'Cairo', sans-serif; direction: rtl;">
+                    <thead>
+                        <tr style="background: linear-gradient(90deg, #3F2A56, #5a3f73); color: white;">
+                            <th style="padding: 10px; border: 1px solid #ddd;">#</th>
+                            <th style="padding: 10px; border: 1px solid #ddd;">نوع المعاملة</th>
+                            <th style="padding: 10px; border: 1px solid #ddd;">التاريخ والوقت</th>
+                            <th style="padding: 10px; border: 1px solid #ddd;">المبلغ</th>
+                            <th style="padding: 10px; border: 1px solid #ddd;">البيان</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            if (accountTransactions.length === 0) {
+                tableHTML += `
+                    <tr>
+                        <td colspan="5" style="padding: 10px; border: 1px solid #ddd; text-align: center;">لا توجد معاملات لهذا الحساب</td>
+                    </tr>
+                `;
+            } else {
+                accountTransactions.forEach((transaction, index) => {
+                    tableHTML += `
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #ddd;">${index + 1}</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">${transaction.type === 'in' ? 'داخل' : 'خارج'}</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">${transaction.datetime}</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">${transaction.amount}</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">${transaction.description}</td>
+                        </tr>
+                    `;
+                });
+            }
+            tableHTML += `
+                    </tbody>
+                </table>
+            `;
+            Swal.fire({
+                title: `معاملات الحساب: ${account}`,
+                html: tableHTML,
+                icon: 'info',
+                confirmButtonText: 'إغلاق',
+                confirmButtonColor: '#3F2A56',
+                customClass: {
+                    popup: 'swal2-rtl'
+                },
+                width: '800px'
             });
         }
 
@@ -774,27 +835,41 @@
             const description = document.getElementById('description').value.trim();
             const account = document.getElementById('account').value;
 
-            if (type && datetime && amount && description && account) {
-                transactions.push({ type, datetime, amount, description, account });
-                localStorage.setItem('cashBoxTransactions', JSON.stringify(transactions));
-                filterTable();
-                bootstrap.Modal.getInstance(document.getElementById('addTransactionModal')).hide();
-                document.getElementById('addTransactionForm').reset();
-                setCurrentDateTime();
-                Swal.fire({
-                    title: 'نجاح',
-                    text: 'تم إضافة المعاملة بنجاح!',
-                    icon: 'success',
-                    confirmButtonColor: '#3F2A56'
-                });
-            } else {
+            if (!type || !datetime || !amount || !description || !account) {
                 Swal.fire({
                     title: 'خطأ في الإدخال',
                     text: 'الرجاء ملء جميع الحقول المطلوبة!',
                     icon: 'error',
                     confirmButtonColor: '#3F2A56'
                 });
+                return;
             }
+
+            if (type === 'out') {
+                const balance = getAccountBalance(account);
+                if (parseFloat(amount) > balance) {
+                    Swal.fire({
+                        title: 'رصيد غير كافٍ',
+                        text: `الرصيد الحالي للحساب "${account}" هو ${balance.toFixed(2)}. لا يمكن إتمام المعاملة بمبلغ ${amount}.`,
+                        icon: 'error',
+                        confirmButtonColor: '#3F2A56'
+                    });
+                    return;
+                }
+            }
+
+            transactions.push({ type, datetime: datetime.replace('T', ' '), amount, description, account });
+            localStorage.setItem('cashBoxTransactions', JSON.stringify(transactions));
+            filterTable();
+            bootstrap.Modal.getInstance(document.getElementById('addTransactionModal')).hide();
+            document.getElementById('addTransactionForm').reset();
+            setCurrentDateTime();
+            Swal.fire({
+                title: 'نجاح',
+                text: 'تم إضافة المعاملة بنجاح!',
+                icon: 'success',
+                confirmButtonColor: '#3F2A56'
+            });
         }
 
         function editTransaction(index) {
@@ -815,25 +890,39 @@
             const description = document.getElementById('editDescription').value.trim();
             const account = document.getElementById('editAccount').value;
 
-            if (type && datetime && amount && description && account) {
-                transactions[index] = { type, datetime: datetime.replace('T', ' '), amount, description, account };
-                localStorage.setItem('cashBoxTransactions', JSON.stringify(transactions));
-                filterTable();
-                bootstrap.Modal.getInstance(document.getElementById('editTransactionModal')).hide();
-                Swal.fire({
-                    title: 'نجاح',
-                    text: 'تم تعديل المعاملة بنجاح!',
-                    icon: 'success',
-                    confirmButtonColor: '#3F2A56'
-                });
-            } else {
+            if (!type || !datetime || !amount || !description || !account) {
                 Swal.fire({
                     title: 'خطأ في الإدخال',
                     text: 'الرجاء ملء جميع الحقول المطلوبة!',
                     icon: 'error',
                     confirmButtonColor: '#3F2A56'
                 });
+                return;
             }
+
+            if (type === 'out') {
+                const balance = getAccountBalance(account, index);
+                if (parseFloat(amount) > balance) {
+                    Swal.fire({
+                        title: 'رصيد غير كافٍ',
+                        text: `الرصيد الحالي للحساب "${account}" هو ${balance.toFixed(2)}. لا يمكن إتمام المعاملة بمبلغ ${amount}.`,
+                        icon: 'error',
+                        confirmButtonColor: '#3F2A56'
+                    });
+                    return;
+                }
+            }
+
+            transactions[index] = { type, datetime: datetime.replace('T', ' '), amount, description, account };
+            localStorage.setItem('cashBoxTransactions', JSON.stringify(transactions));
+            filterTable();
+            bootstrap.Modal.getInstance(document.getElementById('editTransactionModal')).hide();
+            Swal.fire({
+                title: 'نجاح',
+                text: 'تم تعديل المعاملة بنجاح!',
+                icon: 'success',
+                confirmButtonColor: '#3F2A56'
+            });
         }
 
         async function deleteTransaction(index) {
@@ -942,6 +1031,20 @@
                         updateAccountsTable();
                     } else {
                         return;
+                    }
+                }
+                for (const t of newTransactions) {
+                    if (t.type === 'out') {
+                        const balance = getAccountBalance(t.account);
+                        if (parseFloat(t.amount) > balance) {
+                            Swal.fire({
+                                title: 'رصيد غير كافٍ',
+                                text: `لا يمكن استيراد معاملة خارج للحساب "${t.account}" بمبلغ ${t.amount} لأن الرصيد الحالي هو ${balance.toFixed(2)}.`,
+                                icon: 'error',
+                                confirmButtonColor: '#3F2A56'
+                            });
+                            return;
+                        }
                     }
                 }
                 transactions = [...transactions, ...newTransactions];
