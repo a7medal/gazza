@@ -12,6 +12,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jsqr/1.4.0/jsQR.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#f9ffff">
     <style>
@@ -428,7 +429,6 @@
             </div>
         </div>
     </div>
-    <canvas id="tempQRCanvas" style="display: none;"></canvas>
     <audio id="successSound" src="https://www.soundjay.com/buttons/beep-01a.mp3" preload="auto"></audio>
     <script>
         let notaries = JSON.parse(localStorage.getItem('notaries')) || [];
@@ -558,7 +558,7 @@
             }
         }
 
-        async function editNotary(index) {
+        function editNotary(index) {
             document.getElementById('editIndex').value = index;
             document.getElementById('editName').value = notaries[index].name;
             document.getElementById('editIdNumber').value = notaries[index].idNumber;
@@ -926,7 +926,7 @@
                 }
                 const duplicates = newNotaries.filter(n => checkDuplicate(n.idNumber, n.phone));
                 if (duplicates.length > 0) {
-                    const result = await Swal.fire({
+                    const result = bangingSwal.fire({
                         title: 'تكرار المعلومات',
                         text: 'تم العثور على معلومات مكررة في الملف المستورد. اختر خيارًا:',
                         icon: 'warning',
@@ -981,47 +981,88 @@
                     return;
                 }
 
+                // تحويل البيانات إلى JSON وضغطها
                 const qrData = JSON.stringify(filteredNotaries);
-                const tempCanvas = document.getElementById('tempQRCanvas');
-                tempCanvas.width = 300;
-                tempCanvas.height = 300;
+                console.log('حجم البيانات الأصلية:', qrData.length, 'بايت');
 
-                new QRCode(tempCanvas, {
-                    text: qrData,
+                // ضغط البيانات باستخدام pako
+                const compressedData = pako.deflate(qrData, { to: 'string' });
+                const encodedData = btoa(compressedData); // تحويل إلى base64
+                console.log('حجم البيانات المضغوطة:', encodedData.length, 'بايت');
+
+                // فحص حجم البيانات
+                if (encodedData.length > 2953) { // الحد الأقصى لرمز QR (الإصدار 40)
+                    Swal.fire({
+                        title: 'البيانات كبيرة جدًا',
+                        text: 'البيانات المختارة كبيرة جدًا لإنشاء رمز QR. جرب تقليل عدد الموثقين أو إزالة استعلام البحث.',
+                        icon: 'warning',
+                        confirmButtonColor: '#3F2A56'
+                    });
+                    return;
+                }
+
+                // إنشاء قماش مؤقت
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.id = 'tempQRCanvas';
+                tempCanvas.style.display = 'none';
+                document.body.appendChild(tempCanvas);
+
+                // إنشاء رمز QR
+                const qr = new QRCode(tempCanvas, {
+                    text: encodedData,
                     width: 300,
                     height: 300,
                     colorDark: '#3F2A56',
-                    colorLight: '#ffffff'
+                    colorLight: '#ffffff',
+                    correctLevel: QRCode.CorrectLevel.H
                 });
 
-                Swal.fire({
-                    title: 'رمز QR للمعاملات',
-                    html: `
-                        <div style="text-align: center;">
-                            <canvas id="qrDisplayCanvas" style="margin: 20px auto;"></canvas>
-                            <div>
-                                <button class="btn btn-secondary" onclick="Swal.close()">إغلاق</button>
-                                <button class="btn" onclick="exportQRAsImage()">تصدير كصورة</button>
+                // الانتظار للتأكد من اكتمال إنشاء رمز QR
+                setTimeout(() => {
+                    Swal.fire({
+                        title: 'رمز QR للمعاملات',
+                        html: `
+                            <div style="text-align: center;">
+                                <canvas id="qrDisplayCanvas" style="margin: 20px auto;"></canvas>
+                                <div>
+                                    <button class="btn btn-secondary" onclick="Swal.close()">إغلاق</button>
+                                    <button class="btn" onclick="exportQRAsImage()">تصدير كصورة</button>
+                                </div>
                             </div>
-                        </div>
-                    `,
-                    showConfirmButton: false,
-                    didOpen: () => {
-                        const qrDisplayCanvas = document.getElementById('qrDisplayCanvas');
-                        qrDisplayCanvas.width = 300;
-                        qrDisplayCanvas.height = 300;
-                        const ctx = qrDisplayCanvas.getContext('2d');
-                        ctx.drawImage(tempCanvas, 0, 0);
-                    },
-                    customClass: {
-                        popup: 'swal2-rtl'
-                    }
-                });
+                        `,
+                        showConfirmButton: false,
+                        didOpen: () => {
+                            try {
+                                const qrDisplayCanvas = document.getElementById('qrDisplayCanvas');
+                                qrDisplayCanvas.width = 300;
+                                qrDisplayCanvas.height = 300;
+                                const ctx = qrDisplayCanvas.getContext('2d');
+                                ctx.drawImage(tempCanvas, 0, 0);
+                                console.log('تم عرض رمز QR في النافذة المنبثقة');
+                            } catch (error) {
+                                console.error('خطأ أثناء عرض رمز QR:', error);
+                                Swal.fire({
+                                    title: 'خطأ',
+                                    text: 'فشل عرض رمز QR. تحقق من وحدة التحكم للحصول على التفاصيل.',
+                                    icon: 'error',
+                                    confirmButtonColor: '#3F2A56'
+                                });
+                            }
+                        },
+                        willClose: () => {
+                            tempCanvas.remove();
+                        },
+                        customClass: {
+                            popup: 'swal2-rtl'
+                        }
+                    });
+                }, 100);
+
             } catch (error) {
                 console.error('خطأ في إنشاء رمز QR:', error);
                 Swal.fire({
                     title: 'خطأ',
-                    text: 'حدث خطأ أثناء إنشاء رمز QR.',
+                    text: 'حدث خطأ أثناء إنشاء رمز QR. تحقق من وحدة التحكم للحصول على التفاصيل.',
                     icon: 'error',
                     confirmButtonColor: '#3F2A56'
                 });
@@ -1030,12 +1071,32 @@
 
         // دالة تصدير رمز QR كصورة
         function exportQRAsImage() {
-            const qrCanvas = document.getElementById('qrDisplayCanvas');
-            const dataURL = qrCanvas.toDataURL('image/png');
-            const a = document.createElement('a');
-            a.href = dataURL;
-            a.download = 'notaries_qr.png';
-            a.click();
+            try {
+                const qrCanvas = document.getElementById('qrDisplayCanvas');
+                if (!qrCanvas || qrCanvas.width === 0) {
+                    Swal.fire({
+                        title: 'خطأ',
+                        text: 'لا يمكن تصدير رمز QR. القماش غير متوفر.',
+                        icon: 'error',
+                        confirmButtonColor: '#3F2A56'
+                    });
+                    return;
+                }
+                const dataURL = qrCanvas.toDataURL('image/png');
+                const a = document.createElement('a');
+                a.href = dataURL;
+                a.download = 'notaries_qr.png';
+                a.click();
+                console.log('تم تصدير رمز QR كصورة');
+            } catch (error) {
+                console.error('خطأ أثناء تصدير رمز QR:', error);
+                Swal.fire({
+                    title: 'خطأ',
+                    text: 'فشل تصدير رمز QR. تحقق من وحدة التحكم للحصول على التفاصيل.',
+                    icon: 'error',
+                    confirmButtonColor: '#3F2A56'
+                });
+            }
         }
 
         // دالة بدء مسح رمز QR
@@ -1120,7 +1181,11 @@
         // دالة معالجة بيانات رمز QR
         async function processQRData(data) {
             try {
-                const newNotaries = JSON.parse(data);
+                // فك ترميز base64 وفك الضغط
+                const compressedData = atob(data);
+                const decompressedData = pako.inflate(compressedData, { to: 'string' });
+                const newNotaries = JSON.parse(decompressedData);
+
                 if (!Array.isArray(newNotaries)) {
                     throw new Error('البيانات ليست قائمة موثقين صالحة.');
                 }
@@ -1141,9 +1206,6 @@
                         showCancelButton: true,
                         showDenyButton: true,
                         confirmButtonText: 'الاحتفاظ بالتكرارات',
-                        denyButtonText: 'حذف التكرارات',
-                        cancelButtonText: 'إلغاء',
-                        confirmButtonColor: '#3F2A56',
                         denyButtonText: 'حذف التكرارات',
                         cancelButtonText: 'إلغاء',
                         confirmButtonColor: '#3F2A56',
