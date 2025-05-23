@@ -1,7 +1,7 @@
 {
   "name": "طيبة المدينة تلكوم ",
   "short_name": " طيبة المدينة تلكوم",
-  "start_url": ".",
+  "start_url": "login.html",
   "display": "standalone",
   "background_color": "#f9ffff",
   "theme_color": "#f9ffff",
