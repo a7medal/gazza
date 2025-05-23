@@ -10,6 +10,9 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+    <link rel="manifest" href="/manifest.json">
     <style>
         * {
             margin: 0;
@@ -372,6 +375,9 @@
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
         }
+        #qrCanvas { display: none; }
+        #scannerContainer { display: none; text-align: center; margin-top: 20px; }
+        #scannerVideo { max-width: 100%; border-radius: 10px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); }
         @media (max-width: 768px) {
             .header { padding: 25px 15px; border-radius: 15px; }
             .header img { height: 70px; }
@@ -384,6 +390,7 @@
             .modal-body { padding: 20px; }
             .modal-body .form-control, .modal-body .form-select { font-size: 0.9rem; }
             .search-container .filter-group { width: 100%; max-width: 100%; }
+            #scannerVideo { width: 100%; }
         }
         .swal2-popup {
             font-family: 'Cairo', sans-serif !important;
@@ -456,6 +463,8 @@
             <button class="btn" onclick="exportToCSV()"><i class="fas fa-file-csv"></i> تصدير إلى CSV</button>
             <input type="file" id="importFile" accept=".json,.csv" style="display: none;" onchange="importFile(event)">
             <button class="btn" onclick="document.getElementById('importFile').click()"><i class="fas fa-file-import"></i> استيراد ملف</button>
+            <button class="btn" onclick="generateQRCode()"><i class="fas fa-qrcode"></i> إنشاء QR Code</button>
+            <button class="btn" onclick="startQRScanner()"><i class="fas fa-camera"></i> استقبال QR Code</button>
             <button class="btn" onclick="printTable()"><i class="fas fa-print"></i> طباعة</button>
         </div>
         <div class="search-container">
@@ -491,6 +500,11 @@
                 </thead>
                 <tbody id="transactionsTable"></tbody>
             </table>
+        </div>
+        <canvas id="qrCanvas"></canvas>
+        <div id="scannerContainer">
+            <video id="scannerVideo" autoplay playsinline></video>
+            <button class="btn" onclick="stopQRScanner()"><i class="fas fa-stop"></i> إيقاف المسح</button>
         </div>
     </div>
 
@@ -637,6 +651,41 @@
     <script>
         let transactions = JSON.parse(localStorage.getItem('cashBoxTransactions')) || [];
         let accounts = JSON.parse(localStorage.getItem('cashBoxAccounts')) || [];
+        let stream = null;
+
+        // تسجيل Service Worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/ServiceWorker.js').then(() => {
+                console.log('Service Worker Registered');
+            }).catch((error) => {
+                console.error('Service Worker Registration Failed:', error);
+            });
+        }
+
+        // معالجة الملفات عند فتح التطبيق عبر File Handling
+        if ('launchQueue' in window) {
+            window.launchQueue.setConsumer(async (launchParams) => {
+                if (launchParams.files && launchParams.files.length > 0) {
+                    const fileHandle = launchParams.files[0];
+                    const file = await fileHandle.getFile();
+                    const result = await Swal.fire({
+                        title: 'فتح ملف',
+                        text: `تم تحديد ملف ${file.name}. هل تريد معالجته؟`,
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonText: 'معالجة',
+                        cancelButtonText: 'إلغاء',
+                        confirmButtonColor: '#3F2A56',
+                        cancelButtonColor: '#dc3545',
+                        customClass: { popup: 'swal2-rtl' }
+                    });
+                    if (result.isConfirmed) {
+                        const fakeEvent = { target: { files: [file] } };
+                        await importFile(fakeEvent);
+                    }
+                }
+            });
+        }
 
         function formatDateTime(date) {
             return date.toLocaleString('en-US', {
@@ -895,7 +944,6 @@
             const oldName = accounts[index];
             accounts[index] = newName;
 
-            // تحديث اسم الحساب في جميع المعاملات
             transactions.forEach(t => {
                 if (t.account === oldName) {
                     t.account = newName;
@@ -984,20 +1032,19 @@
                     });
                     return;
                 }
+                transactions.push({ type, datetime: datetime.replace('T', ' '), amount, description, account });
+                localStorage.setItem('cashBoxTransactions', JSON.stringify(transactions));
+                filterTable();
+                bootstrap.Modal.getInstance(document.getElementById('addTransactionModal')).hide();
+                document.getElementById('addTransactionForm').reset();
+                setCurrentDateTime();
+                Swal.fire({
+                    title: 'نجاح',
+                    text: 'تم إضافة المعاملة بنجاح!',
+                    icon: 'success',
+                    confirmButtonColor: '#3F2A56'
+                });
             }
-
-            transactions.push({ type, datetime: datetime.replace('T', ' '), amount, description, account });
-            localStorage.setItem('cashBoxTransactions', JSON.stringify(transactions));
-            filterTable();
-            bootstrap.Modal.getInstance(document.getElementById('addTransactionModal')).hide();
-            document.getElementById('addTransactionForm').reset();
-            setCurrentDateTime();
-            Swal.fire({
-                title: 'نجاح',
-                text: 'تم إضافة المعاملة بنجاح!',
-                icon: 'success',
-                confirmButtonColor: '#3F2A56'
-            });
         }
 
         function editTransaction(index) {
@@ -1137,7 +1184,6 @@
                     });
                 }
 
-                // إضافة الحسابات الجديدة تلقائيًا
                 newTransactions.forEach(t => {
                     if (!accounts.includes(t.account) && t.account) {
                         accounts.push(t.account);
@@ -1147,7 +1193,6 @@
                 populateAccounts();
                 updateAccountsTable();
 
-                // التحقق من صحة المعاملات (يجب أن تحتوي على جميع الحقول المطلوبة)
                 const invalidTransactions = newTransactions.filter(t => 
                     !t.type || !t.datetime || !t.amount || !t.description || !t.account || 
                     isNaN(parseFloat(t.amount)) || parseFloat(t.amount) < 0
@@ -1155,17 +1200,14 @@
                 if (invalidTransactions.length > 0) {
                     Swal.fire({
                         title: 'خطأ في البيانات',
-                        text: 'تم العثور على معاملات غير صالحة في الملف. الرجاء التحقق من تنسيق الملف (يجب أن يحتوي على نوع، تاريخ، مبلغ، بيان، وحساب).',
+                        text: 'تم العثور على معاملات غير صالحة في الملف. الرجاء التحقق من تنسيق الملف.',
                         icon: 'error',
                         confirmButtonColor: '#3F2A56'
                     });
                     return;
                 }
 
-                // ترتيب المعاملات حسب التاريخ لضمان الحساب الصحيح
                 newTransactions.sort((a, b) => new Date(a.datetime) - new Date(b.datetime));
-
-                // محاكاة إضافة المعاملات مؤقتًا للتحقق من الأرصدة
                 const tempTransactions = [...transactions, ...newTransactions];
                 const negativeBalances = [];
                 accounts.forEach(account => {
@@ -1178,7 +1220,6 @@
                     }
                 });
 
-                // إذا كانت هناك أرصدة سالبة، عرض تحذير مع خيار المتابعة
                 if (negativeBalances.length > 0) {
                     let warningMessage = 'تم العثور على حسابات برصيد سالب بعد الاستيراد:<br>';
                     negativeBalances.forEach(({ account, balance }) => {
@@ -1211,7 +1252,6 @@
                     }
                 }
 
-                // إضافة المعاملات إذا تمت الموافقة أو لم تكن هناك أرصدة سالبة
                 transactions = tempTransactions;
                 localStorage.setItem('cashBoxTransactions', JSON.stringify(transactions));
                 filterTable();
@@ -1233,6 +1273,190 @@
                     confirmButtonColor: '#3F2A56'
                 });
             }
+        }
+
+        function generateQRCode() {
+            const data = {
+                transactions: transactions,
+                accounts: accounts
+            };
+            const dataString = JSON.stringify(data);
+            const qrCanvas = document.getElementById('qrCanvas');
+            qrCanvas.style.display = 'block';
+            QRCode.toCanvas(qrCanvas, dataString, { width: 300, margin: 2 }, (error) => {
+                if (error) {
+                    Swal.fire({
+                        title: 'خطأ',
+                        text: 'فشل في إنشاء رمز QR!',
+                        icon: 'error',
+                        confirmButtonColor: '#3F2A56'
+                    });
+                    return;
+                }
+                Swal.fire({
+                    title: 'رمز QR جاهز',
+                    html: '<canvas id="tempQRCanvas"></canvas><p>امسح هذا الرمز من جهاز آخر لنقل البيانات</p>',
+                    confirmButtonText: 'إغلاق',
+                    confirmButtonColor: '#3F2A56',
+                    customClass: { popup: 'swal2-rtl' },
+                    didOpen: () => {
+                        const tempCanvas = document.getElementById('tempQRCanvas');
+                        tempCanvas.width = qrCanvas.width;
+                        tempCanvas.height = qrCanvas.height;
+                        tempCanvas.getContext('2d').drawImage(qrCanvas, 0, 0);
+                    }
+                });
+                qrCanvas.style.display = 'none';
+            });
+        }
+
+        async function startQRScanner() {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+                const video = document.getElementById('scannerVideo');
+                const scannerContainer = document.getElementById('scannerContainer');
+                scannerContainer.style.display = 'block';
+                video.srcObject = stream;
+                video.play();
+
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+
+                function scan() {
+                    if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                        canvas.width = video.videoWidth;
+                        canvas.height = video.videoHeight;
+                        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                        const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                        const code = jsQR(imageData.data, imageData.width, imageData.height, {
+                            inversionAttempts: 'dontInvert'
+                        });
+
+                        if (code) {
+                            stopQRScanner();
+                            try {
+                                const data = JSON.parse(code.data);
+                                processQRData(data);
+                            } catch (e) {
+                                Swal.fire({
+                                    title: 'خطأ',
+                                    text: 'البيانات في رمز QR غير صالحة!',
+                                    icon: 'error',
+                                    confirmButtonColor: '#3F2A56'
+                                });
+                            }
+                            return;
+                        }
+                    }
+                    requestAnimationFrame(scan);
+                }
+                requestAnimationFrame(scan);
+            } catch (error) {
+                Swal.fire({
+                    title: 'خطأ',
+                    text: 'فشل في الوصول إلى الكاميرا! تأكد من منح الأذونات.',
+                    icon: 'error',
+                    confirmButtonColor: '#3F2A56'
+                });
+            }
+        }
+
+        function stopQRScanner() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
+            document.getElementById('scannerContainer').style.display = 'none';
+            document.getElementById('scannerVideo').srcObject = null;
+        }
+
+        async function processQRData(data) {
+            if (!data.transactions || !data.accounts) {
+                Swal.fire({
+                    title: 'خطأ',
+                    text: 'البيانات غير مكتملة! يجب أن تحتوي على transactions وaccounts.',
+                    icon: 'error',
+                    confirmButtonColor: '#3F2A56'
+                });
+                return;
+            }
+
+            const newTransactions = data.transactions;
+            const newAccounts = data.accounts;
+
+            newAccounts.forEach(account => {
+                if (!accounts.includes(account)) {
+                    accounts.push(account);
+                }
+            });
+            localStorage.setItem('cashBoxAccounts', JSON.stringify(accounts));
+            populateAccounts();
+            updateAccountsTable();
+
+            const invalidTransactions = newTransactions.filter(t =>
+                !t.type || !t.datetime || !t.amount || !t.description || !t.account ||
+                isNaN(parseFloat(t.amount)) || parseFloat(t.amount) < 0
+            );
+            if (invalidTransactions.length > 0) {
+                Swal.fire({
+                    title: 'خطأ في البيانات',
+                    text: 'تم العثور على معاملات غير صالحة.',
+                    icon: 'error',
+                    confirmButtonColor: '#3F2A56'
+                });
+                return;
+            }
+
+            newTransactions.sort((a, b) => new Date(a.datetime) - new Date(b.datetime));
+            const tempTransactions = [...transactions, ...newTransactions];
+            const negativeBalances = [];
+            accounts.forEach(account => {
+                const balance = tempTransactions.reduce((bal, t) => {
+                    if (t.account !== account) return bal;
+                    return bal + (t.type === 'in' ? parseFloat(t.amount) : -parseFloat(t.amount));
+                }, 0);
+                if (balance < 0) {
+                    negativeBalances.push({ account, balance: balance.toFixed(2) });
+                }
+            });
+
+            if (negativeBalances.length > 0) {
+                let warningMessage = 'تم العثور على حسابات برصيد سالب بعد الاستيراد:<br>';
+                negativeBalances.forEach(({ account, balance }) => {
+                    warningMessage += `الحساب: ${account}, الرصيد: ${balance}<br>`;
+                });
+                warningMessage += 'هل تريد المتابعة على أي حال؟';
+                const result = await Swal.fire({
+                    title: 'تحذير: رصيد سالب',
+                    html: warningMessage,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'المتابعة على أي حال',
+                    cancelButtonText: 'إلغاء',
+                    confirmButtonColor: '#3F2A56',
+                    cancelButtonColor: '#dc3545',
+                    customClass: { popup: 'swal2-rtl' }
+                });
+                if (!result.isConfirmed) {
+                    Swal.fire({
+                        title: 'تم الإلغاء',
+                        text: 'لم يتم استيراد البيانات.',
+                        icon: 'info',
+                        confirmButtonColor: '#3F2A56'
+                    });
+                    return;
+                }
+            }
+
+            transactions = tempTransactions;
+            localStorage.setItem('cashBoxTransactions', JSON.stringify(transactions));
+            filterTable();
+            Swal.fire({
+                title: 'نجاح',
+                text: 'تم استيراد البيانات من رمز QR بنجاح!',
+                icon: 'success',
+                confirmButtonColor: '#3F2A56'
+            });
         }
 
         function setCurrentDateTime() {
@@ -1475,146 +1699,4 @@
                             </div>
                             <div class="dashboard-container">
                                 <div class="dashboard-section">
-                                    <h4>الرصيد الداخل</h4>
-                                    <p><strong>المجموع:</strong> ${totalIn.toFixed(2)}</p>
-                                    <p><strong>العدد:</strong> ${inTransactions.length}</p>
-                                </div>
-                                <div class="dashboard-section">
-                                    <h4>الرصيد الخارج</h4>
-                                    <p><strong>المجموع:</strong> ${totalOut.toFixed(2)}</p>
-                                    <p><strong>العدد:</strong> ${outTransactions.length}</p>
-                                </div>
-                            </div>
-                            <div class="balance-container">
-                                <h4>الرصيد الإجمالي</h4>
-                                <p>${balance.toFixed(2)}</p>
-                            </div>
-                            <div class="print-date">تاريخ الطباعة: ${printDate}</div>
-                `);
-
-                sortTransactionsByDate();
-
-                // جدول المعاملات "داخل"
-                if (inTransactions.length > 0) {
-                    printWindow.document.write(`
-                        <h2>المعاملات الداخلة</h2>
-                        <div class="transactions-count">عدد المعاملات: ${inTransactions.length}</div>
-                    `);
-                    for (let page = 0; page < inPages; page++) {
-                        if (page > 0) {
-                            printWindow.document.write('<div class="page-break"></div>');
-                        }
-                        printWindow.document.write(`
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>التاريخ والوقت</th>
-                                        <th>المبلغ</th>
-                                        <th>البيان</th>
-                                        <th>الحساب</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                        `);
-                        const start = page * itemsPerPage;
-                        const end = Math.min(start + itemsPerPage, inTransactions.length);
-                        for (let i = start; i < end; i++) {
-                            const transaction = inTransactions[i];
-                            printWindow.document.write(`
-                                <tr>
-                                    <td>${i + 1}</td>
-                                    <td>${transaction.datetime}</td>
-                                    <td>${transaction.amount}</td>
-                                    <td>${transaction.description}</td>
-                                    <td>${transaction.account}</td>
-                                </tr>
-                            `);
-                        }
-                        printWindow.document.write(`
-                                </tbody>
-                            </table>
-                            <div class="footer">هذا المستند من نظام طيبة المدينة تلكوم وهو موقع رقميًا</div>
-                            <div class="page-number">الصفحة ${page + 1} من ${totalPages}</div>
-                        `);
-                    }
-                }
-
-                // جدول المعاملات "خارج"
-                if (outTransactions.length > 0) {
-                    if (inTransactions.length > 0) {
-                        printWindow.document.write('<div class="page-break"></div>');
-                    }
-                    printWindow.document.write(`
-                        <h2>المعاملات الخارجة</h2>
-                        <div class="transactions-count">عدد المعاملات: ${outTransactions.length}</div>
-                    `);
-                    for (let page = 0; page < outPages; page++) {
-                        if (page > 0) {
-                            printWindow.document.write('<div class="page-break"></div>');
-                        }
-                        printWindow.document.write(`
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>التاريخ والوقت</th>
-                                        <th>المبلغ</th>
-                                        <th>البيان</th>
-                                        <th>الحساب</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                        `);
-                        const start = page * itemsPerPage;
-                        const end = Math.min(start + itemsPerPage, outTransactions.length);
-                        for (let i = start; i < end; i++) {
-                            const transaction = outTransactions[i];
-                            printWindow.document.write(`
-                                <tr>
-                                    <td>${i + 1}</td>
-                                    <td>${transaction.datetime}</td>
-                                    <td>${transaction.amount}</td>
-                                    <td>${transaction.description}</td>
-                                    <td>${transaction.account}</td>
-                                </tr>
-                            `);
-                        }
-                        printWindow.document.write(`
-                                </tbody>
-                            </table>
-                            <div class="footer">هذا المستند من نظام طيبة المدينة تلكوم وهو موقع رقميًا</div>
-                            <div class="page-number">الصفحة ${page + inPages + 1} من ${totalPages}</div>
-                        `);
-                    }
-                }
-
-                printWindow.document.write(`
-                        </div>
-                    </body>
-                    </html>
-                `);
-                printWindow.document.close();
-            } catch (error) {
-                console.error('خطأ في دالة printTable:', error);
-                Swal.fire({
-                    title: 'خطأ',
-                    text: 'حدث خطأ أثناء تحضير الطباعة: ' + error.message,
-                    icon: 'error',
-                    confirmButtonColor: '#3F2A56'
-                });
-            }
-        }
-
-        window.onload = () => {
-            setCurrentDateTime();
-            populateAccounts();
-            filterTable();
-        };
-
-        document.getElementById('addTransactionModal').addEventListener('show.bs.modal', () => {
-            setCurrentDateTime();
-        });
-    </script>
-</body>
-</html>
+                                    <
