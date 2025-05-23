@@ -1130,7 +1130,7 @@
                         return {
                             type: type === 'داخل' ? 'in' : 'out',
                             datetime,
-                            amount,
+                            amount: parseFloat(amount).toFixed(2),
                             description,
                             account
                         };
@@ -1139,7 +1139,7 @@
 
                 // إضافة الحسابات الجديدة تلقائيًا
                 newTransactions.forEach(t => {
-                    if (!accounts.includes(t.account)) {
+                    if (!accounts.includes(t.account) && t.account) {
                         accounts.push(t.account);
                     }
                 });
@@ -1147,23 +1147,72 @@
                 populateAccounts();
                 updateAccountsTable();
 
-                // التحقق من الرصيد للمعاملات الخارجة
-                for (const t of newTransactions) {
-                    if (t.type === 'out') {
-                        const balance = getAccountBalance(t.account);
-                        if (parseFloat(t.amount) > balance) {
-                            Swal.fire({
-                                title: 'رصيد غير كافٍ',
-                                text: `لا يمكن استيراد معاملة خارج للحساب "${t.account}" بمبلغ ${t.amount} لأن الرصيد الحالي هو ${balance.toFixed(2)}.`,
-                                icon: 'error',
-                                confirmButtonColor: '#3F2A56'
-                            });
-                            return;
+                // التحقق من صحة المعاملات (يجب أن تحتوي على جميع الحقول المطلوبة)
+                const invalidTransactions = newTransactions.filter(t => 
+                    !t.type || !t.datetime || !t.amount || !t.description || !t.account || 
+                    isNaN(parseFloat(t.amount)) || parseFloat(t.amount) < 0
+                );
+                if (invalidTransactions.length > 0) {
+                    Swal.fire({
+                        title: 'خطأ في البيانات',
+                        text: 'تم العثور على معاملات غير صالحة في الملف. الرجاء التحقق من تنسيق الملف (يجب أن يحتوي على نوع، تاريخ، مبلغ، بيان، وحساب).',
+                        icon: 'error',
+                        confirmButtonColor: '#3F2A56'
+                    });
+                    return;
+                }
+
+                // ترتيب المعاملات حسب التاريخ لضمان الحساب الصحيح
+                newTransactions.sort((a, b) => new Date(a.datetime) - new Date(b.datetime));
+
+                // محاكاة إضافة المعاملات مؤقتًا للتحقق من الأرصدة
+                const tempTransactions = [...transactions, ...newTransactions];
+                const negativeBalances = [];
+                accounts.forEach(account => {
+                    const balance = tempTransactions.reduce((bal, t) => {
+                        if (t.account !== account) return bal;
+                        return bal + (t.type === 'in' ? parseFloat(t.amount) : -parseFloat(t.amount));
+                    }, 0);
+                    if (balance < 0) {
+                        negativeBalances.push({ account, balance: balance.toFixed(2) });
+                    }
+                });
+
+                // إذا كانت هناك أرصدة سالبة، عرض تحذير مع خيار المتابعة
+                if (negativeBalances.length > 0) {
+                    let warningMessage = 'تم العثور على حسابات برصيد سالب بعد الاستيراد:<br>';
+                    negativeBalances.forEach(({ account, balance }) => {
+                        warningMessage += `الحساب: ${account}, الرصيد: ${balance}<br>`;
+                    });
+                    warningMessage += 'هل تريد المتابعة على أي حال؟';
+
+                    const result = await Swal.fire({
+                        title: 'تحذير: رصيد سالب',
+                        html: warningMessage,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'المتابعة على أي حال',
+                        cancelButtonText: 'إلغاء',
+                        confirmButtonColor: '#3F2A56',
+                        cancelButtonColor: '#dc3545',
+                        customClass: {
+                            popup: 'swal2-rtl'
                         }
+                    });
+
+                    if (!result.isConfirmed) {
+                        Swal.fire({
+                            title: 'تم الإلغاء',
+                            text: 'لم يتم استيراد الملف بسبب الأرصدة السالبة.',
+                            icon: 'info',
+                            confirmButtonColor: '#3F2A56'
+                        });
+                        return;
                     }
                 }
 
-                transactions = [...transactions, ...newTransactions];
+                // إضافة المعاملات إذا تمت الموافقة أو لم تكن هناك أرصدة سالبة
+                transactions = tempTransactions;
                 localStorage.setItem('cashBoxTransactions', JSON.stringify(transactions));
                 filterTable();
                 Swal.fire({
@@ -1173,6 +1222,7 @@
                     confirmButtonColor: '#3F2A56'
                 });
             };
+
             if (file.name.endsWith('.json') || file.name.endsWith('.csv')) {
                 reader.readAsText(file);
             } else {
@@ -1467,9 +1517,7 @@
                                 </thead>
                                 <tbody>
                         `);
-                        const
-
- start = page * itemsPerPage;
+                        const start = page * itemsPerPage;
                         const end = Math.min(start + itemsPerPage, inTransactions.length);
                         for (let i = start; i < end; i++) {
                             const transaction = inTransactions[i];
