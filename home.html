@@ -10,9 +10,9 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsqr/1.4.0/jsQR.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsqr/1.4.0/jsQR.min.js"></script>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#f9ffff">
     <style>
@@ -317,7 +317,7 @@
             <div class="card">
                 <i class="fas fa-clock"></i>
                 <h5>آخر تحديث</h5>
-                <h3 id="lastUpdate">01:12 PM GMT, 22 May 2025</h3>
+                <h3 id="lastUpdate">06:09 PM GMT, 23 May 2025</h3>
             </div>
         </div>
         <div class="actions">
@@ -351,6 +351,7 @@
                 <tbody id="notariesTable"></tbody>
             </table>
         </div>
+        <canvas id="qrCanvas" style="display: none;"></canvas>
     </div>
     <div class="modal fade" id="addNotaryModal" tabindex="-1" aria-labelledby="addNotaryModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -926,7 +927,7 @@
                 }
                 const duplicates = newNotaries.filter(n => checkDuplicate(n.idNumber, n.phone));
                 if (duplicates.length > 0) {
-                    const result = bangingSwal.fire({
+                    const result = await Swal.fire({
                         title: 'تكرار المعلومات',
                         text: 'تم العثور على معلومات مكررة في الملف المستورد. اختر خيارًا:',
                         icon: 'warning',
@@ -959,7 +960,6 @@
             }
         }
 
-        // دالة إنشاء رمز QR
         function generateQRCode() {
             try {
                 const searchQuery = document.getElementById('searchInput').value.toLowerCase();
@@ -981,63 +981,113 @@
                     return;
                 }
 
-                // تحويل البيانات إلى JSON وضغطها
                 const qrData = JSON.stringify(filteredNotaries);
                 console.log('حجم البيانات الأصلية:', qrData.length, 'بايت');
-
-                // ضغط البيانات باستخدام pako
                 const compressedData = pako.deflate(qrData, { to: 'string' });
-                const encodedData = btoa(compressedData); // تحويل إلى base64
+                const encodedData = btoa(compressedData);
                 console.log('حجم البيانات المضغوطة:', encodedData.length, 'بايت');
 
-                // فحص حجم البيانات
-                if (encodedData.length > 2953) { // الحد الأقصى لرمز QR (الإصدار 40)
+                if (encodedData.length > 2953) {
                     Swal.fire({
                         title: 'البيانات كبيرة جدًا',
-                        text: 'البيانات المختارة كبيرة جدًا لإنشاء رمز QR. جرب تقليل عدد الموثقين أو إزالة استعلام البحث.',
+                        html: `
+                            <p>البيانات المضغوطة (${encodedData.length} بايت) تتجاوز الحد الأقصى لرمز QR (2953 بايت).</p>
+                            <p>اختر خيارًا:</p>
+                            <button id="limitDataBtn" class="btn">تحديد عدد الموثقين</button>
+                            <p>أو قم بتقليل عدد الموثقين يدويًا أو إزالة استعلام البحث.</p>
+                        `,
                         icon: 'warning',
-                        confirmButtonColor: '#3F2A56'
+                        showCancelButton: true,
+                        confirmButtonText: 'إغلاق',
+                        cancelButtonText: 'إلغاء',
+                        confirmButtonColor: '#3F2A56',
+                        cancelButtonColor: '#6c757d',
+                        customClass: { popup: 'swal2-rtl' },
+                        didOpen: () => {
+                            document.getElementById('limitDataBtn').addEventListener('click', () => {
+                                Swal.close();
+                                Swal.fire({
+                                    title: 'تحديد عدد الموثقين',
+                                    input: 'number',
+                                    inputLabel: 'أدخل عدد الموثقين (الحد الأقصى للرمز الحالي: ~${Math.floor(2953 / (qrData.length / filteredNotaries.length))}):',
+                                    inputAttributes: { min: 1, max: filteredNotaries.length, step: 1 },
+                                    showCancelButton: true,
+                                    confirmButtonText: 'إنشاء رمز QR',
+                                    cancelButtonText: 'إلغاء',
+                                    confirmButtonColor: '#3F2A56',
+                                    cancelButtonColor: '#6c757d',
+                                    customClass: { popup: 'swal2-rtl' }
+                                }).then(result => {
+                                    if (result.isConfirmed && result.value) {
+                                        const limit = parseInt(result.value);
+                                        if (limit > 0 && limit <= filteredNotaries.length) {
+                                            const limitedNotaries = filteredNotaries.slice(0, limit);
+                                            const limitedData = JSON.stringify(limitedNotaries);
+                                            const limitedCompressed = pako.deflate(limitedData, { to: 'string' });
+                                            const limitedEncoded = btoa(limitedCompressed);
+                                            if (limitedEncoded.length <= 2953) {
+                                                generateLimitedQRCode(limitedEncoded);
+                                            } else {
+                                                Swal.fire({
+                                                    title: 'خطأ',
+                                                    text: 'البيانات لا تزال كبيرة جدًا. جرب عددًا أقل من الموثقين.',
+                                                    icon: 'error',
+                                                    confirmButtonColor: '#3F2A56'
+                                                });
+                                            }
+                                        }
+                                    }
+                                });
+                            });
+                        }
                     });
                     return;
                 }
 
-                // إنشاء قماش مؤقت
-                const tempCanvas = document.createElement('canvas');
-                tempCanvas.id = 'tempQRCanvas';
-                tempCanvas.style.display = 'none';
-                document.body.appendChild(tempCanvas);
+                const qrCanvas = document.getElementById('qrCanvas');
+                if (!qrCanvas) throw new Error('عنصر Canvas غير موجود');
 
-                // إنشاء رمز QR
-                const qr = new QRCode(tempCanvas, {
-                    text: encodedData,
-                    width: 300,
-                    height: 300,
-                    colorDark: '#3F2A56',
-                    colorLight: '#ffffff',
-                    correctLevel: QRCode.CorrectLevel.H
-                });
+                QRCode.toCanvas(qrCanvas, encodedData, { 
+                    width: 300, 
+                    margin: 2, 
+                    color: { dark: '#3F2A56', light: '#ffffff' }
+                }, (error) => {
+                    if (error) {
+                        console.error('خطأ في إنشاء رمز QR:', error);
+                        Swal.fire({
+                            title: 'خطأ',
+                            text: 'فشل في إنشاء رمز QR! تأكد من تحميل المكتبة.',
+                            icon: 'error',
+                            confirmButtonColor: '#3F2A56'
+                        });
+                        return;
+                    }
 
-                // الانتظار للتأكد من اكتمال إنشاء رمز QR
-                setTimeout(() => {
                     Swal.fire({
-                        title: 'رمز QR للمعاملات',
+                        title: 'رمز QR جاهز',
                         html: `
                             <div style="text-align: center;">
                                 <canvas id="qrDisplayCanvas" style="margin: 20px auto;"></canvas>
-                                <div>
-                                    <button class="btn btn-secondary" onclick="Swal.close()">إغلاق</button>
+                                <p>امسح هذا الرمز لنقل بيانات الموثقين</p>
+                                <div class="scanner-buttons">
                                     <button class="btn" onclick="exportQRAsImage()">تصدير كصورة</button>
                                 </div>
                             </div>
                         `,
-                        showConfirmButton: false,
+                        showCancelButton: true,
+                        confirmButtonText: 'إغلاق',
+                        cancelButtonText: 'إلغاء',
+                        confirmButtonColor: '#3F2A56',
+                        cancelButtonColor: '#6c757d',
+                        customClass: { popup: 'swal2-rtl' },
+                        width: '500px',
                         didOpen: () => {
                             try {
                                 const qrDisplayCanvas = document.getElementById('qrDisplayCanvas');
-                                qrDisplayCanvas.width = 300;
-                                qrDisplayCanvas.height = 300;
+                                qrDisplayCanvas.width = qrCanvas.width;
+                                qrDisplayCanvas.height = qrCanvas.height;
                                 const ctx = qrDisplayCanvas.getContext('2d');
-                                ctx.drawImage(tempCanvas, 0, 0);
+                                ctx.drawImage(qrCanvas, 0, 0);
                                 console.log('تم عرض رمز QR في النافذة المنبثقة');
                             } catch (error) {
                                 console.error('خطأ أثناء عرض رمز QR:', error);
@@ -1048,16 +1098,9 @@
                                     confirmButtonColor: '#3F2A56'
                                 });
                             }
-                        },
-                        willClose: () => {
-                            tempCanvas.remove();
-                        },
-                        customClass: {
-                            popup: 'swal2-rtl'
                         }
                     });
-                }, 100);
-
+                });
             } catch (error) {
                 console.error('خطأ في إنشاء رمز QR:', error);
                 Swal.fire({
@@ -1069,11 +1112,80 @@
             }
         }
 
-        // دالة تصدير رمز QR كصورة
+        function generateLimitedQRCode(encodedData) {
+            try {
+                const qrCanvas = document.getElementById('qrCanvas');
+                if (!qrCanvas) throw new Error('عنصر Canvas غير موجود');
+
+                QRCode.toCanvas(qrCanvas, encodedData, { 
+                    width: 300, 
+                    margin: 2, 
+                    color: { dark: '#3F2A56', light: '#ffffff' }
+                }, (error) => {
+                    if (error) {
+                        console.error('خطأ في إنشاء رمز QR:', error);
+                        Swal.fire({
+                            title: 'خطأ',
+                            text: 'فشل في إنشاء رمز QR! تأكد من تحميل المكتبة.',
+                            icon: 'error',
+                            confirmButtonColor: '#3F2A56'
+                        });
+                        return;
+                    }
+
+                    Swal.fire({
+                        title: 'رمز QR جاهز',
+                        html: `
+                            <div style="text-align: center;">
+                                <canvas id="qrDisplayCanvas" style="margin: 20px auto;"></canvas>
+                                <p>امسح هذا الرمز لنقل بيانات الموثقين</p>
+                                <div class="scanner-buttons">
+                                    <button class="btn" onclick="exportQRAsImage()">تصدير كصورة</button>
+                                </div>
+                            </div>
+                        `,
+                        showCancelButton: true,
+                        confirmButtonText: 'إغلاق',
+                        cancelButtonText: 'إلغاء',
+                        confirmButtonColor: '#3F2A56',
+                        cancelButtonColor: '#6c757d',
+                        customClass: { popup: 'swal2-rtl' },
+                        width: '500px',
+                        didOpen: () => {
+                            try {
+                                const qrDisplayCanvas = document.getElementById('qrDisplayCanvas');
+                                qrDisplayCanvas.width = qrCanvas.width;
+                                qrDisplayCanvas.height = qrCanvas.height;
+                                const ctx = qrDisplayCanvas.getContext('2d');
+                                ctx.drawImage(qrCanvas, 0, 0);
+                                console.log('تم عرض رمز QR في النافذة المنبثقة');
+                            } catch (error) {
+                                console.error('خطأ أثناء عرض رمز QR:', error);
+                                Swal.fire({
+                                    title: 'خطأ',
+                                    text: 'فشل عرض رمز QR. تحقق من وحدة التحكم للحصول على التفاصيل.',
+                                    icon: 'error',
+                                    confirmButtonColor: '#3F2A56'
+                                });
+                            }
+                        }
+                    });
+                });
+            } catch (error) {
+                console.error('خطأ في إنشاء رمز QR:', error);
+                Swal.fire({
+                    title: 'خطأ',
+                    text: 'حدث خطأ أثناء إنشاء رمز QR. تحقق من وحدة التحكم للحصول على التفاصيل.',
+                    icon: 'error',
+                    confirmButtonColor: '#3F2A56'
+                });
+            }
+        }
+
         function exportQRAsImage() {
             try {
-                const qrCanvas = document.getElementById('qrDisplayCanvas');
-                if (!qrCanvas || qrCanvas.width === 0) {
+                const qrCanvas = document.getElementById('qrCanvas');
+                if (!qrCanvas                if (!qrCanvas || qrCanvas.width === 0) {
                     Swal.fire({
                         title: 'خطأ',
                         text: 'لا يمكن تصدير رمز QR. القماش غير متوفر.',
@@ -1087,7 +1199,12 @@
                 a.href = dataURL;
                 a.download = 'notaries_qr.png';
                 a.click();
-                console.log('تم تصدير رمز QR كصورة');
+                Swal.fire({
+                    title: 'نجاح',
+                    text: 'تم تصدير رمز QR كصورة بنجاح!',
+                    icon: 'success',
+                    confirmButtonColor: '#3F2A56'
+                });
             } catch (error) {
                 console.error('خطأ أثناء تصدير رمز QR:', error);
                 Swal.fire({
@@ -1099,7 +1216,6 @@
             }
         }
 
-        // دالة بدء مسح رمز QR
         function scanQRCode() {
             Swal.fire({
                 title: 'مسح رمز QR',
@@ -1125,7 +1241,6 @@
             });
         }
 
-        // دالة بدء الكاميرا لمسح رمز QR
         let videoStream = null;
         async function startQRScanner() {
             try {
@@ -1170,7 +1285,6 @@
             }
         }
 
-        // دالة إيقاف الكاميرا
         function stopQRScanner() {
             if (videoStream) {
                 videoStream.getTracks().forEach(track => track.stop());
@@ -1178,10 +1292,8 @@
             }
         }
 
-        // دالة معالجة بيانات رمز QR
         async function processQRData(data) {
             try {
-                // فك ترميز base64 وفك الضغط
                 const compressedData = atob(data);
                 const decompressedData = pako.inflate(compressedData, { to: 'string' });
                 const newNotaries = JSON.parse(decompressedData);
@@ -1242,7 +1354,6 @@
             }
         }
 
-        // دالة استيراد رمز QR من صورة
         function importQRFromImage(event) {
             const file = event.target.files[0];
             if (!file) return;
