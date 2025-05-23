@@ -442,6 +442,7 @@
                             <th>#</th>
                             <th>اسم الحساب</th>
                             <th>الرصيد</th>
+                            <th>الإجراءات</th>
                         </tr>
                     </thead>
                     <tbody id="accountsTable"></tbody>
@@ -608,6 +609,31 @@
         </div>
     </div>
 
+    <!-- نافذة تعديل حساب -->
+    <div class="modal fade" id="editAccountModal" tabindex="-1" aria-labelledby="editAccountModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editAccountModalLabel"><i class="fas fa-user-edit"></i> تعديل حساب</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editAccountForm">
+                        <input type="hidden" id="editAccountIndex">
+                        <div class="mb-3">
+                            <label for="editAccountName" class="form-label"><i class="fas fa-user"></i> اسم الحساب</label>
+                            <input type="text" class="form-control" id="editAccountName" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="button" class="btn" onclick="updateAccount()">حفظ</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         let transactions = JSON.parse(localStorage.getItem('cashBoxTransactions')) || [];
         let accounts = JSON.parse(localStorage.getItem('cashBoxAccounts')) || [];
@@ -660,8 +686,16 @@
                     <td>${index + 1}</td>
                     <td>${account}</td>
                     <td>${balance.toFixed(2)}</td>
+                    <td>
+                        <i class="fas fa-edit action-btn edit" onclick="editAccount(${index});event.stopPropagation();"></i>
+                        <i class="fas fa-trash action-btn delete" onclick="deleteAccount(${index});event.stopPropagation();"></i>
+                    </td>
                 `;
-                row.addEventListener('click', () => showAccountTransactions(account));
+                row.addEventListener('click', (e) => {
+                    if (!e.target.classList.contains('action-btn')) {
+                        showAccountTransactions(account);
+                    }
+                });
                 tableBody.appendChild(row);
             });
         }
@@ -822,6 +856,100 @@
                 Swal.fire({
                     title: 'نجاح',
                     text: `تم إضافة الحساب "${accountName}" بنجاح!`,
+                    icon: 'success',
+                    confirmButtonColor: '#3F2A56'
+                });
+            }
+        }
+
+        function editAccount(index) {
+            document.getElementById('editAccountIndex').value = index;
+            document.getElementById('editAccountName').value = accounts[index];
+            new bootstrap.Modal(document.getElementById('editAccountModal')).show();
+        }
+
+        async function updateAccount() {
+            const index = parseInt(document.getElementById('editAccountIndex').value);
+            const newName = document.getElementById('editAccountName').value.trim();
+
+            if (!newName) {
+                Swal.fire({
+                    title: 'خطأ في الإدخال',
+                    text: 'الرجاء إدخال اسم الحساب!',
+                    icon: 'error',
+                    confirmButtonColor: '#3F2A56'
+                });
+                return;
+            }
+
+            if (newName !== accounts[index] && accounts.includes(newName)) {
+                Swal.fire({
+                    title: 'خطأ في الإدخال',
+                    text: 'اسم الحساب موجود مسبقًا! الرجاء اختيار اسم آخر.',
+                    icon: 'error',
+                    confirmButtonColor: '#3F2A56'
+                });
+                return;
+            }
+
+            const oldName = accounts[index];
+            accounts[index] = newName;
+
+            // تحديث اسم الحساب في جميع المعاملات
+            transactions.forEach(t => {
+                if (t.account === oldName) {
+                    t.account = newName;
+                }
+            });
+
+            localStorage.setItem('cashBoxAccounts', JSON.stringify(accounts));
+            localStorage.setItem('cashBoxTransactions', JSON.stringify(transactions));
+            populateAccounts();
+            filterTable();
+            bootstrap.Modal.getInstance(document.getElementById('editAccountModal')).hide();
+            document.getElementById('editAccountForm').reset();
+
+            Swal.fire({
+                title: 'نجاح',
+                text: `تم تعديل الحساب من "${oldName}" إلى "${newName}" بنجاح!`,
+                icon: 'success',
+                confirmButtonColor: '#3F2A56'
+            });
+        }
+
+        async function deleteAccount(index) {
+            const account = accounts[index];
+            const balance = getAccountBalance(account);
+
+            if (balance !== 0) {
+                Swal.fire({
+                    title: 'خطأ',
+                    text: `لا يمكن حذف الحساب "${account}" لأن رصيده (${balance.toFixed(2)}) غير صفر.`,
+                    icon: 'error',
+                    confirmButtonColor: '#3F2A56'
+                });
+                return;
+            }
+
+            const result = await Swal.fire({
+                title: 'تأكيد الحذف',
+                text: `هل أنت متأكد من حذف الحساب "${account}"؟ لا يمكن التراجع عن هذا الإجراء.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'حذف',
+                cancelButtonText: 'إلغاء',
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d'
+            });
+
+            if (result.isConfirmed) {
+                accounts.splice(index, 1);
+                localStorage.setItem('cashBoxAccounts', JSON.stringify(accounts));
+                populateAccounts();
+                updateAccountsTable();
+                Swal.fire({
+                    title: 'نجاح',
+                    text: `تم حذف الحساب "${account}" بنجاح!`,
                     icon: 'success',
                     confirmButtonColor: '#3F2A56'
                 });
@@ -1008,31 +1136,18 @@
                         };
                     });
                 }
-                const invalidAccounts = newTransactions.filter(t => !accounts.includes(t.account));
-                if (invalidAccounts.length > 0) {
-                    const result = await Swal.fire({
-                        title: 'حسابات غير موجودة',
-                        text: 'تم العثور على معاملات تحتوي على حسابات غير موجودة. هل تريد إضافتها تلقائيًا؟',
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonText: 'إضافة الحسابات',
-                        cancelButtonText: 'إلغاء',
-                        confirmButtonColor: '#3F2A56',
-                        cancelButtonColor: '#6c757d'
-                    });
-                    if (result.isConfirmed) {
-                        invalidAccounts.forEach(t => {
-                            if (!accounts.includes(t.account)) {
-                                accounts.push(t.account);
-                            }
-                        });
-                        localStorage.setItem('cashBoxAccounts', JSON.stringify(accounts));
-                        populateAccounts();
-                        updateAccountsTable();
-                    } else {
-                        return;
+
+                // إضافة الحسابات الجديدة تلقائيًا
+                newTransactions.forEach(t => {
+                    if (!accounts.includes(t.account)) {
+                        accounts.push(t.account);
                     }
-                }
+                });
+                localStorage.setItem('cashBoxAccounts', JSON.stringify(accounts));
+                populateAccounts();
+                updateAccountsTable();
+
+                // التحقق من الرصيد للمعاملات الخارجة
                 for (const t of newTransactions) {
                     if (t.type === 'out') {
                         const balance = getAccountBalance(t.account);
@@ -1047,12 +1162,13 @@
                         }
                     }
                 }
+
                 transactions = [...transactions, ...newTransactions];
                 localStorage.setItem('cashBoxTransactions', JSON.stringify(transactions));
                 filterTable();
                 Swal.fire({
                     title: 'نجاح',
-                    text: 'تم استيراد البيانات بنجاح!',
+                    text: 'تم استيراد البيانات بنجاح مع إضافة الحسابات الجديدة!',
                     icon: 'success',
                     confirmButtonColor: '#3F2A56'
                 });
@@ -1206,249 +1322,4 @@
                             }
                             .balance-container { 
                                 text-align: center; 
-                                margin: 20px 0; 
-                                border: 1px solid #000; 
-                                padding: 10px; 
-                                border-radius: 5px; 
-                                background: #fff; 
-                            }
-                            .balance-container h4 { 
-                                font-size: 1.2rem; 
-                                font-weight: 700; 
-                                margin: 0 0 10px; 
-                            }
-                            .balance-container p { 
-                                font-size: 1.1rem; 
-                                font-weight: 600; 
-                                margin: 0; 
-                            }
-                            h2 { 
-                                text-align: center; 
-                                font-size: 1.7rem; 
-                                font-weight: 700; 
-                                margin: 20px 0; 
-                                border-bottom: 1px solid #000; 
-                                padding-bottom: 5px; 
-                            }
-                            .transactions-count { 
-                                text-align: center; 
-                                font-size: 1.1rem; 
-                                font-weight: 600; 
-                                margin-bottom: 10px; 
-                            }
-                            .print-date { 
-                                text-align: center; 
-                                font-size: 1.1rem; 
-                                font-weight: 600; 
-                                margin-bottom: 20px; 
-                            }
-                            table { 
-                                width: 100%; 
-                                border-collapse: collapse; 
-                                margin: 20px 0; 
-                                border: 1px solid #000; 
-                            }
-                            th, td { 
-                                padding: 12px; 
-                                text-align: center; 
-                                border: 1px solid #000; 
-                                font-size: 1rem; 
-                            }
-                            th { 
-                                background: #fff; 
-                                color: #000; 
-                                font-weight: 700; 
-                                font-size: 1.1rem; 
-                            }
-                            td { 
-                                background: #fff; 
-                            }
-                            .footer { 
-                                position: fixed; 
-                                bottom: 5mm; 
-                                width: 100%; 
-                                text-align: center; 
-                                font-size: 0.8rem; 
-                                font-weight: 600; 
-                            }
-                            .page-number { 
-                                position: fixed; 
-                                bottom: 5mm; 
-                                left: 15mm; 
-                                font-size: 0.8rem; 
-                                font-weight: 600; 
-                            }
-                            .print-button { 
-                                background: linear-gradient(90deg, #3F2A56, #5a3f73); 
-                                color: white; 
-                                padding: 10px 20px; 
-                                border: none; 
-                                border-radius: 20px; 
-                                font-size: 1rem; 
-                                cursor: pointer; 
-                                margin: 10px auto; 
-                                display: block; 
-                                text-align: center; 
-                            }
-                            @media print {
-                                .page-break { page-break-before: always; }
-                                .container { margin: 0; width: 100%; }
-                                .footer, .page-number { position: fixed; }
-                                body { margin: 10mm; }
-                                .print-button { display: none; }
-                            }
-                        </style>
-                    </head>
-                    <body>
-                        <div class="container">
-                            <button class="print-button" onclick="window.print()">طباعة</button>
-                            <div class="header">
-                                <img src="logo.png" alt="شعار طيبة المدينة تلكوم" onerror="this.src='https://via.placeholder.com/70x70.png?text=Logo';">
-                                <h1>طيبة المدينة تلكوم</h1>
-                                <div style="width: 70px;"></div>
-                            </div>
-                            <div class="dashboard-container">
-                                <div class="dashboard-section">
-                                    <h4>الرصيد الداخل</h4>
-                                    <p><strong>المجموع:</strong> ${totalIn.toFixed(2)}</p>
-                                    <p><strong>العدد:</strong> ${inTransactions.length}</p>
-                                </div>
-                                <div class="dashboard-section">
-                                    <h4>الرصيد الخارج</h4>
-                                    <p><strong>المجموع:</strong> ${totalOut.toFixed(2)}</p>
-                                    <p><strong>العدد:</strong> ${outTransactions.length}</p>
-                                </div>
-                            </div>
-                            <div class="balance-container">
-                                <h4>الرصيد الإجمالي</h4>
-                                <p>${balance.toFixed(2)}</p>
-                            </div>
-                            <div class="print-date">تاريخ الطباعة: ${printDate}</div>
-                `);
-
-                sortTransactionsByDate();
-
-                // جدول المعاملات "داخل"
-                if (inTransactions.length > 0) {
-                    printWindow.document.write(`
-                        <h2>المعاملات الداخلة</h2>
-                        <div class="transactions-count">عدد المعاملات: ${inTransactions.length}</div>
-                    `);
-                    for (let page = 0; page < inPages; page++) {
-                        if (page > 0) {
-                            printWindow.document.write('<div class="page-break"></div>');
-                        }
-                        printWindow.document.write(`
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>التاريخ والوقت</th>
-                                        <th>المبلغ</th>
-                                        <th>البيان</th>
-                                        <th>الحساب</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                        `);
-                        const start = page * itemsPerPage;
-                        const end = Math.min(start + itemsPerPage, inTransactions.length);
-                        for (let i = start; i < end; i++) {
-                            const transaction = inTransactions[i];
-                            printWindow.document.write(`
-                                <tr>
-                                    <td>${i + 1}</td>
-                                    <td>${transaction.datetime}</td>
-                                    <td>${transaction.amount}</td>
-                                    <td>${transaction.description}</td>
-                                    <td>${transaction.account}</td>
-                                </tr>
-                            `);
-                        }
-                        printWindow.document.write(`
-                                </tbody>
-                            </table>
-                            <div class="footer">هذا المستند من نظام طيبة المدينة تلكوم وهو موقع رقميًا</div>
-                            <div class="page-number">الصفحة ${page + 1} من ${totalPages}</div>
-                        `);
-                    }
-                }
-
-                // جدول المعاملات "خارج"
-                if (outTransactions.length > 0) {
-                    if (inTransactions.length > 0) {
-                        printWindow.document.write('<div class="page-break"></div>');
-                    }
-                    printWindow.document.write(`
-                        <h2>المعاملات الخارجة</h2>
-                        <div class="transactions-count">عدد المعاملات: ${outTransactions.length}</div>
-                    `);
-                    for (let page = 0; page < outPages; page++) {
-                        if (page > 0) {
-                            printWindow.document.write('<div class="page-break"></div>');
-                        }
-                        printWindow.document.write(`
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>التاريخ والوقت</th>
-                                        <th>المبلغ</th>
-                                        <th>البيان</th>
-                                        <th>الحساب</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                        `);
-                        const start = page * itemsPerPage;
-                        const end = Math.min(start + itemsPerPage, outTransactions.length);
-                        for (let i = start; i < end; i++) {
-                            const transaction = outTransactions[i];
-                            printWindow.document.write(`
-                                <tr>
-                                    <td>${i + 1}</td>
-                                    <td>${transaction.datetime}</td>
-                                    <td>${transaction.amount}</td>
-                                    <td>${transaction.description}</td>
-                                    <td>${transaction.account}</td>
-                                </tr>
-                            `);
-                        }
-                        printWindow.document.write(`
-                                </tbody>
-                            </table>
-                            <div class="footer">هذا المستند من نظام طيبة المدينة تلكوم وهو موقع رقميًا</div>
-                            <div class="page-number">الصفحة ${page + inPages + 1} من ${totalPages}</div>
-                        `);
-                    }
-                }
-
-                printWindow.document.write(`
-                        </div>
-                    </body>
-                    </html>
-                `);
-                printWindow.document.close();
-            } catch (error) {
-                console.error('خطأ في دالة printTable:', error);
-                Swal.fire({
-                    title: 'خطأ',
-                    text: 'حدث خطأ أثناء تحضير الطباعة: ' + error.message,
-                    icon: 'error',
-                    confirmButtonColor: '#3F2A56'
-                });
-            }
-        }
-
-        window.onload = () => {
-            setCurrentDateTime();
-            populateAccounts();
-            filterTable();
-        };
-
-        document.getElementById('addTransactionModal').addEventListener('show.bs.modal', () => {
-            setCurrentDateTime();
-        });
-    </script>
-</body>
-</html>
+                                margin: 20px 0
