@@ -33,46 +33,51 @@
             margin: 0 auto;
         }
         .home-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: linear-gradient(90deg, #3F2A56, #5a3f73);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 25px;
-            text-decoration: none;
-            font-size: 1rem;
-            font-weight: 600;
-            font-family: 'Cairo', sans-serif;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            transition: transform 0.2s ease, background 0.3s ease, box-shadow 0.3s ease;
-            position: absolute;
-            top: 20px;
-            left: 20px;
-        }
-        .home-btn i {
-            font-size: 1.2rem;
-        }
-        .home-btn:hover {
-            background: linear-gradient(90deg, #5a3f73, #3F2A56);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-        }
-        .home-btn:focus {
-            outline: 2px solid #3F2A56;
-            outline-offset: 2px;
-        }
-        @media (max-width: 768px) {
-            .home-btn {
-                padding: 8px 16px;
-                font-size: 0.9rem;
-                top: 15px;
-                left: 15px;
-            }
-            .home-btn i {
-                font-size: 1rem;
-            }
-        }
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(90deg, #3F2A56, #5a3f73);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 25px;
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 600;
+    font-family: 'Cairo', sans-serif;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s ease, background 0.3s ease, box-shadow 0.3s ease;
+    position: absolute;
+    top: 20px;
+    left: 20px; /* وضع الزر في الزاوية العلوية اليسرى */
+}
+
+.home-btn i {
+    font-size: 1.2rem;
+}
+
+.home-btn:hover {
+    background: linear-gradient(90deg, #5a3f73, #3F2A56);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.home-btn:focus {
+    outline: 2px solid #3F2A56;
+    outline-offset: 2px;
+}
+
+/* للشاشات الصغيرة */
+@media (max-width: 768px) {
+    .home-btn {
+        padding: 8px 16px;
+        font-size: 0.9rem;
+        top: 15px;
+        left: 15px;
+    }
+    .home-btn i {
+        font-size: 1rem;
+    }
+}
         .header {
             background: linear-gradient(135deg, #3F2A56, #5a3f73);
             color: white;
@@ -348,7 +353,7 @@
             <img src="logo.png" alt="شعار طيبة المدينة تلكوم">
             <h2>طيبة المدينة تلكوم</h2>
             <h4>لائحة موثقي غزة إبي</h4>
-            <a href="home.html" class="home-btn"><i class="fas fa-home"></i> للرئيسية</a>
+            <a href="home.html" class="home-btn"><i class="fas fa-home"></i>  للرئيسية</a>
         </div>
         <div class="dashboard">
             <div class="card">
@@ -475,12 +480,10 @@
     <script>
         let notaries = JSON.parse(localStorage.getItem('notaries')) || [];
 
-        // ترتيب الموثقين حسب التاريخ (الأحدث أولاً)
         function sortNotariesByDate() {
             notaries.sort((a, b) => new Date(b.date) - new Date(a.date));
         }
 
-        // عرض الجدول مع دعم البحث
         function renderTable(searchQuery = '') {
             const tableBody = document.getElementById('notariesTable');
             tableBody.innerHTML = '';
@@ -514,7 +517,6 @@
             updateDashboard();
         }
 
-        // عرض تفاصيل الموثق
         function showNotaryDetails(index) {
             const notary = notaries[index];
             Swal.fire({
@@ -531,17 +533,19 @@
                 icon: 'info',
                 confirmButtonText: 'إغلاق',
                 confirmButtonColor: '#3F2A56',
-                customClass: { popup: 'swal2-rtl' }
+                customClass: {
+                    popup: 'swal2-rtl',
+                    title: 'swal2-title',
+                    content: 'swal2-content'
+                }
             });
         }
 
-        // البحث في الجدول
         function searchTable() {
             const searchQuery = document.getElementById('searchInput').value;
             renderTable(searchQuery);
         }
 
-        // تحديث لوحة التحكم
         function updateDashboard() {
             document.getElementById('notariesCount').innerText = notaries.length;
             const now = new Date();
@@ -560,59 +564,47 @@
             document.getElementById('lastUpdate').innerText = `${time} GMT, ${date}`;
         }
 
-        // التحقق من التكرارات
         function checkDuplicate(idNumber, phone, excludeIndex = -1) {
             return notaries.some((notary, index) => 
                 index !== excludeIndex && (notary.idNumber == idNumber || notary.phone == phone)
             );
         }
 
-        // إضافة موثق جديد
         async function addNotary() {
-            const name = document.getElementById('name').value.trim();
+            const name = document.getElementById('name').value;
             const idNumber = document.getElementById('idNumber').value;
             const phone = document.getElementById('phone').value;
             const date = document.getElementById('date').value;
-            const note = document.getElementById('note').value.trim();
+            const note = document.getElementById('note').value;
 
-            if (!name || !idNumber || !phone || !date) {
+            if (name && idNumber && phone && date) {
+                if (checkDuplicate(idNumber, phone)) {
+                    const result = await Swal.fire({
+                        title: 'تكرار المعلومات',
+                        text: 'رقم بطاقة التعريف أو رقم الهاتف موجود مسبقًا. هل تريد المتابعة؟',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'متابعة',
+                        cancelButtonText: 'إلغاء',
+                        confirmButtonColor: '#3F2A56',
+                        cancelButtonColor: '#6c757d'
+                    });
+                    if (!result.isConfirmed) return;
+                }
+                notaries.push({ name, idNumber, phone, date, note });
+                localStorage.setItem('notaries', JSON.stringify(notaries));
+                renderTable();
+                bootstrap.Modal.getInstance(document.getElementById('addNotaryModal')).hide();
+                document.getElementById('addNotaryForm').reset();
                 Swal.fire({
-                    title: 'خطأ',
-                    text: 'يرجى ملء جميع الحقول المطلوبة!',
-                    icon: 'error',
+                    title: 'تم الإضافة',
+                    text: 'تم إضافة الموثق بنجاح!',
+                    icon: 'success',
                     confirmButtonColor: '#3F2A56'
                 });
-                return;
             }
-
-            if (checkDuplicate(idNumber, phone)) {
-                const result = await Swal.fire({
-                    title: 'تكرار المعلومات',
-                    text: 'رقم بطاقة التعريف أو رقم الهاتف موجود مسبقًا. هل تريد المتابعة؟',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonText: 'متابعة',
-                    cancelButtonText: 'إلغاء',
-                    confirmButtonColor: '#3F2A56',
-                    cancelButtonColor: '#6c757d'
-                });
-                if (!result.isConfirmed) return;
-            }
-
-            notaries.push({ name, idNumber, phone, date, note });
-            localStorage.setItem('notaries', JSON.stringify(notaries));
-            renderTable();
-            bootstrap.Modal.getInstance(document.getElementById('addNotaryModal')).hide();
-            document.getElementById('addNotaryForm').reset();
-            Swal.fire({
-                title: 'تم الإضافة',
-                text: 'تم إضافة الموثق بنجاح!',
-                icon: 'success',
-                confirmButtonColor: '#3F2A56'
-            });
         }
 
-        // تعديل موثق
         function editNotary(index) {
             document.getElementById('editIndex').value = index;
             document.getElementById('editName').value = notaries[index].name;
@@ -623,56 +615,46 @@
             new bootstrap.Modal(document.getElementById('editNotaryModal')).show();
         }
 
-        // تحديث موثق
         async function updateNotary() {
             const index = parseInt(document.getElementById('editIndex').value);
-            const name = document.getElementById('editName').value.trim();
+            const name = document.getElementById('editName').value;
             const idNumber = document.getElementById('editIdNumber').value;
             const phone = document.getElementById('editPhone').value;
             const date = document.getElementById('editDate').value;
-            const note = document.getElementById('editNote').value.trim();
+            const note = document.getElementById('editNote').value;
 
-            if (!name || !idNumber || !phone || !date) {
+            if (name && idNumber && phone && date) {
+                const originalNotary = notaries[index];
+                const idNumberChanged = idNumber != originalNotary.idNumber;
+                const phoneChanged = phone != originalNotary.phone;
+
+                if ((idNumberChanged || phoneChanged) && checkDuplicate(idNumber, phone, index)) {
+                    const result = await Swal.fire({
+                        title: 'تكرار المعلومات',
+                        text: 'رقم بطاقة التعريف أو رقم الهاتف موجود مسبقًا. هل تريد المتابعة؟',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'متابعة',
+                        cancelButtonText: 'إلغاء',
+                        confirmButtonColor: '#3F2A56',
+                        cancelButtonColor: '#6c757d'
+                    });
+                    if (!result.isConfirmed) return;
+                }
+
+                notaries[index] = { name, idNumber, phone, date, note };
+                localStorage.setItem('notaries', JSON.stringify(notaries));
+                renderTable();
+                bootstrap.Modal.getInstance(document.getElementById('editNotaryModal')).hide();
                 Swal.fire({
-                    title: 'خطأ',
-                    text: 'يرجى ملء جميع الحقول المطلوبة!',
-                    icon: 'error',
+                    title: 'تم التعديل',
+                    text: 'تم تعديل الموثق بنجاح!',
+                    icon: 'success',
                     confirmButtonColor: '#3F2A56'
                 });
-                return;
             }
-
-            const originalNotary = notaries[index];
-            const idNumberChanged = idNumber != originalNotary.idNumber;
-            const phoneChanged = phone != originalNotary.phone;
-
-            if ((idNumberChanged || phoneChanged) && checkDuplicate(idNumber, phone, index)) {
-                const result = await Swal.fire({
-                    title: 'تكرار المعلومات',
-                    text: 'رقم بطاقة التعريف أو رقم الهاتف موجود مسبقًا. هل تريد المتابعة؟',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonText: 'متابعة',
-                    cancelButtonText: 'إلغاء',
-                    confirmButtonColor: '#3F2A56',
-                    cancelButtonColor: '#6c757d'
-                });
-                if (!result.isConfirmed) return;
-            }
-
-            notaries[index] = { name, idNumber, phone, date, note };
-            localStorage.setItem('notaries', JSON.stringify(notaries));
-            renderTable();
-            bootstrap.Modal.getInstance(document.getElementById('editNotaryModal')).hide();
-            Swal.fire({
-                title: 'تم التعديل',
-                text: 'تم تعديل الموثق بنجاح!',
-                icon: 'success',
-                confirmButtonColor: '#3F2A56'
-            });
         }
 
-        // حذف موثق
         async function deleteNotary(index) {
             const result = await Swal.fire({
                 title: 'هل أنت متأكد؟',
@@ -697,7 +679,6 @@
             }
         }
 
-        // تصدير إلى Excel
         function exportToExcel() {
             const titleRow = [{ '#': 'لائحة موثقي غزة إبي', 'الاسم': '', 'رقم بطاقة التعريف': '', 'رقم الهاتف': '', 'التاريخ': '', 'الملاحظة': '' }];
             sortNotariesByDate();
@@ -745,7 +726,6 @@
             XLSX.writeFile(wb, 'notaries.xlsx');
         }
 
-        // طباعة الجدول
         function printTable() {
             const itemsPerPage = 20;
             const totalPages = Math.ceil(notaries.length / itemsPerPage);
@@ -950,7 +930,6 @@
             printWindow.print();
         }
 
-        // تصدير إلى JSON
         function exportToJSON() {
             sortNotariesByDate();
             const dataStr = JSON.stringify(notaries, null, 2);
@@ -963,13 +942,10 @@
             URL.revokeObjectURL(url);
         }
 
-        // تصدير إلى CSV
         function exportToCSV() {
             sortNotariesByDate();
             const headers = ['الاسم,رقم بطاقة التعريف,رقم الهاتف,التاريخ,الملاحظة'];
-            const rows = notaries.map(n => 
-                `"${n.name.replace(/"/g, '""')}",${n.idNumber},${n.phone},${n.date},"${n.note ? n.note.replace(/"/g, '""') : '-'}"`
-            );
+            const rows = notaries.map(n => `${n.name},${n.idNumber},${n.phone},${n.date},${n.note || '-'}`);
             const csv = [headers, ...rows].join('\n');
             const blob = new Blob([csv], { type: 'text/csv' });
             const url = URL.createObjectURL(blob);
@@ -980,97 +956,57 @@
             URL.revokeObjectURL(url);
         }
 
-        // استيراد ملف (JSON أو CSV)
         async function importFile(event) {
             const file = event.target.files[0];
-            if (!file) {
-                Swal.fire({
-                    title: 'خطأ',
-                    text: 'لم يتم اختيار ملف!',
-                    icon: 'error',
-                    confirmButtonColor: '#3F2A56'
-                });
-                return;
-            }
-
             const reader = new FileReader();
             reader.onload = async function(e) {
-                try {
-                    let newNotaries = [];
-                    if (file.name.endsWith('.json')) {
-                        newNotaries = JSON.parse(e.target.result);
-                        if (!Array.isArray(newNotaries)) {
-                            throw new Error('ملف JSON غير صالح. يجب أن يحتوي على مصفوفة من الموثقين.');
-                        }
-                    } else if (file.name.endsWith('.csv')) {
-                        const data = e.target.result;
-                        const rows = data.split('\n').slice(1).filter(row => row.trim());
-                        newNotaries = rows.map(row => {
-                            const [name, idNumber, phone, date, note] = row.split(',').map(val => val.replace(/^"|"$/g, '').replace(/""/g, '"'));
-                            return { name, idNumber, phone, date, note: note === '-' ? '' : note };
-                        });
-                    } else {
-                        throw new Error('نوع الملف غير مدعوم. استخدم ملف JSON أو CSV.');
-                    }
-
-                    // التحقق من صحة البيانات
-                    const validNotaries = newNotaries.filter(n => 
-                        n.name && n.idNumber && n.phone && n.date
-                    );
-                    if (validNotaries.length === 0) {
-                        throw new Error('لا توجد بيانات صالحة في الملف المستورد.');
-                    }
-
-                    // التحقق من التكرارات
-                    const duplicates = validNotaries.filter(n => checkDuplicate(n.idNumber, n.phone));
-                    if (duplicates.length > 0) {
-                        const result = await Swal.fire({
-                            title: 'تكرار المعلومات',
-                            text: 'تم العثور على معلومات مكررة في الملف المستورد. اختر خيارًا:',
-                            icon: 'warning',
-                            showCancelButton: true,
-                            showDenyButton: true,
-                            confirmButtonText: 'الاحتفاظ بالتكرارات',
-                            denyButtonText: 'حذف التكرارات',
-                            cancelButtonText: 'إلغاء',
-                            confirmButtonColor: '#3F2A56',
-                            denyButtonColor: '#007bff',
-                            cancelButtonColor: '#6c757d'
-                        });
-                        if (result.isDismissed) return;
-                        if (result.isDenied) {
-                            newNotaries = validNotaries.filter(n => !checkDuplicate(n.idNumber, n.phone));
-                        } else {
-                            newNotaries = validNotaries;
-                        }
-                    } else {
-                        newNotaries = validNotaries;
-                    }
-
-                    // إضافة الموثقين الجدد
-                    notaries = [...notaries, ...newNotaries];
-                    localStorage.setItem('notaries', JSON.stringify(notaries));
-                    renderTable();
-                    Swal.fire({
-                        title: 'تم الاستيراد',
-                        text: `تم استيراد ${newNotaries.length} موثق بنجاح!`,
-                        icon: 'success',
-                        confirmButtonColor: '#3F2A56'
-                    });
-                } catch (error) {
-                    console.error('خطأ أثناء استيراد الملف:', error);
-                    Swal.fire({
-                        title: 'خطأ',
-                        text: 'فشل استيراد الملف. تحقق من تنسيق الملف أو وحدة التحكم للحصول على التفاصيل.',
-                        icon: 'error',
-                        confirmButtonColor: '#3F2A56'
+                let newNotaries = [];
+                if (file.name.endsWith('.json')) {
+                    newNotaries = JSON.parse(e.target.result);
+                } else if (file.name.endsWith('.csv')) {
+                    const data = e.target.result;
+                    const rows = data.split('\n').slice(1).filter(row => row.trim());
+                    newNotaries = rows.map(row => {
+                        const [name, idNumber, phone, date, note] = row.split(',');
+                        return { name, idNumber, phone, date, note };
                     });
                 }
+                const duplicates = newNotaries.filter(n => checkDuplicate(n.idNumber, n.phone));
+                if (duplicates.length > 0) {
+                    const result = bangingSwal.fire({
+                        title: 'تكرار المعلومات',
+                        text: 'تم العثور على معلومات مكررة في الملف المستورد. اختر خيارًا:',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        showDenyButton: true,
+                        confirmButtonText: 'الاحتفاظ بالتكرارات',
+                        denyButtonText: 'حذف التكرارات',
+                        cancelButtonText: 'إلغاء',
+                        confirmButtonColor: '#3F2A56',
+                        denyButtonColor: '#007bff',
+                        cancelButtonColor: '#6c757d'
+                    });
+                    if (result.isDismissed) return;
+                    if (result.isDenied) {
+                        newNotaries = newNotaries.filter(n => !checkDuplicate(n.idNumber, n.phone));
+                    }
+                }
+                notaries = [...notaries, ...newNotaries];
+                localStorage.setItem('notaries', JSON.stringify(notaries));
+                renderTable();
+                Swal.fire({
+                    title: 'تم الاستيراد',
+                    text: 'تم استيراد الملف بنجاح!',
+                    icon: 'success',
+                    confirmButtonColor: '#3F2A56'
+                });
             };
-            reader.readAsText(file);
+            if (file.name.endsWith('.json') || file.name.endsWith('.csv')) {
+                reader.readAsText(file);
+            }
         }
 
-        // إنشاء رمز QR
+        // دالة إنشاء رمز QR
         function generateQRCode() {
             try {
                 const searchQuery = document.getElementById('searchInput').value.toLowerCase();
@@ -1092,14 +1028,17 @@
                     return;
                 }
 
+                // تحويل البيانات إلى JSON وضغطها
                 const qrData = JSON.stringify(filteredNotaries);
                 console.log('حجم البيانات الأصلية:', qrData.length, 'بايت');
 
+                // ضغط البيانات باستخدام pako
                 const compressedData = pako.deflate(qrData, { to: 'string' });
-                const encodedData = btoa(compressedData);
+                const encodedData = btoa(compressedData); // تحويل إلى base64
                 console.log('حجم البيانات المضغوطة:', encodedData.length, 'بايت');
 
-                if (encodedData.length > 2953) {
+                // فحص حجم البيانات
+                if (encodedData.length > 2953) { // الحد الأقصى لرمز QR (الإصدار 40)
                     Swal.fire({
                         title: 'البيانات كبيرة جدًا',
                         text: 'البيانات المختارة كبيرة جدًا لإنشاء رمز QR. جرب تقليل عدد الموثقين أو إزالة استعلام البحث.',
@@ -1109,12 +1048,14 @@
                     return;
                 }
 
+                // إنشاء قماش مؤقت
                 const tempCanvas = document.createElement('canvas');
                 tempCanvas.id = 'tempQRCanvas';
                 tempCanvas.style.display = 'none';
                 document.body.appendChild(tempCanvas);
 
-                new QRCode(tempCanvas, {
+                // إنشاء رمز QR
+                const qr = new QRCode(tempCanvas, {
                     text: encodedData,
                     width: 300,
                     height: 300,
@@ -1123,6 +1064,7 @@
                     correctLevel: QRCode.CorrectLevel.H
                 });
 
+                // الانتظار للتأكد من اكتمال إنشاء رمز QR
                 setTimeout(() => {
                     Swal.fire({
                         title: 'رمز QR للمعاملات',
@@ -1157,9 +1099,12 @@
                         willClose: () => {
                             tempCanvas.remove();
                         },
-                        customClass: { popup: 'swal2-rtl' }
+                        customClass: {
+                            popup: 'swal2-rtl'
+                        }
                     });
                 }, 100);
+
             } catch (error) {
                 console.error('خطأ في إنشاء رمز QR:', error);
                 Swal.fire({
@@ -1171,7 +1116,7 @@
             }
         }
 
-        // تصدير رمز QR كصورة
+        // دالة تصدير رمز QR كصورة
         function exportQRAsImage() {
             try {
                 const qrCanvas = document.getElementById('qrDisplayCanvas');
@@ -1201,7 +1146,7 @@
             }
         }
 
-        // بدء مسح رمز QR
+        // دالة بدء مسح رمز QR
         function scanQRCode() {
             Swal.fire({
                 title: 'مسح رمز QR',
@@ -1221,11 +1166,13 @@
                 willClose: () => {
                     stopQRScanner();
                 },
-                customClass: { popup: 'swal2-rtl' }
+                customClass: {
+                    popup: 'swal2-rtl'
+                }
             });
         }
 
-        // بدء الكاميرا لمسح رمز QR
+        // دالة بدء الكاميرا لمسح رمز QR
         let videoStream = null;
         async function startQRScanner() {
             try {
@@ -1270,7 +1217,7 @@
             }
         }
 
-        // إيقاف الكاميرا
+        // دالة إيقاف الكاميرا
         function stopQRScanner() {
             if (videoStream) {
                 videoStream.getTracks().forEach(track => track.stop());
@@ -1278,9 +1225,10 @@
             }
         }
 
-        // معالجة بيانات رمز QR
+        // دالة معالجة بيانات رمز QR
         async function processQRData(data) {
             try {
+                // فك ترميز base64 وفك الضغط
                 const compressedData = atob(data);
                 const decompressedData = pako.inflate(compressedData, { to: 'string' });
                 const newNotaries = JSON.parse(decompressedData);
@@ -1289,14 +1237,14 @@
                     throw new Error('البيانات ليست قائمة موثقين صالحة.');
                 }
 
-                const validNotaries = newNotaries.filter(n => 
+                const valid = newNotaries.every(n => 
                     n.name && n.idNumber && n.phone && n.date
                 );
-                if (validNotaries.length === 0) {
-                    throw new Error('البيانات لا تحتوي على موثقين صالحين.');
+                if (!valid) {
+                    throw new Error('البيانات تحتوي على موثقين غير صالحين.');
                 }
 
-                const duplicates = validNotaries.filter(n => checkDuplicate(n.idNumber, n.phone));
+                const duplicates = newNotaries.filter(n => checkDuplicate(n.idNumber, n.phone));
                 if (duplicates.length > 0) {
                     const result = await Swal.fire({
                         title: 'تكرار المعلومات',
@@ -1313,12 +1261,8 @@
                     });
                     if (result.isDismissed) return;
                     if (result.isDenied) {
-                        newNotaries = validNotaries.filter(n => !checkDuplicate(n.idNumber, n.phone));
-                    } else {
-                        newNotaries = validNotaries;
+                        newNotaries = newNotaries.filter(n => !checkDuplicate(n.idNumber, n.phone));
                     }
-                } else {
-                    newNotaries = validNotaries;
                 }
 
                 notaries = [...notaries, ...newNotaries];
@@ -1330,7 +1274,7 @@
 
                 Swal.fire({
                     title: 'تم الاستيراد',
-                    text: `تم استيراد ${newNotaries.length} موثق من رمز QR بنجاح!`,
+                    text: 'تم استيراد الموثقين من رمز QR بنجاح!',
                     icon: 'success',
                     confirmButtonColor: '#3F2A56'
                 });
@@ -1345,7 +1289,7 @@
             }
         }
 
-        // استيراد رمز QR من صورة
+        // دالة استيراد رمز QR من صورة
         function importQRFromImage(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -1378,7 +1322,6 @@
             reader.readAsDataURL(file);
         }
 
-        // تحميل الجدول عند تحميل الصفحة
         window.onload = () => {
             sortNotariesByDate();
             renderTable();
