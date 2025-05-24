@@ -12,8 +12,6 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -401,8 +399,7 @@
             <div class="card final">
                 <i class="fas fa-wallet"></i>
                 <h5>النهائي</h5>
-                <p>النهائي 1: <span id="finalBalance">0</span></p>
-                <p>النهائي 2: <span id="finalBalance2">0</span></p>
+                <p>النهائي: <span id="finalBalance">0</span></p>
                 <p>مجموع الفوائد: <span id="totalInterest">0</span></p>
             </div>
         </div>
@@ -410,15 +407,12 @@
             <button class="btn" data-bs-toggle="modal" data-bs-target="#addTransactionModal"><i class="fas fa-plus"></i> إضافة معاملة</button>
             <button class="btn" onclick="exportToJSON()"><i class="fas fa-file-code"></i> تصدير إلى JSON</button>
             <button class="btn" onclick="exportToCSV()"><i class="fas fa-file-csv"></i> تصدير إلى CSV</button>
-            <button class="btn" onclick="exportToPDF()"><i class="fas fa-file-pdf"></i> تصدير إلى PDF</button>
             <input type="file" id="importFile" accept=".json,.csv" style="display: none;" onchange="importFile(event)">
             <button class="btn" onclick="document.getElementById('importFile').click()"><i class="fas fa-file-import"></i> استيراد ملف</button>
             <button class="btn" onclick="generateQRCode()"><i class="fas fa-qrcode"></i> إنشاء QR Code</button>
             <button class="btn" onclick="startQRScanner()"><i class="fas fa-camera"></i> استقبال QR Code</button>
             <button class="btn" onclick="printTable()"><i class="fas fa-print"></i> طباعة</button>
             <button class="btn" onclick="showReport('weekly')"><i class="fas fa-chart-bar"></i> تقرير أسبوعي</button>
-            <button class="btn" onclick="showReport('monthly')"><i class="fas fa-chart-line"></i> تقرير شهري</button>
-            <button class="btn" onclick="showReport('yearly')"><i class="fas fa-chart-area"></i> تقرير سنوي</button>
         </div>
         <div class="search-container">
             <div class="filter-group">
@@ -495,15 +489,15 @@
                         </div>
                         <div class="mb-3">
                             <label for="datetime" class="form-label"><i class="fas fa-calendar"></i> التاريخ والوقت</label>
-                            <input type="datetime-local" class="form-control" id="datetime">
+                            <input type="datetime-local" class="form-control" id="datetime" required>
                         </div>
                         <div class="mb-3">
                             <label for="amount" class="form-label"><i class="fas fa-money-bill"></i> المبلغ</label>
-                            <input type="number" class="form-control" id="amount" step="0.01" min="0" required>
+                            <input type="number" class="form-control" id="amount" step="1" min="0" required>
                         </div>
                         <div class="mb-3">
                             <label for="interest" class="form-label"><i class="fas fa-percentage"></i> الفائدة</label>
-                            <input type="number" class="form-control" id="interest" step="0.01" min="0">
+                            <input type="number" class="form-control" id="interest" step="1" min="0">
                         </div>
                         <div class="mb-3">
                             <label for="note" class="form-label"><i class="fas fa-comment"></i> ملاحظة</label>
@@ -543,15 +537,15 @@
                         </div>
                         <div class="mb-3">
                             <label for="editDatetime" class="form-label"><i class="fas fa-calendar"></i> التاريخ والوقت</label>
-                            <input type="datetime-local" class="form-control" id="editDatetime">
+                            <input type="datetime-local" class="form-control" id="editDatetime" required>
                         </div>
                         <div class="mb-3">
                             <label for="editAmount" class="form-label"><i class="fas fa-money-bill"></i> المبلغ</label>
-                            <input type="number" class="form-control" id="editAmount" step="0.01" min="0" required>
+                            <input type="number" class="form-control" id="editAmount" step="1" min="0" required>
                         </div>
                         <div class="mb-3">
                             <label for="editInterest" class="form-label"><i class="fas fa-percentage"></i> الفائدة</label>
-                            <input type="number" class="form-control" id="editInterest" step="0.01" min="0">
+                            <input type="number" class="form-control" id="editInterest" step="1" min="0">
                         </div>
                         <div class="mb-3">
                             <label for="editNote" class="form-label"><i class="fas fa-comment"></i> ملاحظة</label>
@@ -619,33 +613,32 @@
             };
         }
 
-        function updateDashboard() {
+        function updateDashboard(filteredTransactions) {
             let totalIn = 0, totalOut = 0, countIn = 0, countOut = 0, interestIn = 0, interestOut = 0;
 
-            transactions.forEach(t => {
+            filteredTransactions.forEach(t => {
                 if (t.type === 'in') {
-                    totalIn += parseFloat(t.amount);
+                    totalIn += parseInt(t.amount);
                     countIn++;
-                    interestIn += parseFloat(t.interest || 0);
+                    interestIn += parseInt(t.interest || 0);
                 } else if (t.type === 'out') {
-                    totalOut += parseFloat(t.amount);
+                    totalOut += parseInt(t.amount);
                     countOut++;
-                    interestOut += parseFloat(t.interest || 0);
+                    interestOut += parseInt(t.interest || 0);
                 }
             });
 
-            const finalBalance = totalIn - totalOut;
+            const finalBalance = totalOut - totalIn;
             const totalInterest = interestIn + interestOut;
 
-            document.getElementById('totalIn').innerText = totalIn.toFixed(2);
+            document.getElementById('totalIn').innerText = totalIn;
             document.getElementById('countIn').innerText = countIn;
-            document.getElementById('interestIn').innerText = interestIn.toFixed(2);
-            document.getElementById('totalOut').innerText = totalOut.toFixed(2);
+            document.getElementById('interestIn').innerText = interestIn;
+            document.getElementById('totalOut').innerText = totalOut;
             document.getElementById('countOut').innerText = countOut;
-            document.getElementById('interestOut').innerText = interestOut.toFixed(2);
-            document.getElementById('finalBalance').innerText = finalBalance.toFixed(2);
-            document.getElementById('finalBalance2').innerText = finalBalance.toFixed(2);
-            document.getElementById('totalInterest').innerText = totalInterest.toFixed(2);
+            document.getElementById('interestOut').innerText = interestOut;
+            document.getElementById('finalBalance').innerText = finalBalance;
+            document.getElementById('totalInterest').innerText = totalInterest;
         }
 
         function filterTable() {
@@ -697,7 +690,7 @@
                 tableBody.appendChild(row);
             });
 
-            updateDashboard();
+            updateDashboard(filteredTransactions);
         }
 
         function updateFilterInputs() {
@@ -706,6 +699,16 @@
             document.getElementById('startDateGroup').style.display = filterType === 'range' ? 'block' : 'none';
             document.getElementById('endDateGroup').style.display = filterType === 'range' ? 'block' : 'none';
             filterTable();
+        }
+
+        function setCurrentDateTime(inputId) {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            document.getElementById(inputId).value = `${year}-${month}-${day}T${hours}:${minutes}`;
         }
 
         function addTransaction() {
@@ -732,13 +735,14 @@
                 serialNumber,
                 type,
                 datetime,
-                amount: parseFloat(amount).toFixed(2),
-                interest: interest ? parseFloat(interest).toFixed(2) : '0',
+                amount: parseInt(amount),
+                interest: interest ? parseInt(interest) : '0',
                 note
             });
 
             request.onsuccess = function() {
                 document.getElementById('addTransactionForm').reset();
+                setCurrentDateTime('datetime');
                 bootstrap.Modal.getInstance(document.getElementById('addTransactionModal')).hide();
                 loadTransactions();
                 Swal.fire({
@@ -804,8 +808,8 @@
                 serialNumber,
                 type,
                 datetime,
-                amount: parseFloat(amount).toFixed(2),
-                interest: interest ? parseFloat(interest).toFixed(2) : '0',
+                amount: parseInt(amount),
+                interest: interest ? parseInt(interest) : '0',
                 note
             });
 
@@ -906,43 +910,6 @@
             });
         }
 
-        function exportToPDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-            doc.setFont('Cairo');
-            doc.setFontSize(16);
-            doc.text('غزة تلكوم - تقرير المعاملات', 105, 20, { align: 'center' });
-            doc.setFontSize(12);
-            doc.text(`تاريخ الطباعة: ${new Date().toLocaleDateString('ar')}`, 105, 30, { align: 'center' });
-
-            const tableData = transactions.map((t, index) => [
-                index + 1,
-                t.serialNumber,
-                t.type === 'in' ? 'وارد' : 'صادر',
-                t.datetime,
-                t.amount,
-                t.interest || '0',
-                t.note || ''
-            ]);
-
-            doc.autoTable({
-                head: [['#', 'الرقم التسلسلي', 'نوع المعاملة', 'التاريخ والوقت', 'المبلغ', 'الفائدة', 'الملاحظة']],
-                body: tableData,
-                startY: 40,
-                styles: { font: 'Cairo', halign: 'center', textColor: [0, 0, 0] },
-                headStyles: { fillColor: [63, 42, 86], textColor: [255, 255, 255] },
-                alternateRowStyles: { fillColor: [247, 249, 252] }
-            });
-
-            doc.save('transactions.pdf');
-            Swal.fire({
-                title: 'نجاح',
-                text: 'تم تصدير البيانات إلى PDF بنجاح!',
-                icon: 'success',
-                confirmButtonColor: '#3F2A56'
-            });
-        }
-
         function importFile(event) {
             const file = event.target.files[0];
             const reader = new FileReader();
@@ -959,8 +926,8 @@
                             serialNumber,
                             type: type === 'وارد' ? 'in' : 'out',
                             datetime,
-                            amount: parseFloat(amount).toFixed(2),
-                            interest: interest ? parseFloat(interest).toFixed(2) : '0',
+                            amount: parseInt(amount),
+                            interest: interest ? parseInt(interest) : '0',
                             note
                         };
                     });
@@ -1159,41 +1126,33 @@
         }
 
         function showReport(period) {
-            let filteredTransactions = transactions;
-            const now = new Date();
-            let startDate;
-
-            if (period === 'weekly') {
-                startDate = new Date(now.setDate(now.getDate() - now.getDay()));
+            const filteredTransactions = transactions.filter(t => {
+                const now = new Date();
+                const startDate = new Date(now.setDate(now.getDate() - now.getDay()));
                 startDate.setHours(0, 0, 0, 0);
-            } else if (period === 'monthly') {
-                startDate = new Date(now.getFullYear(), now.getMonth(), 1);
-            } else if (period === 'yearly') {
-                startDate = new Date(now.getFullYear(), 0, 1);
-            }
-
-            filteredTransactions = transactions.filter(t => new Date(t.datetime) >= startDate);
+                return new Date(t.datetime) >= startDate;
+            });
 
             let totalIn = 0, totalOut = 0, interestIn = 0, interestOut = 0;
             filteredTransactions.forEach(t => {
                 if (t.type === 'in') {
-                    totalIn += parseFloat(t.amount);
-                    interestIn += parseFloat(t.interest || 0);
+                    totalIn += parseInt(t.amount);
+                    interestIn += parseInt(t.interest || 0);
                 } else {
-                    totalOut += parseFloat(t.amount);
-                    interestOut += parseFloat(t.interest || 0);
+                    totalOut += parseInt(t.amount);
+                    interestOut += parseInt(t.interest || 0);
                 }
             });
 
             Swal.fire({
-                title: `التقرير ${period === 'weekly' ? 'الأسبوعي' : period === 'monthly' ? 'الشهري' : 'السنوي'}`,
+                title: 'التقرير الأسبوعي',
                 html: `
                     <div style="text-align: right; font-family: 'Cairo', sans-serif;">
-                        <p><strong>مجموع الوارد:</strong> ${totalIn.toFixed(2)}</p>
-                        <p><strong>مجموع الصادر:</strong> ${totalOut.toFixed(2)}</p>
-                        <p><strong>فوائد الوارد:</strong> ${interestIn.toFixed(2)}</p>
-                        <p><strong>فوائد الصادر:</strong> ${interestOut.toFixed(2)}</p>
-                        <p><strong>الرصيد النهائي:</strong> ${(totalIn - totalOut).toFixed(2)}</p>
+                        <p><strong>مجموع الوارد:</strong> ${totalIn}</p>
+                        <p><strong>مجموع الصادر:</strong> ${totalOut}</p>
+                        <p><strong>فوائد الوارد:</strong> ${interestIn}</p>
+                        <p><strong>فوائد الصادر:</strong> ${interestOut}</p>
+                        <p><strong>الرصيد النهائي:</strong> ${totalOut - totalIn}</p>
                     </div>
                 `,
                 icon: 'info',
@@ -1268,8 +1227,7 @@
                         </div>
                         <div>
                             <h4>النهائي</h4>
-                            <p>النهائي 1: ${document.getElementById('finalBalance').innerText}</p>
-                            <p>النهائي 2: ${document.getElementById('finalBalance2').innerText}</p>
+                            <p>النهائي: ${document.getElementById('finalBalance').innerText}</p>
                             <p>مجموع الفوائد: ${document.getElementById('totalInterest').innerText}</p>
                         </div>
                     </div>
@@ -1308,6 +1266,7 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('filterType').value = 'today';
+            setCurrentDateTime('datetime');
             updateFilterInputs();
         });
     </script>
