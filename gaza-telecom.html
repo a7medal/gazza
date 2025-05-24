@@ -210,10 +210,12 @@
             box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
             padding: 15px;
             margin-bottom: 20px;
+            overflow-x: auto; /* جعل الجدول متجاوبًا */
         }
         table {
             width: 100%;
             border-collapse: collapse;
+            min-width: 600px; /* الحد الأدنى لعرض الجدول */
         }
         th, td {
             padding: 14px;
@@ -368,7 +370,7 @@
             .btn { padding: 10px 18px; font-size: 0.9rem; }
             .search-container { padding: 15px; }
             .search-container .filter-group { width: 100%; max-width: 100%; }
-            th, td { padding: 10px; font-size: 0.9rem; }
+            th, td { padding: 8px; font-size: 0.8rem; } /* تحسين الجدول على الشاشات الصغيرة */
             .modal-title { font-size: 1.3rem; }
             .modal-body { padding: 20px; }
         }
@@ -378,7 +380,7 @@
     <div class="container">
         <div class="header">
             <img src="logo.png" alt="شعار غزة تلكوم">
-            <h2> طيبة المدينة تلكوم - غزة تلكوم</h2>
+            <h2>غزة تلكوم</h2>
             <h4>إدارة المعاملات المالية</h4>
         </div>
         <div class="dashboard">
@@ -416,6 +418,10 @@
             <button class="btn" onclick="showReport('weekly')"><i class="fas fa-chart-bar"></i> تقرير أسبوعي</button>
         </div>
         <div class="search-container">
+            <div class="filter-group">
+                <label for="searchInput">بحث</label>
+                <input type="text" id="searchInput" placeholder="ابحث في المعاملات..." oninput="filterTable()">
+            </div>
             <div class="filter-group">
                 <label for="filterType">نوع التصفية</label>
                 <select id="filterType" onchange="updateFilterInputs()">
@@ -573,7 +579,7 @@
         request.onupgradeneeded = function(event) {
             db = event.target.result;
             const objectStore = db.createObjectStore('transactions', { keyPath: 'id', autoIncrement: true });
-            objectStore.createIndex('serialNumber', 'serialNumber', { unique: true });
+            objectStore.createIndex('serialNumber', 'serialNumber', { unique: false }); // السماح بتكرار الرقم التسلسلي
             objectStore.createIndex('type', 'type', { unique: false });
             objectStore.createIndex('datetime', 'datetime', { unique: false });
         };
@@ -650,6 +656,7 @@
             const startDate = document.getElementById('startDate').value;
             const endDate = document.getElementById('endDate').value;
             const typeFilter = document.getElementById('typeFilter').value;
+            const searchInput = document.getElementById('searchInput').value.toLowerCase();
 
             const tableBody = document.getElementById('transactionsTable');
             tableBody.innerHTML = '';
@@ -672,7 +679,18 @@
                 }
 
                 const matchesType = typeFilter === 'all' || t.type === typeFilter;
-                return matchesDate && matchesType;
+
+                // البحث في جميع الحقول
+                const matchesSearch = (
+                    t.serialNumber.toLowerCase().includes(searchInput) ||
+                    (t.type === 'in' ? 'وارد' : 'صادر').includes(searchInput) ||
+                    t.datetime.toLowerCase().includes(searchInput) ||
+                    t.amount.toString().includes(searchInput) ||
+                    (t.interest || '0').toString().includes(searchInput) ||
+                    (t.note || '').toLowerCase().includes(searchInput)
+                );
+
+                return matchesDate && matchesType && matchesSearch;
             });
 
             filteredTransactions.forEach((t, index) => {
@@ -760,7 +778,7 @@
                 console.error('Error adding transaction:', event.target.errorCode);
                 Swal.fire({
                     title: 'خطأ',
-                    text: 'فشل في إضافة المعاملة! ربما الرقم التسلسلي مستخدم مسبقًا.',
+                    text: 'فشل في إضافة المعاملة!',
                     icon: 'error',
                     confirmButtonColor: '#3F2A56'
                 });
@@ -831,7 +849,7 @@
                 console.error('Error updating transaction:', event.target.errorCode);
                 Swal.fire({
                     title: 'خطأ',
-                    text: 'فشل في تعديل المعاملة! ربما الرقم التسلسلي مستخدم مسبقًا.',
+                    text: 'فشل في تعديل المعاملة!',
                     icon: 'error',
                     confirmButtonColor: '#3F2A56'
                 });
@@ -1212,7 +1230,7 @@
                 </head>
                 <body>
                     <div class="header">
-                        <img src="gaza_logo.png" alt="شعار غزة تلكوم">
+                        <img src="logo.png" alt="شعار غزة تلكوم">
                         <h1>غزة تلكوم - تقرير المعاملات</h1>
                     </div>
                     <div class="dashboard">
