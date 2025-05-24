@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ضبط الصندوق</title>
+    <title>غزة تلكوم</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -12,6 +12,8 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -21,7 +23,7 @@
         body {
             font-family: 'Cairo', sans-serif;
             background: linear-gradient(135deg, #f0f2f5, #d9e2ec);
-            color: #333;
+            color: #3F2A56;
             min-height: 100vh;
             padding: 20px;
         }
@@ -120,50 +122,19 @@
             font-size: 1.3rem;
             margin-bottom: 10px;
             font-weight: 600;
-            color: #3F2A56;
         }
-        .card h3 {
-            font-size: 1.8rem;
+        .card p {
+            font-size: 1.1rem;
+            margin: 10px 0;
+            font-weight: 600;
+        }
+        .card p span {
             font-weight: 700;
-            color: #3F2A56;
+            font-size: 1.2rem;
         }
-        .accounts-section {
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            margin: 20px 0;
-        }
-        .accounts-section h3 {
-            font-size: 1.7rem;
-            font-weight: 700;
-            color: #3F2A56;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-        .accounts-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        .accounts-table th, .accounts-table td {
-            padding: 12px;
-            text-align: center;
-            border-bottom: 1px solid #e0e0e0;
-        }
-        .accounts-table th {
-            background: linear-gradient(90deg, #3F2A56, #5a3f73);
-            color: white;
-            font-weight: 700;
-        }
-        .accounts-table td {
-            color: #3F2A56;
-        }
-        .accounts-table tr {
-            cursor: pointer;
-        }
-        .accounts-table tr:hover {
-            background-color: #f7f9fc;
-        }
+        .card.in i { color: #28a745; }
+        .card.out i { color: #dc3545; }
+        .card.final i { color: #3F2A56; }
         .actions {
             display: flex;
             flex-wrap: wrap;
@@ -203,6 +174,10 @@
             justify-content: center;
             gap: 15px;
             flex-wrap: wrap;
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
         }
         .search-container .filter-group {
             display: flex;
@@ -215,9 +190,8 @@
             color: #3F2A56;
             margin-bottom: 5px;
         }
-        .search-container input, .search-container select {
+        .search-container select, .search-container input {
             width: 100%;
-            max-width: 200px;
             padding: 12px 20px;
             border-radius: 30px;
             border: none;
@@ -228,20 +202,16 @@
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             transition: box-shadow 0.3s ease;
         }
-        .search-container input:focus, .search-container select:focus {
+        .search-container select:focus, .search-container input:focus {
             outline: none;
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
         }
-        .search-container input::placeholder {
-            color: #3F2A56;
-            opacity: 0.7;
-        }
         .table-container {
-            overflow-x: auto;
             background: white;
             border-radius: 15px;
             box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
             padding: 15px;
+            margin-bottom: 20px;
         }
         table {
             width: 100%;
@@ -260,9 +230,6 @@
         td {
             color: #3F2A56;
         }
-        tr {
-            cursor: pointer;
-        }
         tr:hover {
             background-color: #f7f9fc;
         }
@@ -272,12 +239,8 @@
             font-size: 1.3rem;
             transition: color 0.3s ease;
         }
-        .action-btn.edit:hover {
-            color: #007bff;
-        }
-        .action-btn.delete:hover {
-            color: #dc3545;
-        }
+        .action-btn.edit:hover { color: #007bff; }
+        .action-btn.delete:hover { color: #dc3545; }
         .modal-content {
             border-radius: 20px;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
@@ -311,15 +274,12 @@
         .modal-title {
             font-size: 1.5rem;
             font-weight: 700;
-            margin: 0;
             display: flex;
             align-items: center;
             gap: 10px;
         }
         .modal-body {
             padding: 30px;
-            background: #fff;
-            border-radius: 0;
         }
         .modal-body .form-label {
             font-weight: 600;
@@ -334,13 +294,12 @@
             border: 1px solid #ddd;
             padding: 12px;
             font-size: 1rem;
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
             background: #f7f9fc;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
         }
         .modal-body .form-control:focus, .modal-body .form-select:focus {
             border-color: #3F2A56;
             box-shadow: 0 0 8px rgba(63, 42, 86, 0.4);
-            background: #fff;
         }
         .modal-footer {
             padding: 20px;
@@ -351,41 +310,27 @@
             gap: 15px;
         }
         .modal-footer .btn {
-            background: linear-gradient(90deg, #3F2A56, #5a3f73);
-            color: white;
             border-radius: 30px;
             padding: 12px 30px;
             font-size: 1rem;
             font-weight: 600;
-            transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
-        .modal-footer .btn:hover {
+        .modal-footer .btn-primary {
+            background: linear-gradient(90deg, #3F2A56, #5a3f73);
+        }
+        .modal-footer .btn-primary:hover {
             background: linear-gradient(90deg, #5a3f73, #3F2A56);
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
         }
         .modal-footer .btn-secondary {
             background: linear-gradient(90deg, #6c757d, #5a6268);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
         .modal-footer .btn-secondary:hover {
             background: linear-gradient(90deg, #5a6268, #495057);
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-        }
-        @media (max-width: 768px) {
-            .header { padding: 25px 15px; border-radius: 15px; }
-            .header img { height: 70px; }
-            .header h2 { font-size: 1.7rem; }
-            .header h4 { font-size: 1.1rem; }
-            .card h3 { font-size: 1.5rem; }
-            .btn { padding: 10px 18px; font-size: 0.9rem; }
-            th, td { padding: 10px; font-size: 0.9rem; }
-            .modal-title { font-size: 1.3rem; }
-            .modal-body { padding: 20px; }
-            .modal-body .form-control, .modal-body .form-select { font-size: 0.9rem; }
-            .search-container .filter-group { width: 100%; max-width: 100%; }
         }
         .swal2-popup {
             font-family: 'Cairo', sans-serif !important;
@@ -413,66 +358,87 @@
         #scannerContainer { text-align: center; margin: 20px 0; }
         #scannerVideo { max-width: 100%; border-radius: 10px; border: 2px solid #3F2A56; }
         .scanner-buttons { display: flex; justify-content: center; gap: 10px; margin-top: 10px; }
-        .swal2-actions { justify-content: center !important; gap: 10px; }
+        @media (max-width: 768px) {
+            .header { padding: 25px 15px; border-radius: 15px; }
+            .header img { height: 70px; }
+            .header h2 { font-size: 1.7rem; }
+            .header h4 { font-size: 1.1rem; }
+            .dashboard { grid-template-columns: 1fr; }
+            .card { padding: 20px; }
+            .card h5 { font-size: 1.2rem; }
+            .card p { font-size: 1rem; }
+            .btn { padding: 10px 18px; font-size: 0.9rem; }
+            .search-container { padding: 15px; }
+            .search-container .filter-group { width: 100%; max-width: 100%; }
+            th, td { padding: 10px; font-size: 0.9rem; }
+            .modal-title { font-size: 1.3rem; }
+            .modal-body { padding: 20px; }
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <img src="logo.png" alt="شعار طيبة المدينة تلكوم">
-            <h2>طيبة المدينة تلكوم</h2>
-            <h4>ضبط الصندوق</h4>
+            <img src="gaza_logo.png" alt="شعار غزة تلكوم">
+            <h2>غزة تلكوم</h2>
+            <h4>إدارة المعاملات المالية</h4>
         </div>
         <div class="dashboard">
-            <div class="card">
-                <i class="fas fa-wallet"></i>
-                <h5>الرصيد</h5>
-                <h3 id="balance">0</h3>
-            </div>
-            <div class="card">
-                <i class="fas fa-arrow-up"></i>
-                <h5>الرصيد الداخل</h5>
-                <h3 id="totalIn">0</h3>
-            </div>
-            <div class="card">
+            <div class="card out">
                 <i class="fas fa-arrow-down"></i>
-                <h5>الرصيد الخارج</h5>
-                <h3 id="totalOut">0</h3>
+                <h5>الصادر</h5>
+                <p>مجموع الصادر: <span id="totalOut">0</span></p>
+                <p>عدد الصادر: <span id="countOut">0</span></p>
+                <p>فوائد الصادر: <span id="interestOut">0</span></p>
             </div>
-        </div>
-        <div class="accounts-section">
-            <h3>الحسابات الموجودة</h3>
-            <div class="table-container">
-                <table class="accounts-table">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>اسم الحساب</th>
-                            <th>الرصيد</th>
-                            <th>الإجراءات</th>
-                        </tr>
-                    </thead>
-                    <tbody id="accountsTable"></tbody>
-                </table>
+            <div class="card in">
+                <i class="fas fa-arrow-up"></i>
+                <h5>الوارد</h5>
+                <p>مجموع الوارد: <span id="totalIn">0</span></p>
+                <p>عدد الوارد: <span id="countIn">0</span></p>
+                <p>فوائد الوارد: <span id="interestIn">0</span></p>
+            </div>
+            <div class="card final">
+                <i class="fas fa-wallet"></i>
+                <h5>النهائي</h5>
+                <p>النهائي 1: <span id="finalBalance">0</span></p>
+                <p>النهائي 2: <span id="finalBalance2">0</span></p>
+                <p>مجموع الفوائد: <span id="totalInterest">0</span></p>
             </div>
         </div>
         <div class="actions">
             <button class="btn" data-bs-toggle="modal" data-bs-target="#addTransactionModal"><i class="fas fa-plus"></i> إضافة معاملة</button>
-            <button class="btn" data-bs-toggle="modal" data-bs-target="#addAccountModal"><i class="fas fa-user-plus"></i> إضافة حساب</button>
             <button class="btn" onclick="exportToJSON()"><i class="fas fa-file-code"></i> تصدير إلى JSON</button>
             <button class="btn" onclick="exportToCSV()"><i class="fas fa-file-csv"></i> تصدير إلى CSV</button>
+            <button class="btn" onclick="exportToPDF()"><i class="fas fa-file-pdf"></i> تصدير إلى PDF</button>
             <input type="file" id="importFile" accept=".json,.csv" style="display: none;" onchange="importFile(event)">
             <button class="btn" onclick="document.getElementById('importFile').click()"><i class="fas fa-file-import"></i> استيراد ملف</button>
             <button class="btn" onclick="generateQRCode()"><i class="fas fa-qrcode"></i> إنشاء QR Code</button>
             <button class="btn" onclick="startQRScanner()"><i class="fas fa-camera"></i> استقبال QR Code</button>
             <button class="btn" onclick="printTable()"><i class="fas fa-print"></i> طباعة</button>
+            <button class="btn" onclick="showReport('weekly')"><i class="fas fa-chart-bar"></i> تقرير أسبوعي</button>
+            <button class="btn" onclick="showReport('monthly')"><i class="fas fa-chart-line"></i> تقرير شهري</button>
+            <button class="btn" onclick="showReport('yearly')"><i class="fas fa-chart-area"></i> تقرير سنوي</button>
         </div>
         <div class="search-container">
             <div class="filter-group">
+                <label for="filterType">نوع التصفية</label>
+                <select id="filterType" onchange="updateFilterInputs()">
+                    <option value="today">اليوم</option>
+                    <option value="yesterday">الأمس</option>
+                    <option value="specific">تاريخ محدد</option>
+                    <option value="range">بين تاريخين</option>
+                </select>
+            </div>
+            <div class="filter-group" id="specificDateGroup" style="display: none;">
+                <label for="specificDate">اختيار تاريخ</label>
+                <input type="date" id="specificDate" onchange="filterTable()">
+            </div>
+            <div class="filter-group" id="startDateGroup" style="display: none;">
                 <label for="startDate">من التاريخ</label>
                 <input type="date" id="startDate" onchange="filterTable()">
             </div>
-            <div class="filter-group">
+            <div class="filter-group" id="endDateGroup" style="display: none;">
                 <label for="endDate">إلى التاريخ</label>
                 <input type="date" id="endDate" onchange="filterTable()">
             </div>
@@ -480,8 +446,8 @@
                 <label for="typeFilter">نوع المعاملة</label>
                 <select id="typeFilter" onchange="filterTable()">
                     <option value="all">الكل</option>
-                    <option value="in">داخل</option>
-                    <option value="out">خارج</option>
+                    <option value="in">وارد</option>
+                    <option value="out">صادر</option>
                 </select>
             </div>
         </div>
@@ -490,18 +456,19 @@
                 <thead>
                     <tr>
                         <th>#</th>
+                        <th>الرقم التسلسلي</th>
                         <th>نوع المعاملة</th>
                         <th>التاريخ والوقت</th>
                         <th>المبلغ</th>
-                        <th>البيان</th>
-                        <th>الحساب</th>
+                        <th>الفائدة</th>
+                        <th>الملاحظة</th>
                         <th>الإجراءات</th>
                     </tr>
                 </thead>
                 <tbody id="transactionsTable"></tbody>
             </table>
         </div>
-        <canvas id="qrCanvas" style="display: none;"></canvas>
+        <canvas id="qrCanvas"></canvas>
         <input type="file" id="qrImageInput" accept="image/*" style="display: none;" onchange="importQRFromImage(event)">
     </div>
 
@@ -516,35 +483,37 @@
                 <div class="modal-body">
                     <form id="addTransactionForm">
                         <div class="mb-3">
+                            <label for="serialNumber" class="form-label"><i class="fas fa-barcode"></i> الرقم التسلسلي</label>
+                            <input type="text" class="form-control" id="serialNumber" required>
+                        </div>
+                        <div class="mb-3">
                             <label for="type" class="form-label"><i class="fas fa-exchange-alt"></i> نوع المعاملة</label>
                             <select class="form-select" id="type" required>
-                                <option value="in">داخل</option>
-                                <option value="out">خارج</option>
+                                <option value="in">وارد</option>
+                                <option value="out">صادر</option>
                             </select>
                         </div>
                         <div class="mb-3">
                             <label for="datetime" class="form-label"><i class="fas fa-calendar"></i> التاريخ والوقت</label>
-                            <input type="datetime-local" class="form-control" id="datetime" readonly>
+                            <input type="datetime-local" class="form-control" id="datetime">
                         </div>
                         <div class="mb-3">
                             <label for="amount" class="form-label"><i class="fas fa-money-bill"></i> المبلغ</label>
                             <input type="number" class="form-control" id="amount" step="0.01" min="0" required>
                         </div>
                         <div class="mb-3">
-                            <label for="description" class="form-label"><i class="fas fa-comment"></i> البيان</label>
-                            <input type="text" class="form-control" id="description" required>
+                            <label for="interest" class="form-label"><i class="fas fa-percentage"></i> الفائدة</label>
+                            <input type="number" class="form-control" id="interest" step="0.01" min="0">
                         </div>
                         <div class="mb-3">
-                            <label for="account" class="form-label"><i class="fas fa-user"></i> الحساب</label>
-                            <select class="form-select" id="account" required>
-                                <option value="">اختر حسابًا</option>
-                            </select>
+                            <label for="note" class="form-label"><i class="fas fa-comment"></i> ملاحظة</label>
+                            <input type="text" class="form-control" id="note">
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
-                    <button type="button" class="btn" onclick="addTransaction()">حفظ</button>
+                    <button type="button" class="btn btn-primary" onclick="addTransaction()">حفظ</button>
                 </div>
             </div>
         </div>
@@ -560,422 +529,196 @@
                 </div>
                 <div class="modal-body">
                     <form id="editTransactionForm">
-                        <input type="hidden" id="editIndex">
+                        <input type="hidden" id="editId">
+                        <div class="mb-3">
+                            <label for="editSerialNumber" class="form-label"><i class="fas fa-barcode"></i> الرقم التسلسلي</label>
+                            <input type="text" class="form-control" id="editSerialNumber" required>
+                        </div>
                         <div class="mb-3">
                             <label for="editType" class="form-label"><i class="fas fa-exchange-alt"></i> نوع المعاملة</label>
                             <select class="form-select" id="editType" required>
-                                <option value="in">داخل</option>
-                                <option value="out">خارج</option>
+                                <option value="in">وارد</option>
+                                <option value="out">صادر</option>
                             </select>
                         </div>
                         <div class="mb-3">
                             <label for="editDatetime" class="form-label"><i class="fas fa-calendar"></i> التاريخ والوقت</label>
-                            <input type="datetime-local" class="form-control" id="editDatetime" readonly>
+                            <input type="datetime-local" class="form-control" id="editDatetime">
                         </div>
                         <div class="mb-3">
                             <label for="editAmount" class="form-label"><i class="fas fa-money-bill"></i> المبلغ</label>
                             <input type="number" class="form-control" id="editAmount" step="0.01" min="0" required>
                         </div>
                         <div class="mb-3">
-                            <label for="editDescription" class="form-label"><i class="fas fa-comment"></i> البيان</label>
-                            <input type="text" class="form-control" id="editDescription" required>
+                            <label for="editInterest" class="form-label"><i class="fas fa-percentage"></i> الفائدة</label>
+                            <input type="number" class="form-control" id="editInterest" step="0.01" min="0">
                         </div>
                         <div class="mb-3">
-                            <label for="editAccount" class="form-label"><i class="fas fa-user"></i> الحساب</label>
-                            <select class="form-select" id="editAccount" required>
-                                <option value="">اختر حسابًا</option>
-                            </select>
+                            <label for="editNote" class="form-label"><i class="fas fa-comment"></i> ملاحظة</label>
+                            <input type="text" class="form-control" id="editNote">
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
-                    <button type="button" class="btn" onclick="updateTransaction()">حفظ</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- نافذة إضافة حساب -->
-    <div class="modal fade" id="addAccountModal" tabindex="-1" aria-labelledby="addAccountModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="addAccountModalLabel"><i class="fas fa-user-plus"></i> إضافة حساب جديد</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="addAccountForm">
-                        <div class="mb-3">
-                            <label for="accountName" class="form-label"><i class="fas fa-user"></i> اسم الحساب</label>
-                            <input type="text" class="form-control" id="accountName" required>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
-                    <button type="button" class="btn" onclick="addAccount()">حفظ</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- نافذة تعديل حساب -->
-    <div class="modal fade" id="editAccountModal" tabindex="-1" aria-labelledby="editAccountModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="editAccountModalLabel"><i class="fas fa-user-edit"></i> تعديل حساب</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="editAccountForm">
-                        <input type="hidden" id="editAccountIndex">
-                        <div class="mb-3">
-                            <label for="editAccountName" class="form-label"><i class="fas fa-user"></i> اسم الحساب</label>
-                            <input type="text" class="form-control" id="editAccountName" required>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
-                    <button type="button" class="btn" onclick="updateAccount()">حفظ</button>
+                    <button type="button" class="btn btn-primary" onclick="updateTransaction()">حفظ</button>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        let transactions = JSON.parse(localStorage.getItem('cashBoxTransactions')) || [];
-        let accounts = JSON.parse(localStorage.getItem('cashBoxAccounts')) || [];
+        let transactions = [];
+        let db;
         let stream = null;
 
-        // إنشاء صوت لتأكيد الاستيراد الناجح
-        const successSound = new Audio('https://www.soundjay.com/buttons/beep-01a.mp3');
+        // إعداد IndexedDB
+        const request = indexedDB.open('GazaTelecomDB', 1);
 
-        function formatDateTime(date) {
-            return date.toLocaleString('en-US', {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-                hour12: false
-            }).replace(/(\d+)\/(\d+)\/(\d+), (\d+):(\d+):(\d+)/, '$3-$1-$2 $4:$5:$6');
-        }
+        request.onupgradeneeded = function(event) {
+            db = event.target.result;
+            const objectStore = db.createObjectStore('transactions', { keyPath: 'id', autoIncrement: true });
+            objectStore.createIndex('serialNumber', 'serialNumber', { unique: true });
+            objectStore.createIndex('type', 'type', { unique: false });
+            objectStore.createIndex('datetime', 'datetime', { unique: false });
+        };
 
-        function sortTransactionsByDate() {
-            transactions.sort((a, b) => new Date(b.datetime) - new Date(a.datetime));
-        }
+        request.onsuccess = function(event) {
+            db = event.target.result;
+            loadTransactions();
+        };
 
-        function getAccountBalance(account, excludeIndex = -1) {
-            return transactions.reduce((balance, t, index) => {
-                if (t.account !== account || index === excludeIndex) return balance;
-                return balance + (t.type === 'in' ? parseFloat(t.amount) : -parseFloat(t.amount));
-            }, 0);
+        request.onerror = function(event) {
+            console.error('Database error:', event.target.errorCode);
+            Swal.fire({
+                title: 'خطأ',
+                text: 'فشل في الاتصال بقاعدة البيانات!',
+                icon: 'error',
+                confirmButtonColor: '#3F2A56'
+            });
+        };
+
+        function loadTransactions() {
+            const transaction = db.transaction(['transactions'], 'readonly');
+            const objectStore = transaction.objectStore('transactions');
+            const request = objectStore.getAll();
+
+            request.onsuccess = function(event) {
+                transactions = event.target.result;
+                filterTable();
+            };
+
+            request.onerror = function(event) {
+                console.error('Error loading transactions:', event.target.errorCode);
+                Swal.fire({
+                    title: 'خطأ',
+                    text: 'فشل في تحميل المعاملات!',
+                    icon: 'error',
+                    confirmButtonColor: '#3F2A56'
+                });
+            };
         }
 
         function updateDashboard() {
-            const totalIn = transactions
-                .filter(t => t.type === 'in')
-                .reduce((sum, t) => sum + parseFloat(t.amount), 0);
-            const totalOut = transactions
-                .filter(t => t.type === 'out')
-                .reduce((sum, t) => sum + parseFloat(t.amount), 0);
-            const balance = totalIn - totalOut;
+            let totalIn = 0, totalOut = 0, countIn = 0, countOut = 0, interestIn = 0, interestOut = 0;
 
-            document.getElementById('balance').innerText = balance.toFixed(2);
+            transactions.forEach(t => {
+                if (t.type === 'in') {
+                    totalIn += parseFloat(t.amount);
+                    countIn++;
+                    interestIn += parseFloat(t.interest || 0);
+                } else if (t.type === 'out') {
+                    totalOut += parseFloat(t.amount);
+                    countOut++;
+                    interestOut += parseFloat(t.interest || 0);
+                }
+            });
+
+            const finalBalance = totalIn - totalOut;
+            const totalInterest = interestIn + interestOut;
+
             document.getElementById('totalIn').innerText = totalIn.toFixed(2);
+            document.getElementById('countIn').innerText = countIn;
+            document.getElementById('interestIn').innerText = interestIn.toFixed(2);
             document.getElementById('totalOut').innerText = totalOut.toFixed(2);
-        }
-
-        function updateAccountsTable() {
-            const tableBody = document.getElementById('accountsTable');
-            tableBody.innerHTML = '';
-            accounts.forEach((account, index) => {
-                const balance = getAccountBalance(account);
-                const row = document.createElement('tr');
-                row.setAttribute('data-account', account);
-                row.innerHTML = `
-                    <td>${index + 1}</td>
-                    <td>${account}</td>
-                    <td>${balance.toFixed(2)}</td>
-                    <td>
-                        <i class="fas fa-edit action-btn edit" onclick="editAccount(${index});event.stopPropagation();"></i>
-                        <i class="fas fa-trash action-btn delete" onclick="deleteAccount(${index});event.stopPropagation();"></i>
-                    </td>
-                `;
-                row.addEventListener('click', (e) => {
-                    if (!e.target.classList.contains('action-btn')) {
-                        showAccountTransactions(account);
-                    }
-                });
-                tableBody.appendChild(row);
-            });
-        }
-
-        function showAccountTransactions(account) {
-            const accountTransactions = transactions.filter(t => t.account === account);
-            sortTransactionsByDate();
-            let tableHTML = `
-                <table style="width: 100%; border-collapse: collapse; font-family: 'Cairo', sans-serif; direction: rtl;">
-                    <thead>
-                        <tr style="background: linear-gradient(90deg, #3F2A56, #5a3f73); color: white;">
-                            <th style="padding: 10px; border: 1px solid #ddd;">#</th>
-                            <th style="padding: 10px; border: 1px solid #ddd;">نوع المعاملة</th>
-                            <th style="padding: 10px; border: 1px solid #ddd;">التاريخ والوقت</th>
-                            <th style="padding: 10px; border: 1px solid #ddd;">المبلغ</th>
-                            <th style="padding: 10px; border: 1px solid #ddd;">البيان</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-            `;
-            if (accountTransactions.length === 0) {
-                tableHTML += `
-                    <tr>
-                        <td colspan="5" style="padding: 10px; border: 1px solid #ddd; text-align: center;">لا توجد معاملات لهذا الحساب</td>
-                    </tr>
-                `;
-            } else {
-                accountTransactions.forEach((transaction, index) => {
-                    tableHTML += `
-                        <tr>
-                            <td style="padding: 10px; border: 1px solid #ddd;">${index + 1}</td>
-                            <td style="padding: 10px; border: 1px solid #ddd;">${transaction.type === 'in' ? 'داخل' : 'خارج'}</td>
-                            <td style="padding: 10px; border: 1px solid #ddd;">${transaction.datetime}</td>
-                            <td style="padding: 10px; border: 1px solid #ddd;">${transaction.amount}</td>
-                            <td style="padding: 10px; border: 1px solid #ddd;">${transaction.description}</td>
-                        </tr>
-                    `;
-                });
-            }
-            tableHTML += `
-                    </tbody>
-                </table>
-            `;
-            Swal.fire({
-                title: `معاملات الحساب: ${account}`,
-                html: tableHTML,
-                icon: 'info',
-                confirmButtonText: 'إغلاق',
-                confirmButtonColor: '#3F2A56',
-                customClass: { popup: 'swal2-rtl' },
-                width: '800px'
-            });
-        }
-
-        function populateAccounts() {
-            const accountSelect = document.getElementById('account');
-            const editAccountSelect = document.getElementById('editAccount');
-            accountSelect.innerHTML = '<option value="">اختر حسابًا</option>';
-            editAccountSelect.innerHTML = '<option value="">اختر حسابًا</option>';
-            accounts.forEach(account => {
-                const option = document.createElement('option');
-                option.value = account;
-                option.text = account;
-                accountSelect.appendChild(option.cloneNode(true));
-                editAccountSelect.appendChild(option);
-            });
+            document.getElementById('countOut').innerText = countOut;
+            document.getElementById('interestOut').innerText = interestOut.toFixed(2);
+            document.getElementById('finalBalance').innerText = finalBalance.toFixed(2);
+            document.getElementById('finalBalance2').innerText = finalBalance.toFixed(2);
+            document.getElementById('totalInterest').innerText = totalInterest.toFixed(2);
         }
 
         function filterTable() {
+            const filterType = document.getElementById('filterType').value;
+            const specificDate = document.getElementById('specificDate').value;
             const startDate = document.getElementById('startDate').value;
             const endDate = document.getElementById('endDate').value;
             const typeFilter = document.getElementById('typeFilter').value;
 
             const tableBody = document.getElementById('transactionsTable');
             tableBody.innerHTML = '';
-            sortTransactionsByDate();
 
-            const filteredTransactions = transactions.filter(transaction => {
-                const transactionDate = transaction.datetime.split(' ')[0];
-                const matchesDate = (
-                    (!startDate || transactionDate >= startDate) &&
-                    (!endDate || transactionDate <= endDate)
-                );
-                const matchesType = (
-                    typeFilter === 'all' ||
-                    (typeFilter === 'in' && transaction.type === 'in') ||
-                    (typeFilter === 'out' && transaction.type === 'out')
-                );
+            const filteredTransactions = transactions.filter(t => {
+                const transactionDate = t.datetime.split(' ')[0];
+                let matchesDate = true;
+
+                if (filterType === 'today') {
+                    const today = new Date().toISOString().split('T')[0];
+                    matchesDate = transactionDate === today;
+                } else if (filterType === 'yesterday') {
+                    const yesterday = new Date();
+                    yesterday.setDate(yesterday.getDate() - 1);
+                    matchesDate = transactionDate === yesterday.toISOString().split('T')[0];
+                } else if (filterType === 'specific' && specificDate) {
+                    matchesDate = transactionDate === specificDate;
+                } else if (filterType === 'range' && startDate && endDate) {
+                    matchesDate = transactionDate >= startDate && transactionDate <= endDate;
+                }
+
+                const matchesType = typeFilter === 'all' || t.type === typeFilter;
                 return matchesDate && matchesType;
             });
 
-            filteredTransactions.forEach((transaction, index) => {
-                const originalIndex = transactions.indexOf(transaction);
+            filteredTransactions.forEach((t, index) => {
                 const row = document.createElement('tr');
-                row.setAttribute('data-index', originalIndex);
                 row.innerHTML = `
                     <td>${index + 1}</td>
-                    <td>${transaction.type === 'in' ? 'داخل' : 'خارج'}</td>
-                    <td>${transaction.datetime}</td>
-                    <td>${transaction.amount}</td>
-                    <td>${transaction.description}</td>
-                    <td>${transaction.account}</td>
+                    <td>${t.serialNumber}</td>
+                    <td>${t.type === 'in' ? 'وارد' : 'صادر'}</td>
+                    <td>${t.datetime}</td>
+                    <td>${t.amount}</td>
+                    <td>${t.interest || '0'}</td>
+                    <td>${t.note || ''}</td>
                     <td>
-                        <i class="fas fa-edit action-btn edit" onclick="editTransaction(${originalIndex});event.stopPropagation();"></i>
-                        <i class="fas fa-trash action-btn delete" onclick="deleteTransaction(${originalIndex});event.stopPropagation();"></i>
+                        <i class="fas fa-edit action-btn edit" onclick="editTransaction(${t.id})"></i>
+                        <i class="fas fa-trash action-btn delete" onclick="deleteTransaction(${t.id})"></i>
                     </td>
                 `;
-                row.addEventListener('click', () => showTransactionDetails(originalIndex));
                 tableBody.appendChild(row);
             });
 
             updateDashboard();
-            updateAccountsTable();
         }
 
-        function showTransactionDetails(index) {
-            const transaction = transactions[index];
-            Swal.fire({
-                title: 'تفاصيل المعاملة',
-                html: `
-                    <div style="text-align: right; font-family: 'Cairo', sans-serif; color: #3F2A56;">
-                        <p><strong>نوع المعاملة:</strong> ${transaction.type === 'in' ? 'داخل' : 'خارج'}</p>
-                        <p><strong>التاريخ والوقت:</strong> ${transaction.datetime}</p>
-                        <p><strong>المبلغ:</strong> ${transaction.amount}</p>
-                        <p><strong>البيان:</strong> ${transaction.description}</p>
-                        <p><strong>الحساب:</strong> ${transaction.account}</p>
-                    </div>
-                `,
-                icon: 'info',
-                confirmButtonText: 'إغلاق',
-                confirmButtonColor: '#3F2A56',
-                customClass: { popup: 'swal2-rtl' }
-            });
-        }
-
-        function addAccount() {
-            const accountName = document.getElementById('accountName').value.trim();
-            if (accountName) {
-                if (accounts.includes(accountName)) {
-                    Swal.fire({
-                        title: 'خطأ في الإدخال',
-                        text: 'اسم الحساب موجود مسبقًا! الرجاء اختيار اسم آخر.',
-                        icon: 'error',
-                        confirmButtonColor: '#3F2A56'
-                    });
-                    return;
-                }
-                accounts.push(accountName);
-                localStorage.setItem('cashBoxAccounts', JSON.stringify(accounts));
-                populateAccounts();
-                updateAccountsTable();
-                bootstrap.Modal.getInstance(document.getElementById('addAccountModal')).hide();
-                document.getElementById('addAccountForm').reset();
-                Swal.fire({
-                    title: 'نجاح',
-                    text: `تم إضافة الحساب "${accountName}" بنجاح!`,
-                    icon: 'success',
-                    confirmButtonColor: '#3F2A56'
-                });
-            }
-        }
-
-        function editAccount(index) {
-            document.getElementById('editAccountIndex').value = index;
-            document.getElementById('editAccountName').value = accounts[index];
-            new bootstrap.Modal(document.getElementById('editAccountModal')).show();
-        }
-
-        async function updateAccount() {
-            const index = parseInt(document.getElementById('editAccountIndex').value);
-            const newName = document.getElementById('editAccountName').value.trim();
-
-            if (!newName) {
-                Swal.fire({
-                    title: 'خطأ في الإدخال',
-                    text: 'الرجاء إدخال اسم الحساب!',
-                    icon: 'error',
-                    confirmButtonColor: '#3F2A56'
-                });
-                return;
-            }
-
-            if (newName !== accounts[index] && accounts.includes(newName)) {
-                Swal.fire({
-                    title: 'خطأ في الإدخال',
-                    text: 'اسم الحساب موجود مسبقًا! الرجاء اختيار اسم آخر.',
-                    icon: 'error',
-                    confirmButtonColor: '#3F2A56'
-                });
-                return;
-            }
-
-            const oldName = accounts[index];
-            accounts[index] = newName;
-
-            transactions.forEach(t => {
-                if (t.account === oldName) {
-                    t.account = newName;
-                }
-            });
-
-            localStorage.setItem('cashBoxAccounts', JSON.stringify(accounts));
-            localStorage.setItem('cashBoxTransactions', JSON.stringify(transactions));
-            populateAccounts();
+        function updateFilterInputs() {
+            const filterType = document.getElementById('filterType').value;
+            document.getElementById('specificDateGroup').style.display = filterType === 'specific' ? 'block' : 'none';
+            document.getElementById('startDateGroup').style.display = filterType === 'range' ? 'block' : 'none';
+            document.getElementById('endDateGroup').style.display = filterType === 'range' ? 'block' : 'none';
             filterTable();
-            bootstrap.Modal.getInstance(document.getElementById('editAccountModal')).hide();
-            document.getElementById('editAccountForm').reset();
-
-            Swal.fire({
-                title: 'نجاح',
-                text: `تم تعديل الحساب من "${oldName}" إلى "${newName}" بنجاح!`,
-                icon: 'success',
-                confirmButtonColor: '#3F2A56'
-            });
-        }
-
-        async function deleteAccount(index) {
-            const account = accounts[index];
-            const balance = getAccountBalance(account);
-
-            if (balance !== 0) {
-                Swal.fire({
-                    title: 'خطأ',
-                    text: `لا يمكن حذف الحساب "${account}" لأن رصيده (${balance.toFixed(2)}) غير صفر.`,
-                    icon: 'error',
-                    confirmButtonColor: '#3F2A56'
-                });
-                return;
-            }
-
-            const result = await Swal.fire({
-                title: 'تأكيد الحذف',
-                text: `هل أنت متأكد من حذف الحساب "${account}"؟ لا يمكن التراجع عن هذا الإجراء.`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'حذف',
-                cancelButtonText: 'إلغاء',
-                confirmButtonColor: '#dc3545',
-                cancelButtonColor: '#6c757d'
-            });
-
-            if (result.isConfirmed) {
-                accounts.splice(index, 1);
-                localStorage.setItem('cashBoxAccounts', JSON.stringify(accounts));
-                populateAccounts();
-                updateAccountsTable();
-                Swal.fire({
-                    title: 'نجاح',
-                    text: `تم حذف الحساب "${account}" بنجاح!`,
-                    icon: 'success',
-                    confirmButtonColor: '#3F2A56'
-                });
-            }
         }
 
         function addTransaction() {
+            const serialNumber = document.getElementById('serialNumber').value.trim();
             const type = document.getElementById('type').value;
-            const datetime = document.getElementById('datetime').value;
+            const datetime = document.getElementById('datetime').value.replace('T', ' ');
             const amount = document.getElementById('amount').value;
-            const description = document.getElementById('description').value.trim();
-            const account = document.getElementById('account').value;
+            const interest = document.getElementById('interest').value;
+            const note = document.getElementById('note').value.trim();
 
-            if (!type || !datetime || !amount || !description || !account) {
+            if (!serialNumber || !type || !datetime || !amount) {
                 Swal.fire({
-                    title: 'خطأ في الإدخال',
+                    title: 'خطأ',
                     text: 'الرجاء ملء جميع الحقول المطلوبة!',
                     icon: 'error',
                     confirmButtonColor: '#3F2A56'
@@ -983,54 +726,70 @@
                 return;
             }
 
-            if (type === 'out') {
-                const balance = getAccountBalance(account);
-                if (parseFloat(amount) > balance) {
-                    Swal.fire({
-                        title: 'رصيد غير كافٍ',
-                        text: `الرصيد الحالي للحساب "${account}" هو ${balance.toFixed(2)}. لا يمكن إتمام المعاملة بمبلغ ${amount}.`,
-                        icon: 'error',
-                        confirmButtonColor: '#3F2A56'
-                    });
-                    return;
-                }
-            }
-
-            transactions.push({ type, datetime: datetime.replace('T', ' '), amount, description, account });
-            localStorage.setItem('cashBoxTransactions', JSON.stringify(transactions));
-            filterTable();
-            bootstrap.Modal.getInstance(document.getElementById('addTransactionModal')).hide();
-            document.getElementById('addTransactionForm').reset();
-            setCurrentDateTime();
-            Swal.fire({
-                title: 'نجاح',
-                text: 'تم إضافة المعاملة بنجاح!',
-                icon: 'success',
-                confirmButtonColor: '#3F2A56'
+            const transaction = db.transaction(['transactions'], 'readwrite');
+            const objectStore = transaction.objectStore('transactions');
+            const request = objectStore.add({
+                serialNumber,
+                type,
+                datetime,
+                amount: parseFloat(amount).toFixed(2),
+                interest: interest ? parseFloat(interest).toFixed(2) : '0',
+                note
             });
+
+            request.onsuccess = function() {
+                document.getElementById('addTransactionForm').reset();
+                bootstrap.Modal.getInstance(document.getElementById('addTransactionModal')).hide();
+                loadTransactions();
+                Swal.fire({
+                    title: 'نجاح',
+                    text: 'تم إضافة المعاملة بنجاح!',
+                    icon: 'success',
+                    confirmButtonColor: '#3F2A56'
+                });
+            };
+
+            request.onerror = function(event) {
+                console.error('Error adding transaction:', event.target.errorCode);
+                Swal.fire({
+                    title: 'خطأ',
+                    text: 'فشل في إضافة المعاملة! ربما الرقم التسلسلي مستخدم مسبقًا.',
+                    icon: 'error',
+                    confirmButtonColor: '#3F2A56'
+                });
+            };
         }
 
-        function editTransaction(index) {
-            document.getElementById('editIndex').value = index;
-            document.getElementById('editType').value = transactions[index].type;
-            document.getElementById('editDatetime').value = transactions[index].datetime.replace(' ', 'T');
-            document.getElementById('editAmount').value = transactions[index].amount;
-            document.getElementById('editDescription').value = transactions[index].description;
-            document.getElementById('editAccount').value = transactions[index].account;
-            new bootstrap.Modal(document.getElementById('editTransactionModal')).show();
+        function editTransaction(id) {
+            const transaction = db.transaction(['transactions'], 'readonly');
+            const objectStore = transaction.objectStore('transactions');
+            const request = objectStore.get(id);
+
+            request.onsuccess = function(event) {
+                const t = event.target.result;
+                document.getElementById('editId').value = t.id;
+                document.getElementById('editSerialNumber').value = t.serialNumber;
+                document.getElementById('editType').value = t.type;
+                document.getElementById('editDatetime').value = t.datetime.replace(' ', 'T');
+                document.getElementById('editAmount').value = t.amount;
+                document.getElementById('editInterest').value = t.interest || '';
+                document.getElementById('editNote').value = t.note || '';
+                new bootstrap.Modal(document.getElementById('editTransactionModal')).show();
+            };
         }
 
-        async function updateTransaction() {
-            const index = parseInt(document.getElementById('editIndex').value);
+        function updateTransaction() {
+            const id = parseInt(document.getElementById('editId').value);
+            const serialNumber = document.getElementById('editSerialNumber').value.trim();
             const type = document.getElementById('editType').value;
-            const datetime = document.getElementById('editDatetime').value;
+            const datetime = document.getElementById('editDatetime').value.replace('T', ' ');
             const amount = document.getElementById('editAmount').value;
-            const description = document.getElementById('editDescription').value.trim();
-            const account = document.getElementById('editAccount').value;
+            const interest = document.getElementById('editInterest').value;
+            const note = document.getElementById('editNote').value.trim();
 
-            if (!type || !datetime || !amount || !description || !account) {
+            if (!serialNumber || !type || !datetime || !amount) {
                 Swal.fire({
-                    title: 'خطأ في الإدخال',
+                    title: 'خطأ',
                     text: 'الرجاء ملء جميع الحقول المطلوبة!',
                     icon: 'error',
                     confirmButtonColor: '#3F2A56'
@@ -1038,35 +797,44 @@
                 return;
             }
 
-            if (type === 'out') {
-                const balance = getAccountBalance(account, index);
-                if (parseFloat(amount) > balance) {
-                    Swal.fire({
-                        title: 'رصيد غير كافٍ',
-                        text: `الرصيد الحالي للحساب "${account}" هو ${balance.toFixed(2)}. لا يمكن إتمام المعاملة بمبلغ ${amount}.`,
-                        icon: 'error',
-                        confirmButtonColor: '#3F2A56'
-                    });
-                    return;
-                }
-            }
-
-            transactions[index] = { type, datetime: datetime.replace('T', ' '), amount, description, account };
-            localStorage.setItem('cashBoxTransactions', JSON.stringify(transactions));
-            filterTable();
-            bootstrap.Modal.getInstance(document.getElementById('editTransactionModal')).hide();
-            Swal.fire({
-                title: 'نجاح',
-                text: 'تم تعديل المعاملة بنجاح!',
-                icon: 'success',
-                confirmButtonColor: '#3F2A56'
+            const transaction = db.transaction(['transactions'], 'readwrite');
+            const objectStore = transaction.objectStore('transactions');
+            const request = objectStore.put({
+                id,
+                serialNumber,
+                type,
+                datetime,
+                amount: parseFloat(amount).toFixed(2),
+                interest: interest ? parseFloat(interest).toFixed(2) : '0',
+                note
             });
+
+            request.onsuccess = function() {
+                bootstrap.Modal.getInstance(document.getElementById('editTransactionModal')).hide();
+                loadTransactions();
+                Swal.fire({
+                    title: 'نجاح',
+                    text: 'تم تعديل المعاملة بنجاح!',
+                    icon: 'success',
+                    confirmButtonColor: '#3F2A56'
+                });
+            };
+
+            request.onerror = function(event) {
+                console.error('Error updating transaction:', event.target.errorCode);
+                Swal.fire({
+                    title: 'خطأ',
+                    text: 'فشل في تعديل المعاملة! ربما الرقم التسلسلي مستخدم مسبقًا.',
+                    icon: 'error',
+                    confirmButtonColor: '#3F2A56'
+                });
+            };
         }
 
-        async function deleteTransaction(index) {
+        async function deleteTransaction(id) {
             const result = await Swal.fire({
                 title: 'تأكيد الحذف',
-                text: 'هل أنت متأكد من حذف هذه المعاملة؟ لا يمكن التراجع عن هذا الإجراء.',
+                text: 'هل أنت متأكد من حذف هذه المعاملة؟',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonText: 'حذف',
@@ -1074,185 +842,167 @@
                 confirmButtonColor: '#dc3545',
                 cancelButtonColor: '#6c757d'
             });
+
             if (result.isConfirmed) {
-                transactions.splice(index, 1);
-                localStorage.setItem('cashBoxTransactions', JSON.stringify(transactions));
-                filterTable();
-                Swal.fire({
-                    title: 'نجاح',
-                    text: 'تم حذف المعاملة بنجاح!',
-                    icon: 'success',
-                    confirmButtonColor: '#3F2A56'
-                });
+                const transaction = db.transaction(['transactions'], 'readwrite');
+                const objectStore = transaction.objectStore('transactions');
+                const request = objectStore.delete(id);
+
+                request.onsuccess = function() {
+                    loadTransactions();
+                    Swal.fire({
+                        title: 'نجاح',
+                        text: 'تم حذف المعاملة بنجاح!',
+                        icon: 'success',
+                        confirmButtonColor: '#3F2A56'
+                    });
+                };
+
+                request.onerror = function(event) {
+                    console.error('Error deleting transaction:', event.target.errorCode);
+                    Swal.fire({
+                        title: 'خطأ',
+                        text: 'فشل في حذف المعاملة!',
+                        icon: 'error',
+                        confirmButtonColor: '#3F2A56'
+                    });
+                };
             }
         }
 
         function exportToJSON() {
-            sortTransactionsByDate();
             const dataStr = JSON.stringify(transactions, null, 2);
             const blob = new Blob([dataStr], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'cashbox_transactions.json';
+            a.download = 'transactions.json';
             a.click();
             URL.revokeObjectURL(url);
             Swal.fire({
                 title: 'نجاح',
-                text: 'تم تصدير البيانات إلى ملف JSON بنجاح!',
+                text: 'تم تصدير البيانات إلى JSON بنجاح!',
                 icon: 'success',
                 confirmButtonColor: '#3F2A56'
             });
         }
 
         function exportToCSV() {
-            sortTransactionsByDate();
-            const headers = ['نوع المعاملة,التاريخ والوقت,المبلغ,البيان,الحساب'];
-            const rows = transactions.map(t => `${t.type === 'in' ? 'داخل' : 'خارج'},${t.datetime},${t.amount},${t.description},${t.account}`);
+            const headers = ['الرقم التسلسلي,نوع المعاملة,التاريخ والوقت,المبلغ,الفائدة,الملاحظة'];
+            const rows = transactions.map(t => `${t.serialNumber},${t.type === 'in' ? 'وارد' : 'صادر'},${t.datetime},${t.amount},${t.interest || '0'},${t.note || ''}`);
             const csv = [headers, ...rows].join('\n');
             const blob = new Blob([csv], { type: 'text/csv' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'cashbox_transactions.csv';
+            a.download = 'transactions.csv';
             a.click();
             URL.revokeObjectURL(url);
             Swal.fire({
                 title: 'نجاح',
-                text: 'تم تصدير البيانات إلى ملف CSV بنجاح!',
+                text: 'تم تصدير البيانات إلى CSV بنجاح!',
                 icon: 'success',
                 confirmButtonColor: '#3F2A56'
             });
         }
 
-        async function importFile(event) {
+        function exportToPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+            doc.setFont('Cairo');
+            doc.setFontSize(16);
+            doc.text('غزة تلكوم - تقرير المعاملات', 105, 20, { align: 'center' });
+            doc.setFontSize(12);
+            doc.text(`تاريخ الطباعة: ${new Date().toLocaleDateString('ar')}`, 105, 30, { align: 'center' });
+
+            const tableData = transactions.map((t, index) => [
+                index + 1,
+                t.serialNumber,
+                t.type === 'in' ? 'وارد' : 'صادر',
+                t.datetime,
+                t.amount,
+                t.interest || '0',
+                t.note || ''
+            ]);
+
+            doc.autoTable({
+                head: [['#', 'الرقم التسلسلي', 'نوع المعاملة', 'التاريخ والوقت', 'المبلغ', 'الفائدة', 'الملاحظة']],
+                body: tableData,
+                startY: 40,
+                styles: { font: 'Cairo', halign: 'center', textColor: [0, 0, 0] },
+                headStyles: { fillColor: [63, 42, 86], textColor: [255, 255, 255] },
+                alternateRowStyles: { fillColor: [247, 249, 252] }
+            });
+
+            doc.save('transactions.pdf');
+            Swal.fire({
+                title: 'نجاح',
+                text: 'تم تصدير البيانات إلى PDF بنجاح!',
+                icon: 'success',
+                confirmButtonColor: '#3F2A56'
+            });
+        }
+
+        function importFile(event) {
             const file = event.target.files[0];
             const reader = new FileReader();
-            reader.onload = async function(e) {
+
+            reader.onload = function(e) {
                 let newTransactions = [];
                 if (file.name.endsWith('.json')) {
                     newTransactions = JSON.parse(e.target.result);
                 } else if (file.name.endsWith('.csv')) {
-                    const data = e.target.result;
-                    const rows = data.split('\n').slice(1).filter(row => row.trim());
+                    const rows = e.target.result.split('\n').slice(1).filter(row => row.trim());
                     newTransactions = rows.map(row => {
-                        const [type, datetime, amount, description, account] = row.split(',');
+                        const [serialNumber, type, datetime, amount, interest, note] = row.split(',');
                         return {
-                            type: type === 'داخل' ? 'in' : 'out',
+                            serialNumber,
+                            type: type === 'وارد' ? 'in' : 'out',
                             datetime,
                             amount: parseFloat(amount).toFixed(2),
-                            description,
-                            account
+                            interest: interest ? parseFloat(interest).toFixed(2) : '0',
+                            note
                         };
                     });
                 }
 
-                // إضافة الحسابات الجديدة تلقائيًا
-                newTransactions.forEach(t => {
-                    if (!accounts.includes(t.account) && t.account) {
-                        accounts.push(t.account);
-                    }
-                });
-                localStorage.setItem('cashBoxAccounts', JSON.stringify(accounts));
-                populateAccounts();
-                updateAccountsTable();
+                const transaction = db.transaction(['transactions'], 'readwrite');
+                const objectStore = transaction.objectStore('transactions');
 
-                // التحقق من صحة المعاملات
-                const invalidTransactions = newTransactions.filter(t => 
-                    !t.type || !t.datetime || !t.amount || !t.description || !t.account || 
-                    isNaN(parseFloat(t.amount)) || parseFloat(t.amount) < 0
-                );
-                if (invalidTransactions.length > 0) {
+                newTransactions.forEach(t => {
+                    objectStore.add(t);
+                });
+
+                transaction.oncomplete = function() {
+                    loadTransactions();
                     Swal.fire({
-                        title: 'خطأ في البيانات',
-                        text: 'تم العثور على معاملات غير صالحة في الملف. الرجاء التحقق من تنسيق الملف.',
+                        title: 'نجاح',
+                        text: 'تم استيراد البيانات بنجاح!',
+                        icon: 'success',
+                        confirmButtonColor: '#3F2A56'
+                    });
+                };
+
+                transaction.onerror = function(event) {
+                    console.error('Error importing transactions:', event.target.errorCode);
+                    Swal.fire({
+                        title: 'خطأ',
+                        text: 'فشل في استيراد البيانات!',
                         icon: 'error',
                         confirmButtonColor: '#3F2A56'
                     });
-                    return;
-                }
-
-                // ترتيب المعاملات حسب التاريخ
-                newTransactions.sort((a, b) => new Date(a.datetime) - new Date(b.datetime));
-
-                // محاكاة إضافة المعاملات للتحقق من الأرصدة
-                const tempTransactions = [...transactions, ...newTransactions];
-                const negativeBalances = [];
-                accounts.forEach(account => {
-                    const balance = tempTransactions.reduce((bal, t) => {
-                        if (t.account !== account) return bal;
-                        return bal + (t.type === 'in' ? parseFloat(t.amount) : -parseFloat(t.amount));
-                    }, 0);
-                    if (balance < 0) {
-                        negativeBalances.push({ account, balance: balance.toFixed(2) });
-                    }
-                });
-
-                // عرض تحذير إذا كانت هناك أرصدة سالبة
-                if (negativeBalances.length > 0) {
-                    let warningMessage = 'تم العثور على حسابات برصيد سالب بعد الاستيراد:<br>';
-                    negativeBalances.forEach(({ account, balance }) => {
-                        warningMessage += `الحساب: ${account}, الرصيد: ${balance}<br>`;
-                    });
-                    warningMessage += 'هل تريد المتابعة على أي حال؟';
-
-                    const result = await Swal.fire({
-                        title: 'تحذير: رصيد سالب',
-                        html: warningMessage,
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonText: 'المتابعة على أي حال',
-                        cancelButtonText: 'إلغاء',
-                        confirmButtonColor: '#3F2A56',
-                        cancelButtonColor: '#dc3545',
-                        customClass: { popup: 'swal2-rtl' }
-                    });
-
-                    if (!result.isConfirmed) {
-                        Swal.fire({
-                            title: 'تم الإلغاء',
-                            text: 'لم يتم استيراد الملف بسبب الأرصدة السالبة.',
-                            icon: 'info',
-                            confirmButtonColor: '#3F2A56'
-                        });
-                        return;
-                    }
-                }
-
-                // إضافة المعاملات
-                transactions = tempTransactions;
-                localStorage.setItem('cashBoxTransactions', JSON.stringify(transactions));
-                filterTable();
-                successSound.play();
-                Swal.fire({
-                    title: 'نجاح',
-                    text: 'تم استيراد البيانات بنجاح مع إضافة الحسابات الجديدة!',
-                    icon: 'success',
-                    confirmButtonColor: '#3F2A56'
-                });
+                };
             };
 
-            if (file.name.endsWith('.json') || file.name.endsWith('.csv')) {
-                reader.readAsText(file);
-            } else {
-                Swal.fire({
-                    title: 'خطأ',
-                    text: 'الرجاء تحميل ملف بصيغة JSON أو CSV!',
-                    icon: 'error',
-                    confirmButtonColor: '#3F2A56'
-                });
-            }
+            reader.readAsText(file);
         }
 
         function generateQRCode() {
-            const data = {
-                transactions: transactions,
-                accounts: accounts
-            };
-            const dataString = JSON.stringify(data);
+            const dataStr = JSON.stringify(transactions);
             const qrCanvas = document.getElementById('qrCanvas');
-            QRCode.toCanvas(qrCanvas, dataString, { width: 300, margin: 2 }, (error) => {
+            QRCode.toCanvas(qrCanvas, dataStr, { width: 300 }, function(error) {
                 if (error) {
+                    console.error(error);
                     Swal.fire({
                         title: 'خطأ',
                         text: 'فشل في إنشاء رمز QR!',
@@ -1263,42 +1013,15 @@
                 }
                 Swal.fire({
                     title: 'رمز QR جاهز',
-                    html: `
-                        <canvas id="tempQRCanvas"></canvas>
-                        <p>امسح هذا الرمز من جهاز آخر لنقل البيانات</p>
-                        <div class="scanner-buttons">
-                            <button class="btn" onclick="exportQRCode()">تصدير كصورة</button>
-                        </div>
-                    `,
-                    showCancelButton: true,
-                    confirmButtonText: 'إغلاق',
-                    cancelButtonText: 'إلغاء',
-                    confirmButtonColor: '#3F2A56',
-                    cancelButtonColor: '#6c757d',
-                    customClass: { popup: 'swal2-rtl' },
-                    width: '500px',
+                    html: '<canvas id="tempQRCanvas"></canvas>',
                     didOpen: () => {
                         const tempCanvas = document.getElementById('tempQRCanvas');
                         tempCanvas.width = qrCanvas.width;
                         tempCanvas.height = qrCanvas.height;
                         tempCanvas.getContext('2d').drawImage(qrCanvas, 0, 0);
-                    }
+                    },
+                    confirmButtonColor: '#3F2A56'
                 });
-            });
-        }
-
-        function exportQRCode() {
-            const qrCanvas = document.getElementById('qrCanvas');
-            const dataURL = qrCanvas.toDataURL('image/png');
-            const a = document.createElement('a');
-            a.href = dataURL;
-            a.download = 'qrcode.png';
-            a.click();
-            Swal.fire({
-                title: 'نجاح',
-                text: 'تم تصدير رمز QR كصورة بنجاح!',
-                icon: 'success',
-                confirmButtonColor: '#3F2A56'
             });
         }
 
@@ -1307,7 +1030,7 @@
                 title: 'مسح رمز QR',
                 html: `
                     <div id="scannerContainer">
-                        <video id="scannerVideo" autoplay playsinline style="max-width: 100%; border-radius: 10px; border: 2px solid #3F2A56;"></video>
+                        <video id="scannerVideo" autoplay playsinline></video>
                         <div class="scanner-buttons">
                             <button class="btn" onclick="stopQRScanner()">إيقاف المسح</button>
                             <button class="btn" onclick="document.getElementById('qrImageInput').click()">استيراد من صورة</button>
@@ -1316,10 +1039,7 @@
                 `,
                 showConfirmButton: false,
                 showCancelButton: true,
-                cancelButtonText: 'إغلاق',
                 cancelButtonColor: '#6c757d',
-                customClass: { popup: 'swal2-rtl' },
-                width: '600px',
                 didOpen: async () => {
                     try {
                         stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
@@ -1336,16 +1056,24 @@
                                 canvas.height = video.videoHeight;
                                 context.drawImage(video, 0, 0, canvas.width, canvas.height);
                                 const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-                                const code = jsQR(imageData.data, imageData.width, imageData.height, {
-                                    inversionAttempts: 'dontInvert'
-                                });
-
+                                const code = jsQR(imageData.data, imageData.width, imageData.height);
                                 if (code) {
                                     stopQRScanner();
                                     Swal.close();
                                     try {
-                                        const data = JSON.parse(code.data);
-                                        processQRData(data);
+                                        const newTransactions = JSON.parse(code.data);
+                                        const transaction = db.transaction(['transactions'], 'readwrite');
+                                        const objectStore = transaction.objectStore('transactions');
+                                        newTransactions.forEach(t => objectStore.add(t));
+                                        transaction.oncomplete = function() {
+                                            loadTransactions();
+                                            Swal.fire({
+                                                title: 'نجاح',
+                                                text: 'تم استيراد البيانات من QR بنجاح!',
+                                                icon: 'success',
+                                                confirmButtonColor: '#3F2A56'
+                                            });
+                                        };
                                     } catch (e) {
                                         Swal.fire({
                                             title: 'خطأ',
@@ -1363,15 +1091,13 @@
                     } catch (error) {
                         Swal.fire({
                             title: 'خطأ',
-                            text: 'فشل في الوصول إلى الكاميرا! تأكد من منح الأذونات.',
+                            text: 'فشل في الوصول إلى الكاميرا!',
                             icon: 'error',
                             confirmButtonColor: '#3F2A56'
                         });
                     }
                 },
-                willClose: () => {
-                    stopQRScanner();
-                }
+                willClose: () => stopQRScanner()
             });
         }
 
@@ -1380,20 +1106,10 @@
                 stream.getTracks().forEach(track => track.stop());
                 stream = null;
             }
-            const scannerContainer = document.getElementById('scannerContainer');
-            if (scannerContainer) {
-                scannerContainer.style.display = 'none';
-            }
-            const scannerVideo = document.getElementById('scannerVideo');
-            if (scannerVideo) {
-                scannerVideo.srcObject = null;
-            }
         }
 
         function importQRFromImage(event) {
             const file = event.target.files[0];
-            if (!file) return;
-
             const reader = new FileReader();
             reader.onload = function(e) {
                 const img = new Image();
@@ -1403,22 +1119,28 @@
                     canvas.width = img.width;
                     canvas.height = img.height;
                     const context = canvas.getContext('2d');
-                    context.drawImage(img, 0, 0, img.width, img.height);
-                    const imageData = context.getImageData(0, 0, img.width, img.height);
-                    const code = jsQR(imageData.data, imageData.width, imageData.height, {
-                        inversionAttempts: 'dontInvert'
-                    });
-
+                    context.drawImage(img, 0, 0);
+                    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                    const code = jsQR(imageData.data, imageData.width, imageData.height);
                     if (code) {
-                        stopQRScanner();
-                        Swal.close();
                         try {
-                            const data = JSON.parse(code.data);
-                            processQRData(data);
+                            const newTransactions = JSON.parse(code.data);
+                            const transaction = db.transaction(['transactions'], 'readwrite');
+                            const objectStore = transaction.objectStore('transactions');
+                            newTransactions.forEach(t => objectStore.add(t));
+                            transaction.oncomplete = function() {
+                                loadTransactions();
+                                Swal.fire({
+                                    title: 'نجاح',
+                                    text: 'تم استيراد البيانات من الصورة بنجاح!',
+                                    icon: 'success',
+                                    confirmButtonColor: '#3F2A56'
+                                });
+                            };
                         } catch (e) {
                             Swal.fire({
                                 title: 'خطأ',
-                                text: 'البيانات في رمز QR غير صالحة!',
+                                text: 'البيانات في الصورة غير صالحة!',
                                 icon: 'error',
                                 confirmButtonColor: '#3F2A56'
                             });
@@ -1436,485 +1158,157 @@
             reader.readAsDataURL(file);
         }
 
-        async function processQRData(data) {
-            if (!data.transactions || !data.accounts) {
-                Swal.fire({
-                    title: 'خطأ',
-                    text: 'البيانات غير مكتملة! يجب أن تحتوي على transactions وaccounts.',
-                    icon: 'error',
-                    confirmButtonColor: '#3F2A56'
-                });
-                return;
+        function showReport(period) {
+            let filteredTransactions = transactions;
+            const now = new Date();
+            let startDate;
+
+            if (period === 'weekly') {
+                startDate = new Date(now.setDate(now.getDate() - now.getDay()));
+                startDate.setHours(0, 0, 0, 0);
+            } else if (period === 'monthly') {
+                startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+            } else if (period === 'yearly') {
+                startDate = new Date(now.getFullYear(), 0, 1);
             }
 
-            const newTransactions = data.transactions;
-            const newAccounts = data.accounts;
+            filteredTransactions = transactions.filter(t => new Date(t.datetime) >= startDate);
 
-            // إضافة الحسابات الجديدة
-            newAccounts.forEach(account => {
-                if (!accounts.includes(account)) {
-                    accounts.push(account);
-                }
-            });
-            localStorage.setItem('cashBoxAccounts', JSON.stringify(accounts));
-            populateAccounts();
-            updateAccountsTable();
-
-            // التحقق من صحة المعاملات
-            const invalidTransactions = newTransactions.filter(t =>
-                !t.type || !t.datetime || !t.amount || !t.description || !t.account ||
-                isNaN(parseFloat(t.amount)) || parseFloat(t.amount) < 0
-            );
-            if (invalidTransactions.length > 0) {
-                Swal.fire({
-                    title: 'خطأ في البيانات',
-                    text: 'تم العثور على معاملات غير صالحة.',
-                    icon: 'error',
-                    confirmButtonColor: '#3F2A56'
-                });
-                return;
-            }
-
-            // ترتيب المعاملات
-            newTransactions.sort((a, b) => new Date(a.datetime) - new Date(b.datetime));
-
-            // التحقق من الأرصدة
-            const tempTransactions = [...transactions, ...newTransactions];
-            const negativeBalances = [];
-            accounts.forEach(account => {
-                const balance = tempTransactions.reduce((bal, t) => {
-                    if (t.account !== account) return bal;
-                    return bal + (t.type === 'in' ? parseFloat(t.amount) : -parseFloat(t.amount));
-                }, 0);
-                if (balance < 0) {
-                    negativeBalances.push({ account, balance: balance.toFixed(2) });
+            let totalIn = 0, totalOut = 0, interestIn = 0, interestOut = 0;
+            filteredTransactions.forEach(t => {
+                if (t.type === 'in') {
+                    totalIn += parseFloat(t.amount);
+                    interestIn += parseFloat(t.interest || 0);
+                } else {
+                    totalOut += parseFloat(t.amount);
+                    interestOut += parseFloat(t.interest || 0);
                 }
             });
 
-            if (negativeBalances.length > 0) {
-                let warningMessage = 'تم العثور على حسابات برصيد سالب بعد الاستيراد:<br>';
-                negativeBalances.forEach(({ account, balance }) => {
-                    warningMessage += `الحساب: ${account}, الرصيد: ${balance}<br>`;
-                });
-                warningMessage += 'هل تريد المتابعة على أي حال؟';
-                const result = await Swal.fire({
-                    title: 'تحذير: رصيد سالب',
-                    html: warningMessage,
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonText: 'المتابعة على أي حال',
-                    cancelButtonText: 'إلغاء',
-                    confirmButtonColor: '#3F2A56',
-                    cancelButtonColor: '#dc3545',
-                    customClass: { popup: 'swal2-rtl' }
-                });
-                if (!result.isConfirmed) {
-                    Swal.fire({
-                        title: 'تم الإلغاء',
-                        text: 'لم يتم استيراد البيانات بسبب الأرصدة السالبة.',
-                        icon: 'info',
-                        confirmButtonColor: '#3F2A56'
-                    });
-                    return;
-                }
-            }
-
-            transactions = tempTransactions;
-            localStorage.setItem('cashBoxTransactions', JSON.stringify(transactions));
-            filterTable();
-            successSound.play();
             Swal.fire({
-                title: 'نجاح',
-                text: 'تم استيراد البيانات من رمز QR بنجاح!',
-                icon: 'success',
+                title: `التقرير ${period === 'weekly' ? 'الأسبوعي' : period === 'monthly' ? 'الشهري' : 'السنوي'}`,
+                html: `
+                    <div style="text-align: right; font-family: 'Cairo', sans-serif;">
+                        <p><strong>مجموع الوارد:</strong> ${totalIn.toFixed(2)}</p>
+                        <p><strong>مجموع الصادر:</strong> ${totalOut.toFixed(2)}</p>
+                        <p><strong>فوائد الوارد:</strong> ${interestIn.toFixed(2)}</p>
+                        <p><strong>فوائد الصادر:</strong> ${interestOut.toFixed(2)}</p>
+                        <p><strong>الرصيد النهائي:</strong> ${(totalIn - totalOut).toFixed(2)}</p>
+                    </div>
+                `,
+                icon: 'info',
                 confirmButtonColor: '#3F2A56'
             });
         }
 
-        function setCurrentDateTime() {
-            const now = new Date();
-            const formattedDateTime = now.toISOString().slice(0, 16);
-            document.getElementById('datetime').value = formattedDateTime;
-            document.getElementById('editDatetime').value = formattedDateTime;
-        }
-
         function printTable() {
-    try {
-        const itemsPerPage = 20;
-        const startDate = document.getElementById('startDate').value;
-        const endDate = document.getElementById('endDate').value;
-        const typeFilter = document.getElementById('typeFilter').value;
+            const filterType = document.getElementById('filterType').value;
+            const specificDate = document.getElementById('specificDate').value;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            const typeFilter = document.getElementById('typeFilter').value;
 
-        const inTransactions = transactions.filter(transaction => {
-            const transactionDate = transaction.datetime.split(' ')[0];
-            const matchesDate = (
-                (!startDate || transactionDate >= startDate) &&
-                (!endDate || transactionDate <= endDate)
-            );
-            return matchesDate && (typeFilter === 'all' || typeFilter === 'in') && transaction.type === 'in';
-        });
+            let filteredTransactions = transactions.filter(t => {
+                const transactionDate = t.datetime.split(' ')[0];
+                let matchesDate = true;
 
-        const outTransactions = transactions.filter(transaction => {
-            const transactionDate = transaction.datetime.split(' ')[0];
-            const matchesDate = (
-                (!startDate || transactionDate >= startDate) &&
-                (!endDate || transactionDate <= endDate)
-            );
-            return matchesDate && (typeFilter === 'all' || typeFilter === 'out') && transaction.type === 'out';
-        });
+                if (filterType === 'today') {
+                    const today = new Date().toISOString().split('T')[0];
+                    matchesDate = transactionDate === today;
+                } else if (filterType === 'yesterday') {
+                    const yesterday = new Date();
+                    yesterday.setDate(yesterday.getDate() - 1);
+                    matchesDate = transactionDate === yesterday.toISOString().split('T')[0];
+                } else if (filterType === 'specific' && specificDate) {
+                    matchesDate = transactionDate === specificDate;
+                } else if (filterType === 'range' && startDate && endDate) {
+                    matchesDate = transactionDate >= startDate && transactionDate <= endDate;
+                }
 
-        const totalIn = inTransactions.reduce((sum, t) => sum + parseFloat(t.amount), 0);
-        const totalOut = outTransactions.reduce((sum, t) => sum + parseFloat(t.amount), 0);
-        const balance = totalIn - totalOut;
+                const matchesType = typeFilter === 'all' || t.type === typeFilter;
+                return matchesDate && matchesType;
+            });
 
-        const inPages = Math.ceil(inTransactions.length / itemsPerPage);
-        const outPages = Math.ceil(outTransactions.length / itemsPerPage);
-        const totalPages = Math.max(inPages, outPages);
-
-        const printWindow = window.open('', '_blank', 'height=700,width=1000');
-        if (!printWindow) {
-            throw new Error('فشل في فتح نافذة الطباعة. تحقق من إعدادات المتصفح.');
-        }
-
-        const printDate = new Date().toLocaleString('en-US', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric'
-        }).replace(/(\d+)\/(\d+)\/(\d+)/, '$1/$2/$3');
-
-        printWindow.document.write(`
-            <html>
-            <head>
-                <title>ضبط الصندوق</title>
-                <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
-                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-                <style>
-                    @page { 
-                        size: A4; 
-                        margin: 10mm; 
-                    }
-                    body { 
-                        font-family: 'Cairo', sans-serif; 
-                        direction: rtl; 
-                        margin: 10mm; 
-                        background: #fff; 
-                        color: #000; 
-                    }
-                    .container { 
-                        max-width: 1000px; 
-                        margin: 0 auto; 
-                    }
-                    .header { 
-                        display: flex; 
-                        justify-content: space-between; 
-                        align-items: center; 
-                        margin-bottom: 20px; 
-                        padding-bottom: 10px; 
-                        border-bottom: 1px solid #000; 
-                    }
-                    .header img { 
-                        height: 70px; 
-                        clip-path: polygon(10% 0%, 100% 0%, 90% 100%, 0% 100%); 
-                        margin-right: 10px; 
-                    }
-                    .header h1 { 
-                        font-size: 1.6rem; 
-                        font-weight: 700; 
-                        margin: 0; 
-                        text-align: center; 
-                        flex-grow: 1; 
-                        color: #3F2A56; 
-                    }
-                    .dashboard-container { 
-                        display: flex; 
-                        justify-content: space-between; 
-                        gap: 20px; 
-                        margin-bottom: 20px; 
-                    }
-                    .dashboard-section { 
-                        flex: 1; 
-                        border: 1px solid #000; 
-                        padding: 15px; 
-                        border-radius: 5px; 
-                        background: #fff; 
-                        text-align: center; 
-                    }
-                    .dashboard-section h4 { 
-                        font-size: 1.2rem; 
-                        font-weight: 700; 
-                        margin: 0 0 10px; 
-                        border-bottom: 1px solid #000; 
-                        padding-bottom: 5px; 
-                        color: #3F2A56; 
-                    }
-                    .dashboard-section p { 
-                        margin: 5px 0; 
-                        font-size: 1rem; 
-                        line-height: 1.5; 
-                        font-weight: 600; 
-                    }
-                    .balance-container { 
-                        text-align: center; 
-                        margin: 20px 0; 
-                        border: 1px solid #000; 
-                        padding: 10px; 
-                        border-radius: 5px; 
-                        background: #fff; 
-                    }
-                    .balance-container h4 { 
-                        font-size: 1.2rem; 
-                        font-weight: 700; 
-                        margin: 0 0 10px; 
-                        color: #3F2A56; 
-                    }
-                    .balance-container p { 
-                        font-size: 1.1rem; 
-                        font-weight: 600; 
-                        margin: 0; 
-                    }
-                    h2 { 
-                        text-align: center; 
-                        font-size: 1.7rem; 
-                        font-weight: 700; 
-                        margin: 20px 0; 
-                        border-bottom: 1px solid #000; 
-                        padding-bottom: 5px; 
-                        color: #3F2A56; 
-                    }
-                    .transactions-count { 
-                        text-align: center; 
-                        font-size: 1.1rem; 
-                        font-weight: 600; 
-                        margin-bottom: 10px; 
-                        color: #5a3f73; 
-                    }
-                    .print-date { 
-                        text-align: center; 
-                        font-size: 1.1rem; 
-                        font-weight: 600; 
-                        margin-bottom: 20px; 
-                        color: #3F2A56; 
-                    }
-                    table { 
-                        width: 100%; 
-                        border-collapse: collapse; 
-                        margin: 20px 0; 
-                        border: 1px solid #000; 
-                    }
-                    th, td { 
-                        padding: 12px; 
-                        text-align: center; 
-                        border: 1px solid #000; 
-                        font-size: 1rem; 
-                    }
-                    th { 
-                        background: linear-gradient(90deg, #3F2A56, #5a3f73); 
-                        color: white; 
-                        font-weight: 700; 
-                    }
-                    td { 
-                        background: #fff; 
-                        color: #000; 
-                    }
-                    .page-break { 
-                        page-break-before: always; 
-                    }
-                    .page-number { 
-                        text-align: center; 
-                        font-size: 1rem; 
-                        margin-top: 10px; 
-                        color: #3F2A56; 
-                    }
-                    .footer { 
-                        text-align: center; 
-                        font-size: 1rem; 
-                        font-weight: 600; 
-                        margin-top: 10px; 
-                        position: running(footer); 
-                        color: #3F2A56; 
-                    }
-                    @media print {
-                        .footer {
-                            position: fixed;
-                            bottom: 10mm;
-                            width: 100%;
-                        }
-                    }
-                </style>
-            </head>
-            <body>
-                <div class="container">
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>تقرير غزة تلكوم</title>
+                    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+                    <style>
+                        body { font-family: 'Cairo', sans-serif; direction: rtl; margin: 20px; }
+                        .header { text-align: center; margin-bottom: 20px; }
+                        .header img { height: 70px; clip-path: polygon(10% 0%, 100% 0%, 90% 100%, 0% 100%); }
+                        h1 { color: #3F2A56; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                        th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
+                        th { background: linear-gradient(90deg, #3F2A56, #5a3f73); color: white; }
+                        td { color: #3F2A56; }
+                        .dashboard { display: flex; justify-content: space-between; margin-bottom: 20px; }
+                        .dashboard div { border: 1px solid #ddd; padding: 10px; width: 30%; text-align: center; }
+                    </style>
+                </head>
+                <body>
                     <div class="header">
-                        <img src="logo.png" alt="شعار طيبة المدينة تلكوم" onerror="this.src='https://via.placeholder.com/70x70.png?text=Logo';">
-                        <h1>طيبة المدينة تلكوم - تقرير ضبط الصندوق</h1>
+                        <img src="gaza_logo.png" alt="شعار غزة تلكوم">
+                        <h1>غزة تلكوم - تقرير المعاملات</h1>
                     </div>
-                    <div class="print-date">تاريخ الطباعة: ${printDate}</div>
-                    <div class="dashboard-container">
-                        <div class="dashboard-section">
-                            <h4>الرصيد</h4>
-                            <p>${balance.toFixed(2)}</p>
+                    <div class="dashboard">
+                        <div>
+                            <h4>الصادر</h4>
+                            <p>مجموع الصادر: ${document.getElementById('totalOut').innerText}</p>
+                            <p>عدد الصادر: ${document.getElementById('countOut').innerText}</p>
+                            <p>فوائد الصادر: ${document.getElementById('interestOut').innerText}</p>
                         </div>
-                        <div class="dashboard-section">
-                            <h4>الرصيد الداخل</h4>
-                            <p>${totalIn.toFixed(2)}</p>
+                        <div>
+                            <h4>الوارد</h4>
+                            <p>مجموع الوارد: ${document.getElementById('totalIn').innerText}</p>
+                            <p>عدد الوارد: ${document.getElementById('countIn').innerText}</p>
+                            <p>فوائد الوارد: ${document.getElementById('interestIn').innerText}</p>
                         </div>
-                        <div class="dashboard-section">
-                            <h4>الرصيد الخارج</h4>
-                            <p>${totalOut.toFixed(2)}</p>
+                        <div>
+                            <h4>النهائي</h4>
+                            <p>النهائي 1: ${document.getElementById('finalBalance').innerText}</p>
+                            <p>النهائي 2: ${document.getElementById('finalBalance2').innerText}</p>
+                            <p>مجموع الفوائد: ${document.getElementById('totalInterest').innerText}</p>
                         </div>
                     </div>
-                    <div class="balance-container">
-                        <h4>الرصيد الإجمالي</h4>
-                        <p>${balance.toFixed(2)}</p>
-                    </div>
-        `);
-
-        // جدول المعاملات "داخل"
-        if (inTransactions.length > 0) {
-            printWindow.document.write(`
-                <h2>المعاملات الداخلة</h2>
-                <div class="transactions-count">عدد المعاملات: ${inTransactions.length}</div>
-            `);
-            for (let page = 0; page < inPages; page++) {
-                if (page > 0) {
-                    printWindow.document.write('<div class="page-break"></div>');
-                }
-                printWindow.document.write(`
                     <table>
                         <thead>
                             <tr>
                                 <th>#</th>
+                                <th>الرقم التسلسلي</th>
+                                <th>نوع المعاملة</th>
                                 <th>التاريخ والوقت</th>
                                 <th>المبلغ</th>
-                                <th>البيان</th>
-                                <th>الحساب</th>
+                                <th>الفائدة</th>
+                                <th>الملاحظة</th>
                             </tr>
                         </thead>
                         <tbody>
-                `);
-                const start = page * itemsPerPage;
-                const end = Math.min(start + itemsPerPage, inTransactions.length);
-                for (let i = start; i < end; i++) {
-                    const transaction = inTransactions[i];
-                    printWindow.document.write(`
-                        <tr>
-                            <td>${i + 1}</td>
-                            <td>${transaction.datetime}</td>
-                            <td>${transaction.amount}</td>
-                            <td>${transaction.description}</td>
-                            <td>${transaction.account}</td>
-                        </tr>
-                    `);
-                }
-                printWindow.document.write(`
+                            ${filteredTransactions.map((t, index) => `
+                                <tr>
+                                    <td>${index + 1}</td>
+                                    <td>${t.serialNumber}</td>
+                                    <td>${t.type === 'in' ? 'وارد' : 'صادر'}</td>
+                                    <td>${t.datetime}</td>
+                                    <td>${t.amount}</td>
+                                    <td>${t.interest || '0'}</td>
+                                    <td>${t.note || ''}</td>
+                                </tr>
+                            `).join('')}
                         </tbody>
                     </table>
-                    <div class="page-number">صفحة ${page + 1} من ${totalPages}</div>
-                    <div class="footer">طيبة المدينة تلكوم - تقرير ضبط الصندوق</div>
-                `);
-            }
-        } else {
-            printWindow.document.write(`
-                <h2>المعاملات الداخلة</h2>
-                <div class="transactions-count">عدد المعاملات: 0</div>
-                <p style="text-align: center; font-size: 1rem;">لا توجد معاملات داخلة في النطاق المحدد.</p>
+                </body>
+                </html>
             `);
+            printWindow.document.close();
+            printWindow.print();
         }
 
-        // جدول المعاملات "خارج"
-        if (outTransactions.length > 0) {
-            printWindow.document.write(`
-                <div class="page-break"></div>
-                <h2>المعاملات الخارجة</h2>
-                <div class="transactions-count">عدد المعاملات: ${outTransactions.length}</div>
-            `);
-            for (let page = 0; page < outPages; page++) {
-                if (page > 0) {
-                    printWindow.document.write('<div class="page-break"></div>');
-                }
-                printWindow.document.write(`
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>التاريخ والوقت</th>
-                                <th>المبلغ</th>
-                                <th>البيان</th>
-                                <th>الحساب</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                `);
-                const start = page * itemsPerPage;
-                const end = Math.min(start + itemsPerPage, outTransactions.length);
-                for (let i = start; i < end; i++) {
-                    const transaction = outTransactions[i];
-                    printWindow.document.write(`
-                        <tr>
-                            <td>${i + 1}</td>
-                            <td>${transaction.datetime}</td>
-                            <td>${transaction.amount}</td>
-                            <td>${transaction.description}</td>
-                            <td>${transaction.account}</td>
-                        </tr>
-                    `);
-                }
-                printWindow.document.write(`
-                        </tbody>
-                    </table>
-                    <div class="page-number">صفحة ${page + 1} من ${totalPages}</div>
-                    <div class="footer">طيبة المدينة تلكوم - تقرير ضبط الصندوق</div>
-                `);
-            }
-        } else {
-            printWindow.document.write(`
-                <div class="page-break"></div>
-                <h2>المعاملات الخارجة</h2>
-                <div class="transactions-count">عدد المعاملات: 0</div>
-                <p style="text-align: center; font-size: 1rem;">لا توجد معاملات خارجة في النطاق المحدد.</p>
-            `);
-        }
-
-        // إغلاق الوثيقة
-        printWindow.document.write(`
-                </div>
-            </body>
-            </html>
-        `);
-        printWindow.document.close();
-
-        // إعطاء وقت قصير لتحميل الصورة قبل الطباعة
-        printWindow.onload = () => {
-            setTimeout(() => {
-                printWindow.focus();
-                // تعطيل الطباعة التلقائية للسماح للمستخدم بمراجعة المعاينة
-                // printWindow.print();
-            }, 500);
-        };
-    } catch (error) {
-        console.error('خطأ أثناء الطباعة:', error);
-        Swal.fire({
-            title: 'خطأ',
-            text: 'حدث خطأ أثناء إنشاء تقرير الطباعة. الرجاء المحاولة مرة أخرى.',
-            icon: 'error',
-            confirmButtonColor: '#3F2A56'
-        });
-        if (printWindow) {
-            printWindow.close();
-        }
-    }
-}
-// تهيئة الصفحة عند التحميل
         document.addEventListener('DOMContentLoaded', () => {
-            setCurrentDateTime();
-            populateAccounts();
-            filterTable();
-            updateAccountsTable();
-        });
-
-        // إغلاق الكاميرا عند إغلاق النافذة
-        window.addEventListener('unload', () => {
-            stopQRScanner();
+            document.getElementById('filterType').value = 'today';
+            updateFilterInputs();
         });
     </script>
 </body>
