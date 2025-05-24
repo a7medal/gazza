@@ -957,55 +957,114 @@
         }
 
         async function importFile(event) {
-            const file = event.target.files[0];
-            const reader = new FileReader();
-            reader.onload = async function(e) {
-                let newNotaries = [];
-                if (file.name.endsWith('.json')) {
-                    newNotaries = JSON.parse(e.target.result);
-                } else if (file.name.endsWith('.csv')) {
-                    const data = e.target.result;
-                    const rows = data.split('\n').slice(1).filter(row => row.trim());
-                    newNotaries = rows.map(row => {
-                        const [name, idNumber, phone, date, note] = row.split(',');
-                        return { name, idNumber, phone, date, note };
-                    });
+    const file = event.target.files[0];
+    const reader = new FileReader();
+    
+    reader.onload = async function(e) {
+        try {
+            let newNotaries = [];
+            const fileContent = e.target.result;
+            
+            if (file.name.endsWith('.json')) {
+                newNotaries = JSON.parse(fileContent);
+                if (!Array.isArray(newNotaries)) {
+                    throw new Error('تنسيق الملف غير صالح. يجب أن يحتوي على مصفوفة.');
                 }
-                const duplicates = newNotaries.filter(n => checkDuplicate(n.idNumber, n.phone));
-                if (duplicates.length > 0) {
-                    const result = bangingSwal.fire({
-                        title: 'تكرار المعلومات',
-                        text: 'تم العثور على معلومات مكررة في الملف المستورد. اختر خيارًا:',
-                        icon: 'warning',
-                        showCancelButton: true,
-                        showDenyButton: true,
-                        confirmButtonText: 'الاحتفاظ بالتكرارات',
-                        denyButtonText: 'حذف التكرارات',
-                        cancelButtonText: 'إلغاء',
-                        confirmButtonColor: '#3F2A56',
-                        denyButtonColor: '#007bff',
-                        cancelButtonColor: '#6c757d'
-                    });
-                    if (result.isDismissed) return;
-                    if (result.isDenied) {
-                        newNotaries = newNotaries.filter(n => !checkDuplicate(n.idNumber, n.phone));
-                    }
-                }
-                notaries = [...notaries, ...newNotaries];
-                localStorage.setItem('notaries', JSON.stringify(notaries));
-                renderTable();
-                Swal.fire({
-                    title: 'تم الاستيراد',
-                    text: 'تم استيراد الملف بنجاح!',
-                    icon: 'success',
-                    confirmButtonColor: '#3F2A56'
+            } else if (file.name.endsWith('.csv')) {
+                const rows = fileContent.split('\n')
+                    .filter(row => row.trim())
+                    .slice(1);
+                
+                newNotaries = rows.map(row => {
+                    const [name, idNumber, phone, date, note] = row.split(',').map(field => field?.trim());
+                    return {
+                        name: name || '',
+                        idNumber: idNumber || '',
+                        phone: phone || '',
+                        date: date || '',
+                        note: note || ''
+                    };
                 });
-            };
-            if (file.name.endsWith('.json') || file.name.endsWith('.csv')) {
-                reader.readAsText(file);
+            } else {
+                throw new Error('نوع الملف غير مدعوم');
             }
+            
+            // التحقق من صحة البيانات
+            const isValid = newNotaries.every(n => 
+                n.name && n.idNumber && n.phone && n.date
+            );
+            
+            if (!isValid) {
+                throw new Error('الملف يحتوي على بيانات ناقصة أو غير صالحة.');
+            }
+            
+            // الكشف عن التكرارات
+            const duplicates = newNotaries.filter(n => 
+                checkDuplicate(n.idNumber, n.phone)
+            );
+            
+            if (duplicates.length > 0) {
+                const result = await Swal.fire({
+                    title: 'تكرار المعلومات',
+                    text: 'تم العثور على معلومات مكررة في الملف. اختر خيارًا:',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    showDenyButton: true,
+                    confirmButtonText: 'الاحتفاظ بالتكرارات',
+                    denyButtonText: 'حذف التكرارات',
+                    cancelButtonText: 'إلغاء',
+                    confirmButtonColor: '#3F2A56',
+                    denyButtonColor: '#007bff',
+                    cancelButtonColor: '#6c757d'
+                });
+                
+                if (result.isDismissed) return;
+                if (result.isDenied) {
+                    newNotaries = newNotaries.filter(n => 
+                        !checkDuplicate(n.idNumber, n.phone)
+                    );
+                }
+            }
+            
+            // دمج البيانات الجديدة
+            notaries = [...notaries, ...newNotaries];
+            localStorage.setItem('notaries', JSON.stringify(notaries));
+            renderTable();
+            
+            // إعادة تعيين حقل الرفع
+            event.target.value = '';
+            
+            Swal.fire({
+                title: 'تم الاستيراد!',
+                text: `تمت إضافة ${newNotaries.length} موثق بنجاح.`,
+                icon: 'success',
+                confirmButtonColor: '#3F2A56'
+            });
+            
+        } catch (error) {
+            console.error('خطأ في الاستيراد:', error);
+            Swal.fire({
+                title: 'خطأ في الاستيراد',
+                text: error.message || 'حدث خطأ أثناء معالجة الملف. يرجى التحقق من التنسيق.',
+                icon: 'error',
+                confirmButtonColor: '#3F2A56'
+            });
         }
-
+    };
+    
+    if (file) {
+        if (file.name.endsWith('.json') || file.name.endsWith('.csv')) {
+            reader.readAsText(file);
+        } else {
+            Swal.fire({
+                title: 'نوع ملف غير مدعوم',
+                text: 'الرجاء اختيار ملف JSON أو CSV فقط.',
+                icon: 'error',
+                confirmButtonColor: '#3F2A56'
+            });
+        }
+    }
+}
         // دالة إنشاء رمز QR
         function generateQRCode() {
             try {
