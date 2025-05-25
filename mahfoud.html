@@ -32,51 +32,46 @@
             margin: 0 auto;
         }
         .home-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: linear-gradient(90deg, #3F2A56, #5a3f73);
-    color: white;
-    padding: 10px 20px;
-    border-radius: 25px;
-    text-decoration: none;
-    font-size: 1rem;
-    font-weight: 600;
-    font-family: 'Cairo', sans-serif;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    transition: transform 0.2s ease, background 0.3s ease, box-shadow 0.3s ease;
-    position: absolute;
-    top: 20px;
-    left: 20px; /* وضع الزر في الزاوية العلوية اليسرى */
-}
-
-.home-btn i {
-    font-size: 1.2rem;
-}
-
-.home-btn:hover {
-    background: linear-gradient(90deg, #5a3f73, #3F2A56);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-}
-
-.home-btn:focus {
-    outline: 2px solid #3F2A56;
-    outline-offset: 2px;
-}
-
-/* للشاشات الصغيرة */
-@media (max-width: 768px) {
-    .home-btn {
-        padding: 8px 16px;
-        font-size: 0.9rem;
-        top: 15px;
-        left: 15px;
-    }
-    .home-btn i {
-        font-size: 1rem;
-    }
-}
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(90deg, #3F2A56, #5a3f73);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-size: 1rem;
+            font-weight: 600;
+            font-family: 'Cairo', sans-serif;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s ease, background 0.3s ease, box-shadow 0.3s ease;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+        }
+        .home-btn i {
+            font-size: 1.2rem;
+        }
+        .home-btn:hover {
+            background: linear-gradient(90deg, #5a3f73, #3F2A56);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        .home-btn:focus {
+            outline: 2px solid #3F2A56;
+            outline-offset: 2px;
+        }
+        @media (max-width: 768px) {
+            .home-btn {
+                padding: 8px 16px;
+                font-size: 0.9rem;
+                top: 15px;
+                left: 15px;
+            }
+            .home-btn i {
+                font-size: 1rem;
+            }
+        }
         .header {
             background: linear-gradient(135deg, #3F2A56, #5a3f73);
             color: white;
@@ -409,7 +404,7 @@
             <img src="logo.png" alt="شعار طيبة المدينة تلكوم">
             <h2>طيبة المدينة تلكوم</h2>
             <h4>حساب محفوظ</h4>
-              <a href="home.html" class="home-btn"><i class="fas fa-home"></i> للرئيسية</a>
+            <a href="home.html" class="home-btn"><i class="fas fa-home"></i> للرئيسية</a>
         </div>
         <div class="dashboard">
             <div class="card">
@@ -581,7 +576,7 @@
         }
 
         function formatTransactionCode(code) {
-            return 'xxxxxx' + code;
+            return code ? 'xxxxxx' + code : '-';
         }
 
         function filterTable() {
@@ -599,7 +594,7 @@
                     transaction.type.toLowerCase().includes(searchQuery) ||
                     transaction.date.toLowerCase().includes(searchQuery) ||
                     transaction.amount.toString().includes(searchQuery) ||
-                    transaction.transactionCode.toLowerCase().includes(searchQuery) ||
+                    (transaction.transactionCode && transaction.transactionCode.toLowerCase().includes(searchQuery)) ||
                     transaction.app.toLowerCase().includes(searchQuery)
                 );
 
@@ -889,7 +884,6 @@
             }
         }
 
-        // دالة إنشاء رمز QR
         function generateQRCode() {
             try {
                 const startDate = document.getElementById('startDate').value;
@@ -966,7 +960,6 @@
             }
         }
 
-        // دالة تصدير رمز QR كصورة
         function exportQRAsImage() {
             const qrCanvas = document.getElementById('qrDisplayCanvas');
             const dataURL = qrCanvas.toDataURL('image/png');
@@ -976,7 +969,6 @@
             a.click();
         }
 
-        // دالة بدء مسح رمز QR
         function scanQRCode() {
             Swal.fire({
                 title: 'مسح رمز QR',
@@ -1002,7 +994,6 @@
             });
         }
 
-        // دالة بدء الكاميرا لمسح رمز QR
         let videoStream = null;
         async function startQRScanner() {
             try {
@@ -1047,7 +1038,6 @@
             }
         }
 
-        // دالة إيقاف الكاميرا
         function stopQRScanner() {
             if (videoStream) {
                 videoStream.getTracks().forEach(track => track.stop());
@@ -1055,7 +1045,6 @@
             }
         }
 
-        // دالة معالجة بيانات رمز QR
         async function processQRData(data) {
             try {
                 const newTransactions = JSON.parse(data);
@@ -1110,7 +1099,6 @@
             }
         }
 
-        // دالة استيراد رمز QR من صورة
         function importQRFromImage(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -1144,192 +1132,294 @@
         }
 
         function printTable() {
-    try {
-        const startDate = document.getElementById('startDate').value;
-        const endDate = document.getElementById('endDate').value;
-        const typeFilter = document.getElementById('typeFilter').value;
+            try {
+                const startDate = document.getElementById('startDate').value;
+                const endDate = document.getElementById('endDate').value;
+                const typeFilter = document.getElementById('typeFilter').value;
 
-        // تصفية المعاملات
-        const creditTransactions = transactions.filter(transaction => {
-            const matchesDate = (
-                (!startDate || new Date(transaction.date) >= new Date(startDate)) &&
-                (!endDate || new Date(transaction.date) <= new Date(endDate))
-            );
-            return matchesDate && (typeFilter === 'all' || typeFilter === 'credit') && transaction.type === 'credit';
-        });
+                // تصفية المعاملات
+                const filteredTransactions = transactions.filter(transaction => {
+                    const matchesDate = (
+                        (!startDate || new Date(transaction.date) >= new Date(startDate)) &&
+                        (!endDate || new Date(transaction.date) <= new Date(endDate))
+                    );
+                    const matchesType = (
+                        typeFilter === 'all' ||
+                        (typeFilter === 'credit' && transaction.type === 'credit') ||
+                        (typeFilter === 'debit' && transaction.type === 'debit')
+                    );
+                    return matchesDate && matchesType;
+                });
 
-        const debitTransactions = transactions.filter(transaction => {
-            const matchesDate = (
-                (!startDate || new Date(transaction.date) >= new Date(startDate)) &&
-                (!endDate || new Date(transaction.date) <= new Date(endDate)
-            );
-            return matchesDate && (typeFilter === 'all' || typeFilter === 'debit') && transaction.type === 'debit';
-        });
+                if (filteredTransactions.length === 0) {
+                    Swal.fire({
+                        title: 'لا توجد بيانات',
+                        text: 'لا توجد معاملات للطباعة بناءً على الفلاتر الحالية.',
+                        icon: 'warning',
+                        confirmButtonColor: '#3F2A56'
+                    });
+                    return;
+                }
 
-        // حساب الإجماليات
-        const creditTotal = creditTransactions.reduce((sum, t) => sum + parseFloat(t.amount), 0);
-        const debitTotal = debitTransactions.reduce((sum, t) => sum + parseFloat(t.amount), 0);
-        const balance = creditTotal - debitTotal;
-        const creditCount = creditTransactions.length;
-        const debitCount = debitTransactions.length;
+                const creditTransactions = filteredTransactions.filter(t => t.type === 'credit');
+                const debitTransactions = filteredTransactions.filter(t => t.type === 'debit');
 
-        // إعداد نافذة الطباعة
-        const printWindow = window.open('', '_blank', 'height=700,width=1000');
-        if (!printWindow) {
-            throw new Error('فشل في فتح نافذة الطباعة. تحقق من إعدادات المتصفح.');
-        }
+                // حساب الإجماليات
+                const creditTotal = creditTransactions.reduce((sum, t) => sum + parseFloat(t.amount), 0);
+                const debitTotal = debitTransactions.reduce((sum, t) => sum + parseFloat(t.amount), 0);
+                const balance = creditTotal - debitTotal;
+                const creditCount = creditTransactions.length;
+                const debitCount = debitTransactions.length;
 
-        // تنسيق التاريخ
-        const printDate = new Date().toLocaleString('en-US', { 
-            day: '2-digit', 
-            month: '2-digit', 
-            year: 'numeric'
-        }).replace(/(\d+)\/(\d+)\/(\d+)/, '$1/$2/$3');
+                // إعداد نافذة الطباعة
+                const printWindow = window.open('', '_blank', 'height=800,width=1000');
+                if (!printWindow) {
+                    throw new Error('فشل في فتح نافذة الطباعة. تحقق من إعدادات المتصفح.');
+                }
 
-        // كتابة هيكل HTML الأساسي
-        printWindow.document.write(`
-            <html>
-            <head>
-                <title>حساب محفوظ</title>
-                <link href="https://fonts.googleapis.com/css2?family=Cairo&display=swap" rel="stylesheet">
-                <style>
-                    @page { margin: 10mm; }
-                    body {
-                        font-family: 'Cairo', sans-serif;
-                        direction: rtl;
-                        margin: 10mm;
-                        background: #fff;
-                    }
-                    .header {
-                        display: flex;
-                        justify-content: space-between;
-                        align-items: center;
-                        margin-bottom: 20px;
-                    }
-                    table {
-                        width: 100%;
-                        border-collapse: collapse;
-                        margin: 20px 0;
-                        border: 1px solid #000;
-                    }
-                    th, td {
-                        padding: 12px;
-                        border: 1px solid #000;
-                        text-align: center;
-                    }
-                    .footer {
-                        text-align: center;
-                        font-size: 0.8rem;
-                        margin-top: 30px;
-                        padding: 10px;
-                        border-top: 1px solid #000;
-                    }
-                    .page-break { display: none; }
-                </style>
-            </head>
-            <body>
-                <div class="container">
-                    <div class="header">
-                        <h1>طيبة المدينة تلكوم</h1>
-                    </div>
+                // تنسيق التاريخ
+                const printDate = new Date().toLocaleString('ar-SA', { 
+                    dateStyle: 'short',
+                    timeStyle: 'short'
+                });
 
-                    <!-- معلومات الحساب -->
-                    <div class="account-info">
-                        <p>الاسم: محفوظ ولد بوشعاب</p>
-                        <p>تاريخ الطباعة: ${printDate}</p>
-                    </div>
-
-                    <!-- الإحصائيات -->
-                    <div class="stats">
-                        <p>مجموع له: ${creditTotal.toFixed(2)} (${creditCount} معاملة)</p>
-                        <p>مجموع عليه: ${debitTotal.toFixed(2)} (${debitCount} معاملة)</p>
-                        <p>الرصيد: ${balance.toFixed(2)}</p>
-                    </div>
-        `);
-
-        // معاملات له
-        if (creditTransactions.length > 0) {
-            printWindow.document.write(`
-                <h3>المعاملات له</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>التاريخ</th>
-                            <th>المبلغ</th>
-                            <th>رمز المعاملة</th>
-                            <th>التطبيق</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-            `);
-
-            creditTransactions.forEach((transaction, index) => {
+                // كتابة هيكل HTML للطباعة
                 printWindow.document.write(`
-                    <tr>
-                        <td>${index + 1}</td>
-                        <td>${transaction.date}</td>
-                        <td>${transaction.amount}</td>
-                        <td>${transaction.transactionCode || '-'}</td>
-                        <td>${transaction.app}</td>
-                    </tr>
+                    <html>
+                    <head>
+                        <title>حساب محفوظ - طيبة المدينة تلكوم</title>
+                        <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+                        <style>
+                            @page { 
+                                size: A4; 
+                                margin: 15mm; 
+                            }
+                            body {
+                                font-family: 'Cairo', sans-serif;
+                                direction: rtl;
+                                margin: 0;
+                                padding: 20mm;
+                                background: #fff;
+                                color: #333;
+                            }
+                            .container {
+                                max-width: 100%;
+                            }
+                            .header {
+                                text-align: center;
+                                margin-bottom: 20px;
+                                border-bottom: 2px solid #3F2A56;
+                                padding-bottom: 10px;
+                            }
+                            .header img {
+                                max-height: 80px;
+                                margin-bottom: 10px;
+                            }
+                            .header h1 {
+                                font-size: 1.8rem;
+                                font-weight: 700;
+                                color: #3F2A56;
+                            }
+                            .account-info {
+                                margin-bottom: 20px;
+                                font-size: 1rem;
+                                color: #333;
+                            }
+                            .account-info p {
+                                margin: 5px 0;
+                            }
+                            .stats {
+                                margin: 20px 0;
+                                padding: 10px;
+                                background: #f7f9fc;
+                                border-radius: 10px;
+                                font-size: 1rem;
+                                color: #3F2A56;
+                            }
+                            .stats p {
+                                margin: 5px 0;
+                            }
+                            table {
+                                width: 100%;
+                                border-collapse: collapse;
+                                margin: 20px 0;
+                                font-size: 0.9rem;
+                            }
+                            th, td {
+                                padding: 10px;
+                                border: 1px solid #3F2A56;
+                                text-align: center;
+                            }
+                            th {
+                                background: linear-gradient(90deg, #3F2A56, #5a3f73);
+                                color: white;
+                                font-weight: 700;
+                            }
+                            td {
+                                color: #333;
+                            }
+                            h3 {
+                                font-size: 1.2rem;
+                                color: #3F2A56;
+                                margin: 15px 0 10px;
+                            }
+                            .footer {
+                                text-align: center;
+                                font-size: 0.8rem;
+                                margin-top: 30px;
+                                padding-top: 10px;
+                                border-top: 1px solid #3F2A56;
+                                color: #666;
+                            }
+                            @media print {
+                                body {
+                                    margin: 0;
+                                    padding: 0;
+                                }
+                                .container {
+                                    margin: 0;
+                                    width: 100%;
+                                }
+                                .no-print {
+                                    display: none;
+                                }
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="container">
+                            <div class="header">
+                                <img src="logo.png" alt="شعار طيبة المدينة تلكوم">
+                                <h1>طيبة المدينة تلكوم</h1>
+                            </div>
+
+                            <!-- معلومات الحساب -->
+                            <div class="account-info">
+                                <p><strong>الاسم:</strong> محفوظ ولد بوشعاب</p>
+                                <p><strong>تاريخ الطباعة:</strong> ${printDate}</p>
+                            </div>
+
+                            <!-- الإحصائيات -->
+                            <div class="stats">
+                                <p><strong>مجموع له:</strong> ${creditTotal.toFixed(2)} (${creditCount} معاملة)</p>
+                                <p><strong>مجموع عليه:</strong> ${debitTotal.toFixed(2)} (${debitCount} معاملة)</p>
+                                <p><strong>الرصيد:</strong> ${balance.toFixed(2)}</p>
+                            </div>
                 `);
-            });
 
-            printWindow.document.write(`</tbody></table>`);
-        }
+                // معاملات له
+                if (creditTransactions.length > 0) {
+                    printWindow.document.write(`
+                        <h3>المعاملات له</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>التاريخ</th>
+                                    <th>المبلغ</th>
+                                    <th>رمز المعاملة</th>
+                                    <th>التطبيق</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                    `);
+                    creditTransactions.forEach((transaction, index) => {
+                        printWindow.document.write(`
+                            <tr>
+                                <td>${index + 1}</td>
+                                <td>${transaction.date}</td>
+                                <td>${parseFloat(transaction.amount).toFixed(2)}</td>
+                                <td>${formatTransactionCode(transaction.transactionCode)}</td>
+                                <td>${transaction.app}</td>
+                            </tr>
+                        `);
+                    });
+                    printWindow.document.write(`</tbody></table>`);
+                }
 
-        // معاملات عليه
-        if (debitTransactions.length > 0) {
-            printWindow.document.write(`
-                <h3>المعاملات عليه</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>التاريخ</th>
-                            <th>المبلغ</th>
-                            <th>رمز المعاملة</th>
-                            <th>التطبيق</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-            `);
+                // معاملات عليه
+                if (debitTransactions.length > 0) {
+                    printWindow.document.write(`
+                        <h3>المعاملات عليه</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>التاريخ</th>
+                                    <th>المبلغ</th>
+                                    <th>رمز المعاملة</th>
+                                    <th>التطبيق</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                    `);
+                    debitTransactions.forEach((transaction, index) => {
+                        printWindow.document.write(`
+                            <tr>
+                                <td>${index + 1}</td>
+                                <td>${transaction.date}</td>
+                                <td>${parseFloat(transaction.amount).toFixed(2)}</td>
+                                <td>${formatTransactionCode(transaction.transactionCode)}</td>
+                                <td>${transaction.app}</td>
+                            </tr>
+                        `);
+                    });
+                    printWindow.document.write(`</tbody></table>`);
+                }
 
-            debitTransactions.forEach((transaction, index) => {
+                // إذا لم تكن هناك معاملات
+                if (creditTransactions.length === 0 && debitTransactions.length === 0) {
+                    printWindow.document.write(`
+                        <p style="text-align: center; color: #3F2A56;">لا توجد معاملات متاحة للطباعة بناءً على الفلاتر الحالية.</p>
+                    `);
+                }
+
+                // إضافة التذييل
                 printWindow.document.write(`
-                    <tr>
-                        <td>${index + 1}</td>
-                        <td>${transaction.date}</td>
-                        <td>${transaction.amount}</td>
-                        <td>${transaction.transactionCode || '-'}</td>
-                        <td>${transaction.app}</td>
-                    </tr>
-                `);
-            });
-
-            printWindow.document.write(`</tbody></table>`);
-        }
-
-        // إضافة التذييل مرة واحدة فقط
-        printWindow.document.write(`
-                <div class="footer">
-                    هذا المستند من نظام طيبة المدينة تلكوم وهو موقع رقميًا
+                    <div class="footer">
+                        هذا المستند من نظام طيبة المدينة تلكوم وهو موقع رقميًا
+                    </div>
                 </div>
-            </body>
-            </html>
-        `);
+                </body>
+                </html>
+                `);
 
-        printWindow.document.close();
-    } catch (error) {
-        console.error('خطأ في الطباعة:', error);
-        Swal.fire({
-            icon: 'error',
-            title: 'خطأ في الطباعة',
-            text: error.message
-        });
-    }
-}
+                // إغلاق المستند وفتح نافذة الطباعة
+                printWindow.document.close();
+
+                // التأكد من تحميل الصورة قبل الطباعة
+                const images = printWindow.document.getElementsByTagName('img');
+                let loadedImages = 0;
+                const totalImages = images.length;
+
+                if (totalImages === 0) {
+                    setTimeout(() => printWindow.print(), 100);
+                } else {
+                    for (let img of images) {
+                        img.onload = () => {
+                            loadedImages++;
+                            if (loadedImages === totalImages) {
+                                setTimeout(() => printWindow.print(), 100);
+                            }
+                        };
+                        img.onerror = () => {
+                            loadedImages++;
+                            if (loadedImages === totalImages) {
+                                setTimeout(() => printWindow.print(), 100);
+                            }
+                        };
+                    }
+                }
+            } catch (error) {
+                console.error('خطأ في الطباعة:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'خطأ في الطباعة',
+                    text: error.message,
+                    confirmButtonColor: '#3F2A56'
+                });
+            }
+        }
 
         window.onload = () => {
             sortTransactionsByDate();
