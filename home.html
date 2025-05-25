@@ -12,7 +12,11 @@
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#f9ffff">
     <style>
-        * {margin: 0; padding: 0; box-sizing: border-box;}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         body {
             font-family: 'Cairo', sans-serif;
             background: linear-gradient(135deg, #f0f2f5, #d9e2ec);
@@ -35,6 +39,18 @@
             margin-bottom: 40px;
             position: relative;
             z-index: 1;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+        }
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1), transparent);
+            z-index: -1;
         }
         .header img {
             height: 100px;
@@ -49,11 +65,14 @@
         .header h1 {
             font-size: 2.5rem;
             font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
         }
         .header p {
             font-size: 1.2rem;
             opacity: 0.9;
             font-weight: 400;
+            letter-spacing: 1px;
         }
         .services {
             display: grid;
@@ -75,6 +94,16 @@
             overflow: hidden;
             cursor: pointer;
         }
+        .service-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(145deg, rgba(63, 42, 86, 0.2), rgba(90, 63, 115, 0.2));
+            z-index: -1;
+        }
         .service-card:hover {
             transform: translateY(-10px) scale(1.02);
             box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
@@ -83,15 +112,27 @@
             font-size: 3rem;
             margin-bottom: 20px;
             color: #3F2A56;
+            transition: transform 0.3s ease;
+        }
+        .service-card:hover i {
+            transform: scale(1.2);
         }
         .service-card h3 {
             font-size: 1.5rem;
             font-weight: 600;
             margin-bottom: 15px;
+            color: #3F2A56;
         }
         .service-card p {
             font-size: 1rem;
+            color: #3F2A56;
             opacity: 0.8;
+        }
+        .service-card a {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            height: 100%;
         }
         .footer {
             background: linear-gradient(90deg, #3F2A56, #5a3f73);
@@ -102,18 +143,46 @@
             margin-top: 40px;
             box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.1);
         }
-        .footer a { color: #f9ffff; text-decoration: none; font-weight: 600; }
-        .footer a:hover { text-decoration: underline; }
-
+        .footer p {
+            margin: 0;
+            font-size: 1rem;
+        }
+        .footer a {
+            color: #f9ffff;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .footer a:hover {
+            text-decoration: underline;
+        }
         @media (max-width: 768px) {
-            .header { padding: 30px 15px; border-radius: 15px; }
-            .header img { height: 80px; }
-            .header h1 { font-size: 2rem; }
-            .header p { font-size: 1rem; }
-            .services { grid-template-columns: 1fr; gap: 20px; }
-            .service-card { padding: 20px; }
-            .service-card h3 { font-size: 1.3rem; }
-            .footer { padding: 15px; border-radius: 10px; }
+            .header {
+                padding: 30px 15px;
+                border-radius: 15px;
+            }
+            .header img {
+                height: 80px;
+            }
+            .header h1 {
+                font-size: 2rem;
+            }
+            .header p {
+                font-size: 1rem;
+            }
+            .services {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            .service-card {
+                padding: 20px;
+            }
+            .service-card h3 {
+                font-size: 1.3rem;
+            }
+            .footer {
+                padding: 15px;
+                border-radius: 10px;
+            }
         }
         .scroll-reveal {
             opacity: 0;
@@ -133,7 +202,6 @@
             <h1>طيبة المدينة تلكوم</h1>
             <p>نظام إدارة مالية متكامل لخدمتكم</p>
         </div>
-
         <div class="services">
             <div class="service-card scroll-reveal">
                 <a href="pay.html">
@@ -157,12 +225,12 @@
                 </a>
             </div>
             <div class="service-card scroll-reveal">
-                <a href="gaza-telecom.html">
-                    <i class="fas fa-exchange-alt"></i>
-                    <h3>غزة تلكوم</h3>
-                    <p>إدارة الرسائل والحسابات</p>
-                </a>
-            </div>
+    <a href="gaza-telecom.html">
+        <i class="fas fa-exchange-alt"></i>
+        <h3>غزة تلكوم</h3>
+        <p>إدارة الرسائل والحسابات</p>
+    </a>
+</div>
             <div class="service-card scroll-reveal">
                 <a href="produit.html">
                     <i class="fas fa-boxes"></i>
@@ -177,7 +245,6 @@
         <p>متابعة المبيعات وتحليل الأداء</p>
     </a>
 </div>
-
             <div class="service-card scroll-reveal">
                 <a href="#coming-soon" onclick="showComingSoon()">
                     <i class="fas fa-cogs"></i>
@@ -186,7 +253,6 @@
                 </a>
             </div>
         </div>
-
         <div class="footer">
             <p>© 2025 طيبة المدينة تلكوم. جميع الحقوق محفوظة.</p>
         </div>
