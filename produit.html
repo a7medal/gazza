@@ -206,8 +206,9 @@
             background-color: #f7f9fc;
         }
         .low-stock {
-            color: #dc3545;
+            color: #dc3545 !important;
             font-weight: 700;
+            background-color: rgba(220, 53, 69, 0.1);
         }
         .actions {
             display: flex;
@@ -486,7 +487,6 @@
                 <h3 id="totalProducts">0</h3>
             </div>
         </div>
-      
         <div class="actions">
             <button class="btn" data-bs-toggle="modal" data-bs-target="#addProductModal"><i class="fas fa-plus"></i> إضافة منتج</button>
             <button class="btn" onclick="exportToJSON()"><i class="fas fa-file-code"></i> تصدير إلى JSON</button>
@@ -497,10 +497,7 @@
             <button class="btn" onclick="startQRScanner()"><i class="fas fa-camera"></i> استقبال QR Code</button>
             <button class="btn" onclick="printTable()"><i class="fas fa-print"></i> طباعة</button>
         </div>
-        <canvas id="qrCanvas" style="display: none;"></canvas>
-        <input type="file" id="qrImageInput" accept="image/*" style="display: none;" onchange="importQRFromImage(event)">
-    </div>
-  <div class="products-section">
+        <div class="products-section">
             <h3>المنتجات الموجودة</h3>
             <div class="search-container">
                 <div class="filter-group">
@@ -533,6 +530,10 @@
                 </table>
             </div>
         </div>
+        <canvas id="qrCanvas" style="display: none;"></canvas>
+        <input type="file" id="qrImageInput" accept="image/*" style="display: none;" onchange="importQRFromImage(event)">
+    </div>
+
     <!-- نافذة إضافة منتج -->
     <div class="modal fade" id="addProductModal" tabindex="-1" aria-labelledby="addProductModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -687,15 +688,16 @@
             tableBody.innerHTML = '';
 
             products.forEach((product, index) => {
+                const quantity = parseInt(product.quantity);
+                const quantityClass = quantity < 2 ? 'low-stock' : '';
                 const row = document.createElement('tr');
-                const quantityClass = product.quantity < 2 ? 'low-stock' : '';
                 row.innerHTML = `
                     <td>${index + 1}</td>
                     <td>${product.id}</td>
                     <td>${product.name}</td>
                     <td>${parseFloat(product.purchasePrice).toFixed(2)}</td>
                     <td>${parseFloat(product.salePrice).toFixed(2)}</td>
-                    <td class="${quantityClass}">${product.quantity}</td>
+                    <td class="${quantityClass}">${quantity}</td>
                     <td>
                         <i class="fas fa-edit action-btn edit" onclick="editProduct('${product.id}');event.stopPropagation();"></i>
                         <i class="fas fa-trash action-btn delete" onclick="deleteProduct('${product.id}');event.stopPropagation();"></i>
@@ -718,7 +720,7 @@
                         <p><strong>اسم المنتج:</strong> ${product.name}</p>
                         <p><strong>سعر الشراء:</strong> ${parseFloat(product.purchasePrice).toFixed(2)}</p>
                         <p><strong>سعر البيع:</strong> ${parseFloat(product.salePrice).toFixed(2)}</p>
-                        <p><strong>الكمية:</strong> ${product.quantity}</p>
+                        <p><strong>الكمية:</strong> ${parseInt(product.quantity)}</p>
                     </div>
                 `,
                 icon: 'info',
@@ -739,22 +741,24 @@
             products = products.filter(product => {
                 const matchesSearch = product.name.toLowerCase().includes(searchInput) || product.id.includes(searchInput);
                 if (!matchesSearch) return false;
+                const quantity = parseInt(product.quantity);
                 if (stockFilter === 'all') return true;
-                if (stockFilter === 'empty') return product.quantity === 0;
-                if (stockFilter === 'low') return product.quantity > 0 && product.quantity < 2;
+                if (stockFilter === 'empty') return quantity === 0;
+                if (stockFilter === 'low') return quantity > 0 && quantity < 2;
                 return true;
             });
 
             products.forEach((product, index) => {
+                const quantity = parseInt(product.quantity);
+                const quantityClass = quantity < 2 ? 'low-stock' : '';
                 const row = document.createElement('tr');
-                const quantityClass = product.quantity < 2 ? 'low-stock' : '';
                 row.innerHTML = `
                     <td>${index + 1}</td>
                     <td>${product.id}</td>
                     <td>${product.name}</td>
                     <td>${parseFloat(product.purchasePrice).toFixed(2)}</td>
                     <td>${parseFloat(product.salePrice).toFixed(2)}</td>
-                    <td class="${quantityClass}">${product.quantity}</td>
+                    <td class="${quantityClass}">${quantity}</td>
                     <td>
                         <i class="fas fa-edit action-btn edit" onclick="editProduct('${product.id}');event.stopPropagation();"></i>
                         <i class="fas fa-trash action-btn delete" onclick="deleteProduct('${product.id}');event.stopPropagation();"></i>
@@ -796,7 +800,13 @@
             }
 
             const id = await generateUniqueId();
-            const product = { id, name, purchasePrice, salePrice, quantity: parseInt(quantity) };
+            const product = {
+                id,
+                name,
+                purchasePrice: parseFloat(purchasePrice).toFixed(2),
+                salePrice: parseFloat(salePrice).toFixed(2),
+                quantity: parseInt(quantity)
+            };
 
             const transaction = db.transaction(['products'], 'readwrite');
             const store = transaction.objectStore('products');
@@ -870,7 +880,13 @@
                 return;
             }
 
-            const product = { id, name, purchasePrice, salePrice, quantity: parseInt(quantity) };
+            const product = {
+                id,
+                name,
+                purchasePrice: parseFloat(purchasePrice).toFixed(2),
+                salePrice: parseFloat(salePrice).toFixed(2),
+                quantity: parseInt(quantity)
+            };
             const transaction = db.transaction(['products'], 'readwrite');
             const store = transaction.objectStore('products');
             const request = store.put(product);
@@ -1362,9 +1378,10 @@
                 filteredProducts = filteredProducts.filter(product => {
                     const matchesSearch = product.name.toLowerCase().includes(searchInput) || product.id.includes(searchInput);
                     if (!matchesSearch) return false;
+                    const quantity = parseInt(product.quantity);
                     if (stockFilter === 'all') return true;
-                    if (stockFilter === 'empty') return product.quantity === 0;
-                    if (stockFilter === 'low') return product.quantity > 0 && product.quantity < 2;
+                    if (stockFilter === 'empty') return quantity === 0;
+                    if (stockFilter === 'low') return quantity > 0 && quantity < 2;
                     return true;
                 });
 
@@ -1577,7 +1594,7 @@
                         const end = Math.min(start + itemsPerPage, filteredProducts.length);
                         for (let i = start; i < end; i++) {
                             const product = filteredProducts[i];
-                            const quantityClass = product.quantity < 2 ? 'low-stock' : '';
+                            const quantityClass = parseInt(product.quantity) < 2 ? 'low-stock' : '';
                             printWindow.document.write(`
                                 <tr>
                                     <td>${i + 1}</td>
@@ -1585,7 +1602,7 @@
                                     <td>${product.name}</td>
                                     <td>${parseFloat(product.purchasePrice).toFixed(2)}</td>
                                     <td>${parseFloat(product.salePrice).toFixed(2)}</td>
-                                    <td class="${quantityClass}">${product.quantity}</td>
+                                    <td class="${quantityClass}">${parseInt(product.quantity)}</td>
                                 </tr>
                             `);
                         }
