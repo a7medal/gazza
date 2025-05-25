@@ -1,0 +1,1497 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة المنتجات</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #f0f2f5, #d9e2ec);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .home-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(90deg, #3F2A56, #5a3f73);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-size: 1rem;
+            font-weight: 600;
+            font-family: 'Cairo', sans-serif;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s ease, background 0.3s ease, box-shadow 0.3s ease;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+        }
+        .home-btn i {
+            font-size: 1.2rem;
+        }
+        .home-btn:hover {
+            background: linear-gradient(90deg, #5a3f73, #3F2A56);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        .home-btn:focus {
+            outline: 2px solid #3F2A56;
+            outline-offset: 2px;
+        }
+        @media (max-width: 768px) {
+            .home-btn {
+                padding: 8px 16px;
+                font-size: 0.9rem;
+                top: 15px;
+                left: 15px;
+            }
+            .home-btn i {
+                font-size: 1rem;
+            }
+        }
+        .header {
+            background: linear-gradient(135deg, #3F2A56, #5a3f73);
+            color: white;
+            padding: 40px 20px;
+            border-radius: 25px;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            margin-bottom: 30px;
+            position: relative;
+            z-index: 1;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+        }
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1), transparent);
+            z-index: -1;
+        }
+        .header img {
+            height: 90px;
+            margin-bottom: 15px;
+            filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.3));
+            transition: transform 0.3s ease;
+            clip-path: polygon(10% 0%, 100% 0%, 90% 100%, 0% 100%);
+        }
+        .header img:hover {
+            transform: scale(1.05);
+        }
+        .header h2 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+        }
+        .header h4 {
+            font-size: 1.4rem;
+            opacity: 0.9;
+            font-weight: 400;
+            letter-spacing: 1px;
+        }
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #3F2A56;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(145deg, rgba(63, 42, 86, 0.2), rgba(90, 63, 115, 0.2));
+            z-index: -1;
+        }
+        .card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+        }
+        .card i {
+            font-size: 2.8rem;
+            margin-bottom: 15px;
+            color: #3F2A56;
+            transition: transform 0.3s ease;
+        }
+        .card:hover i {
+            transform: scale(1.2);
+        }
+        .card h5 {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #3F2A56;
+        }
+        .card h3 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #3F2A56;
+        }
+        .products-section {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .products-section h3 {
+            font-size: 1.7rem;
+            font-weight: 700;
+            color: #3F2A56;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .products-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .products-table th, .products-table td {
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .products-table th {
+            background: linear-gradient(90deg, #3F2A56, #5a3f73);
+            color: white;
+            font-weight: 700;
+        }
+        .products-table td {
+            color: #3F2A56;
+        }
+        .products-table tr {
+            cursor: pointer;
+        }
+        .products-table tr:hover {
+            background-color: #f7f9fc;
+        }
+        .low-stock {
+            color: #dc3545;
+            font-weight: 700;
+        }
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 25px 0;
+            justify-content: center;
+        }
+        .btn {
+            background: linear-gradient(90deg, #3F2A56, #5a3f73);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 30px;
+            border: none;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: transform 0.2s ease, background 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        .btn:hover {
+            background: linear-gradient(90deg, #5a3f73, #3F2A56);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        .btn:focus {
+            outline: 2px solid #3F2A56;
+            outline-offset: 2px;
+        }
+        .btn i {
+            font-size: 1.3rem;
+        }
+        .search-container {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .search-container .filter-group {
+            display: flex;
+            flex-direction: column;
+            max-width: 200px;
+        }
+        .search-container label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #3F2A56;
+            margin-bottom: 5px;
+        }
+        .search-container input, .search-container select {
+            width: 100%;
+            max-width: 200px;
+            padding: 12px 20px;
+            border-radius: 30px;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            color: #3F2A56;
+            font-size: 1rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: box-shadow 0.3s ease;
+        }
+        .search-container input:focus, .search-container select:focus {
+            outline: none;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+        }
+        .search-container input::placeholder {
+            color: #3F2A56;
+            opacity: 0.7;
+        }
+        .table-container {
+            overflow-x: auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 14px;
+            text-align: center;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        th {
+            background: linear-gradient(90deg, #3F2A56, #5a3f73);
+            color: white;
+            font-weight: 700;
+        }
+        td {
+            color: #3F2A56;
+        }
+        tr {
+            cursor: pointer;
+        }
+        tr:hover {
+            background-color: #f7f9fc;
+        }
+        .action-btn {
+            cursor: pointer;
+            margin: 0 6px;
+            font-size: 1.3rem;
+            transition: color 0.3s ease;
+        }
+        .action-btn.edit:hover {
+            color: #007bff;
+        }
+        .action-btn.delete:hover {
+            color: #dc3545;
+        }
+        .modal-content {
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            border: none;
+            background: linear-gradient(145deg, #ffffff, #f7f9fc);
+            animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .modal-header {
+            background: linear-gradient(90deg, #3F2A56, #5a3f73);
+            color: white;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .modal-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1), transparent);
+            z-index: -1;
+        }
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .modal-body {
+            padding: 30px;
+            background: #fff;
+            border-radius: 0;
+        }
+        .modal-body .form-label {
+            font-weight: 600;
+            color: #3F2A56;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        .modal-body .form-control, .modal-body .form-select {
+            border-radius: 15px;
+            border: 1px solid #ddd;
+            padding: 12px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            background: #f7f9fc;
+        }
+        .modal-body .form-control:focus, .modal-body .form-select:focus {
+            border-color: #3F2A56;
+            box-shadow: 0 0 8px rgba(63, 42, 86, 0.4);
+            background: #fff;
+        }
+        .modal-footer {
+            padding: 20px;
+            background: linear-gradient(145deg, #f8f9fa, #e9ecef);
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+            justify-content: center;
+            gap: 15px;
+        }
+        .modal-footer .btn {
+            background: linear-gradient(90deg, #3F2A56, #5a3f73);
+            color: white;
+            border-radius: 30px;
+            padding: 12px 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        .modal-footer .btn:hover {
+            background: linear-gradient(90deg, #5a3f73, #3F2A56);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        .modal-footer .btn-secondary {
+            background: linear-gradient(90deg, #6c757d, #5a6268);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        .modal-footer .btn-secondary:hover {
+            background: linear-gradient(90deg, #5a6268, #495057);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        @media (max-width: 768px) {
+            .header { padding: 25px 15px; border-radius: 15px; }
+            .header img { height: 70px; }
+            .header h2 { font-size: 1.7rem; }
+            .header h4 { font-size: 1.1rem; }
+            .card h3 { font-size: 1.5rem; }
+            .btn { padding: 10px 18px; font-size: 0.9rem; }
+            th, td { padding: 10px; font-size: 0.9rem; }
+            .modal-title { font-size: 1.3rem; }
+            .modal-body { padding: 20px; }
+            .modal-body .form-control, .modal-body .form-select { font-size: 0.9rem; }
+            .search-container .filter-group { width: 100%; max-width: 100%; }
+        }
+        .swal2-popup {
+            font-family: 'Cairo', sans-serif !important;
+            border-radius: 15px !important;
+        }
+        .swal2-title {
+            color: #3F2A56 !important;
+            font-weight: 700 !important;
+        }
+        .swal2-html-container {
+            text-align: right !important;
+            color: #3F2A56 !important;
+        }
+        .swal2-confirm {
+            background: linear-gradient(90deg, #3F2A56, #5a3f73) !important;
+            border-radius: 20px !important;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+        }
+        .swal2-cancel {
+            background: linear-gradient(90deg, #6c757d, #5a6268) !important;
+            border-radius: 20px !important;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+        }
+        #qrCanvas { display: none; }
+        #scannerContainer { text-align: center; margin: 20px 0; }
+        #scannerVideo { max-width: 100%; border-radius: 10px; border: 2px solid #3F2A56; }
+        .scanner-buttons { display: flex; justify-content: center; gap: 10px; margin-top: 10px; }
+        .swal2-actions { justify-content: center !important; gap: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="logo.png" alt="شعار طيبة المدينة تلكوم">
+            <h2>طيبة المدينة تلكوم</h2>
+            <h4>إدارة المنتجات</h4>
+            <a href="home.html" class="home-btn"><i class="fas fa-home"></i> للرئيسية</a>
+        </div>
+        <div class="dashboard">
+            <div class="card">
+                <i class="fas fa-dollar-sign"></i>
+                <h5>إجمالي سعر الشراء</h5>
+                <h3 id="totalPurchasePrice">0</h3>
+            </div>
+            <div class="card">
+                <i class="fas fa-dollar-sign"></i>
+                <h5>إجمالي سعر البيع</h5>
+                <h3 id="totalSalePrice">0</h3>
+            </div>
+            <div class="card">
+                <i class="fas fa-boxes"></i>
+                <h5>عدد المنتجات</h5>
+                <h3 id="totalProducts">0</h3>
+            </div>
+        </div>
+        <div class="products-section">
+            <h3>المنتجات الموجودة</h3>
+            <div class="table-container">
+                <table class="products-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>اسم المنتج</th>
+                            <th>سعر الشراء</th>
+                            <th>سعر البيع</th>
+                            <th>الكمية</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productsTable"></tbody>
+                </table>
+            </div>
+        </div>
+        <div class="actions">
+            <button class="btn" data-bs-toggle="modal" data-bs-target="#addProductModal"><i class="fas fa-plus"></i> إضافة منتج</button>
+            <button class="btn" onclick="exportToJSON()"><i class="fas fa-file-code"></i> تصدير إلى JSON</button>
+            <button class="btn" onclick="exportToCSV()"><i class="fas fa-file-csv"></i> تصدير إلى CSV</button>
+            <input type="file" id="importFile" accept=".json,.csv" style="display: none;" onchange="importFile(event)">
+            <button class="btn" onclick="document.getElementById('importFile').click()"><i class="fas fa-file-import"></i> استيراد ملف</button>
+            <button class="btn" onclick="generateQRCode()"><i class="fas fa-qrcode"></i> إنشاء QR Code</button>
+            <button class="btn" onclick="startQRScanner()"><i class="fas fa-camera"></i> استقبال QR Code</button>
+            <button class="btn" onclick="printTable()"><i class="fas fa-print"></i> طباعة</button>
+        </div>
+        <div class="search-container">
+            <div class="filter-group">
+                <label for="stockFilter">حالة المخزون</label>
+                <select id="stockFilter" onchange="filterTable()">
+                    <option value="all">الكل</option>
+                    <option value="empty">فارغة</option>
+                    <option value="low">على وشك النفاذ</option>
+                </select>
+            </div>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>اسم المنتج</th>
+                        <th>سعر الشراء</th>
+                        <th>سعر البيع</th>
+                        <th>الكمية</th>
+                        <th>الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody id="productsTableFiltered"></tbody>
+            </table>
+        </div>
+        <canvas id="qrCanvas" style="display: none;"></canvas>
+        <input type="file" id="qrImageInput" accept="image/*" style="display: none;" onchange="importQRFromImage(event)">
+    </div>
+
+    <!-- نافذة إضافة منتج -->
+    <div class="modal fade" id="addProductModal" tabindex="-1" aria-labelledby="addProductModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addProductModalLabel"><i class="fas fa-plus"></i> إضافة منتج جديد</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addProductForm">
+                        <div class="mb-3">
+                            <label for="productName" class="form-label"><i class="fas fa-box"></i> اسم المنتج</label>
+                            <input type="text" class="form-control" id="productName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="purchasePrice" class="form-label"><i class="fas fa-money-bill"></i> سعر الشراء</label>
+                            <input type="number" class="form-control" id="purchasePrice" step="0.01" min="0" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="salePrice" class="form-label"><i class="fas fa-money-bill"></i> سعر البيع</label>
+                            <input type="number" class="form-control" id="salePrice" step="0.01" min="0" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="quantity" class="form-label"><i class="fas fa-boxes"></i> الكمية</label>
+                            <input type="number" class="form-control" id="quantity" min="0" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="button" class="btn" onclick="addProduct()">حفظ</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة تعديل منتج -->
+    <div class="modal fade" id="editProductModal" tabindex="-1" aria-labelledby="editProductModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editProductModalLabel"><i class="fas fa-edit"></i> تعديل منتج</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editProductForm">
+                        <input type="hidden" id="editIndex">
+                        <div class="mb-3">
+                            <label for="editProductName" class="form-label"><i class="fas fa-box"></i> اسم المنتج</label>
+                            <input type="text" class="form-control" id="editProductName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editPurchasePrice" class="form-label"><i class="fas fa-money-bill"></i> سعر الشراء</label>
+                            <input type="number" class="form-control" id="editPurchasePrice" step="0.01" min="0" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editSalePrice" class="form-label"><i class="fas fa-money-bill"></i> سعر البيع</label>
+                            <input type="number" class="form-control" id="editSalePrice" step="0.01" min="0" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editQuantity" class="form-label"><i class="fas fa-boxes"></i> الكمية</label>
+                            <input type="number" class="form-control" id="editQuantity" min="0" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="button" class="btn" onclick="updateProduct()">حفظ</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let products = JSON.parse(localStorage.getItem('inventoryProducts')) || [];
+        let stream = null;
+
+        const successSound = new Audio('https://www.soundjay.com/buttons/beep-01a.mp3');
+
+        function updateDashboard() {
+            const totalPurchasePrice = products.reduce((sum, p) => sum + (parseFloat(p.purchasePrice) * parseInt(p.quantity)), 0);
+            const totalSalePrice = products.reduce((sum, p) => sum + (parseFloat(p.salePrice) * parseInt(p.quantity)), 0);
+            const totalProducts = products.length;
+
+            document.getElementById('totalPurchasePrice').innerText = totalPurchasePrice.toFixed(2);
+            document.getElementById('totalSalePrice').innerText = totalSalePrice.toFixed(2);
+            document.getElementById('totalProducts').innerText = totalProducts;
+        }
+
+        function updateProductsTable() {
+            const tableBody = document.getElementById('productsTable');
+            const filteredTableBody = document.getElementById('productsTableFiltered');
+            tableBody.innerHTML = '';
+            filteredTableBody.innerHTML = '';
+
+            products.forEach((product, index) => {
+                const row = document.createElement('tr');
+                row.setAttribute('data-index', index);
+                const quantityClass = product.quantity < 2 ? 'low-stock' : '';
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${product.name}</td>
+                    <td>${parseFloat(product.purchasePrice).toFixed(2)}</td>
+                    <td>${parseFloat(product.salePrice).toFixed(2)}</td>
+                    <td class="${quantityClass}">${product.quantity}</td>
+                    <td>
+                        <i class="fas fa-edit action-btn edit" onclick="editProduct(${index});event.stopPropagation();"></i>
+                        <i class="fas fa-trash action-btn delete" onclick="deleteProduct(${index});event.stopPropagation();"></i>
+                    </td>
+                `;
+                row.addEventListener('click', () => showProductDetails(index));
+                tableBody.appendChild(row);
+                filteredTableBody.appendChild(row.cloneNode(true));
+            });
+
+            filterTable();
+        }
+
+        function showProductDetails(index) {
+            const product = products[index];
+            Swal.fire({
+                title: 'تفاصيل المنتج',
+                html: `
+                    <div style="text-align: right; font-family: 'Cairo', sans-serif; color: #3F2A56;">
+                        <p><strong>اسم المنتج:</strong> ${product.name}</p>
+                        <p><strong>سعر الشراء:</strong> ${parseFloat(product.purchasePrice).toFixed(2)}</p>
+                        <p><strong>سعر البيع:</strong> ${parseFloat(product.salePrice).toFixed(2)}</p>
+                        <p><strong>الكمية:</strong> ${product.quantity}</p>
+                    </div>
+                `,
+                icon: 'info',
+                confirmButtonText: 'إغلاق',
+                confirmButtonColor: '#3F2A56',
+                customClass: { popup: 'swal2-rtl' }
+            });
+        }
+
+        function filterTable() {
+            const stockFilter = document.getElementById('stockFilter').value;
+            const filteredTableBody = document.getElementById('productsTableFiltered');
+            filteredTableBody.innerHTML = '';
+
+            const filteredProducts = products.filter(product => {
+                if (stockFilter === 'all') return true;
+                if (stockFilter === 'empty') return product.quantity === 0;
+                if (stockFilter === 'low') return product.quantity > 0 && product.quantity < 2;
+            });
+
+            filteredProducts.forEach((product, index) => {
+                const row = document.createElement('tr');
+                const originalIndex = products.indexOf(product);
+                row.setAttribute('data-index', originalIndex);
+                const quantityClass = product.quantity < 2 ? 'low-stock' : '';
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${product.name}</td>
+                    <td>${parseFloat(product.purchasePrice).toFixed(2)}</td>
+                    <td>${parseFloat(product.salePrice).toFixed(2)}</td>
+                    <td class="${quantityClass}">${product.quantity}</td>
+                    <td>
+                        <i class="fas fa-edit action-btn edit" onclick="editProduct(${originalIndex});event.stopPropagation();"></i>
+                        <i class="fas fa-trash action-btn delete" onclick="deleteProduct(${originalIndex});event.stopPropagation();"></i>
+                    </td>
+                `;
+                row.addEventListener('click', () => showProductDetails(originalIndex));
+                filteredTableBody.appendChild(row);
+            });
+
+            updateDashboard();
+        }
+
+        function addProduct() {
+            const name = document.getElementById('productName').value.trim();
+            const purchasePrice = document.getElementById('purchasePrice').value;
+            const salePrice = document.getElementById('salePrice').value;
+            const quantity = document.getElementById('quantity').value;
+
+            if (!name || !purchasePrice || !salePrice || !quantity) {
+                Swal.fire({
+                    title: 'خطأ في الإدخال',
+                    text: 'الرجاء ملء جميع الحقول المطلوبة!',
+                    icon: 'error',
+                    confirmButtonColor: '#3F2A56'
+                });
+                return;
+            }
+
+            if (products.some(p => p.name === name)) {
+                Swal.fire({
+                    title: 'خطأ في الإدخال',
+                    text: 'اسم المنتج موجود مسبقًا! الرجاء اختيار اسم آخر.',
+                    icon: 'error',
+                    confirmButtonColor: '#3F2A56'
+                });
+                return;
+            }
+
+            products.push({ name, purchasePrice, salePrice, quantity: parseInt(quantity) });
+            localStorage.setItem('inventoryProducts', JSON.stringify(products));
+            updateProductsTable();
+            bootstrap.Modal.getInstance(document.getElementById('addProductModal')).hide();
+            document.getElementById('addProductForm').reset();
+            Swal.fire({
+                title: 'نجاح',
+                text: `تم إضافة المنتج "${name}" بنجاح!`,
+                icon: 'success',
+                confirmButtonColor: '#3F2A56'
+            });
+        }
+
+        function editProduct(index) {
+            document.getElementById('editIndex').value = index;
+            document.getElementById('editProductName').value = products[index].name;
+            document.getElementById('editPurchasePrice').value = products[index].purchasePrice;
+            document.getElementById('editSalePrice').value = products[index].salePrice;
+            document.getElementById('editQuantity').value = products[index].quantity;
+            new bootstrap.Modal(document.getElementById('editProductModal')).show();
+        }
+
+        async function updateProduct() {
+            const index = parseInt(document.getElementById('editIndex').value);
+            const name = document.getElementById('editProductName').value.trim();
+            const purchasePrice = document.getElementById('editPurchasePrice').value;
+            const salePrice = document.getElementById('editSalePrice').value;
+            const quantity = document.getElementById('editQuantity').value;
+
+            if (!name || !purchasePrice || !salePrice || !quantity) {
+                Swal.fire({
+                    title: 'خطأ في الإدخال',
+                    text: 'الرجاء ملء جميع الحقول المطلوبة!',
+                    icon: 'error',
+                    confirmButtonColor: '#3F2A56'
+                });
+                return;
+            }
+
+            if (name !== products[index].name && products.some(p => p.name === name)) {
+                Swal.fire({
+                    title: 'خطأ في الإدخال',
+                    text: 'اسم المنتج موجود مسبقًا! الرجاء اختيار اسم آخر.',
+                    icon: 'error',
+                    confirmButtonColor: '#3F2A56'
+                });
+                return;
+            }
+
+            products[index] = { name, purchasePrice, salePrice, quantity: parseInt(quantity) };
+            localStorage.setItem('inventoryProducts', JSON.stringify(products));
+            updateProductsTable();
+            bootstrap.Modal.getInstance(document.getElementById('editProductModal')).hide();
+            Swal.fire({
+                title: 'نجاح',
+                text: `تم تعديل المنتج "${name}" بنجاح!`,
+                icon: 'success',
+                confirmButtonColor: '#3F2A56'
+            });
+        }
+
+        async function deleteProduct(index) {
+            const product = products[index];
+            const result = await Swal.fire({
+                title: 'تأكيد الحذف',
+                text: `هل أنت متأكد من حذف المنتج "${product.name}"؟ لا يمكن التراجع عن هذا الإجراء.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'حذف',
+                cancelButtonText: 'إلغاء',
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d'
+            });
+
+            if (result.isConfirmed) {
+                products.splice(index, 1);
+                localStorage.setItem('inventoryProducts', JSON.stringify(products));
+                updateProductsTable();
+                Swal.fire({
+                    title: 'نجاح',
+                    text: `تم حذف المنتج "${product.name}" بنجاح!`,
+                    icon: 'success',
+                    confirmButtonColor: '#3F2A56'
+                });
+            }
+        }
+
+        function exportToJSON() {
+            const dataStr = JSON.stringify(products, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'inventory_products.json';
+            a.click();
+            URL.revokeObjectURL(url);
+            Swal.fire({
+                title: 'نجاح',
+                text: 'تم تصدير البيانات إلى ملف JSON بنجاح!',
+                icon: 'success',
+                confirmButtonColor: '#3F2A56'
+            });
+        }
+
+        function exportToCSV() {
+            const headers = ['اسم المنتج,سعر الشراء,سعر البيع,الكمية'];
+            const rows = products.map(p => `${p.name},${p.purchasePrice},${p.salePrice},${p.quantity}`);
+            const csv = [headers, ...rows].join('\n');
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'inventory_products.csv';
+            a.click();
+            URL.revokeObjectURL(url);
+            Swal.fire({
+                title: 'نجاح',
+                text: 'تم تصدير البيانات إلى ملف CSV بنجاح!',
+                icon: 'success',
+                confirmButtonColor: '#3F2A56'
+            });
+        }
+
+        async function importFile(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                let newProducts = [];
+                if (file.name.endsWith('.json')) {
+                    newProducts = JSON.parse(e.target.result);
+                } else if (file.name.endsWith('.csv')) {
+                    const data = e.target.result;
+                    const rows = data.split('\n').slice(1).filter(row => row.trim());
+                    newProducts = rows.map(row => {
+                        const [name, purchasePrice, salePrice, quantity] = row.split(',');
+                        return { name, purchasePrice: parseFloat(purchasePrice).toFixed(2), salePrice: parseFloat(salePrice).toFixed(2), quantity: parseInt(quantity) };
+                    });
+                }
+
+                const invalidProducts = newProducts.filter(p =>
+                    !p.name || !p.purchasePrice || !p.salePrice || !p.quantity ||
+                    isNaN(parseFloat(p.purchasePrice)) || parseFloat(p.purchasePrice) < 0 ||
+                    isNaN(parseFloat(p.salePrice)) || parseFloat(p.salePrice) < 0 ||
+                    isNaN(parseInt(p.quantity)) || parseInt(p.quantity) < 0
+                );
+
+                if (invalidProducts.length > 0) {
+                    Swal.fire({
+                        title: 'خطأ في البيانات',
+                        text: 'تم العثور على منتجات غير صالحة في الملف. الرجاء التحقق من تنسيق الملف.',
+                        icon: 'error',
+                        confirmButtonColor: '#3F2A56'
+                    });
+                    return;
+                }
+
+                const duplicateNames = newProducts.filter(p => products.some(existing => existing.name === p.name));
+                if (duplicateNames.length > 0) {
+                    let warningMessage = 'تم العثور على منتجات مكررة:<br>';
+                    duplicateNames.forEach(p => warningMessage += `المنتج: ${p.name}<br>`);
+                    warningMessage += 'هل تريد المتابعة مع استبدال المنتجات المكررة؟';
+
+                    const result = await Swal.fire({
+                        title: 'تحذير: منتجات مكررة',
+                        html: warningMessage,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'المتابعة واستبدال',
+                        cancelButtonText: 'إلغاء',
+                        confirmButtonColor: '#3F2A56',
+                        cancelButtonColor: '#dc3545',
+                        customClass: { popup: 'swal2-rtl' }
+                    });
+
+                    if (!result.isConfirmed) {
+                        Swal.fire({
+                            title: 'تم الإلغاء',
+                            text: 'لم يتم استيراد الملف بسبب التكرارات.',
+                            icon: 'info',
+                            confirmButtonColor: '#3F2A56'
+                        });
+                        return;
+                    }
+
+                    newProducts.forEach(newP => {
+                        const index = products.findIndex(p => p.name === newP.name);
+                        if (index !== -1) {
+                            products[index] = newP;
+                        } else {
+                            products.push(newP);
+                        }
+                    });
+                } else {
+                    products.push(...newProducts);
+                }
+
+                localStorage.setItem('inventoryProducts', JSON.stringify(products));
+                updateProductsTable();
+                successSound.play();
+                Swal.fire({
+                    title: 'نجاح',
+                    text: 'تم استيراد البيانات بنجاح!',
+                    icon: 'success',
+                    confirmButtonColor: '#3F2A56'
+                });
+            };
+
+            if (file.name.endsWith('.json') || file.name.endsWith('.csv')) {
+                reader.readAsText(file);
+            } else {
+                Swal.fire({
+                    title: 'خطأ',
+                    text: 'الرجاء تحميل ملف بصيغة JSON أو CSV!',
+                    icon: 'error',
+                    confirmButtonColor: '#3F2A56'
+                });
+            }
+        }
+
+        function generateQRCode() {
+            const dataString = JSON.stringify(products);
+            const qrCanvas = document.getElementById('qrCanvas');
+            QRCode.toCanvas(qrCanvas, dataString, { width: 300, margin: 2 }, (error) => {
+                if (error) {
+                    Swal.fire({
+                        title: 'خطأ',
+                        text: 'فشل في إنشاء رمز QR!',
+                        icon: 'error',
+                        confirmButtonColor: '#3F2A56'
+                    });
+                    return;
+                }
+                Swal.fire({
+                    title: 'رمز QR جاهز',
+                    html: `
+                        <canvas id="tempQRCanvas"></canvas>
+                        <p>امسح هذا الرمز من جهاز آخر لنقل البيانات</p>
+                        <div class="scanner-buttons">
+                            <button class="btn" onclick="exportQRCode()">تصدير كصورة</button>
+                        </div>
+                    `,
+                    showCancelButton: true,
+                    confirmButtonText: 'إغلاق',
+                    cancelButtonText: 'إلغاء',
+                    confirmButtonColor: '#3F2A56',
+                    cancelButtonColor: '#6c757d',
+                    customClass: { popup: 'swal2-rtl' },
+                    width: '500px',
+                    didOpen: () => {
+                        const tempCanvas = document.getElementById('tempQRCanvas');
+                        tempCanvas.width = qrCanvas.width;
+                        tempCanvas.height = qrCanvas.height;
+                        tempCanvas.getContext('2d').drawImage(qrCanvas, 0, 0);
+                    }
+                });
+            });
+        }
+
+        function exportQRCode() {
+            const qrCanvas = document.getElementById('qrCanvas');
+            const dataURL = qrCanvas.toDataURL('image/png');
+            const a = document.createElement('a');
+            a.href = dataURL;
+            a.download = 'qrcode.png';
+            a.click();
+            Swal.fire({
+                title: 'نجاح',
+                text: 'تم تصدير رمز QR كصورة بنجاح!',
+                icon: 'success',
+                confirmButtonColor: '#3F2A56'
+            });
+        }
+
+        function startQRScanner() {
+            Swal.fire({
+                title: 'مسح رمز QR',
+                html: `
+                    <div id="scannerContainer">
+                        <video id="scannerVideo" autoplay playsinline style="max-width: 100%; border-radius: 10px; border: 2px solid #3F2A56;"></video>
+                        <div class="scanner-buttons">
+                            <button class="btn" onclick="stopQRScanner()">إيقاف المسح</button>
+                            <button class="btn" onclick="document.getElementById('qrImageInput').click()">استيراد من صورة</button>
+                        </div>
+                    </div>
+                `,
+                showConfirmButton: false,
+                showCancelButton: true,
+                cancelButtonText: 'إغلاق',
+                cancelButtonColor: '#6c757d',
+                customClass: { popup: 'swal2-rtl' },
+                width: '600px',
+                didOpen: async () => {
+                    try {
+                        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+                        const video = document.getElementById('scannerVideo');
+                        video.srcObject = stream;
+                        video.play();
+
+                        const canvas = document.createElement('canvas');
+                        const context = canvas.getContext('2d');
+
+                        function scan() {
+                            if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                                canvas.width = video.videoWidth;
+                                canvas.height = video.videoHeight;
+                                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                                const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                                const code = jsQR(imageData.data, imageData.width, imageData.height, {
+                                    inversionAttempts: 'dontInvert'
+                                });
+
+                                if (code) {
+                                    stopQRScanner();
+                                    Swal.close();
+                                    try {
+                                        const newProducts = JSON.parse(code.data);
+                                        processQRData(newProducts);
+                                    } catch (e) {
+                                        Swal.fire({
+                                            title: 'خطأ',
+                                            text: 'البيانات في رمز QR غير صالحة!',
+                                            icon: 'error',
+                                            confirmButtonColor: '#3F2A56'
+                                        });
+                                    }
+                                    return;
+                                }
+                            }
+                            requestAnimationFrame(scan);
+                        }
+                        requestAnimationFrame(scan);
+                    } catch (error) {
+                        Swal.fire({
+                            title: 'خطأ',
+                            text: 'فشل في الوصول إلى الكاميرا! تأكد من منح الأذونات.',
+                            icon: 'error',
+                            confirmButtonColor: '#3F2A56'
+                        });
+                    }
+                },
+                willClose: () => {
+                    stopQRScanner();
+                }
+            });
+        }
+
+        function stopQRScanner() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
+            const scannerContainer = document.getElementById('scannerContainer');
+            if (scannerContainer) {
+                scannerContainer.style.display = 'none';
+            }
+            const scannerVideo = document.getElementById('scannerVideo');
+            if (scannerVideo) {
+                scannerVideo.srcObject = null;
+            }
+        }
+
+        function importQRFromImage(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.src = e.target.result;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    const context = canvas.getContext('2d');
+                    context.drawImage(img, 0, 0, img.width, img.height);
+                    const imageData = context.getImageData(0, 0, img.width, img.height);
+                    const code = jsQR(imageData.data, imageData.width, imageData.height, {
+                        inversionAttempts: 'dontInvert'
+                    });
+
+                    if (code) {
+                        stopQRScanner();
+                        Swal.close();
+                        try {
+                            const newProducts = JSON.parse(code.data);
+                            processQRData(newProducts);
+                        } catch (e) {
+                            Swal.fire({
+                                title: 'خطأ',
+                                text: 'البيانات في رمز QR غير صالحة!',
+                                icon: 'error',
+                                confirmButtonColor: '#3F2A56'
+                            });
+                        }
+                    } else {
+                        Swal.fire({
+                            title: 'خطأ',
+                            text: 'لم يتم العثور على رمز QR في الصورة!',
+                            icon: 'error',
+                            confirmButtonColor: '#3F2A56'
+                        });
+                    }
+                };
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function processQRData(newProducts) {
+            const invalidProducts = newProducts.filter(p =>
+                !p.name || !p.purchasePrice || !p.salePrice || !p.quantity ||
+                isNaN(parseFloat(p.purchasePrice)) || parseFloat(p.purchasePrice) < 0 ||
+                isNaN(parseFloat(p.salePrice)) || parseFloat(p.salePrice) < 0 ||
+                isNaN(parseInt(p.quantity)) || parseInt(p.quantity) < 0
+            );
+
+            if (invalidProducts.length > 0) {
+                Swal.fire({
+                    title: 'خطأ في البيانات',
+                    text: 'تم العثور على منتجات غير صالحة.',
+                    icon: 'error',
+                    confirmButtonColor: '#3F2A56'
+                });
+                return;
+            }
+
+            const duplicateNames = newProducts.filter(p => products.some(existing => existing.name === p.name));
+            if (duplicateNames.length > 0) {
+                let warningMessage = 'تم العثور على منتجات مكررة:<br>';
+                duplicateNames.forEach(p => warningMessage += `المنتج: ${p.name}<br>`);
+                warningMessage += 'هل تريد المتابعة مع استبدال المنتجات المكررة؟';
+
+                const result = await Swal.fire({
+                    title: 'تحذير: منتجات مكررة',
+                    html: warningMessage,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'المتابعة واستبدال',
+                    cancelButtonText: 'إلغاء',
+                    confirmButtonColor: '#3F2A56',
+                    cancelButtonColor: '#dc3545',
+                    customClass: { popup: 'swal2-rtl' }
+                });
+
+                if (!result.isConfirmed) {
+                    Swal.fire({
+                        title: 'تم الإلغاء',
+                        text: 'لم يتم استيراد البيانات بسبب التكرارات.',
+                        icon: 'info',
+                        confirmButtonColor: '#3F2A56'
+                    });
+                    return;
+                }
+
+                newProducts.forEach(newP => {
+                    const index = products.findIndex(p => p.name === newP.name);
+                    if (index !== -1) {
+                        products[index] = newP;
+                    } else {
+                        products.push(newP);
+                    }
+                });
+            } else {
+                products.push(...newProducts);
+            }
+
+            localStorage.setItem('inventoryProducts', JSON.stringify(products));
+            updateProductsTable();
+            successSound.play();
+            Swal.fire({
+                title: 'نجاح',
+                text: 'تم استيراد البيانات من رمز QR بنجاح!',
+                icon: 'success',
+                confirmButtonColor: '#3F2A56'
+            });
+        }
+
+        function printTable() {
+            try {
+                const itemsPerPage = 20;
+                const stockFilter = document.getElementById('stockFilter').value;
+
+                const filteredProducts = products.filter(product => {
+                    if (stockFilter === 'all') return true;
+                    if (stockFilter === 'empty') return product.quantity === 0;
+                    if (stockFilter === 'low') return product.quantity > 0 && product.quantity < 2;
+                });
+
+                const totalPurchasePrice = filteredProducts.reduce((sum, p) => sum + (parseFloat(p.purchasePrice) * parseInt(p.quantity)), 0);
+                const totalSalePrice = filteredProducts.reduce((sum, p) => sum + (parseFloat(p.salePrice) * parseInt(p.quantity)), 0);
+                const totalProducts = filteredProducts.length;
+
+                const pages = Math.ceil(filteredProducts.length / itemsPerPage);
+                const printWindow = window.open('', '_blank', 'height=700,width=1000');
+                if (!printWindow) {
+                    throw new Error('فشل في فتح نافذة الطباعة. تحقق من إعدادات المتصفح.');
+                }
+
+                const printDate = new Date().toLocaleString('en-US', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                }).replace(/(\d+)\/(\d+)\/(\d+)/, '$1/$2/$3');
+
+                printWindow.document.write(`
+                    <html>
+                    <head>
+                        <title>إدارة المنتجات</title>
+                        <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+                        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+                        <style>
+                            @page { 
+                                size: A4; 
+                                margin: 10mm; 
+                            }
+                            body { 
+                                font-family: 'Cairo', sans-serif; 
+                                direction: rtl; 
+                                margin: 10mm; 
+                                background: #fff; 
+                                color: #000; 
+                            }
+                            .container { 
+                                max-width: 1000px; 
+                                margin: 0 auto; 
+                            }
+                            .header { 
+                                display: flex; 
+                                justify-content: space-between; 
+                                align-items: center; 
+                                margin-bottom: 20px; 
+                                padding-bottom: 10px; 
+                                border-bottom: 1px solid #000; 
+                            }
+                            .header img { 
+                                height: 70px; 
+                                clip-path: polygon(10% 0%, 100% 0%, 90% 100%, 0% 100%); 
+                                margin-right: 10px; 
+                            }
+                            .header h1 { 
+                                font-size: 1.6rem; 
+                                font-weight: 700; 
+                                margin: 0; 
+                                text-align: center; 
+                                flex-grow: 1; 
+                                color: #3F2A56; 
+                            }
+                            .dashboard-container { 
+                                display: flex; 
+                                justify-content: space-between; 
+                                gap: 20px; 
+                                margin-bottom: 20px; 
+                            }
+                            .dashboard-section { 
+                                flex: 1; 
+                                border: 1px solid #000; 
+                                padding: 15px; 
+                                border-radius: 5px; 
+                                background: #fff; 
+                                text-align: center; 
+                            }
+                            .dashboard-section h4 { 
+                                font-size: 1.2rem; 
+                                font-weight: 700; 
+                                margin: 0 0 10px; 
+                                border-bottom: 1px solid #000; 
+                                padding-bottom: 5px; 
+                                color: #3F2A56; 
+                            }
+                            .dashboard-section p { 
+                                margin: 5px 0; 
+                                font-size: 1rem; 
+                                line-height: 1.5; 
+                                font-weight: 600; 
+                            }
+                            h2 { 
+                                text-align: center; 
+                                font-size: 1.7rem; 
+                                font-weight: 700; 
+                                margin: 20px 0; 
+                                border-bottom: 1px solid #000; 
+                                padding-bottom: 5px; 
+                                color: #3F2A56; 
+                            }
+                            .products-count { 
+                                text-align: center; 
+                                font-size: 1.1rem; 
+                                font-weight: 600; 
+                                margin-bottom: 10px; 
+                                color: #5a3f73; 
+                            }
+                            .print-date { 
+                                text-align: center; 
+                                font-size: 1.1rem; 
+                                font-weight: 600; 
+                                margin-bottom: 20px; 
+                                color: #3F2A56; 
+                            }
+                            table { 
+                                width: 100%; 
+                                border-collapse: collapse; 
+                                margin: 20px 0; 
+                                border: 1px solid #000; 
+                            }
+                            th, td { 
+                                padding: 12px; 
+                                text-align: center; 
+                                border: 1px solid #000; 
+                                font-size: 1rem; 
+                            }
+                            th { 
+                                background: linear-gradient(90deg, #3F2A56, #5a3f73); 
+                                color: white; 
+                                font-weight: 700; 
+                            }
+                            td { 
+                                background: #fff; 
+                                color: #000; 
+                            }
+                            .low-stock { 
+                                color: #dc3545; 
+                                font-weight: 700; 
+                            }
+                            .page-break { 
+                                page-break-before: always; 
+                            }
+                            .page-number { 
+                                text-align: center; 
+                                font-size: 1rem; 
+                                margin-top: 10px; 
+                                color: #3F2A56; 
+                            }
+                            .footer { 
+                                text-align: center; 
+                                font-size: 1rem; 
+                                font-weight: 600; 
+                                margin-top: 10px; 
+                                position: running(footer); 
+                                color: #3F2A56; 
+                            }
+                            @media print {
+                                .footer {
+                                    position: fixed;
+                                    bottom: 10mm;
+                                    width: 100%;
+                                }
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="container">
+                            <div class="header">
+                                <img src="logo.png" alt="شعار طيبة المدينة تلكوم" onerror="this.src='https://via.placeholder.com/70x70.png?text=Logo';">
+                                <h1>طيبة المدينة تلكوم - تقرير إدارة المنتجات</h1>
+                            </div>
+                            <div class="print-date">تاريخ الطباعة: ${printDate}</div>
+                            <div class="dashboard-container">
+                                <div class="dashboard-section">
+                                    <h4>إجمالي سعر الشراء</h4>
+                                    <p>${totalPurchasePrice.toFixed(2)}</p>
+                                </div>
+                                <div class="dashboard-section">
+                                    <h4>إجمالي سعر البيع</h4>
+                                    <p>${totalSalePrice.toFixed(2)}</p>
+                                </div>
+                                <div class="dashboard-section">
+                                    <h4>عدد المنتجات</h4>
+                                    <p>${totalProducts}</p>
+                                </div>
+                            </div>
+                            <h2>المنتجات</h2>
+                            <div class="products-count">عدد المنتجات: ${filteredProducts.length}</div>
+                `);
+
+                if (filteredProducts.length > 0) {
+                    for (let page = 0; page < pages; page++) {
+                        if (page > 0) {
+                            printWindow.document.write('<div class="page-break"></div>');
+                        }
+                        printWindow.document.write(`
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>اسم المنتج</th>
+                                        <th>سعر الشراء</th>
+                                        <th>سعر البيع</th>
+                                        <th>الكمية</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                        `);
+                        const start = page * itemsPerPage;
+                        const end = Math.min(start + itemsPerPage, filteredProducts.length);
+                        for (let i = start; i < end; i++) {
+                            const product = filteredProducts[i];
+                            const quantityClass = product.quantity < 2 ? 'low-stock' : '';
+                            printWindow.document.write(`
+                                <tr>
+                                    <td>${i + 1}</td>
+                                    <td>${product.name}</td>
+                                    <td>${parseFloat(product.purchasePrice).toFixed(2)}</td>
+                                    <td>${parseFloat(product.salePrice).toFixed(2)}</td>
+                                    <td class="${quantityClass}">${product.quantity}</td>
+                                </tr>
+                            `);
+                        }
+                        printWindow.document.write(`
+                                </tbody>
+                            </table>
+                            <div class="page-number">صفحة ${page + 1} من ${pages}</div>
+                            <div class="footer">طيبة المدينة تلكوم - تقرير إدارة المنتجات</div>
+                        `);
+                    }
+                } else {
+                    printWindow.document.write(`
+                        <p style="text-align: center; font-size: 1rem;">لا توجد منتجات في النطاق المحدد.</p>
+                    `);
+                }
+
+                printWindow.document.write(`
+                        </div>
+                    </body>
+                    </html>
+                `);
+                printWindow.document.close();
+
+                printWindow.onload = () => {
+                    setTimeout(() => {
+                        printWindow.focus();
+                    }, 500);
+                };
+            } catch (error) {
+                console.error('خطأ أثناء الطباعة:', error);
+                Swal.fire({
+                    title: 'خطأ',
+                    text: 'حدث خطأ أثناء إنشاء تقرير الطباعة. الرجاء المحاولة مرة أخرى.',
+                    icon: 'error',
+                    confirmButtonColor: '#3F2A56'
+                });
+                if (printWindow) {
+                    printWindow.close();
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateProductsTable();
+        });
+
+        window.addEventListener('unload', () => {
+            stopQRScanner();
+        });
+    </script>
+</body>
+</html>
