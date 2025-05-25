@@ -488,11 +488,26 @@
         </div>
         <div class="products-section">
             <h3>المنتجات الموجودة</h3>
+            <div class="search-container">
+                <div class="filter-group">
+                    <label for="searchInput">البحث</label>
+                    <input type="text" id="searchInput" placeholder="ابحث بالاسم أو المعرف" oninput="filterTable()">
+                </div>
+                <div class="filter-group">
+                    <label for="stockFilter">حالة المخزون</label>
+                    <select id="stockFilter" onchange="filterTable()">
+                        <option value="all">الكل</option>
+                        <option value="empty">فارغة</option>
+                        <option value="low">على وشك النفاذ</option>
+                    </select>
+                </div>
+            </div>
             <div class="table-container">
                 <table class="products-table">
                     <thead>
                         <tr>
                             <th>#</th>
+                            <th>معرف المنتج</th>
                             <th>اسم المنتج</th>
                             <th>سعر الشراء</th>
                             <th>سعر البيع</th>
@@ -513,31 +528,6 @@
             <button class="btn" onclick="generateQRCode()"><i class="fas fa-qrcode"></i> إنشاء QR Code</button>
             <button class="btn" onclick="startQRScanner()"><i class="fas fa-camera"></i> استقبال QR Code</button>
             <button class="btn" onclick="printTable()"><i class="fas fa-print"></i> طباعة</button>
-        </div>
-        <div class="search-container">
-            <div class="filter-group">
-                <label for="stockFilter">حالة المخزون</label>
-                <select id="stockFilter" onchange="filterTable()">
-                    <option value="all">الكل</option>
-                    <option value="empty">فارغة</option>
-                    <option value="low">على وشك النفاذ</option>
-                </select>
-            </div>
-        </div>
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>اسم المنتج</th>
-                        <th>سعر الشراء</th>
-                        <th>سعر البيع</th>
-                        <th>الكمية</th>
-                        <th>الإجراءات</th>
-                    </tr>
-                </thead>
-                <tbody id="productsTableFiltered"></tbody>
-            </table>
         </div>
         <canvas id="qrCanvas" style="display: none;"></canvas>
         <input type="file" id="qrImageInput" accept="image/*" style="display: none;" onchange="importQRFromImage(event)">
@@ -589,7 +579,7 @@
                 </div>
                 <div class="modal-body">
                     <form id="editProductForm">
-                        <input type="hidden" id="editIndex">
+                        <input type="hidden" id="editProductId">
                         <div class="mb-3">
                             <label for="editProductName" class="form-label"><i class="fas fa-box"></i> اسم المنتج</label>
                             <input type="text" class="form-control" id="editProductName" required>
@@ -617,12 +607,59 @@
     </div>
 
     <script>
-        let products = JSON.parse(localStorage.getItem('inventoryProducts')) || [];
+        let db;
         let stream = null;
-
         const successSound = new Audio('https://www.soundjay.com/buttons/beep-01a.mp3');
 
-        function updateDashboard() {
+        // إعداد IndexedDB
+        function initDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open('InventoryDB', 1);
+                request.onupgradeneeded = (event) => {
+                    db = event.target.result;
+                    if (!db.objectStoreNames.contains('products')) {
+                        db.createObjectStore('products', { keyPath: 'id' });
+                    }
+                };
+                request.onsuccess = (event) => {
+                    db = event.target.result;
+                    resolve(db);
+                };
+                request.onerror = (event) => {
+                    reject(event.target.error);
+                };
+            });
+        }
+
+        // إنشاء معرف عشوائي مكون من 5 أرقام
+        async function generateUniqueId() {
+            let id;
+            let isUnique = false;
+            const existingIds = await getAllProductIds();
+            while (!isUnique) {
+                id = Math.floor(10000 + Math.random() * 90000).toString();
+                isUnique = !existingIds.includes(id);
+            }
+            return id;
+        }
+
+        // جلب جميع معرفات المنتجات
+        function getAllProductIds() {
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction(['products'], 'readonly');
+                const store = transaction.objectStore('products');
+                const request = store.getAll();
+                request.onsuccess = () => {
+                    const ids = request.result.map(product => product.id);
+                    resolve(ids);
+                };
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        // تحديث لوحة المعلومات
+        async function updateDashboard() {
+            const products = await getAllProducts();
             const totalPurchasePrice = products.reduce((sum, p) => sum + (parseFloat(p.purchasePrice) * parseInt(p.quantity)), 0);
             const totalSalePrice = products.reduce((sum, p) => sum + (parseFloat(p.salePrice) * parseInt(p.quantity)), 0);
             const totalProducts = products.length;
@@ -632,41 +669,52 @@
             document.getElementById('totalProducts').innerText = totalProducts;
         }
 
-        function updateProductsTable() {
+        // جلب جميع المنتجات من IndexedDB
+        function getAllProducts() {
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction(['products'], 'readonly');
+                const store = transaction.objectStore('products');
+                const request = store.getAll();
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        // تحديث جدول المنتجات
+        async function updateProductsTable() {
+            const products = await getAllProducts();
             const tableBody = document.getElementById('productsTable');
-            const filteredTableBody = document.getElementById('productsTableFiltered');
             tableBody.innerHTML = '';
-            filteredTableBody.innerHTML = '';
 
             products.forEach((product, index) => {
                 const row = document.createElement('tr');
-                row.setAttribute('data-index', index);
                 const quantityClass = product.quantity < 2 ? 'low-stock' : '';
                 row.innerHTML = `
                     <td>${index + 1}</td>
+                    <td>${product.id}</td>
                     <td>${product.name}</td>
                     <td>${parseFloat(product.purchasePrice).toFixed(2)}</td>
                     <td>${parseFloat(product.salePrice).toFixed(2)}</td>
                     <td class="${quantityClass}">${product.quantity}</td>
                     <td>
-                        <i class="fas fa-edit action-btn edit" onclick="editProduct(${index});event.stopPropagation();"></i>
-                        <i class="fas fa-trash action-btn delete" onclick="deleteProduct(${index});event.stopPropagation();"></i>
+                        <i class="fas fa-edit action-btn edit" onclick="editProduct('${product.id}');event.stopPropagation();"></i>
+                        <i class="fas fa-trash action-btn delete" onclick="deleteProduct('${product.id}');event.stopPropagation();"></i>
                     </td>
                 `;
-                row.addEventListener('click', () => showProductDetails(index));
+                row.addEventListener('click', () => showProductDetails(product));
                 tableBody.appendChild(row);
-                filteredTableBody.appendChild(row.cloneNode(true));
             });
 
             filterTable();
         }
 
-        function showProductDetails(index) {
-            const product = products[index];
+        // عرض تفاصيل المنتج
+        function showProductDetails(product) {
             Swal.fire({
                 title: 'تفاصيل المنتج',
                 html: `
                     <div style="text-align: right; font-family: 'Cairo', sans-serif; color: #3F2A56;">
+                        <p><strong>معرف المنتج:</strong> ${product.id}</p>
                         <p><strong>اسم المنتج:</strong> ${product.name}</p>
                         <p><strong>سعر الشراء:</strong> ${parseFloat(product.purchasePrice).toFixed(2)}</p>
                         <p><strong>سعر البيع:</strong> ${parseFloat(product.salePrice).toFixed(2)}</p>
@@ -680,41 +728,47 @@
             });
         }
 
-        function filterTable() {
+        // تصفية الجدول
+        async function filterTable() {
+            const searchInput = document.getElementById('searchInput').value.toLowerCase();
             const stockFilter = document.getElementById('stockFilter').value;
-            const filteredTableBody = document.getElementById('productsTableFiltered');
-            filteredTableBody.innerHTML = '';
+            const tableBody = document.getElementById('productsTable');
+            tableBody.innerHTML = '';
 
-            const filteredProducts = products.filter(product => {
+            let products = await getAllProducts();
+            products = products.filter(product => {
+                const matchesSearch = product.name.toLowerCase().includes(searchInput) || product.id.includes(searchInput);
+                if (!matchesSearch) return false;
                 if (stockFilter === 'all') return true;
                 if (stockFilter === 'empty') return product.quantity === 0;
                 if (stockFilter === 'low') return product.quantity > 0 && product.quantity < 2;
+                return true;
             });
 
-            filteredProducts.forEach((product, index) => {
+            products.forEach((product, index) => {
                 const row = document.createElement('tr');
-                const originalIndex = products.indexOf(product);
-                row.setAttribute('data-index', originalIndex);
                 const quantityClass = product.quantity < 2 ? 'low-stock' : '';
                 row.innerHTML = `
                     <td>${index + 1}</td>
+                    <td>${product.id}</td>
                     <td>${product.name}</td>
                     <td>${parseFloat(product.purchasePrice).toFixed(2)}</td>
                     <td>${parseFloat(product.salePrice).toFixed(2)}</td>
                     <td class="${quantityClass}">${product.quantity}</td>
                     <td>
-                        <i class="fas fa-edit action-btn edit" onclick="editProduct(${originalIndex});event.stopPropagation();"></i>
-                        <i class="fas fa-trash action-btn delete" onclick="deleteProduct(${originalIndex});event.stopPropagation();"></i>
+                        <i class="fas fa-edit action-btn edit" onclick="editProduct('${product.id}');event.stopPropagation();"></i>
+                        <i class="fas fa-trash action-btn delete" onclick="deleteProduct('${product.id}');event.stopPropagation();"></i>
                     </td>
                 `;
-                row.addEventListener('click', () => showProductDetails(originalIndex));
-                filteredTableBody.appendChild(row);
+                row.addEventListener('click', () => showProductDetails(product));
+                tableBody.appendChild(row);
             });
 
             updateDashboard();
         }
 
-        function addProduct() {
+        // إضافة منتج
+        async function addProduct() {
             const name = document.getElementById('productName').value.trim();
             const purchasePrice = document.getElementById('purchasePrice').value;
             const salePrice = document.getElementById('salePrice').value;
@@ -730,6 +784,7 @@
                 return;
             }
 
+            const products = await getAllProducts();
             if (products.some(p => p.name === name)) {
                 Swal.fire({
                     title: 'خطأ في الإدخال',
@@ -740,30 +795,54 @@
                 return;
             }
 
-            products.push({ name, purchasePrice, salePrice, quantity: parseInt(quantity) });
-            localStorage.setItem('inventoryProducts', JSON.stringify(products));
-            updateProductsTable();
-            bootstrap.Modal.getInstance(document.getElementById('addProductModal')).hide();
-            document.getElementById('addProductForm').reset();
-            Swal.fire({
-                title: 'نجاح',
-                text: `تم إضافة المنتج "${name}" بنجاح!`,
-                icon: 'success',
-                confirmButtonColor: '#3F2A56'
-            });
+            const id = await generateUniqueId();
+            const product = { id, name, purchasePrice, salePrice, quantity: parseInt(quantity) };
+
+            const transaction = db.transaction(['products'], 'readwrite');
+            const store = transaction.objectStore('products');
+            const request = store.add(product);
+
+            request.onsuccess = async () => {
+                await updateProductsTable();
+                bootstrap.Modal.getInstance(document.getElementById('addProductModal')).hide();
+                document.getElementById('addProductForm').reset();
+                Swal.fire({
+                    title: 'نجاح',
+                    text: `تم إضافة المنتج "${name}" بنجاح!`,
+                    icon: 'success',
+                    confirmButtonColor: '#3F2A56'
+                });
+            };
+            request.onerror = () => {
+                Swal.fire({
+                    title: 'خطأ',
+                    text: 'فشل في إضافة المنتج!',
+                    icon: 'error',
+                    confirmButtonColor: '#3F2A56'
+                });
+            };
         }
 
-        function editProduct(index) {
-            document.getElementById('editIndex').value = index;
-            document.getElementById('editProductName').value = products[index].name;
-            document.getElementById('editPurchasePrice').value = products[index].purchasePrice;
-            document.getElementById('editSalePrice').value = products[index].salePrice;
-            document.getElementById('editQuantity').value = products[index].quantity;
-            new bootstrap.Modal(document.getElementById('editProductModal')).show();
+        // تعديل منتج
+        async function editProduct(id) {
+            const transaction = db.transaction(['products'], 'readonly');
+            const store = transaction.objectStore('products');
+            const request = store.get(id);
+
+            request.onsuccess = () => {
+                const product = request.result;
+                document.getElementById('editProductId').value = product.id;
+                document.getElementById('editProductName').value = product.name;
+                document.getElementById('editPurchasePrice').value = product.purchasePrice;
+                document.getElementById('editSalePrice').value = product.salePrice;
+                document.getElementById('editQuantity').value = product.quantity;
+                new bootstrap.Modal(document.getElementById('editProductModal')).show();
+            };
         }
 
+        // تحديث منتج
         async function updateProduct() {
-            const index = parseInt(document.getElementById('editIndex').value);
+            const id = document.getElementById('editProductId').value;
             const name = document.getElementById('editProductName').value.trim();
             const purchasePrice = document.getElementById('editPurchasePrice').value;
             const salePrice = document.getElementById('editSalePrice').value;
@@ -779,7 +858,9 @@
                 return;
             }
 
-            if (name !== products[index].name && products.some(p => p.name === name)) {
+            const products = await getAllProducts();
+            const existingProduct = products.find(p => p.id === id);
+            if (name !== existingProduct.name && products.some(p => p.name === name)) {
                 Swal.fire({
                     title: 'خطأ في الإدخال',
                     text: 'اسم المنتج موجود مسبقًا! الرجاء اختيار اسم آخر.',
@@ -789,45 +870,79 @@
                 return;
             }
 
-            products[index] = { name, purchasePrice, salePrice, quantity: parseInt(quantity) };
-            localStorage.setItem('inventoryProducts', JSON.stringify(products));
-            updateProductsTable();
-            bootstrap.Modal.getInstance(document.getElementById('editProductModal')).hide();
-            Swal.fire({
-                title: 'نجاح',
-                text: `تم تعديل المنتج "${name}" بنجاح!`,
-                icon: 'success',
-                confirmButtonColor: '#3F2A56'
-            });
-        }
+            const product = { id, name, purchasePrice, salePrice, quantity: parseInt(quantity) };
+            const transaction = db.transaction(['products'], 'readwrite');
+            const store = transaction.objectStore('products');
+            const request = store.put(product);
 
-        async function deleteProduct(index) {
-            const product = products[index];
-            const result = await Swal.fire({
-                title: 'تأكيد الحذف',
-                text: `هل أنت متأكد من حذف المنتج "${product.name}"؟ لا يمكن التراجع عن هذا الإجراء.`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'حذف',
-                cancelButtonText: 'إلغاء',
-                confirmButtonColor: '#dc3545',
-                cancelButtonColor: '#6c757d'
-            });
-
-            if (result.isConfirmed) {
-                products.splice(index, 1);
-                localStorage.setItem('inventoryProducts', JSON.stringify(products));
-                updateProductsTable();
+            request.onsuccess = async () => {
+                await updateProductsTable();
+                bootstrap.Modal.getInstance(document.getElementById('editProductModal')).hide();
                 Swal.fire({
                     title: 'نجاح',
-                    text: `تم حذف المنتج "${product.name}" بنجاح!`,
+                    text: `تم تعديل المنتج "${name}" بنجاح!`,
                     icon: 'success',
                     confirmButtonColor: '#3F2A56'
                 });
-            }
+            };
+            request.onerror = () => {
+                Swal.fire({
+                    title: 'خطأ',
+                    text: 'فشل في تعديل المنتج!',
+                    icon: 'error',
+                    confirmButtonColor: '#3F2A56'
+                });
+            };
         }
 
-        function exportToJSON() {
+        // حذف منتج
+        async function deleteProduct(id) {
+            const transaction = db.transaction(['products'], 'readonly');
+            const store = transaction.objectStore('products');
+            const request = store.get(id);
+
+            request.onsuccess = async () => {
+                const product = request.result;
+                const result = await Swal.fire({
+                    title: 'تأكيد الحذف',
+                    text: `هل أنت متأكد من حذف المنتج "${product.name}"؟ لا يمكن التراجع عن هذا الإجراء.`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'حذف',
+                    cancelButtonText: 'إلغاء',
+                    confirmButtonColor: '#dc3545',
+                    cancelButtonColor: '#6c757d'
+                });
+
+                if (result.isConfirmed) {
+                    const deleteTransaction = db.transaction(['products'], 'readwrite');
+                    const deleteStore = deleteTransaction.objectStore('products');
+                    const deleteRequest = deleteStore.delete(id);
+
+                    deleteRequest.onsuccess = async () => {
+                        await updateProductsTable();
+                        Swal.fire({
+                            title: 'نجاح',
+                            text: `تم حذف المنتج "${product.name}" بنجاح!`,
+                            icon: 'success',
+                            confirmButtonColor: '#3F2A56'
+                        });
+                    };
+                    deleteRequest.onerror = () => {
+                        Swal.fire({
+                            title: 'خطأ',
+                            text: 'فشل في حذف المنتج!',
+                            icon: 'error',
+                            confirmButtonColor: '#3F2A56'
+                        });
+                    };
+                }
+            };
+        }
+
+        // تصدير إلى JSON
+        async function exportToJSON() {
+            const products = await getAllProducts();
             const dataStr = JSON.stringify(products, null, 2);
             const blob = new Blob([dataStr], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
@@ -844,9 +959,11 @@
             });
         }
 
-        function exportToCSV() {
-            const headers = ['اسم المنتج,سعر الشراء,سعر البيع,الكمية'];
-            const rows = products.map(p => `${p.name},${p.purchasePrice},${p.salePrice},${p.quantity}`);
+        // تصدير إلى CSV
+        async function exportToCSV() {
+            const products = await getAllProducts();
+            const headers = ['معرف المنتج,اسم المنتج,سعر الشراء,سعر البيع,الكمية'];
+            const rows = products.map(p => `${p.id},${p.name},${p.purchasePrice},${p.salePrice},${p.quantity}`);
             const csv = [headers, ...rows].join('\n');
             const blob = new Blob([csv], { type: 'text/csv' });
             const url = URL.createObjectURL(blob);
@@ -863,6 +980,7 @@
             });
         }
 
+        // استيراد ملف
         async function importFile(event) {
             const file = event.target.files[0];
             const reader = new FileReader();
@@ -874,13 +992,13 @@
                     const data = e.target.result;
                     const rows = data.split('\n').slice(1).filter(row => row.trim());
                     newProducts = rows.map(row => {
-                        const [name, purchasePrice, salePrice, quantity] = row.split(',');
-                        return { name, purchasePrice: parseFloat(purchasePrice).toFixed(2), salePrice: parseFloat(salePrice).toFixed(2), quantity: parseInt(quantity) };
+                        const [id, name, purchasePrice, salePrice, quantity] = row.split(',');
+                        return { id, name, purchasePrice: parseFloat(purchasePrice).toFixed(2), salePrice: parseFloat(salePrice).toFixed(2), quantity: parseInt(quantity) };
                     });
                 }
 
                 const invalidProducts = newProducts.filter(p =>
-                    !p.name || !p.purchasePrice || !p.salePrice || !p.quantity ||
+                    !p.id || !p.name || !p.purchasePrice || !p.salePrice || !p.quantity ||
                     isNaN(parseFloat(p.purchasePrice)) || parseFloat(p.purchasePrice) < 0 ||
                     isNaN(parseFloat(p.salePrice)) || parseFloat(p.salePrice) < 0 ||
                     isNaN(parseInt(p.quantity)) || parseInt(p.quantity) < 0
@@ -896,14 +1014,15 @@
                     return;
                 }
 
-                const duplicateNames = newProducts.filter(p => products.some(existing => existing.name === p.name));
-                if (duplicateNames.length > 0) {
-                    let warningMessage = 'تم العثور على منتجات مكررة:<br>';
-                    duplicateNames.forEach(p => warningMessage += `المنتج: ${p.name}<br>`);
+                const existingIds = await getAllProductIds();
+                const duplicateIds = newProducts.filter(p => existingIds.includes(p.id));
+                if (duplicateIds.length > 0) {
+                    let warningMessage = 'تم العثور على معرفات مكررة:<br>';
+                    duplicateIds.forEach(p => warningMessage += `المعرف: ${p.id}<br>`);
                     warningMessage += 'هل تريد المتابعة مع استبدال المنتجات المكررة؟';
 
                     const result = await Swal.fire({
-                        title: 'تحذير: منتجات مكررة',
+                        title: 'تحذير: معرفات مكررة',
                         html: warningMessage,
                         icon: 'warning',
                         showCancelButton: true,
@@ -923,28 +1042,32 @@
                         });
                         return;
                     }
-
-                    newProducts.forEach(newP => {
-                        const index = products.findIndex(p => p.name === newP.name);
-                        if (index !== -1) {
-                            products[index] = newP;
-                        } else {
-                            products.push(newP);
-                        }
-                    });
-                } else {
-                    products.push(...newProducts);
                 }
 
-                localStorage.setItem('inventoryProducts', JSON.stringify(products));
-                updateProductsTable();
-                successSound.play();
-                Swal.fire({
-                    title: 'نجاح',
-                    text: 'تم استيراد البيانات بنجاح!',
-                    icon: 'success',
-                    confirmButtonColor: '#3F2A56'
-                });
+                const transaction = db.transaction(['products'], 'readwrite');
+                const store = transaction.objectStore('products');
+                for (const product of newProducts) {
+                    store.put(product);
+                }
+
+                transaction.oncomplete = async () => {
+                    await updateProductsTable();
+                    successSound.play();
+                    Swal.fire({
+                        title: 'نجاح',
+                        text: 'تم استيراد البيانات بنجاح!',
+                        icon: 'success',
+                        confirmButtonColor: '#3F2A56'
+                    });
+                };
+                transaction.onerror = () => {
+                    Swal.fire({
+                        title: 'خطأ',
+                        text: 'فشل في استيراد البيانات!',
+                        icon: 'error',
+                        confirmButtonColor: '#3F2A56'
+                    });
+                };
             };
 
             if (file.name.endsWith('.json') || file.name.endsWith('.csv')) {
@@ -959,7 +1082,9 @@
             }
         }
 
-        function generateQRCode() {
+        // إنشاء رمز QR
+        async function generateQRCode() {
+            const products = await getAllProducts();
             const dataString = JSON.stringify(products);
             const qrCanvas = document.getElementById('qrCanvas');
             QRCode.toCanvas(qrCanvas, dataString, { width: 300, margin: 2 }, (error) => {
@@ -998,6 +1123,7 @@
             });
         }
 
+        // تصدير رمز QR كصورة
         function exportQRCode() {
             const qrCanvas = document.getElementById('qrCanvas');
             const dataURL = qrCanvas.toDataURL('image/png');
@@ -1013,6 +1139,7 @@
             });
         }
 
+        // بدء مسح رمز QR
         function startQRScanner() {
             Swal.fire({
                 title: 'مسح رمز QR',
@@ -1086,6 +1213,7 @@
             });
         }
 
+        // إيقاف مسح رمز QR
         function stopQRScanner() {
             if (stream) {
                 stream.getTracks().forEach(track => track.stop());
@@ -1101,7 +1229,8 @@
             }
         }
 
-        function importQRFromImage(event) {
+        // استيراد رمز QR من صورة
+        async function importQRFromImage(event) {
             const file = event.target.files[0];
             if (!file) return;
 
@@ -1147,9 +1276,10 @@
             reader.readAsDataURL(file);
         }
 
+        // معالجة بيانات رمز QR
         async function processQRData(newProducts) {
             const invalidProducts = newProducts.filter(p =>
-                !p.name || !p.purchasePrice || !p.salePrice || !p.quantity ||
+                !p.id || !p.name || !p.purchasePrice || !p.salePrice || !p.quantity ||
                 isNaN(parseFloat(p.purchasePrice)) || parseFloat(p.purchasePrice) < 0 ||
                 isNaN(parseFloat(p.salePrice)) || parseFloat(p.salePrice) < 0 ||
                 isNaN(parseInt(p.quantity)) || parseInt(p.quantity) < 0
@@ -1165,14 +1295,15 @@
                 return;
             }
 
-            const duplicateNames = newProducts.filter(p => products.some(existing => existing.name === p.name));
-            if (duplicateNames.length > 0) {
-                let warningMessage = 'تم العثور على منتجات مكررة:<br>';
-                duplicateNames.forEach(p => warningMessage += `المنتج: ${p.name}<br>`);
+            const existingIds = await getAllProductIds();
+            const duplicateIds = newProducts.filter(p => existingIds.includes(p.id));
+            if (duplicateIds.length > 0) {
+                let warningMessage = 'تم العثور على معرفات مكررة:<br>';
+                duplicateIds.forEach(p => warningMessage += `المعرف: ${p.id}<br>`);
                 warningMessage += 'هل تريد المتابعة مع استبدال المنتجات المكررة؟';
 
                 const result = await Swal.fire({
-                    title: 'تحذير: منتجات مكررة',
+                    title: 'تحذير: معرفات مكررة',
                     html: warningMessage,
                     icon: 'warning',
                     showCancelButton: true,
@@ -1192,39 +1323,49 @@
                     });
                     return;
                 }
-
-                newProducts.forEach(newP => {
-                    const index = products.findIndex(p => p.name === newP.name);
-                    if (index !== -1) {
-                        products[index] = newP;
-                    } else {
-                        products.push(newP);
-                    }
-                });
-            } else {
-                products.push(...newProducts);
             }
 
-            localStorage.setItem('inventoryProducts', JSON.stringify(products));
-            updateProductsTable();
-            successSound.play();
-            Swal.fire({
-                title: 'نجاح',
-                text: 'تم استيراد البيانات من رمز QR بنجاح!',
-                icon: 'success',
-                confirmButtonColor: '#3F2A56'
-            });
+            const transaction = db.transaction(['products'], 'readwrite');
+            const store = transaction.objectStore('products');
+            for (const product of newProducts) {
+                store.put(product);
+            }
+
+            transaction.oncomplete = async () => {
+                await updateProductsTable();
+                successSound.play();
+                Swal.fire({
+                    title: 'نجاح',
+                    text: 'تم استيراد البيانات من رمز QR بنجاح!',
+                    icon: 'success',
+                    confirmButtonColor: '#3F2A56'
+                });
+            };
+            transaction.onerror = () => {
+                Swal.fire({
+                    title: 'خطأ',
+                    text: 'فشل في استيراد البيانات!',
+                    icon: 'error',
+                    confirmButtonColor: '#3F2A56'
+                });
+            };
         }
 
-        function printTable() {
+        // طباعة الجدول
+        async function printTable() {
             try {
                 const itemsPerPage = 20;
+                const searchInput = document.getElementById('searchInput').value.toLowerCase();
                 const stockFilter = document.getElementById('stockFilter').value;
 
-                const filteredProducts = products.filter(product => {
+                let filteredProducts = await getAllProducts();
+                filteredProducts = filteredProducts.filter(product => {
+                    const matchesSearch = product.name.toLowerCase().includes(searchInput) || product.id.includes(searchInput);
+                    if (!matchesSearch) return false;
                     if (stockFilter === 'all') return true;
                     if (stockFilter === 'empty') return product.quantity === 0;
                     if (stockFilter === 'low') return product.quantity > 0 && product.quantity < 2;
+                    return true;
                 });
 
                 const totalPurchasePrice = filteredProducts.reduce((sum, p) => sum + (parseFloat(p.purchasePrice) * parseInt(p.quantity)), 0);
@@ -1423,6 +1564,7 @@
                                 <thead>
                                     <tr>
                                         <th>#</th>
+                                        <th>معرف المنتج</th>
                                         <th>اسم المنتج</th>
                                         <th>سعر الشراء</th>
                                         <th>سعر البيع</th>
@@ -1439,6 +1581,7 @@
                             printWindow.document.write(`
                                 <tr>
                                     <td>${i + 1}</td>
+                                    <td>${product.id}</td>
                                     <td>${product.name}</td>
                                     <td>${parseFloat(product.purchasePrice).toFixed(2)}</td>
                                     <td>${parseFloat(product.salePrice).toFixed(2)}</td>
@@ -1485,10 +1628,22 @@
             }
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            updateProductsTable();
+        // تهيئة الصفحة
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                await initDB();
+                await updateProductsTable();
+            } catch (error) {
+                Swal.fire({
+                    title: 'خطأ',
+                    text: 'فشل في تهيئة قاعدة البيانات!',
+                    icon: 'error',
+                    confirmButtonColor: '#3F2A56'
+                });
+            }
         });
 
+        // إيقاف مسح QR عند إغلاق الصفحة
         window.addEventListener('unload', () => {
             stopQRScanner();
         });
