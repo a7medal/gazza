@@ -13,6 +13,7 @@
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
     <style>
+        /* نفس أنماط CSS المقدمة بدون تغييرات، لأنها تعمل بشكل جيد */
         * {
             margin: 0;
             padding: 0;
@@ -465,7 +466,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <img src="logo.png" alt="شعار طيبة المدينة تلكوم">
+            <img src="logo.png" alt="شعار طيبة المدينة تلكوم" onerror="this.src='https://via.placeholder.com/90?text=Logo'">
             <h2>طيبة المدينة تلكوم</h2>
             <h4>إدارة المنتجات</h4>
             <a href="home.html" class="home-btn"><i class="fas fa-home"></i> للرئيسية</a>
@@ -550,15 +551,15 @@
                         </div>
                         <div class="mb-3">
                             <label for="purchasePrice" class="form-label"><i class="fas fa-money-bill"></i> سعر الشراء</label>
-                            <input type="number" class="form-control" id="purchasePrice" step="0.01" min="0" required>
+                            <input type="number" class="form-control" id="purchasePrice" step="0.01" min="0" max="1000000" required>
                         </div>
                         <div class="mb-3">
                             <label for="salePrice" class="form-label"><i class="fas fa-money-bill"></i> سعر البيع</label>
-                            <input type="number" class="form-control" id="salePrice" step="0.01" min="0" required>
+                            <input type="number" class="form-control" id="salePrice" step="0.01" min="0" max="1000000" required>
                         </div>
                         <div class="mb-3">
                             <label for="quantity" class="form-label"><i class="fas fa-boxes"></i> الكمية</label>
-                            <input type="number" class="form-control" id="quantity" min="0" required>
+                            <input type="number" class="form-control" id="quantity" min="0" max="100000" required>
                         </div>
                     </form>
                 </div>
@@ -587,15 +588,15 @@
                         </div>
                         <div class="mb-3">
                             <label for="editPurchasePrice" class="form-label"><i class="fas fa-money-bill"></i> سعر الشراء</label>
-                            <input type="number" class="form-control" id="editPurchasePrice" step="0.01" min="0" required>
+                            <input type="number" class="form-control" id="editPurchasePrice" step="0.01" min="0" max="1000000" required>
                         </div>
                         <div class="mb-3">
                             <label for="editSalePrice" class="form-label"><i class="fas fa-money-bill"></i> سعر البيع</label>
-                            <input type="number" class="form-control" id="editSalePrice" step="0.01" min="0" required>
+                            <input type="number" class="form-control" id="editSalePrice" step="0.01" min="0" max="1000000" required>
                         </div>
                         <div class="mb-3">
                             <label for="editQuantity" class="form-label"><i class="fas fa-boxes"></i> الكمية</label>
-                            <input type="number" class="form-control" id="editQuantity" min="0" required>
+                            <input type="number" class="form-control" id="editQuantity" min="0" max="100000" required>
                         </div>
                     </form>
                 </div>
@@ -610,16 +611,28 @@
     <script>
         let db = null;
         let stream = null;
-        const successSound = new Audio('https://www.soundjay.com/buttons/beep-01a.mp3');
+        let productsCache = null; // التخزين المؤقت للمنتجات
 
-        // إعداد IndexedDB
+        // إنشاء صوت نجاح داخلي
+        function playSuccessSound() {
+            const context = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = context.createOscillator();
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(800, context.currentTime);
+            oscillator.connect(context.destination);
+            oscillator.start();
+            setTimeout(() => oscillator.stop(), 200);
+        }
+
+        // إعداد IndexedDB مع فهرسة
         function initDB() {
             return new Promise((resolve, reject) => {
                 const request = indexedDB.open('InventoryDB', 2);
                 request.onupgradeneeded = (event) => {
                     db = event.target.result;
                     if (!db.objectStoreNames.contains('products')) {
-                        db.createObjectStore('products', { keyPath: 'id' });
+                        const productStore = db.createObjectStore('products', { keyPath: 'id' });
+                        productStore.createIndex('name', 'name', { unique: false });
                     }
                     if (!db.objectStoreNames.contains('invoices')) {
                         db.createObjectStore('invoices', { keyPath: 'id' });
@@ -674,13 +687,36 @@
                 }
                 const transaction = db.transaction(['products'], 'readonly');
                 const store = transaction.objectStore('products');
+                const request = store.getAllKeys();
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        // جلب جميع المنتجات من IndexedDB مع التخزين المؤقت
+        async function getAllProducts() {
+            if (productsCache) {
+                return productsCache;
+            }
+            return new Promise((resolve, reject) => {
+                if (!db) {
+                    reject(new Error('قاعدة البيانات غير مهيأة'));
+                    return;
+                }
+                const transaction = db.transaction(['products'], 'readonly');
+                const store = transaction.objectStore('products');
                 const request = store.getAll();
                 request.onsuccess = () => {
-                    const ids = request.result.map(product => product.id);
-                    resolve(ids);
+                    productsCache = request.result;
+                    resolve(productsCache);
                 };
                 request.onerror = () => reject(request.error);
             });
+        }
+
+        // تحديث التخزين المؤقت
+        function invalidateCache() {
+            productsCache = null;
         }
 
         // تحديث لوحة المعلومات
@@ -703,21 +739,6 @@
                     confirmButtonColor: '#3F2A56'
                 });
             }
-        }
-
-        // جلب جميع المنتجات من IndexedDB
-        function getAllProducts() {
-            return new Promise((resolve, reject) => {
-                if (!db) {
-                    reject(new Error('قاعدة البيانات غير مهيأة'));
-                    return;
-                }
-                const transaction = db.transaction(['products'], 'readonly');
-                const store = transaction.objectStore('products');
-                const request = store.getAll();
-                request.onsuccess = () => resolve(request.result);
-                request.onerror = () => reject(request.error);
-            });
         }
 
         // تحديث جدول المنتجات
@@ -835,14 +856,24 @@
             try {
                 await ensureDBInitialized();
                 const name = document.getElementById('productName').value.trim();
-                const purchasePrice = document.getElementById('purchasePrice').value;
-                const salePrice = document.getElementById('salePrice').value;
-                const quantity = document.getElementById('quantity').value;
+                const purchasePrice = parseFloat(document.getElementById('purchasePrice').value);
+                const salePrice = parseFloat(document.getElementById('salePrice').value);
+                const quantity = parseInt(document.getElementById('quantity').value);
 
-                if (!name || !purchasePrice || !salePrice || !quantity) {
+                if (!name || isNaN(purchasePrice) || isNaN(salePrice) || isNaN(quantity)) {
                     Swal.fire({
                         title: 'خطأ في الإدخال',
                         text: 'الرجاء ملء جميع الحقول المطلوبة!',
+                        icon: 'error',
+                        confirmButtonColor: '#3F2A56'
+                    });
+                    return;
+                }
+
+                if (purchasePrice > 1000000 || salePrice > 1000000 || quantity > 100000) {
+                    Swal.fire({
+                        title: 'خطأ في الإدخال',
+                        text: 'القيم المدخلة كبيرة جدًا! الحد الأقصى للسعر 1,000,000 وللكمية 100,000.',
                         icon: 'error',
                         confirmButtonColor: '#3F2A56'
                     });
@@ -864,9 +895,9 @@
                 const product = {
                     id,
                     name,
-                    purchasePrice: parseFloat(purchasePrice).toFixed(2),
-                    salePrice: parseFloat(salePrice).toFixed(2),
-                    quantity: parseInt(quantity)
+                    purchasePrice: purchasePrice.toFixed(2),
+                    salePrice: salePrice.toFixed(2),
+                    quantity
                 };
 
                 const transaction = db.transaction(['products'], 'readwrite');
@@ -874,9 +905,11 @@
                 const request = store.add(product);
 
                 request.onsuccess = async () => {
+                    invalidateCache();
                     await updateProductsTable();
                     bootstrap.Modal.getInstance(document.getElementById('addProductModal')).hide();
                     document.getElementById('addProductForm').reset();
+                    playSuccessSound();
                     Swal.fire({
                         title: 'نجاح',
                         text: `تم إضافة المنتج "${name}" بنجاح!`,
@@ -952,14 +985,24 @@
                 await ensureDBInitialized();
                 const id = document.getElementById('editProductId').value;
                 const name = document.getElementById('editProductName').value.trim();
-                const purchasePrice = document.getElementById('editPurchasePrice').value;
-                const salePrice = document.getElementById('editSalePrice').value;
-                const quantity = document.getElementById('editQuantity').value;
+                const purchasePrice = parseFloat(document.getElementById('editPurchasePrice').value);
+                const salePrice = parseFloat(document.getElementById('editSalePrice').value);
+                const quantity = parseInt(document.getElementById('editQuantity').value);
 
-                if (!name || !purchasePrice || !salePrice || !quantity) {
+                if (!name || isNaN(purchasePrice) || isNaN(salePrice) || isNaN(quantity)) {
                     Swal.fire({
                         title: 'خطأ في الإدخال',
                         text: 'الرجاء ملء جميع الحقول المطلوبة!',
+                        icon: 'error',
+                        confirmButtonColor: '#3F2A56'
+                    });
+                    return;
+                }
+
+                if (purchasePrice > 1000000 || salePrice > 1000000 || quantity > 100000) {
+                    Swal.fire({
+                        title: 'خطأ في الإدخال',
+                        text: 'القيم المدخلة كبيرة جدًا! الحد الأقصى للسعر 1,000,000 وللكمية 100,000.',
                         icon: 'error',
                         confirmButtonColor: '#3F2A56'
                     });
@@ -981,17 +1024,19 @@
                 const product = {
                     id,
                     name,
-                    purchasePrice: parseFloat(purchasePrice).toFixed(2),
-                    salePrice: parseFloat(salePrice).toFixed(2),
-                    quantity: parseInt(quantity)
+                    purchasePrice: purchasePrice.toFixed(2),
+                    salePrice: salePrice.toFixed(2),
+                    quantity
                 };
                 const transaction = db.transaction(['products'], 'readwrite');
                 const store = transaction.objectStore('products');
                 const request = store.put(product);
 
                 request.onsuccess = async () => {
+                    invalidateCache();
                     await updateProductsTable();
                     bootstrap.Modal.getInstance(document.getElementById('editProductModal')).hide();
+                    playSuccessSound();
                     Swal.fire({
                         title: 'نجاح',
                         text: `تم تعديل المنتج "${name}" بنجاح!`,
@@ -1053,7 +1098,9 @@
                         const deleteRequest = deleteStore.delete(id);
 
                         deleteRequest.onsuccess = async () => {
+                            invalidateCache();
                             await updateProductsTable();
+                            playSuccessSound();
                             Swal.fire({
                                 title: 'نجاح',
                                 text: `تم حذف المنتج "${product.name}" بنجاح!`,
@@ -1102,6 +1149,7 @@
                 a.download = 'inventory_products.json';
                 a.click();
                 URL.revokeObjectURL(url);
+                playSuccessSound();
                 Swal.fire({
                     title: 'نجاح',
                     text: 'تم تصدير البيانات إلى ملف JSON بنجاح!',
@@ -1126,13 +1174,15 @@
                 const headers = ['معرف المنتج,اسم المنتج,سعر الشراء,سعر البيع,الكمية'];
                 const rows = products.map(p => `${p.id},${p.name},${p.purchasePrice},${p.salePrice},${p.quantity}`);
                 const csv = [headers, ...rows].join('\n');
-                const blob = new Blob([csv], { type: 'text/csv' });
+                const bom = '\uFEFF'; // إضافة BOM لدعم اللغة العربية في Excel
+                const blob = new Blob([bom + csv], { type: 'text/csv;charset=utf-8;' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
                 a.download = 'inventory_products.csv';
                 a.click();
                 URL.revokeObjectURL(url);
+                playSuccessSound();
                 Swal.fire({
                     title: 'نجاح',
                     text: 'تم تصدير البيانات إلى ملف CSV بنجاح!',
@@ -1170,9 +1220,9 @@
 
                     const invalidProducts = newProducts.filter(p =>
                         !p.id || !p.name || !p.purchasePrice || !p.salePrice || !p.quantity ||
-                        isNaN(parseFloat(p.purchasePrice)) || parseFloat(p.purchasePrice) < 0 ||
-                        isNaN(parseFloat(p.salePrice)) || parseFloat(p.salePrice) < 0 ||
-                        isNaN(parseInt(p.quantity)) || parseInt(p.quantity) < 0
+                        isNaN(parseFloat(p.purchasePrice)) || parseFloat(p.purchasePrice) < 0 || parseFloat(p.purchasePrice) > 1000000 ||
+                        isNaN(parseFloat(p.salePrice)) || parseFloat(p.salePrice) < 0 || parseFloat(p.salePrice) > 1000000 ||
+                        isNaN(parseInt(p.quantity)) || parseInt(p.quantity) < 0 || parseInt(p.quantity) > 100000
                     );
 
                     if (invalidProducts.length > 0) {
@@ -1222,8 +1272,9 @@
                     }
 
                     transaction.oncomplete = async () => {
+                        invalidateCache();
                         await updateProductsTable();
-                        successSound.play();
+                        playSuccessSound();
                         Swal.fire({
                             title: 'نجاح',
                             text: 'تم استيراد البيانات بنجاح!',
@@ -1320,6 +1371,7 @@
             a.href = dataURL;
             a.download = 'qrcode.png';
             a.click();
+            playSuccessSound();
             Swal.fire({
                 title: 'نجاح',
                 text: 'تم تصدير رمز QR كصورة بنجاح!',
@@ -1328,9 +1380,17 @@
             });
         }
 
+        // التحقق من دعم الكاميرا
+        function checkCameraSupport() {
+            return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+        }
+
         // بدء مسح رمز QR
         async function startQRScanner() {
             try {
+                if (!checkCameraSupport()) {
+                    throw new Error('الكاميرا غير مدعومة في هذا المتصفح أو الجهاز.');
+                }
                 await ensureDBInitialized();
                 Swal.fire({
                     title: 'مسح رمز QR',
@@ -1358,6 +1418,7 @@
 
                             const canvas = document.createElement('canvas');
                             const context = canvas.getContext('2d');
+                            let scanInterval = null;
 
                             function scan() {
                                 if (video.readyState === video.HAVE_ENOUGH_DATA) {
@@ -1371,6 +1432,7 @@
 
                                     if (code) {
                                         stopQRScanner();
+                                        clearInterval(scanInterval);
                                         Swal.close();
                                         try {
                                             const newProducts = JSON.parse(code.data);
@@ -1386,9 +1448,8 @@
                                         return;
                                     }
                                 }
-                                requestAnimationFrame(scan);
                             }
-                            requestAnimationFrame(scan);
+                            scanInterval = setInterval(scan, 100);
                         } catch (error) {
                             Swal.fire({
                                 title: 'خطأ',
@@ -1425,6 +1486,7 @@
             const scannerVideo = document.getElementById('scannerVideo');
             if (scannerVideo) {
                 scannerVideo.srcObject = null;
+                scannerVideo.pause();
             }
         }
 
@@ -1486,371 +1548,193 @@
         }
 
         // معالجة بيانات رمز QR
-        async function processQRData(newProducts) {
-            try {
-                await ensureDBInitialized();
-                const invalidProducts = newProducts.filter(p =>
-                    !p.id || !p.name || !p.purchasePrice || !p.salePrice || !p.quantity ||
-                    isNaN(parseFloat(p.purchasePrice)) || parseFloat(p.purchasePrice) < 0 ||
-                    isNaN(parseFloat(p.salePrice)) || parseFloat(p.salePrice) < 0 ||
-                    isNaN(parseInt(p.quantity)) || parseInt(p.quantity) < 0
-                );
+        // معالجة بيانات رمز QR (استكمال)
+async function processQRData(newProducts) {
+    try {
+        await ensureDBInitialized();
+        const invalidProducts = newProducts.filter(p =>
+            !p.id || !p.name || !p.purchasePrice || !p.salePrice || !p.quantity ||
+            isNaN(parseFloat(p.purchasePrice)) || parseFloat(p.purchasePrice) < 0 || parseFloat(p.purchasePrice) > 1000000 ||
+            isNaN(parseFloat(p.salePrice)) || parseFloat(p.salePrice) < 0 || parseFloat(p.salePrice) > 1000000 ||
+            isNaN(parseInt(p.quantity)) || parseInt(p.quantity) < 0 || parseInt(p.quantity) > 100000
+        );
 
-                if (invalidProducts.length > 0) {
-                    Swal.fire({
-                        title: 'خطأ في البيانات',
-                        text: 'تم العثور على منتجات غير صالحة.',
-                        icon: 'error',
-                        confirmButtonColor: '#3F2A56'
-                    });
-                    return;
-                }
+        if (invalidProducts.length > 0) {
+            Swal.fire({
+                title: 'خطأ في البيانات',
+                text: 'تم العثور على منتجات غير صالحة.',
+                icon: 'error',
+                confirmButtonColor: '#3F2A56'
+            });
+            return;
+        }
 
-                const existingIds = await getAllProductIds();
-                const duplicateIds = newProducts.filter(p => existingIds.includes(p.id));
-                if (duplicateIds.length > 0) {
-                    let warningMessage = 'تم العثور على معرفات مكررة:<br>';
-                    duplicateIds.forEach(p => warningMessage += `المعرف: ${p.id}<br>`);
-                    warningMessage += 'هل تريد المتابعة مع استبدال المنتجات المكررة؟';
+        const existingIds = await getAllProductIds();
+        const duplicateIds = newProducts.filter(p => existingIds.includes(p.id));
+        if (duplicateIds.length > 0) {
+            let warningMessage = 'تم العثور على معرفات مكررة:<br>';
+            duplicateIds.forEach(p => warningMessage += `المعرف: ${p.id}<br>`);
+            warningMessage += 'هل تريد المتابعة مع استبدال المنتجات المكررة؟';
 
-                    const result = await Swal.fire({
-                        title: 'تحذير: معرفات مكررة',
-                        html: warningMessage,
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonText: 'المتابعة واستبدال',
-                        cancelButtonText: 'إلغاء',
-                        confirmButtonColor: '#3F2A56',
-                        cancelButtonColor: '#dc3545',
-                        customClass: { popup: 'swal2-rtl' }
-                    });
+            const result = await Swal.fire({
+                title: 'تحذير: معرفات مكررة',
+                html: warningMessage,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'المتابعة واستبدال',
+                cancelButtonText: 'إلغاء',
+                confirmButtonColor: '#3F2A56',
+                cancelButtonColor: '#dc3545',
+                customClass: { popup: 'swal2-rtl' }
+            });
 
-                    if (!result.isConfirmed) {
-                        Swal.fire({
-                            title: 'تم الإلغاء',
-                            text: 'لم يتم استيراد البيانات بسبب التكرارات.',
-                            icon: 'info',
-                            confirmButtonColor: '#3F2A56'
-                        });
-                        return;
-                    }
-                }
-
-                const transaction = db.transaction(['products'], 'readwrite');
-                const store = transaction.objectStore('products');
-                for (const product of newProducts) {
-                    store.put(product);
-                }
-
-                transaction.oncomplete = async () => {
-                    await updateProductsTable();
-                    successSound.play();
-                    Swal.fire({
-                        title: 'نجاح',
-                        text: 'تم استيراد البيانات من رمز QR بنجاح!',
-                        icon: 'success',
-                        confirmButtonColor: '#3F2A56'
-                    });
-                };
-                transaction.onerror = () => {
-                    Swal.fire({
-                        title: 'خطأ',
-                        text: 'فشل في استيراد البيانات!',
-                        icon: 'error',
-                        confirmButtonColor: '#3F2A56'
-                    });
-                };
-            } catch (error) {
+            if (!result.isConfirmed) {
                 Swal.fire({
-                    title: 'خطأ',
-                    text: 'فشل في معالجة بيانات رمز QR: ' + error.message,
-                    icon: 'error',
+                    title: 'تم الإلغاء',
+                    text: 'لم يتم استيراد البيانات بسبب التكرارات.',
+                    icon: 'info',
                     confirmButtonColor: '#3F2A56'
                 });
+                return;
             }
         }
 
-        // طباعة الجدول
-        async function printTable() {
-            try {
-                await ensureDBInitialized();
-                const itemsPerPage = 20;
-                const searchInput = document.getElementById('searchInput').value.toLowerCase();
-                const stockFilter = document.getElementById('stockFilter').value;
+        const transaction = db.transaction(['products'], 'readwrite');
+        const store = transaction.objectStore('products');
+        for (const product of newProducts) {
+            store.put(product); // استخدام put لاستبدال المنتجات الموجودة أو إضافة جديدة
+        }
 
-                let filteredProducts = await getAllProducts();
-                filteredProducts = filteredProducts.filter(product => {
-                    const matchesSearch = product.name.toLowerCase().includes(searchInput) || product.id.includes(searchInput);
-                    if (!matchesSearch) return false;
-                    const quantity = parseInt(product.quantity);
-                    if (stockFilter === 'all') return true;
-                    if (stockFilter === 'empty') return quantity === 0;
-                    if (stockFilter === 'low') return quantity > 0 && quantity < 2;
-                    return true;
-                });
+        transaction.oncomplete = async () => {
+            invalidateCache();
+            await updateProductsTable();
+            playSuccessSound();
+            Swal.fire({
+                title: 'نجاح',
+                text: 'تم استيراد بيانات رمز QR بنجاح!',
+                icon: 'success',
+                confirmButtonColor: '#3F2A56'
+            });
+        };
+        transaction.onerror = () => {
+            Swal.fire({
+                title: 'خطأ',
+                text: 'فشل في استيراد بيانات رمز QR!',
+                icon: 'error',
+                confirmButtonColor: '#3F2A56'
+            });
+        };
+    } catch (error) {
+        Swal.fire({
+            title: 'خطأ',
+            text: 'فشل في معالجة بيانات رمز QR: ' + error.message,
+            icon: 'error',
+            confirmButtonColor: '#3F2A56'
+        });
+    }
+}
+// طباعة الجدول
+async function printTable() {
+    try {
+        await ensureDBInitialized();
+        const products = await getAllProducts();
+        if (products.length === 0) {
+            Swal.fire({
+                title: 'لا توجد بيانات',
+                text: 'لا توجد منتجات للطباعة!',
+                icon: 'info',
+                confirmButtonColor: '#3F2A56'
+            });
+            return;
+        }
 
-                const totalPurchasePrice = filteredProducts.reduce((sum, p) => sum + (parseFloat(p.purchasePrice) * parseInt(p.quantity)), 0);
-                const totalSalePrice = filteredProducts.reduce((sum, p) => sum + (parseFloat(p.salePrice) * parseInt(p.quantity)), 0);
-                const totalProducts = filteredProducts.length;
+        const printWindow = window.open('', '_blank');
+        if (!printWindow) {
+            throw new Error('فشل في فتح نافذة الطباعة. الرجاء التحقق من إعدادات المتصفح.');
+        }
 
-                const pages = Math.ceil(filteredProducts.length / itemsPerPage);
-                const printWindow = window.open('', '_blank', 'height=700,width=1000');
-                if (!printWindow) {
-                    throw new Error('فشل في فتح نافذة الطباعة. تحقق من إعدادات المتصفح.');
-                }
-
-                const printDate = new Date().toLocaleString('en-US', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric'
-                }).replace(/(\d+)\/(\d+)\/(\d+)/, '$1/$2/$3');
-
-                printWindow.document.write(`
-                    <html>
-                    <head>
-                        <title>إدارة المنتجات</title>
-                        <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
-                        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-                        <style>
-                            @page { 
-                                size: A4; 
-                                margin: 10mm; 
-                            }
-                            body { 
-                                font-family: 'Cairo', sans-serif; 
-                                direction: rtl; 
-                                margin: 10mm; 
-                                background: #fff; 
-                                color: #000; 
-                            }
-                            .container { 
-                                max-width: 1000px; 
-                                margin: 0 auto; 
-                            }
-                            .header { 
-                                display: flex; 
-                                justify-content: space-between; 
-                                align-items: center; 
-                                margin-bottom: 20px; 
-                                padding-bottom: 10px; 
-                                border-bottom: 1px solid #000; 
-                            }
-                            .header img { 
-                                height: 70px; 
-                                clip-path: polygon(10% 0%, 100% 0%, 90% 100%, 0% 100%); 
-                                margin-right: 10px; 
-                            }
-                            .header h1 { 
-                                font-size: 1.6rem; 
-                                font-weight: 700; 
-                                margin: 0; 
-                                text-align: center; 
-                                flex-grow: 1; 
-                                color: #3F2A56; 
-                            }
-                            .dashboard-container { 
-                                display: flex; 
-                                justify-content: space-between; 
-                                gap: 20px; 
-                                margin-bottom: 20px; 
-                            }
-                            .dashboard-section { 
-                                flex: 1; 
-                                border: 1px solid #000; 
-                                padding: 15px; 
-                                border-radius: 5px; 
-                                background: #fff; 
-                                text-align: center; 
-                            }
-                            .dashboard-section h4 { 
-                                font-size: 1.2rem; 
-                                font-weight: 700; 
-                                margin: 0 0 10px; 
-                                border-bottom: 1px solid #000; 
-                                padding-bottom: 5px; 
-                                color: #3F2A56; 
-                            }
-                            .dashboard-section p { 
-                                margin: 5px 0; 
-                                font-size: 1rem; 
-                                line-height: 1.5; 
-                                font-weight: 600; 
-                            }
-                            h2 { 
-                                text-align: center; 
-                                font-size: 1.7rem; 
-                                font-weight: 700; 
-                                margin: 20px 0; 
-                                border-bottom: 1px solid #000; 
-                                padding-bottom: 5px; 
-                                color: #3F2A56; 
-                            }
-                            .products-count { 
-                                text-align: center; 
-                                font-size: 1.1rem; 
-                                font-weight: 600; 
-                                margin-bottom: 10px; 
-                                color: #5a3f73; 
-                            }
-                            .print-date { 
-                                text-align: center; 
-                                font-size: 1.1rem; 
-                                font-weight: 600; 
-                                margin-bottom: 20px; 
-                                color: #3F2A56; 
-                            }
-                            table { 
-                                width: 100%; 
-                                border-collapse: collapse; 
-                                margin: 20px 0; 
-                                border: 1px solid #000; 
-                            }
-                            th, td { 
-                                padding: 12px; 
-                                text-align: center; 
-                                border: 1px solid #000; 
-                                font-size: 1rem; 
-                            }
-                            th { 
-                                background: linear-gradient(90deg, #3F2A56, #5a3f73); 
-                                color: white; 
-                                font-weight: 700; 
-                            }
-                            td { 
-                                background: #fff; 
-                                color: #000; 
-                            }
-                            .low-stock { 
-                                color: #dc3545; 
-                                font-weight: 700; 
-                            }
-                            .page-break { 
-                                page-break-before: always; 
-                            }
-                            .page-number { 
-                                text-align: center; 
-                                font-size: 1rem; 
-                                margin-top: 10px; 
-                                color: #3F2A56; 
-                            }
-                            .footer { 
-                                text-align: center; 
-                                font-size: 1rem; 
-                                font-weight: 600; 
-                                margin-top: 20px; 
-                                color: #3F2A56; 
-                            }
-                        </style>
-                    </head>
-                    <body>
-                        <div class="container">
-                            <div class="header">
-                                <img src="logo.png" alt="شعار طيبة المدينة تلكوم">
-                                <h1>طيبة المدينة تلكوم - تقرير المنتجات</h1>
-                            </div>
-                            <div class="print-date">تاريخ الطباعة: ${printDate}</div>
-                            <div class="dashboard-container">
-                                <div class="dashboard-section">
-                                    <h4>إجمالي سعر الشراء</h4>
-                                    <p>${totalPurchasePrice.toFixed(2)}</p>
-                                </div>
-                                <div class="dashboard-section">
-                                    <h4>إجمالي سعر البيع</h4>
-                                    <p>${totalSalePrice.toFixed(2)}</p>
-                                </div>
-                                <div class="dashboard-section">
-                                    <h4>عدد المنتجات</h4>
-                                    <p>${totalProducts}</p>
-                                </div>
-                            </div>
-                            <h2>قائمة المنتجات</h2>
-                            <div class="products-count">عدد المنتجات: ${totalProducts}</div>
-                `);
-
-                for (let page = 0; page < pages; page++) {
-                    if (page > 0) {
-                        printWindow.document.write('<div class="page-break"></div>');
+        printWindow.document.write(`
+            <!DOCTYPE html>
+            <html lang="ar" dir="rtl">
+            <head>
+                <meta charset="UTF-8">
+                <title>طباعة تقرير المنتجات</title>
+                <style>
+                    body { font-family: 'Cairo', sans-serif; margin: 20px; }
+                    h1 { text-align: center; color: #3F2A56; }
+                    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                    th, td { border: 1px solid #ddd; padding: 12px; text-align: center; }
+                    th { background: linear-gradient(90deg, #3F2A56, #5a3f73); color: white; }
+                    .low-stock { color: #dc3545; font-weight: bold; }
+                    @media print {
+                        button { display: none; }
                     }
-                    printWindow.document.write(`
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>معرف المنتج</th>
-                                    <th>اسم المنتج</th>
-                                    <th>سعر الشراء</th>
-                                    <th>سعر البيع</th>
-                                    <th>الكمية</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                    `);
-
-                    const start = page * itemsPerPage;
-                    const end = Math.min(start + itemsPerPage, filteredProducts.length);
-                    for (let i = start; i < end; i++) {
-                        const product = filteredProducts[i];
-                        const quantity = parseInt(product.quantity);
-                        const quantityClass = quantity < 2 ? 'low-stock' : '';
-                        printWindow.document.write(`
+                </style>
+            </head>
+            <body>
+                <h1>تقرير المنتجات - طيبة المدينة تلكوم</h1>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>معرف المنتج</th>
+                            <th>اسم المنتج</th>
+                            <th>سعر الشراء</th>
+                            <th>سعر البيع</th>
+                            <th>الكمية</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${products.map((product, index) => `
                             <tr>
-                                <td>${i + 1}</td>
+                                <td>${index + 1}</td>
                                 <td>${product.id}</td>
                                 <td>${product.name}</td>
                                 <td>${parseFloat(product.purchasePrice).toFixed(2)}</td>
                                 <td>${parseFloat(product.salePrice).toFixed(2)}</td>
-                                <td class="${quantityClass}">${quantity}</td>
+                                <td class="${parseInt(product.quantity) < 2 ? 'low-stock' : ''}">${parseInt(product.quantity)}</td>
                             </tr>
-                        `);
-                    }
+                        `).join('')}
+                    </tbody>
+                </table>
+                <button onclick="window.print()">طباعة</button>
+            </body>
+            </html>
+        `);
 
-                    printWindow.document.write(`
-                            </tbody>
-                        </table>
-                        <div class="page-number">الصفحة ${page + 1} من ${pages}</div>
-                    `);
-                }
+        printWindow.document.close();
+        printWindow.focus();
 
-                printWindow.document.write(`
-                            <div class="footer">تم إنشاء هذا التقرير بواسطة نظام إدارة المخزون - طيبة المدينة تلكوم</div>
-                        </div>
-                    </body>
-                    </html>
-                `);
+        // إضافة معالج لإغلاق النافذة بعد الطباعة
+        printWindow.addEventListener('afterprint', () => {
+            printWindow.close();
+        });
 
-                printWindow.document.close();
-                printWindow.focus();
-                printWindow.print();
-                setTimeout(() => printWindow.close(), 1000);
-            } catch (error) {
-                Swal.fire({
-                    title: 'خطأ',
-                    text: 'فشل في طباعة الجدول: ' + error.message,
-                    icon: 'error',
-                    confirmButtonColor: '#3F2A56'
-                });
-            }
-        }
-
-        // تهيئة الصفحة
-        window.onload = async () => {
-            try {
-                await ensureDBInitialized();
-                await updateProductsTable();
-            } catch (error) {
-                Swal.fire({
-                    title: 'خطأ',
-                    text: 'فشل في تهيئة الصفحة: ' + error.message,
-                    icon: 'error',
-                    confirmButtonColor: '#3F2A56'
-                });
-            }
-        };
-
-        // إيقاف الكاميرا عند إغلاق النافذة
-        window.onbeforeunload = () => {
-            stopQRScanner();
-        };
-    </script>
+        playSuccessSound();
+    } catch (error) {
+        Swal.fire({
+            title: 'خطأ',
+            text: 'فشل في إعداد الطباعة: ' + error.message,
+            icon: 'error',
+            confirmButtonColor: '#3F2A56'
+        });
+    }
+}
+// تهيئة الصفحة عند التحميل
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        await initDB();
+        await updateProductsTable();
+        await updateDashboard();
+    } catch (error) {
+        Swal.fire({
+            title: 'خطأ في التهيئة',
+            text: 'فشل في تهيئة الصفحة: ' + error.message,
+            icon: 'error',
+            confirmButtonColor: '#3F2A56'
+        });
+    }
+});
+</script>
 </body>
 </html>
