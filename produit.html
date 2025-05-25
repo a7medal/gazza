@@ -486,7 +486,21 @@
                 <h3 id="totalProducts">0</h3>
             </div>
         </div>
-        <div class="products-section">
+      
+        <div class="actions">
+            <button class="btn" data-bs-toggle="modal" data-bs-target="#addProductModal"><i class="fas fa-plus"></i> إضافة منتج</button>
+            <button class="btn" onclick="exportToJSON()"><i class="fas fa-file-code"></i> تصدير إلى JSON</button>
+            <button class="btn" onclick="exportToCSV()"><i class="fas fa-file-csv"></i> تصدير إلى CSV</button>
+            <input type="file" id="importFile" accept=".json,.csv" style="display: none;" onchange="importFile(event)">
+            <button class="btn" onclick="document.getElementById('importFile').click()"><i class="fas fa-file-import"></i> استيراد ملف</button>
+            <button class="btn" onclick="generateQRCode()"><i class="fas fa-qrcode"></i> إنشاء QR Code</button>
+            <button class="btn" onclick="startQRScanner()"><i class="fas fa-camera"></i> استقبال QR Code</button>
+            <button class="btn" onclick="printTable()"><i class="fas fa-print"></i> طباعة</button>
+        </div>
+        <canvas id="qrCanvas" style="display: none;"></canvas>
+        <input type="file" id="qrImageInput" accept="image/*" style="display: none;" onchange="importQRFromImage(event)">
+    </div>
+  <div class="products-section">
             <h3>المنتجات الموجودة</h3>
             <div class="search-container">
                 <div class="filter-group">
@@ -519,20 +533,6 @@
                 </table>
             </div>
         </div>
-        <div class="actions">
-            <button class="btn" data-bs-toggle="modal" data-bs-target="#addProductModal"><i class="fas fa-plus"></i> إضافة منتج</button>
-            <button class="btn" onclick="exportToJSON()"><i class="fas fa-file-code"></i> تصدير إلى JSON</button>
-            <button class="btn" onclick="exportToCSV()"><i class="fas fa-file-csv"></i> تصدير إلى CSV</button>
-            <input type="file" id="importFile" accept=".json,.csv" style="display: none;" onchange="importFile(event)">
-            <button class="btn" onclick="document.getElementById('importFile').click()"><i class="fas fa-file-import"></i> استيراد ملف</button>
-            <button class="btn" onclick="generateQRCode()"><i class="fas fa-qrcode"></i> إنشاء QR Code</button>
-            <button class="btn" onclick="startQRScanner()"><i class="fas fa-camera"></i> استقبال QR Code</button>
-            <button class="btn" onclick="printTable()"><i class="fas fa-print"></i> طباعة</button>
-        </div>
-        <canvas id="qrCanvas" style="display: none;"></canvas>
-        <input type="file" id="qrImageInput" accept="image/*" style="display: none;" onchange="importQRFromImage(event)">
-    </div>
-
     <!-- نافذة إضافة منتج -->
     <div class="modal fade" id="addProductModal" tabindex="-1" aria-labelledby="addProductModalLabel" aria-hidden="true">
         <div class="modal-dialog">
