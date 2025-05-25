@@ -466,7 +466,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <img src="logo.png" alt="شعار طيبة المدينة تلكوم" onerror="this.src='https://via.placeholder.com/90?text=Logo'">
+            <img src="logo.png" alt="شعار طيبة المدينة تلكوم" onerror="this.src='https://via.placeholder.com/90?text=Logo'; this.style.clipPath='none';">
             <h2>طيبة المدينة تلكوم</h2>
             <h4>إدارة المنتجات</h4>
             <a href="home.html" class="home-btn"><i class="fas fa-home"></i> للرئيسية</a>
@@ -475,12 +475,12 @@
             <div class="card">
                 <i class="fas fa-dollar-sign"></i>
                 <h5>إجمالي سعر الشراء</h5>
-                <h3 id="totalPurchasePrice">0</h3>
+                <h3 id="totalPurchasePrice">0.00</h3>
             </div>
             <div class="card">
                 <i class="fas fa-dollar-sign"></i>
                 <h5>إجمالي سعر البيع</h5>
-                <h3 id="totalSalePrice">0</h3>
+                <h3 id="totalSalePrice">0.00</h3>
             </div>
             <div class="card">
                 <i class="fas fa-boxes"></i>
@@ -510,7 +510,7 @@
                     <select id="stockFilter" onchange="filterTable()">
                         <option value="all">الكل</option>
                         <option value="empty">فارغة</option>
-                        <option value="low">على وشك النفاذ</option>
+                        <option value="low">على وشك النفاذ (أقل من 2)</option>
                     </select>
                 </div>
             </div>
@@ -550,15 +550,15 @@
                             <input type="text" class="form-control" id="productName" required>
                         </div>
                         <div class="mb-3">
-                            <label for="purchasePrice" class="form-label"><i class="fas fa-money-bill"></i> سعر الشراء</label>
+                            <label for="purchasePrice" class="form-label"><i class="fas fa-money-bill-wave"></i> سعر الشراء</label>
                             <input type="number" class="form-control" id="purchasePrice" step="0.01" min="0" max="1000000" required>
                         </div>
                         <div class="mb-3">
-                            <label for="salePrice" class="form-label"><i class="fas fa-money-bill"></i> سعر البيع</label>
+                            <label for="salePrice" class="form-label"><i class="fas fa-dollar-sign"></i> سعر البيع</label>
                             <input type="number" class="form-control" id="salePrice" step="0.01" min="0" max="1000000" required>
                         </div>
                         <div class="mb-3">
-                            <label for="quantity" class="form-label"><i class="fas fa-boxes"></i> الكمية</label>
+                            <label for="quantity" class="form-label"><i class="fas fa-boxes-stacked"></i> الكمية</label>
                             <input type="number" class="form-control" id="quantity" min="0" max="100000" required>
                         </div>
                     </form>
@@ -587,22 +587,22 @@
                             <input type="text" class="form-control" id="editProductName" required>
                         </div>
                         <div class="mb-3">
-                            <label for="editPurchasePrice" class="form-label"><i class="fas fa-money-bill"></i> سعر الشراء</label>
+                            <label for="editPurchasePrice" class="form-label"><i class="fas fa-money-bill-wave"></i> سعر الشراء</label>
                             <input type="number" class="form-control" id="editPurchasePrice" step="0.01" min="0" max="1000000" required>
                         </div>
                         <div class="mb-3">
-                            <label for="editSalePrice" class="form-label"><i class="fas fa-money-bill"></i> سعر البيع</label>
+                            <label for="editSalePrice" class="form-label"><i class="fas fa-dollar-sign"></i> سعر البيع</label>
                             <input type="number" class="form-control" id="editSalePrice" step="0.01" min="0" max="1000000" required>
                         </div>
                         <div class="mb-3">
-                            <label for="editQuantity" class="form-label"><i class="fas fa-boxes"></i> الكمية</label>
+                            <label for="editQuantity" class="form-label"><i class="fas fa-boxes-stacked"></i> الكمية</label>
                             <input type="number" class="form-control" id="editQuantity" min="0" max="100000" required>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
-                    <button type="button" class="btn" onclick="updateProduct()">حفظ</button>
+                    <button type="button" class="btn" onclick="updateProduct()">حفظ التعديلات</button>
                 </div>
             </div>
         </div>
@@ -615,37 +615,40 @@
 
         // إنشاء صوت نجاح داخلي
         function playSuccessSound() {
-            const context = new (window.AudioContext || window.webkitAudioContext)();
-            const oscillator = context.createOscillator();
-            oscillator.type = 'sine';
-            oscillator.frequency.setValueAtTime(800, context.currentTime);
-            oscillator.connect(context.destination);
-            oscillator.start();
-            setTimeout(() => oscillator.stop(), 200);
+            try {
+                const context = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = context.createOscillator();
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(800, context.currentTime);
+                oscillator.connect(context.destination);
+                oscillator.start();
+                setTimeout(() => oscillator.stop(), 200);
+            } catch (e) {
+                console.warn("فشل تشغيل صوت النجاح:", e);
+            }
         }
 
         // إعداد IndexedDB مع فهرسة
         function initDB() {
             return new Promise((resolve, reject) => {
-                const request = indexedDB.open('InventoryDB', 2);
+                const request = indexedDB.open('InventoryDB', 2); // Version 2 for potential schema changes
                 request.onupgradeneeded = (event) => {
                     db = event.target.result;
                     if (!db.objectStoreNames.contains('products')) {
                         const productStore = db.createObjectStore('products', { keyPath: 'id' });
-                        productStore.createIndex('name', 'name', { unique: false });
+                        productStore.createIndex('name', 'name', { unique: false }); // Name index can be useful
                     }
-                    if (!db.objectStoreNames.contains('invoices')) {
-                        db.createObjectStore('invoices', { keyPath: 'id' });
-                    }
-                    if (!db.objectStoreNames.contains('customers')) {
-                        db.createObjectStore('customers', { keyPath: 'id' });
-                    }
+                    // Example for future stores:
+                    // if (!db.objectStoreNames.contains('invoices')) {
+                    //     db.createObjectStore('invoices', { keyPath: 'id', autoIncrement: true });
+                    // }
                 };
                 request.onsuccess = (event) => {
                     db = event.target.result;
                     resolve(db);
                 };
                 request.onerror = (event) => {
+                    console.error("خطأ في تهيئة قاعدة البيانات:", event.target.error);
                     reject(event.target.error);
                 };
             });
@@ -657,11 +660,12 @@
                 try {
                     await initDB();
                 } catch (error) {
+                    console.error('فشل في تهيئة قاعدة البيانات:', error);
                     throw new Error('فشل في تهيئة قاعدة البيانات: ' + error.message);
                 }
             }
-            if (!db) {
-                throw new Error('قاعدة البيانات غير جاهزة بعد التهيئة');
+            if (!db) { // Double check
+                throw new Error('قاعدة البيانات غير جاهزة بعد محاولة التهيئة.');
             }
         }
 
@@ -680,16 +684,20 @@
 
         // جلب جميع معرفات المنتجات
         function getAllProductIds() {
-            return new Promise((resolve, reject) => {
-                if (!db) {
-                    reject(new Error('قاعدة البيانات غير مهيأة'));
-                    return;
+            return new Promise(async (resolve, reject) => {
+                try {
+                    await ensureDBInitialized();
+                    const transaction = db.transaction(['products'], 'readonly');
+                    const store = transaction.objectStore('products');
+                    const request = store.getAllKeys();
+                    request.onsuccess = () => resolve(request.result);
+                    request.onerror = (event) => {
+                        console.error("خطأ في جلب معرفات المنتجات:", event.target.error);
+                        reject(event.target.error);
+                    };
+                } catch (error) {
+                    reject(error);
                 }
-                const transaction = db.transaction(['products'], 'readonly');
-                const store = transaction.objectStore('products');
-                const request = store.getAllKeys();
-                request.onsuccess = () => resolve(request.result);
-                request.onerror = () => reject(request.error);
             });
         }
 
@@ -698,19 +706,23 @@
             if (productsCache) {
                 return productsCache;
             }
-            return new Promise((resolve, reject) => {
-                if (!db) {
-                    reject(new Error('قاعدة البيانات غير مهيأة'));
-                    return;
+            return new Promise(async (resolve, reject) => {
+                try {
+                    await ensureDBInitialized();
+                    const transaction = db.transaction(['products'], 'readonly');
+                    const store = transaction.objectStore('products');
+                    const request = store.getAll();
+                    request.onsuccess = () => {
+                        productsCache = request.result;
+                        resolve(productsCache);
+                    };
+                    request.onerror = (event) => {
+                        console.error("خطأ في جلب جميع المنتجات:", event.target.error);
+                        reject(event.target.error);
+                    };
+                } catch (error) {
+                    reject(error);
                 }
-                const transaction = db.transaction(['products'], 'readonly');
-                const store = transaction.objectStore('products');
-                const request = store.getAll();
-                request.onsuccess = () => {
-                    productsCache = request.result;
-                    resolve(productsCache);
-                };
-                request.onerror = () => reject(request.error);
             });
         }
 
@@ -732,6 +744,7 @@
                 document.getElementById('totalSalePrice').innerText = totalSalePrice.toFixed(2);
                 document.getElementById('totalProducts').innerText = totalProducts;
             } catch (error) {
+                console.error("خطأ في تحديث لوحة المعلومات:", error);
                 Swal.fire({
                     title: 'خطأ',
                     text: 'فشل في تحديث لوحة المعلومات: ' + error.message,
@@ -747,7 +760,7 @@
                 await ensureDBInitialized();
                 const products = await getAllProducts();
                 const tableBody = document.getElementById('productsTable');
-                tableBody.innerHTML = '';
+                tableBody.innerHTML = ''; // Clear existing rows
 
                 products.forEach((product, index) => {
                     const quantity = parseInt(product.quantity);
@@ -761,16 +774,17 @@
                         <td>${parseFloat(product.salePrice).toFixed(2)}</td>
                         <td class="${quantityClass}">${quantity}</td>
                         <td>
-                            <i class="fas fa-edit action-btn edit" onclick="editProduct('${product.id}');event.stopPropagation();"></i>
-                            <i class="fas fa-trash action-btn delete" onclick="deleteProduct('${product.id}');event.stopPropagation();"></i>
+                            <i class="fas fa-edit action-btn edit" onclick="editProduct('${product.id}');event.stopPropagation();" title="تعديل"></i>
+                            <i class="fas fa-trash action-btn delete" onclick="deleteProduct('${product.id}');event.stopPropagation();" title="حذف"></i>
                         </td>
                     `;
                     row.addEventListener('click', () => showProductDetails(product));
                     tableBody.appendChild(row);
                 });
-
-                filterTable();
+                filterTable(); // Apply filters after updating
+                updateDashboard(); // Update dashboard as well
             } catch (error) {
+                console.error("خطأ في تحديث جدول المنتجات:", error);
                 Swal.fire({
                     title: 'خطأ',
                     text: 'فشل في تحديث جدول المنتجات: ' + error.message,
@@ -786,11 +800,11 @@
                 title: 'تفاصيل المنتج',
                 html: `
                     <div style="text-align: right; font-family: 'Cairo', sans-serif; color: #3F2A56;">
-                        <p><strong>معرف المنتج:</strong> ${product.id}</p>
-                        <p><strong>اسم المنتج:</strong> ${product.name}</p>
-                        <p><strong>سعر الشراء:</strong> ${parseFloat(product.purchasePrice).toFixed(2)}</p>
-                        <p><strong>سعر البيع:</strong> ${parseFloat(product.salePrice).toFixed(2)}</p>
-                        <p><strong>الكمية:</strong> ${parseInt(product.quantity)}</p>
+                        <p><strong><i class="fas fa-barcode"></i> معرف المنتج:</strong> ${product.id}</p>
+                        <p><strong><i class="fas fa-box"></i> اسم المنتج:</strong> ${product.name}</p>
+                        <p><strong><i class="fas fa-money-bill-wave"></i> سعر الشراء:</strong> ${parseFloat(product.purchasePrice).toFixed(2)}</p>
+                        <p><strong><i class="fas fa-dollar-sign"></i> سعر البيع:</strong> ${parseFloat(product.salePrice).toFixed(2)}</p>
+                        <p><strong><i class="fas fa-boxes-stacked"></i> الكمية:</strong> ${parseInt(product.quantity)}</p>
                     </div>
                 `,
                 icon: 'info',
@@ -807,41 +821,36 @@
                 const searchInput = document.getElementById('searchInput').value.toLowerCase();
                 const stockFilter = document.getElementById('stockFilter').value;
                 const tableBody = document.getElementById('productsTable');
-                tableBody.innerHTML = '';
+                const rows = tableBody.getElementsByTagName('tr');
 
-                let products = await getAllProducts();
-                products = products.filter(product => {
-                    const matchesSearch = product.name.toLowerCase().includes(searchInput) || product.id.includes(searchInput);
-                    if (!matchesSearch) return false;
-                    const quantity = parseInt(product.quantity);
-                    if (stockFilter === 'all') return true;
-                    if (stockFilter === 'empty') return quantity === 0;
-                    if (stockFilter === 'low') return quantity > 0 && quantity < 2;
-                    return true;
-                });
+                let displayedIndex = 1;
+                for (let i = 0; i < rows.length; i++) {
+                    const cells = rows[i].getElementsByTagName('td');
+                    const productId = cells[1].textContent.toLowerCase();
+                    const productName = cells[2].textContent.toLowerCase();
+                    const quantity = parseInt(cells[5].textContent);
 
-                products.forEach((product, index) => {
-                    const quantity = parseInt(product.quantity);
-                    const quantityClass = quantity < 2 ? 'low-stock' : '';
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${index + 1}</td>
-                        <td>${product.id}</td>
-                        <td>${product.name}</td>
-                        <td>${parseFloat(product.purchasePrice).toFixed(2)}</td>
-                        <td>${parseFloat(product.salePrice).toFixed(2)}</td>
-                        <td class="${quantityClass}">${quantity}</td>
-                        <td>
-                            <i class="fas fa-edit action-btn edit" onclick="editProduct('${product.id}');event.stopPropagation();"></i>
-                            <i class="fas fa-trash action-btn delete" onclick="deleteProduct('${product.id}');event.stopPropagation();"></i>
-                        </td>
-                    `;
-                    row.addEventListener('click', () => showProductDetails(product));
-                    tableBody.appendChild(row);
-                });
+                    const matchesSearch = productName.includes(searchInput) || productId.includes(searchInput);
+                    
+                    let matchesStockFilter = false;
+                    if (stockFilter === 'all') {
+                        matchesStockFilter = true;
+                    } else if (stockFilter === 'empty') {
+                        matchesStockFilter = quantity === 0;
+                    } else if (stockFilter === 'low') {
+                        matchesStockFilter = quantity > 0 && quantity < 2;
+                    }
 
-                updateDashboard();
+                    if (matchesSearch && matchesStockFilter) {
+                        rows[i].style.display = '';
+                        cells[0].textContent = displayedIndex++; // Update sequential number
+                    } else {
+                        rows[i].style.display = 'none';
+                    }
+                }
+                // No need to call updateDashboard here as it's called by updateProductsTable
             } catch (error) {
+                console.error("خطأ في تصفية الجدول:", error);
                 Swal.fire({
                     title: 'خطأ',
                     text: 'فشل في تصفية الجدول: ' + error.message,
@@ -861,44 +870,26 @@
                 const quantity = parseInt(document.getElementById('quantity').value);
 
                 if (!name || isNaN(purchasePrice) || isNaN(salePrice) || isNaN(quantity)) {
-                    Swal.fire({
-                        title: 'خطأ في الإدخال',
-                        text: 'الرجاء ملء جميع الحقول المطلوبة!',
-                        icon: 'error',
-                        confirmButtonColor: '#3F2A56'
-                    });
+                    Swal.fire({ title: 'خطأ في الإدخال', text: 'الرجاء ملء جميع الحقول المطلوبة بشكل صحيح!', icon: 'error', confirmButtonColor: '#3F2A56' });
                     return;
                 }
-
-                if (purchasePrice > 1000000 || salePrice > 1000000 || quantity > 100000) {
-                    Swal.fire({
-                        title: 'خطأ في الإدخال',
-                        text: 'القيم المدخلة كبيرة جدًا! الحد الأقصى للسعر 1,000,000 وللكمية 100,000.',
-                        icon: 'error',
-                        confirmButtonColor: '#3F2A56'
-                    });
+                if (purchasePrice < 0 || salePrice < 0 || quantity < 0) {
+                    Swal.fire({ title: 'خطأ في الإدخال', text: 'القيم العددية لا يمكن أن تكون سالبة.', icon: 'error', confirmButtonColor: '#3F2A56' });
+                    return;
+                }
+                 if (purchasePrice > 1000000 || salePrice > 1000000 || quantity > 100000) {
+                    Swal.fire({ title: 'خطأ في الإدخال', text: 'القيم المدخلة كبيرة جدًا! الحد الأقصى للسعر 1,000,000 وللكمية 100,000.', icon: 'error', confirmButtonColor: '#3F2A56'});
                     return;
                 }
 
                 const products = await getAllProducts();
-                if (products.some(p => p.name === name)) {
-                    Swal.fire({
-                        title: 'خطأ في الإدخال',
-                        text: 'اسم المنتج موجود مسبقًا! الرجاء اختيار اسم آخر.',
-                        icon: 'error',
-                        confirmButtonColor: '#3F2A56'
-                    });
+                if (products.some(p => p.name.toLowerCase() === name.toLowerCase())) {
+                    Swal.fire({ title: 'خطأ في الإدخال', text: 'اسم المنتج موجود مسبقًا! الرجاء اختيار اسم آخر.', icon: 'error', confirmButtonColor: '#3F2A56' });
                     return;
                 }
 
                 const id = await generateUniqueId();
-                const product = {
-                    id,
-                    name,
-                    purchasePrice: purchasePrice.toFixed(2),
-                    salePrice: salePrice.toFixed(2),
-                    quantity
-                };
+                const product = { id, name, purchasePrice: purchasePrice.toFixed(2), salePrice: salePrice.toFixed(2), quantity };
 
                 const transaction = db.transaction(['products'], 'readwrite');
                 const store = transaction.objectStore('products');
@@ -910,28 +901,15 @@
                     bootstrap.Modal.getInstance(document.getElementById('addProductModal')).hide();
                     document.getElementById('addProductForm').reset();
                     playSuccessSound();
-                    Swal.fire({
-                        title: 'نجاح',
-                        text: `تم إضافة المنتج "${name}" بنجاح!`,
-                        icon: 'success',
-                        confirmButtonColor: '#3F2A56'
-                    });
+                    Swal.fire({ title: 'نجاح', text: `تم إضافة المنتج "${name}" بنجاح!`, icon: 'success', confirmButtonColor: '#3F2A56' });
                 };
-                request.onerror = () => {
-                    Swal.fire({
-                        title: 'خطأ',
-                        text: 'فشل في إضافة المنتج!',
-                        icon: 'error',
-                        confirmButtonColor: '#3F2A56'
-                    });
+                request.onerror = (event) => {
+                    console.error("خطأ في إضافة المنتج:", event.target.error);
+                    Swal.fire({ title: 'خطأ', text: 'فشل في إضافة المنتج!', icon: 'error', confirmButtonColor: '#3F2A56' });
                 };
             } catch (error) {
-                Swal.fire({
-                    title: 'خطأ',
-                    text: 'فشل في إضافة المنتج: ' + error.message,
-                    icon: 'error',
-                    confirmButtonColor: '#3F2A56'
-                });
+                console.error("خطأ عام في إضافة المنتج:", error);
+                Swal.fire({ title: 'خطأ', text: 'فشل في إضافة المنتج: ' + error.message, icon: 'error', confirmButtonColor: '#3F2A56' });
             }
         }
 
@@ -946,12 +924,7 @@
                 request.onsuccess = () => {
                     const product = request.result;
                     if (!product) {
-                        Swal.fire({
-                            title: 'خطأ',
-                            text: 'المنتج غير موجود!',
-                            icon: 'error',
-                            confirmButtonColor: '#3F2A56'
-                        });
+                        Swal.fire({ title: 'خطأ', text: 'المنتج غير موجود!', icon: 'error', confirmButtonColor: '#3F2A56' });
                         return;
                     }
                     document.getElementById('editProductId').value = product.id;
@@ -961,21 +934,13 @@
                     document.getElementById('editQuantity').value = product.quantity;
                     new bootstrap.Modal(document.getElementById('editProductModal')).show();
                 };
-                request.onerror = () => {
-                    Swal.fire({
-                        title: 'خطأ',
-                        text: 'فشل في جلب بيانات المنتج!',
-                        icon: 'error',
-                        confirmButtonColor: '#3F2A56'
-                    });
+                request.onerror = (event) => {
+                    console.error("خطأ في جلب بيانات المنتج للتعديل:", event.target.error);
+                    Swal.fire({ title: 'خطأ', text: 'فشل في جلب بيانات المنتج!', icon: 'error', confirmButtonColor: '#3F2A56' });
                 };
             } catch (error) {
-                Swal.fire({
-                    title: 'خطأ',
-                    text: 'فشل في تعديل المنتج: ' + error.message,
-                    icon: 'error',
-                    confirmButtonColor: '#3F2A56'
-                });
+                console.error("خطأ عام في تعديل المنتج:", error);
+                Swal.fire({ title: 'خطأ', text: 'فشل في بدء تعديل المنتج: ' + error.message, icon: 'error', confirmButtonColor: '#3F2A56' });
             }
         }
 
@@ -990,44 +955,26 @@
                 const quantity = parseInt(document.getElementById('editQuantity').value);
 
                 if (!name || isNaN(purchasePrice) || isNaN(salePrice) || isNaN(quantity)) {
-                    Swal.fire({
-                        title: 'خطأ في الإدخال',
-                        text: 'الرجاء ملء جميع الحقول المطلوبة!',
-                        icon: 'error',
-                        confirmButtonColor: '#3F2A56'
-                    });
+                    Swal.fire({ title: 'خطأ في الإدخال', text: 'الرجاء ملء جميع الحقول المطلوبة بشكل صحيح!', icon: 'error', confirmButtonColor: '#3F2A56' });
                     return;
                 }
-
-                if (purchasePrice > 1000000 || salePrice > 1000000 || quantity > 100000) {
-                    Swal.fire({
-                        title: 'خطأ في الإدخال',
-                        text: 'القيم المدخلة كبيرة جدًا! الحد الأقصى للسعر 1,000,000 وللكمية 100,000.',
-                        icon: 'error',
-                        confirmButtonColor: '#3F2A56'
-                    });
+                if (purchasePrice < 0 || salePrice < 0 || quantity < 0) {
+                    Swal.fire({ title: 'خطأ في الإدخال', text: 'القيم العددية لا يمكن أن تكون سالبة.', icon: 'error', confirmButtonColor: '#3F2A56' });
+                    return;
+                }
+                 if (purchasePrice > 1000000 || salePrice > 1000000 || quantity > 100000) {
+                    Swal.fire({ title: 'خطأ في الإدخال', text: 'القيم المدخلة كبيرة جدًا! الحد الأقصى للسعر 1,000,000 وللكمية 100,000.', icon: 'error', confirmButtonColor: '#3F2A56'});
                     return;
                 }
 
                 const products = await getAllProducts();
-                const existingProduct = products.find(p => p.id === id);
-                if (name !== existingProduct.name && products.some(p => p.name === name)) {
-                    Swal.fire({
-                        title: 'خطأ في الإدخال',
-                        text: 'اسم المنتج موجود مسبقًا! الرجاء اختيار اسم آخر.',
-                        icon: 'error',
-                        confirmButtonColor: '#3F2A56'
-                    });
+                const existingProductWithSameName = products.find(p => p.name.toLowerCase() === name.toLowerCase() && p.id !== id);
+                if (existingProductWithSameName) {
+                    Swal.fire({ title: 'خطأ في الإدخال', text: 'اسم المنتج موجود مسبقًا لمنتج آخر! الرجاء اختيار اسم مختلف.', icon: 'error', confirmButtonColor: '#3F2A56' });
                     return;
                 }
 
-                const product = {
-                    id,
-                    name,
-                    purchasePrice: purchasePrice.toFixed(2),
-                    salePrice: salePrice.toFixed(2),
-                    quantity
-                };
+                const product = { id, name, purchasePrice: purchasePrice.toFixed(2), salePrice: salePrice.toFixed(2), quantity };
                 const transaction = db.transaction(['products'], 'readwrite');
                 const store = transaction.objectStore('products');
                 const request = store.put(product);
@@ -1037,28 +984,15 @@
                     await updateProductsTable();
                     bootstrap.Modal.getInstance(document.getElementById('editProductModal')).hide();
                     playSuccessSound();
-                    Swal.fire({
-                        title: 'نجاح',
-                        text: `تم تعديل المنتج "${name}" بنجاح!`,
-                        icon: 'success',
-                        confirmButtonColor: '#3F2A56'
-                    });
+                    Swal.fire({ title: 'نجاح', text: `تم تعديل المنتج "${name}" بنجاح!`, icon: 'success', confirmButtonColor: '#3F2A56' });
                 };
-                request.onerror = () => {
-                    Swal.fire({
-                        title: 'خطأ',
-                        text: 'فشل في تعديل المنتج!',
-                        icon: 'error',
-                        confirmButtonColor: '#3F2A56'
-                    });
+                request.onerror = (event) => {
+                    console.error("خطأ في تحديث المنتج:", event.target.error);
+                    Swal.fire({ title: 'خطأ', text: 'فشل في تعديل المنتج!', icon: 'error', confirmButtonColor: '#3F2A56' });
                 };
             } catch (error) {
-                Swal.fire({
-                    title: 'خطأ',
-                    text: 'فشل في تحديث المنتج: ' + error.message,
-                    icon: 'error',
-                    confirmButtonColor: '#3F2A56'
-                });
+                console.error("خطأ عام في تحديث المنتج:", error);
+                Swal.fire({ title: 'خطأ', text: 'فشل في تحديث المنتج: ' + error.message, icon: 'error', confirmButtonColor: '#3F2A56' });
             }
         }
 
@@ -1073,12 +1007,7 @@
                 request.onsuccess = async () => {
                     const product = request.result;
                     if (!product) {
-                        Swal.fire({
-                            title: 'خطأ',
-                            text: 'المنتج غير موجود!',
-                            icon: 'error',
-                            confirmButtonColor: '#3F2A56'
-                        });
+                        Swal.fire({ title: 'خطأ', text: 'المنتج غير موجود!', icon: 'error', confirmButtonColor: '#3F2A56' });
                         return;
                     }
                     const result = await Swal.fire({
@@ -1086,7 +1015,7 @@
                         text: `هل أنت متأكد من حذف المنتج "${product.name}"؟ لا يمكن التراجع عن هذا الإجراء.`,
                         icon: 'warning',
                         showCancelButton: true,
-                        confirmButtonText: 'حذف',
+                        confirmButtonText: 'نعم، احذف',
                         cancelButtonText: 'إلغاء',
                         confirmButtonColor: '#dc3545',
                         cancelButtonColor: '#6c757d'
@@ -1101,38 +1030,21 @@
                             invalidateCache();
                             await updateProductsTable();
                             playSuccessSound();
-                            Swal.fire({
-                                title: 'نجاح',
-                                text: `تم حذف المنتج "${product.name}" بنجاح!`,
-                                icon: 'success',
-                                confirmButtonColor: '#3F2A56'
-                            });
+                            Swal.fire({ title: 'نجاح', text: `تم حذف المنتج "${product.name}" بنجاح!`, icon: 'success', confirmButtonColor: '#3F2A56' });
                         };
-                        deleteRequest.onerror = () => {
-                            Swal.fire({
-                                title: 'خطأ',
-                                text: 'فشل في حذف المنتج!',
-                                icon: 'error',
-                                confirmButtonColor: '#3F2A56'
-                            });
+                        deleteRequest.onerror = (event) => {
+                            console.error("خطأ في حذف المنتج:", event.target.error);
+                            Swal.fire({ title: 'خطأ', text: 'فشل في حذف المنتج!', icon: 'error', confirmButtonColor: '#3F2A56' });
                         };
                     }
                 };
-                request.onerror = () => {
-                    Swal.fire({
-                        title: 'خطأ',
-                        text: 'فشل في جلب بيانات المنتج!',
-                        icon: 'error',
-                        confirmButtonColor: '#3F2A56'
-                    });
+                request.onerror = (event) => {
+                    console.error("خطأ في جلب المنتج للحذف:", event.target.error);
+                    Swal.fire({ title: 'خطأ', text: 'فشل في جلب بيانات المنتج للحذف!', icon: 'error', confirmButtonColor: '#3F2A56' });
                 };
             } catch (error) {
-                Swal.fire({
-                    title: 'خطأ',
-                    text: 'فشل في حذف المنتج: ' + error.message,
-                    icon: 'error',
-                    confirmButtonColor: '#3F2A56'
-                });
+                console.error("خطأ عام في حذف المنتج:", error);
+                Swal.fire({ title: 'خطأ', text: 'فشل في حذف المنتج: ' + error.message, icon: 'error', confirmButtonColor: '#3F2A56' });
             }
         }
 
@@ -1141,28 +1053,25 @@
             try {
                 await ensureDBInitialized();
                 const products = await getAllProducts();
+                if (products.length === 0) {
+                    Swal.fire({ title: 'لا توجد بيانات', text: 'لا توجد منتجات لتصديرها.', icon: 'info', confirmButtonColor: '#3F2A56' });
+                    return;
+                }
                 const dataStr = JSON.stringify(products, null, 2);
                 const blob = new Blob([dataStr], { type: 'application/json' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
                 a.download = 'inventory_products.json';
+                document.body.appendChild(a);
                 a.click();
+                document.body.removeChild(a);
                 URL.revokeObjectURL(url);
                 playSuccessSound();
-                Swal.fire({
-                    title: 'نجاح',
-                    text: 'تم تصدير البيانات إلى ملف JSON بنجاح!',
-                    icon: 'success',
-                    confirmButtonColor: '#3F2A56'
-                });
+                Swal.fire({ title: 'نجاح', text: 'تم تصدير البيانات إلى ملف JSON بنجاح!', icon: 'success', confirmButtonColor: '#3F2A56' });
             } catch (error) {
-                Swal.fire({
-                    title: 'خطأ',
-                    text: 'فشل في تصدير البيانات إلى JSON: ' + error.message,
-                    icon: 'error',
-                    confirmButtonColor: '#3F2A56'
-                });
+                console.error("خطأ في تصدير JSON:", error);
+                Swال.fire({ title: 'خطأ', text: 'فشل في تصدير البيانات إلى JSON: ' + error.message, icon: 'error', confirmButtonColor: '#3F2A56' });
             }
         }
 
@@ -1171,32 +1080,38 @@
             try {
                 await ensureDBInitialized();
                 const products = await getAllProducts();
-                const headers = ['معرف المنتج,اسم المنتج,سعر الشراء,سعر البيع,الكمية'];
-                const rows = products.map(p => `${p.id},${p.name},${p.purchasePrice},${p.salePrice},${p.quantity}`);
+                if (products.length === 0) {
+                    Swal.fire({ title: 'لا توجد بيانات', text: 'لا توجد منتجات لتصديرها.', icon: 'info', confirmButtonColor: '#3F2A56' });
+                    return;
+                }
+                const headers = 'معرف المنتج,اسم المنتج,سعر الشراء,سعر البيع,الكمية';
+                const rows = products.map(p => `${p.id},"${p.name.replace(/"/g, '""')}",${p.purchasePrice},${p.salePrice},${p.quantity}`); // Handle commas in name
                 const csv = [headers, ...rows].join('\n');
-                const bom = '\uFEFF'; // إضافة BOM لدعم اللغة العربية في Excel
+                const bom = '\uFEFF'; // BOM for Excel UTF-8 support
                 const blob = new Blob([bom + csv], { type: 'text/csv;charset=utf-8;' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
                 a.download = 'inventory_products.csv';
+                document.body.appendChild(a);
                 a.click();
+                document.body.removeChild(a);
                 URL.revokeObjectURL(url);
                 playSuccessSound();
-                Swal.fire({
-                    title: 'نجاح',
-                    text: 'تم تصدير البيانات إلى ملف CSV بنجاح!',
-                    icon: 'success',
-                    confirmButtonColor: '#3F2A56'
-                });
+                Swal.fire({ title: 'نجاح', text: 'تم تصدير البيانات إلى ملف CSV بنجاح!', icon: 'success', confirmButtonColor: '#3F2A56' });
             } catch (error) {
-                Swal.fire({
-                    title: 'خطأ',
-                    text: 'فشل في تصدير البيانات إلى CSV: ' + error.message,
-                    icon: 'error',
-                    confirmButtonColor: '#3F2A56'
-                });
+                console.error("خطأ في تصدير CSV:", error);
+                Swal.fire({ title: 'خطأ', text: 'فشل في تصدير البيانات إلى CSV: ' + error.message, icon: 'error', confirmButtonColor: '#3F2A56' });
             }
+        }
+        
+        function isValidProduct(product) {
+            return product &&
+                   typeof product.id === 'string' && product.id.trim() !== '' &&
+                   typeof product.name === 'string' && product.name.trim() !== '' &&
+                   !isNaN(parseFloat(product.purchasePrice)) && parseFloat(product.purchasePrice) >= 0 && parseFloat(product.purchasePrice) <= 1000000 &&
+                   !isNaN(parseFloat(product.salePrice)) && parseFloat(product.salePrice) >= 0 && parseFloat(product.salePrice) <= 1000000 &&
+                   !isNaN(parseInt(product.quantity)) && parseInt(product.quantity) >= 0 && parseInt(product.quantity) <= 100000;
         }
 
         // استيراد ملف
@@ -1204,111 +1119,94 @@
             try {
                 await ensureDBInitialized();
                 const file = event.target.files[0];
+                if (!file) return;
+
                 const reader = new FileReader();
                 reader.onload = async function(e) {
-                    let newProducts = [];
-                    if (file.name.endsWith('.json')) {
-                        newProducts = JSON.parse(e.target.result);
-                    } else if (file.name.endsWith('.csv')) {
-                        const data = e.target.result;
-                        const rows = data.split('\n').slice(1).filter(row => row.trim());
-                        newProducts = rows.map(row => {
-                            const [id, name, purchasePrice, salePrice, quantity] = row.split(',');
-                            return { id, name, purchasePrice: parseFloat(purchasePrice).toFixed(2), salePrice: parseFloat(salePrice).toFixed(2), quantity: parseInt(quantity) };
-                        });
-                    }
+                    let importedProducts = [];
+                    try {
+                        if (file.name.endsWith('.json')) {
+                            importedProducts = JSON.parse(e.target.result);
+                        } else if (file.name.endsWith('.csv')) {
+                            const data = e.target.result;
+                            const rows = data.split('\n').filter(row => row.trim());
+                            if (rows.length > 1) { // Header + data
+                                const headers = rows[0].split(',').map(h => h.trim().toLowerCase());
+                                const idIndex = headers.indexOf('معرف المنتج');
+                                const nameIndex = headers.indexOf('اسم المنتج');
+                                const purchaseIndex = headers.indexOf('سعر الشراء');
+                                const saleIndex = headers.indexOf('سعر البيع');
+                                const quantityIndex = headers.indexOf('الكمية');
 
-                    const invalidProducts = newProducts.filter(p =>
-                        !p.id || !p.name || !p.purchasePrice || !p.salePrice || !p.quantity ||
-                        isNaN(parseFloat(p.purchasePrice)) || parseFloat(p.purchasePrice) < 0 || parseFloat(p.purchasePrice) > 1000000 ||
-                        isNaN(parseFloat(p.salePrice)) || parseFloat(p.salePrice) < 0 || parseFloat(p.salePrice) > 1000000 ||
-                        isNaN(parseInt(p.quantity)) || parseInt(p.quantity) < 0 || parseInt(p.quantity) > 100000
-                    );
+                                if ([idIndex, nameIndex, purchaseIndex, saleIndex, quantityIndex].some(i => i === -1)) {
+                                    throw new Error("تنسيق ملف CSV غير صحيح أو缺少 بعض الأعمدة المطلوبة.");
+                                }
 
-                    if (invalidProducts.length > 0) {
-                        Swal.fire({
-                            title: 'خطأ في البيانات',
-                            text: 'تم العثور على منتجات غير صالحة في الملف. الرجاء التحقق من تنسيق الملف.',
-                            icon: 'error',
-                            confirmButtonColor: '#3F2A56'
-                        });
+                                importedProducts = rows.slice(1).map(row => {
+                                    // Basic CSV parsing, can be improved for quoted fields
+                                    const values = row.split(',');
+                                    return {
+                                        id: values[idIndex]?.trim(),
+                                        name: values[nameIndex]?.trim(),
+                                        purchasePrice: parseFloat(values[purchaseIndex]?.trim()).toFixed(2),
+                                        salePrice: parseFloat(values[saleIndex]?.trim()).toFixed(2),
+                                        quantity: parseInt(values[quantityIndex]?.trim())
+                                    };
+                                });
+                            }
+                        } else {
+                             Swal.fire({ title: 'خطأ', text: 'صيغة الملف غير مدعومة. الرجاء تحميل ملف JSON أو CSV.', icon: 'error', confirmButtonColor: '#3F2A56' });
+                             return;
+                        }
+                    } catch (parseError) {
+                        console.error("خطأ في تحليل الملف:", parseError);
+                        Swal.fire({ title: 'خطأ في الملف', text: 'فشل في قراءة أو تحليل الملف. تأكد من أن الملف بالتنسيق الصحيح.\n' + parseError.message, icon: 'error', confirmButtonColor: '#3F2A56' });
                         return;
                     }
 
-                    const existingIds = await getAllProductIds();
-                    const duplicateIds = newProducts.filter(p => existingIds.includes(p.id));
-                    if (duplicateIds.length > 0) {
-                        let warningMessage = 'تم العثور على معرفات مكررة:<br>';
-                        duplicateIds.forEach(p => warningMessage += `المعرف: ${p.id}<br>`);
-                        warningMessage += 'هل تريد المتابعة مع استبدال المنتجات المكررة؟';
-
-                        const result = await Swal.fire({
-                            title: 'تحذير: معرفات مكررة',
-                            html: warningMessage,
-                            icon: 'warning',
-                            showCancelButton: true,
-                            confirmButtonText: 'المتابعة واستبدال',
-                            cancelButtonText: 'إلغاء',
-                            confirmButtonColor: '#3F2A56',
-                            cancelButtonColor: '#dc3545',
-                            customClass: { popup: 'swal2-rtl' }
-                        });
-
-                        if (!result.isConfirmed) {
-                            Swal.fire({
-                                title: 'تم الإلغاء',
-                                text: 'لم يتم استيراد الملف بسبب التكرارات.',
-                                icon: 'info',
-                                confirmButtonColor: '#3F2A56'
-                            });
-                            return;
+                    if (!Array.isArray(importedProducts) || importedProducts.length === 0) {
+                        Swal.fire({ title: 'لا توجد بيانات', text: 'الملف لا يحتوي على منتجات صالحة للاستيراد.', icon: 'info', confirmButtonColor: '#3F2A56' });
+                        return;
+                    }
+                    
+                    const validProducts = [];
+                    const invalidProductExamples = [];
+                    for (const p of importedProducts) {
+                        if (isValidProduct(p)) {
+                            validProducts.push(p);
+                        } else {
+                            if(invalidProductExamples.length < 5) invalidProductExamples.push(JSON.stringify(p));
                         }
                     }
 
-                    const transaction = db.transaction(['products'], 'readwrite');
-                    const store = transaction.objectStore('products');
-                    for (const product of newProducts) {
-                        store.put(product);
+                    if (invalidProductExamples.length > 0) {
+                        Swal.fire({
+                            title: 'بيانات غير صالحة',
+                            html: `تم العثور على ${invalidProductExamples.length} منتجًا غير صالح في الملف. <br>أمثلة: <pre>${invalidProductExamples.join('\n')}</pre>الرجاء التحقق من تنسيق الملف والقيم.`,
+                            icon: 'warning',
+                            confirmButtonColor: '#3F2A56'
+                        });
+                        // Decide if you want to proceed with only valid ones or stop
+                        if(validProducts.length === 0) return; // Stop if no valid products
+                    }
+                    
+                    if (validProducts.length === 0) {
+                         Swal.fire({ title: 'لا توجد بيانات صالحة', text: 'لم يتم العثور على منتجات صالحة للاستيراد في الملف.', icon: 'info', confirmButtonColor: '#3F2A56' });
+                         return;
                     }
 
-                    transaction.oncomplete = async () => {
-                        invalidateCache();
-                        await updateProductsTable();
-                        playSuccessSound();
-                        Swal.fire({
-                            title: 'نجاح',
-                            text: 'تم استيراد البيانات بنجاح!',
-                            icon: 'success',
-                            confirmButtonColor: '#3F2A56'
-                        });
-                    };
-                    transaction.onerror = () => {
-                        Swal.fire({
-                            title: 'خطأ',
-                            text: 'فشل في استيراد البيانات!',
-                            icon: 'error',
-                            confirmButtonColor: '#3F2A56'
-                        });
-                    };
-                };
 
-                if (file.name.endsWith('.json') || file.name.endsWith('.csv')) {
-                    reader.readAsText(file);
-                } else {
-                    Swal.fire({
-                        title: 'خطأ',
-                        text: 'الرجاء تحميل ملف بصيغة JSON أو CSV!',
-                        icon: 'error',
-                        confirmButtonColor: '#3F2A56'
-                    });
-                }
+                    await processImportedData(validProducts);
+
+                };
+                reader.onerror = () => {
+                     Swal.fire({ title: 'خطأ', text: 'فشل في قراءة الملف!', icon: 'error', confirmButtonColor: '#3F2A56' });
+                };
+                reader.readAsText(file);
+                document.getElementById('importFile').value = ''; // Reset file input
             } catch (error) {
-                Swal.fire({
-                    title: 'خطأ',
-                    text: 'فشل في استيراد الملف: ' + error.message,
-                    icon: 'error',
-                    confirmButtonColor: '#3F2A56'
-                });
+                console.error("خطأ في استيراد الملف:", error);
+                Swal.fire({ title: 'خطأ', text: 'فشل في استيراد الملف: ' + error.message, icon: 'error', confirmButtonColor: '#3F2A56' });
             }
         }
 
@@ -1317,68 +1215,72 @@
             try {
                 await ensureDBInitialized();
                 const products = await getAllProducts();
+                 if (products.length === 0) {
+                    Swal.fire({ title: 'لا توجد بيانات', text: 'لا توجد منتجات لإنشاء رمز QR.', icon: 'info', confirmButtonColor: '#3F2A56' });
+                    return;
+                }
                 const dataString = JSON.stringify(products);
-                const qrCanvas = document.getElementById('qrCanvas');
-                QRCode.toCanvas(qrCanvas, dataString, { width: 300, margin: 2 }, (error) => {
+                const qrCanvas = document.getElementById('qrCanvas'); // Hidden canvas
+                
+                QRCode.toCanvas(qrCanvas, dataString, { width: 300, margin: 2, errorCorrectionLevel: 'L' }, (error) => {
                     if (error) {
-                        Swal.fire({
-                            title: 'خطأ',
-                            text: 'فشل في إنشاء رمز QR!',
-                            icon: 'error',
-                            confirmButtonColor: '#3F2A56'
-                        });
+                        console.error("خطأ في إنشاء QR Code:", error);
+                        Swal.fire({ title: 'خطأ', text: 'فشل في إنشاء رمز QR!', icon: 'error', confirmButtonColor: '#3F2A56' });
                         return;
                     }
                     Swal.fire({
                         title: 'رمز QR جاهز',
                         html: `
-                            <canvas id="tempQRCanvas"></canvas>
-                            <p>امسح هذا الرمز من جهاز آخر لنقل البيانات</p>
-                            <div class="scanner-buttons">
-                                <button class="btn" onclick="exportQRCode()">تصدير كصورة</button>
+                            <canvas id="tempQRCanvas" style="border:1px solid #ccc;"></canvas>
+                            <p style="margin-top:10px;">امسح هذا الرمز من جهاز آخر لنقل البيانات.</p>
+                            <div class="scanner-buttons" style="margin-top:15px;">
+                                <button class="btn" onclick="exportQRCodeImage()">تصدير كصورة</button>
                             </div>
                         `,
-                        showCancelButton: true,
+                        showCancelButton: false,
                         confirmButtonText: 'إغلاق',
-                        cancelButtonText: 'إلغاء',
                         confirmButtonColor: '#3F2A56',
-                        cancelButtonColor: '#6c757d',
                         customClass: { popup: 'swal2-rtl' },
-                        width: '500px',
+                        width: 'auto', // Adjust width automatically
                         didOpen: () => {
                             const tempCanvas = document.getElementById('tempQRCanvas');
-                            tempCanvas.width = qrCanvas.width;
-                            tempCanvas.height = qrCanvas.height;
-                            tempCanvas.getContext('2d').drawImage(qrCanvas, 0, 0);
+                            if (tempCanvas) {
+                                tempCanvas.width = qrCanvas.width;
+                                tempCanvas.height = qrCanvas.height;
+                                tempCanvas.getContext('2d').drawImage(qrCanvas, 0, 0);
+                            }
                         }
                     });
                 });
             } catch (error) {
-                Swal.fire({
-                    title: 'خطأ',
-                    text: 'فشل في إنشاء رمز QR: ' + error.message,
-                    icon: 'error',
-                    confirmButtonColor: '#3F2A56'
-                });
+                console.error("خطأ عام في إنشاء QR Code:", error);
+                Swal.fire({ title: 'خطأ', text: 'فشل في إنشاء رمز QR: ' + error.message, icon: 'error', confirmButtonColor: '#3F2A56' });
             }
         }
 
-        // تصدير رمز QR كصورة
-        function exportQRCode() {
-            const qrCanvas = document.getElementById('qrCanvas');
-            const dataURL = qrCanvas.toDataURL('image/png');
-            const a = document.createElement('a');
-            a.href = dataURL;
-            a.download = 'qrcode.png';
-            a.click();
-            playSuccessSound();
-            Swal.fire({
-                title: 'نجاح',
-                text: 'تم تصدير رمز QR كصورة بنجاح!',
-                icon: 'success',
-                confirmButtonColor: '#3F2A56'
-            });
+        // تصدير رمز QR كصورة (يتم استدعاؤها من SweetAlert)
+        function exportQRCodeImage() {
+            const qrCanvas = document.getElementById('qrCanvas'); // Use the original hidden canvas
+            if (!qrCanvas) {
+                Swal.fire({ title: 'خطأ', text: 'لم يتم العثور على لوحة QR للتصدير!', icon: 'error', confirmButtonColor: '#3F2A56' });
+                return;
+            }
+            try {
+                const dataURL = qrCanvas.toDataURL('image/png');
+                const a = document.createElement('a');
+                a.href = dataURL;
+                a.download = 'inventory_qrcode.png';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                playSuccessSound();
+                // Don't close Swal here, user might want to keep it open
+            } catch (e) {
+                console.error("خطأ في تصدير صورة QR:", e);
+                Swal.fire({ title: 'خطأ', text: 'فشل في تصدير صورة رمز QR!', icon: 'error', confirmButtonColor: '#3F2A56' });
+            }
         }
+
 
         // التحقق من دعم الكاميرا
         function checkCameraSupport() {
@@ -1389,74 +1291,76 @@
         async function startQRScanner() {
             try {
                 if (!checkCameraSupport()) {
-                    throw new Error('الكاميرا غير مدعومة في هذا المتصفح أو الجهاز.');
+                    Swal.fire({ title: 'الكاميرا غير مدعومة', text: 'الكاميرا غير مدعومة في هذا المتصفح أو الجهاز.', icon: 'error', confirmButtonColor: '#3F2A56' });
+                    return;
                 }
                 await ensureDBInitialized();
+
                 Swal.fire({
                     title: 'مسح رمز QR',
                     html: `
                         <div id="scannerContainer">
-                            <video id="scannerVideo" autoplay playsinline style="max-width: 100%; border-radius: 10px; border: 2px solid #3F2A56;"></video>
+                            <video id="scannerVideo" autoplay playsinline></video>
                             <div class="scanner-buttons">
-                                <button class="btn" onclick="stopQRScanner()">إيقاف المسح</button>
+                                <button class="btn" onclick="stopQRScannerAndCloseSwal()">إيقاف المسح</button>
                                 <button class="btn" onclick="document.getElementById('qrImageInput').click()">استيراد من صورة</button>
                             </div>
                         </div>
                     `,
                     showConfirmButton: false,
-                    showCancelButton: true,
+                    showCancelButton: true, // Show a general cancel button
                     cancelButtonText: 'إغلاق',
                     cancelButtonColor: '#6c757d',
                     customClass: { popup: 'swal2-rtl' },
-                    width: '600px',
+                    width: 'auto',
                     didOpen: async () => {
+                        const video = document.getElementById('scannerVideo');
+                        if (!video) return;
                         try {
                             stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-                            const video = document.getElementById('scannerVideo');
                             video.srcObject = stream;
-                            video.play();
+                            await video.play(); // Wait for play to start
 
-                            const canvas = document.createElement('canvas');
-                            const context = canvas.getContext('2d');
-                            let scanInterval = null;
+                            const canvasElement = document.createElement('canvas');
+                            const canvas = canvasElement.getContext('2d');
+                            let scanInterval;
 
-                            function scan() {
+                            function tick() {
                                 if (video.readyState === video.HAVE_ENOUGH_DATA) {
-                                    canvas.width = video.videoWidth;
-                                    canvas.height = video.videoHeight;
-                                    context.drawImage(video, 0, 0, canvas.width, canvas.height);
-                                    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                                    canvasElement.height = video.videoHeight;
+                                    canvasElement.width = video.videoWidth;
+                                    canvas.drawImage(video, 0, 0, canvasElement.width, canvasElement.height);
+                                    const imageData = canvas.getImageData(0, 0, canvasElement.width, canvasElement.height);
                                     const code = jsQR(imageData.data, imageData.width, imageData.height, {
-                                        inversionAttempts: 'dontInvert'
+                                        inversionAttempts: 'dontInvert',
                                     });
-
                                     if (code) {
-                                        stopQRScanner();
-                                        clearInterval(scanInterval);
-                                        Swal.close();
+                                        clearInterval(scanInterval); // Stop scanning
+                                        stopQRScanner(); // Stop camera
+                                        Swal.close(); // Close the scanning modal
                                         try {
                                             const newProducts = JSON.parse(code.data);
-                                            await processQRData(newProducts);
+                                             if (!Array.isArray(newProducts)) throw new Error("بيانات QR ليست مصفوفة.");
+                                            processImportedData(newProducts.filter(isValidProduct)); // Process only valid products
                                         } catch (e) {
-                                            Swal.fire({
-                                                title: 'خطأ',
-                                                text: 'البيانات في رمز QR غير صالحة!',
-                                                icon: 'error',
-                                                confirmButtonColor: '#3F2A56'
-                                            });
+                                            console.error("خطأ في تحليل بيانات QR:", e);
+                                            Swal.fire({ title: 'خطأ', text: 'البيانات في رمز QR غير صالحة أو ليست بتنسيق JSON متوقع!\n' + e.message, icon: 'error', confirmButtonColor: '#3F2A56' });
                                         }
-                                        return;
+                                        return; // Exit tick
                                     }
                                 }
+                                if (Swal.isVisible()) { // Continue scanning only if modal is open
+                                   scanInterval = requestAnimationFrame(tick);
+                                } else {
+                                    stopQRScanner(); // Ensure camera stops if modal is closed externally
+                                }
                             }
-                            scanInterval = setInterval(scan, 100);
-                        } catch (error) {
-                            Swal.fire({
-                                title: 'خطأ',
-                                text: 'فشل في الوصول إلى الكاميرا! تأكد من منح الأذونات.',
-                                icon: 'error',
-                                confirmButtonColor: '#3F2A56'
-                            });
+                            scanInterval = requestAnimationFrame(tick);
+
+                        } catch (err) {
+                            console.error("خطأ في الوصول للكاميرا:", err);
+                            stopQRScanner();
+                            Swal.fire({ title: 'خطأ الكاميرا', text: 'فشل في الوصول إلى الكاميرا. تأكد من منح الأذونات.\n' + err.message, icon: 'error', confirmButtonColor: '#3F2A56' });
                         }
                     },
                     willClose: () => {
@@ -1464,13 +1368,14 @@
                     }
                 });
             } catch (error) {
-                Swal.fire({
-                    title: 'خطأ',
-                    text: 'فشل في بدء مسح رمز QR: ' + error.message,
-                    icon: 'error',
-                    confirmButtonColor: '#3F2A56'
-                });
+                console.error("خطأ في بدء مسح QR:", error);
+                Swal.fire({ title: 'خطأ', text: 'فشل في بدء مسح رمز QR: ' + error.message, icon: 'error', confirmButtonColor: '#3F2A56' });
             }
+        }
+        
+        function stopQRScannerAndCloseSwal() {
+            stopQRScanner();
+            Swal.close();
         }
 
         // إيقاف مسح رمز QR
@@ -1479,14 +1384,10 @@
                 stream.getTracks().forEach(track => track.stop());
                 stream = null;
             }
-            const scannerContainer = document.getElementById('scannerContainer');
-            if (scannerContainer) {
-                scannerContainer.style.display = 'none';
-            }
-            const scannerVideo = document.getElementById('scannerVideo');
-            if (scannerVideo) {
-                scannerVideo.srcObject = null;
-                scannerVideo.pause();
+            const video = document.getElementById('scannerVideo');
+            if (video) {
+                video.pause();
+                video.srcObject = null;
             }
         }
 
@@ -1500,241 +1401,237 @@
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     const img = new Image();
-                    img.src = e.target.result;
                     img.onload = () => {
                         const canvas = document.createElement('canvas');
+                        const context = canvas.getContext('2d');
                         canvas.width = img.width;
                         canvas.height = img.height;
-                        const context = canvas.getContext('2d');
-                        context.drawImage(img, 0, 0, img.width, img.height);
-                        const imageData = context.getImageData(0, 0, img.width, img.height);
+                        context.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
                         const code = jsQR(imageData.data, imageData.width, imageData.height, {
                             inversionAttempts: 'dontInvert'
                         });
 
                         if (code) {
-                            stopQRScanner();
-                            Swal.close();
+                            stopQRScanner(); // Stop camera if it was running
+                            Swal.close(); // Close any open Swal (like the scanner)
                             try {
                                 const newProducts = JSON.parse(code.data);
-                                processQRData(newProducts);
-                            } catch (e) {
-                                Swal.fire({
-                                    title: 'خطأ',
-                                    text: 'البيانات في رمز QR غير صالحة!',
-                                    icon: 'error',
-                                    confirmButtonColor: '#3F2A56'
-                                });
+                                if (!Array.isArray(newProducts)) throw new Error("بيانات QR ليست مصفوفة.");
+                                processImportedData(newProducts.filter(isValidProduct));
+                            } catch (parseErr) {
+                                console.error("خطأ في تحليل QR من الصورة:", parseErr);
+                                Swal.fire({ title: 'خطأ', text: 'البيانات في رمز QR من الصورة غير صالحة!\n' + parseErr.message, icon: 'error', confirmButtonColor: '#3F2A56' });
                             }
                         } else {
-                            Swal.fire({
-                                title: 'خطأ',
-                                text: 'لم يتم العثور على رمز QR في الصورة!',
-                                icon: 'error',
-                                confirmButtonColor: '#3F2A56'
-                            });
+                            Swal.fire({ title: 'خطأ', text: 'لم يتم العثور على رمز QR في الصورة!', icon: 'error', confirmButtonColor: '#3F2A56' });
                         }
                     };
+                    img.onerror = () => {
+                        Swal.fire({ title: 'خطأ', text: 'فشل في تحميل الصورة!', icon: 'error', confirmButtonColor: '#3F2A56' });
+                    };
+                    img.src = e.target.result;
+                };
+                reader.onerror = () => {
+                     Swal.fire({ title: 'خطأ', text: 'فشل في قراءة ملف الصورة!', icon: 'error', confirmButtonColor: '#3F2A56' });
                 };
                 reader.readAsDataURL(file);
+                document.getElementById('qrImageInput').value = ''; // Reset file input
             } catch (error) {
+                console.error("خطأ في استيراد QR من الصورة:", error);
+                Swal.fire({ title: 'خطأ', text: 'فشل في استيراد رمز QR من الصورة: ' + error.message, icon: 'error', confirmButtonColor: '#3F2A56' });
+            }
+        }
+
+        // معالجة البيانات المستوردة (من ملف أو QR)
+        async function processImportedData(newProducts) {
+            if (!Array.isArray(newProducts) || newProducts.length === 0) {
+                Swal.fire({ title: 'لا توجد بيانات صالحة', text: 'لم يتم العثور على منتجات صالحة للمعالجة.', icon: 'info', confirmButtonColor: '#3F2A56' });
+                return;
+            }
+
+            try {
+                await ensureDBInitialized();
+                const existingIds = await getAllProductIds();
+                const duplicateProducts = newProducts.filter(p => existingIds.includes(p.id));
+                let productsToImport = newProducts;
+
+                if (duplicateProducts.length > 0) {
+                    let warningMessage = `تم العثور على ${duplicateProducts.length} منتجًا بمعرفات موجودة مسبقًا.<br>أمثلة للمعرفات المكررة: <br>`;
+                    duplicateProducts.slice(0, 5).forEach(p => warningMessage += `- المعرف: ${p.id} (الاسم: ${p.name})<br>`);
+                    warningMessage += '<br>هل تريد المتابعة واستبدال المنتجات الموجودة بهذه المعرفات؟';
+
+                    const result = await Swal.fire({
+                        title: 'تحذير: معرفات مكررة',
+                        html: warningMessage,
+                        icon: 'warning',
+                        showDenyButton: true,
+                        showCancelButton: true,
+                        confirmButtonText: 'نعم، استبدل الكل',
+                        denyButtonText: `لا، استورد غير المكرر فقط`,
+                        cancelButtonText: 'إلغاء الاستيراد',
+                        confirmButtonColor: '#3F2A56',
+                        denyButtonColor: '#ffc107',
+                        cancelButtonColor: '#dc3545',
+                        customClass: { popup: 'swal2-rtl' }
+                    });
+
+                    if (result.isConfirmed) {
+                        // Proceed with all newProducts, existing ones will be overwritten by put
+                    } else if (result.isDenied) {
+                        productsToImport = newProducts.filter(p => !existingIds.includes(p.id));
+                        if (productsToImport.length === 0) {
+                            Swal.fire({ title: 'تم الإلغاء جزئيًا', text: 'لا توجد منتجات جديدة غير مكررة للاستيراد.', icon: 'info', confirmButtonColor: '#3F2A56' });
+                            return;
+                        }
+                    } else { // Cancelled
+                        Swal.fire({ title: 'تم الإلغاء', text: 'تم إلغاء عملية الاستيراد.', icon: 'info', confirmButtonColor: '#3F2A56' });
+                        return;
+                    }
+                }
+
+                const transaction = db.transaction(['products'], 'readwrite');
+                const store = transaction.objectStore('products');
+                let successCount = 0;
+                let errorCount = 0;
+
+                for (const product of productsToImport) {
+                    // Final validation before putting, though `isValidProduct` should catch most
+                    if (isValidProduct(product)) {
+                         // Ensure prices are formatted to two decimal places if they are numbers
+                        if (typeof product.purchasePrice === 'number') product.purchasePrice = product.purchasePrice.toFixed(2);
+                        if (typeof product.salePrice === 'number') product.salePrice = product.salePrice.toFixed(2);
+                        
+                        const request = store.put(product); // Use put for add or update
+                        request.onsuccess = () => successCount++;
+                        request.onerror = () => errorCount++;
+                    } else {
+                        errorCount++; // Count as error if it's somehow invalid here
+                    }
+                }
+
+                transaction.oncomplete = async () => {
+                    invalidateCache();
+                    await updateProductsTable();
+                    playSuccessSound();
+                    Swal.fire({
+                        title: 'نجاح الاستيراد',
+                        text: `تم استيراد ${successCount} منتجًا بنجاح. فشل استيراد ${errorCount} منتجًا.`,
+                        icon: 'success',
+                        confirmButtonColor: '#3F2A56'
+                    });
+                };
+                transaction.onerror = (event) => {
+                    console.error("خطأ في معاملة الاستيراد:", event.target.error);
+                    Swal.fire({ title: 'خطأ', text: 'فشل في إكمال عملية الاستيراد!', icon: 'error', confirmButtonColor: '#3F2A56' });
+                };
+
+            } catch (error) {
+                console.error("خطأ في معالجة البيانات المستوردة:", error);
+                Swal.fire({ title: 'خطأ', text: 'فشل في معالجة البيانات المستوردة: ' + error.message, icon: 'error', confirmButtonColor: '#3F2A56' });
+            }
+        }
+
+        // طباعة الجدول
+        async function printTable() {
+            try {
+                await ensureDBInitialized();
+                const products = await getAllProducts();
+                if (products.length === 0) {
+                    Swal.fire({ title: 'لا توجد بيانات', text: 'لا توجد منتجات للطباعة!', icon: 'info', confirmButtonColor: '#3F2A56' });
+                    return;
+                }
+
+                const printWindow = window.open('', '_blank', 'height=600,width=800');
+                if (!printWindow) {
+                    Swal.fire({ title: 'خطأ', text: 'فشل في فتح نافذة الطباعة. الرجاء التحقق من إعدادات مانع النوافذ المنبثقة في المتصفح.', icon: 'error', confirmButtonColor: '#3F2A56' });
+                    return;
+                }
+
+                printWindow.document.write(`
+                    <!DOCTYPE html>
+                    <html lang="ar" dir="rtl">
+                    <head>
+                        <meta charset="UTF-8">
+                        <title>طباعة تقرير المنتجات</title>
+                        <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+                        <style>
+                            body { font-family: 'Cairo', sans-serif; margin: 20px; direction: rtl; text-align: right; }
+                            h1 { text-align: center; color: #3F2A56; margin-bottom: 20px; }
+                            table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 0.9em; }
+                            th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
+                            th { background-color: #3F2A56; color: white; font-weight: 600;}
+                            tr:nth-child(even) { background-color: #f9f9f9; }
+                            .low-stock { color: #dc3545; font-weight: bold; background-color: rgba(220, 53, 69, 0.05); }
+                            .print-button { display: block; margin: 20px auto; padding: 10px 20px; background-color: #3F2A56; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 1em; }
+                            @media print {
+                                .print-button { display: none; }
+                                body { margin: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; } /* Ensure background colors print */
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <h1>تقرير المنتجات - طيبة المدينة تلكوم</h1>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>معرف المنتج</th>
+                                    <th>اسم المنتج</th>
+                                    <th>سعر الشراء</th>
+                                    <th>سعر البيع</th>
+                                    <th>الكمية</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${products.map((product, index) => `
+                                    <tr>
+                                        <td>${index + 1}</td>
+                                        <td>${product.id}</td>
+                                        <td>${product.name}</td>
+                                        <td>${parseFloat(product.purchasePrice).toFixed(2)}</td>
+                                        <td>${parseFloat(product.salePrice).toFixed(2)}</td>
+                                        <td class="${parseInt(product.quantity) < 2 ? 'low-stock' : ''}">${parseInt(product.quantity)}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                        <button class="print-button" onclick="window.print()">طباعة التقرير</button>
+                    </body>
+                    </html>
+                `);
+                printWindow.document.close(); // Necessary for some browsers
+                printWindow.focus(); // Focus on the new window
+
+                // Attempt to close after print dialog is handled (might not always work due to browser restrictions)
+                const afterPrintHandler = () => {
+                    printWindow.close();
+                    printWindow.removeEventListener('afterprint', afterPrintHandler);
+                };
+                printWindow.addEventListener('afterprint', afterPrintHandler);
+
+                playSuccessSound();
+            } catch (error) {
+                console.error("خطأ في إعداد الطباعة:", error);
+                Swal.fire({ title: 'خطأ', text: 'فشل في إعداد الطباعة: ' + error.message, icon: 'error', confirmButtonColor: '#3F2A56' });
+            }
+        }
+
+        // تهيئة الصفحة عند التحميل
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                await initDB(); // Ensure DB is initialized first
+                await updateProductsTable(); // This will also call updateDashboard and filterTable
+            } catch (error) {
+                console.error("خطأ فادح في تهيئة الصفحة:", error);
                 Swal.fire({
-                    title: 'خطأ',
-                    text: 'فشل في استيراد رمز QR من الصورة: ' + error.message,
+                    title: 'خطأ في التهيئة',
+                    text: 'فشل في تهيئة الصفحة بشكل كامل. قد لا تعمل بعض الميزات.\n' + error.message,
                     icon: 'error',
                     confirmButtonColor: '#3F2A56'
                 });
             }
-        }
-
-        // معالجة بيانات رمز QR
-        // معالجة بيانات رمز QR (استكمال)
-async function processQRData(newProducts) {
-    try {
-        await ensureDBInitialized();
-        const invalidProducts = newProducts.filter(p =>
-            !p.id || !p.name || !p.purchasePrice || !p.salePrice || !p.quantity ||
-            isNaN(parseFloat(p.purchasePrice)) || parseFloat(p.purchasePrice) < 0 || parseFloat(p.purchasePrice) > 1000000 ||
-            isNaN(parseFloat(p.salePrice)) || parseFloat(p.salePrice) < 0 || parseFloat(p.salePrice) > 1000000 ||
-            isNaN(parseInt(p.quantity)) || parseInt(p.quantity) < 0 || parseInt(p.quantity) > 100000
-        );
-
-        if (invalidProducts.length > 0) {
-            Swal.fire({
-                title: 'خطأ في البيانات',
-                text: 'تم العثور على منتجات غير صالحة.',
-                icon: 'error',
-                confirmButtonColor: '#3F2A56'
-            });
-            return;
-        }
-
-        const existingIds = await getAllProductIds();
-        const duplicateIds = newProducts.filter(p => existingIds.includes(p.id));
-        if (duplicateIds.length > 0) {
-            let warningMessage = 'تم العثور على معرفات مكررة:<br>';
-            duplicateIds.forEach(p => warningMessage += `المعرف: ${p.id}<br>`);
-            warningMessage += 'هل تريد المتابعة مع استبدال المنتجات المكررة؟';
-
-            const result = await Swal.fire({
-                title: 'تحذير: معرفات مكررة',
-                html: warningMessage,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'المتابعة واستبدال',
-                cancelButtonText: 'إلغاء',
-                confirmButtonColor: '#3F2A56',
-                cancelButtonColor: '#dc3545',
-                customClass: { popup: 'swal2-rtl' }
-            });
-
-            if (!result.isConfirmed) {
-                Swal.fire({
-                    title: 'تم الإلغاء',
-                    text: 'لم يتم استيراد البيانات بسبب التكرارات.',
-                    icon: 'info',
-                    confirmButtonColor: '#3F2A56'
-                });
-                return;
-            }
-        }
-
-        const transaction = db.transaction(['products'], 'readwrite');
-        const store = transaction.objectStore('products');
-        for (const product of newProducts) {
-            store.put(product); // استخدام put لاستبدال المنتجات الموجودة أو إضافة جديدة
-        }
-
-        transaction.oncomplete = async () => {
-            invalidateCache();
-            await updateProductsTable();
-            playSuccessSound();
-            Swal.fire({
-                title: 'نجاح',
-                text: 'تم استيراد بيانات رمز QR بنجاح!',
-                icon: 'success',
-                confirmButtonColor: '#3F2A56'
-            });
-        };
-        transaction.onerror = () => {
-            Swal.fire({
-                title: 'خطأ',
-                text: 'فشل في استيراد بيانات رمز QR!',
-                icon: 'error',
-                confirmButtonColor: '#3F2A56'
-            });
-        };
-    } catch (error) {
-        Swal.fire({
-            title: 'خطأ',
-            text: 'فشل في معالجة بيانات رمز QR: ' + error.message,
-            icon: 'error',
-            confirmButtonColor: '#3F2A56'
         });
-    }
-}
-// طباعة الجدول
-async function printTable() {
-    try {
-        await ensureDBInitialized();
-        const products = await getAllProducts();
-        if (products.length === 0) {
-            Swal.fire({
-                title: 'لا توجد بيانات',
-                text: 'لا توجد منتجات للطباعة!',
-                icon: 'info',
-                confirmButtonColor: '#3F2A56'
-            });
-            return;
-        }
-
-        const printWindow = window.open('', '_blank');
-        if (!printWindow) {
-            throw new Error('فشل في فتح نافذة الطباعة. الرجاء التحقق من إعدادات المتصفح.');
-        }
-
-        printWindow.document.write(`
-            <!DOCTYPE html>
-            <html lang="ar" dir="rtl">
-            <head>
-                <meta charset="UTF-8">
-                <title>طباعة تقرير المنتجات</title>
-                <style>
-                    body { font-family: 'Cairo', sans-serif; margin: 20px; }
-                    h1 { text-align: center; color: #3F2A56; }
-                    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-                    th, td { border: 1px solid #ddd; padding: 12px; text-align: center; }
-                    th { background: linear-gradient(90deg, #3F2A56, #5a3f73); color: white; }
-                    .low-stock { color: #dc3545; font-weight: bold; }
-                    @media print {
-                        button { display: none; }
-                    }
-                </style>
-            </head>
-            <body>
-                <h1>تقرير المنتجات - طيبة المدينة تلكوم</h1>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>معرف المنتج</th>
-                            <th>اسم المنتج</th>
-                            <th>سعر الشراء</th>
-                            <th>سعر البيع</th>
-                            <th>الكمية</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${products.map((product, index) => `
-                            <tr>
-                                <td>${index + 1}</td>
-                                <td>${product.id}</td>
-                                <td>${product.name}</td>
-                                <td>${parseFloat(product.purchasePrice).toFixed(2)}</td>
-                                <td>${parseFloat(product.salePrice).toFixed(2)}</td>
-                                <td class="${parseInt(product.quantity) < 2 ? 'low-stock' : ''}">${parseInt(product.quantity)}</td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-                <button onclick="window.print()">طباعة</button>
-            </body>
-            </html>
-        `);
-
-        printWindow.document.close();
-        printWindow.focus();
-
-        // إضافة معالج لإغلاق النافذة بعد الطباعة
-        printWindow.addEventListener('afterprint', () => {
-            printWindow.close();
-        });
-
-        playSuccessSound();
-    } catch (error) {
-        Swal.fire({
-            title: 'خطأ',
-            text: 'فشل في إعداد الطباعة: ' + error.message,
-            icon: 'error',
-            confirmButtonColor: '#3F2A56'
-        });
-    }
-}
-// تهيئة الصفحة عند التحميل
-document.addEventListener('DOMContentLoaded', async () => {
-    try {
-        await initDB();
-        await updateProductsTable();
-        await updateDashboard();
-    } catch (error) {
-        Swal.fire({
-            title: 'خطأ في التهيئة',
-            text: 'فشل في تهيئة الصفحة: ' + error.message,
-            icon: 'error',
-            confirmButtonColor: '#3F2A56'
-        });
-    }
-});
-</script>
+    </script>
 </body>
 </html>
