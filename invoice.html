@@ -489,15 +489,15 @@
                 <div class="modal-body">
                     <form id="addCustomerForm">
                         <div class="mb-3">
-                            <label for="customerName" class="form-label">اسم الزبون</label>
-                            <input type="text" class="form-control" id="customerName" required>
+                            <label for="customerName" class="form-label">اسم الزبون (اختياري)</label>
+                            <input type="text" class="form-control" id="customerName">
                         </div>
                         <div class="mb-3">
-                            <label for="customerPhone" class="form-label">رقم الهاتف</label>
-                            <input type="text" class="form-control" id="customerPhone" required>
+                            <label for="customerPhone" class="form-label">رقم الهاتف (اختياري)</label>
+                            <input type="text" class="form-control" id="customerPhone">
                         </div>
                         <div class="mb-3">
-                            <label for="customerAddress" class="form-label">العنوان</label>
+                            <label for="customerAddress" class="form-label">العنوان (اختياري)</label>
                             <input type="text" class="form-control" id="customerAddress">
                         </div>
                     </form>
@@ -522,15 +522,15 @@
                     <form id="editCustomerForm">
                         <input type="hidden" id="editCustomerId">
                         <div class="mb-3">
-                            <label for="editCustomerName" class="form-label">اسم الزبون</label>
-                            <input type="text" class="form-control" id="editCustomerName" required>
+                            <label for="editCustomerName" class="form-label">اسم الزبون (اختياري)</label>
+                            <input type="text" class="form-control" id="editCustomerName">
                         </div>
                         <div class="mb-3">
-                            <label for="editCustomerPhone" class="form-label">رقم الهاتف</label>
-                            <input type="text" class="form-control" id="editCustomerPhone" required>
+                            <label for="editCustomerPhone" class="form-label">رقم الهاتف (اختياري)</label>
+                            <input type="text" class="form-control" id="editCustomerPhone">
                         </div>
                         <div class="mb-3">
-                            <label for="editCustomerAddress" class="form-label">العنوان</label>
+                            <label for="editCustomerAddress" class="form-label">العنوان (اختياري)</label>
                             <input type="text" class="form-control" id="editCustomerAddress">
                         </div>
                     </form>
@@ -702,8 +702,8 @@
                 row.innerHTML = `
                     <td>${index + 1}</td>
                     <td>${invoice.id}</td>
-                    <td>${customer ? customer.name : 'غير معروف'}</td>
-                    <td>${customer ? customer.phone : '-'}</td>
+                    <td>${customer && customer.name ? customer.name : 'غير معروف'}</td>
+                    <td>${customer && customer.phone ? customer.phone : '-'}</td>
                     <td>${totalAmount.toFixed(2)}</td>
                     <td class="${statusClass}">${statusText}</td>
                     <td>
@@ -726,10 +726,11 @@
 
             customers.forEach((customer, index) => {
                 const row = document.createElement('tr');
+                const displayName = customer.name || 'غير محدد';
                 row.innerHTML = `
                     <td>${index + 1}</td>
-                    <td>${customer.name}</td>
-                    <td>${customer.phone}</td>
+                    <td>${displayName}</td>
+                    <td>${customer.phone || '-'}</td>
                     <td>${customer.address || '-'}</td>
                     <td>
                         <i class="fas fa-edit action-btn edit" onclick="editCustomer('${customer.id}');event.stopPropagation();"></i>
@@ -751,7 +752,8 @@
 
             let filteredInvoices = invoices.filter(invoice => {
                 const customer = customers.find(c => c.id === invoice.customerId);
-                const matchesSearch = (customer && customer.name.toLowerCase().includes(searchInput)) || invoice.id.includes(searchInput);
+                const customerName = customer && customer.name ? customer.name.toLowerCase() : '';
+                const matchesSearch = customerName.includes(searchInput) || invoice.id.includes(searchInput);
                 if (!matchesSearch) return false;
                 const totalAmount = parseFloat(invoice.totalAmount);
                 const amountPaid = parseFloat(invoice.amountPaid);
@@ -782,8 +784,8 @@
                 row.innerHTML = `
                     <td>${index + 1}</td>
                     <td>${invoice.id}</td>
-                    <td>${customer ? customer.name : 'غير معروف'}</td>
-                    <td>${customer ? customer.phone : '-'}</td>
+                    <td>${customer && customer.name ? customer.name : 'غير معروف'}</td>
+                    <td>${customer && customer.phone ? customer.phone : '-'}</td>
                     <td>${totalAmount.toFixed(2)}</td>
                     <td class="${statusClass}">${statusText}</td>
                     <td>
@@ -806,7 +808,7 @@
             customers.forEach(customer => {
                 const option = document.createElement('option');
                 option.value = customer.id;
-                option.textContent = customer.name;
+                option.textContent = customer.name || `زبون بدون اسم (${customer.phone || 'معرف: ' + customer.id})`;
                 select.appendChild(option);
             });
         }
@@ -816,8 +818,8 @@
             const customerId = document.getElementById(selectId).value;
             const customers = await getAllCustomers();
             const customer = customers.find(c => c.id === customerId);
-            document.getElementById(phoneId).value = customer ? customer.phone : '';
-            document.getElementById(addressId).value = customer ? (customer.address || '') : '';
+            document.getElementById(phoneId).value = customer && customer.phone ? customer.phone : '';
+            document.getElementById(addressId).value = customer && customer.address ? customer.address : '';
         }
 
         // البحث عن منتج
@@ -977,6 +979,7 @@
                 invoice.products.forEach(product => {
                     const row = document.createElement('tr');
                     const rowId = `product-${Date.now()}`;
+                   แรง
                     row.id = rowId;
                     row.innerHTML = `
                         <td>${product.name}</td>
@@ -1102,29 +1105,21 @@
             const phone = document.getElementById('customerPhone').value.trim();
             const address = document.getElementById('customerAddress').value.trim();
 
-            if (!name || !phone) {
-                Swal.fire({
-                    title: 'خطأ',
-                    text: 'الرجاء إدخال اسم الزبون ورقم الهاتف!',
-                    icon: 'error',
-                    confirmButtonColor: '#3F2A56'
-                });
-                return;
-            }
-
-            const customers = await getAllCustomers();
-            if (customers.some(c => c.phone === phone)) {
-                Swal.fire({
-                    title: 'خطأ',
-                    text: 'رقم الهاتف موجود مسبقًا!',
-                    icon: 'error',
-                    confirmButtonColor: '#3F2A56'
-                });
-                return;
-            }
-
             const id = await generateUniqueId('customers');
             const customer = { id, name, phone, address };
+
+            if (phone) {
+                const customers = await getAllCustomers();
+                if (customers.some(c => c.phone === phone)) {
+                    Swal.fire({
+                        title: 'خطأ',
+                        text: 'رقم الهاتف موجود مسبقًا!',
+                        icon: 'error',
+                        confirmButtonColor: '#3F2A56'
+                    });
+                    return;
+                }
+            }
 
             const transaction = db.transaction(['customers'], 'readwrite');
             const store = transaction.objectStore('customers');
@@ -1163,8 +1158,8 @@
             request.onsuccess = () => {
                 const customer = request.result;
                 document.getElementById('editCustomerId').value = customer.id;
-                document.getElementById('editCustomerName').value = customer.name;
-                document.getElementById('editCustomerPhone').value = customer.phone;
+                document.getElementById('editCustomerName').value = customer.name || '';
+                document.getElementById('editCustomerPhone').value = customer.phone || '';
                 document.getElementById('editCustomerAddress').value = customer.address || '';
                 new bootstrap.Modal(document.getElementById('editCustomerModal')).show();
             };
@@ -1177,26 +1172,18 @@
             const phone = document.getElementById('editCustomerPhone').value.trim();
             const address = document.getElementById('editCustomerAddress').value.trim();
 
-            if (!name || !phone) {
-                Swal.fire({
-                    title: 'خطأ',
-                    text: 'الرجاء إدخال اسم الزبون ورقم الهاتف!',
-                    icon: 'error',
-                    confirmButtonColor: '#3F2A56'
-                });
-                return;
-            }
-
-            const customers = await getAllCustomers();
-            const existingCustomer = customers.find(c => c.id === id);
-            if (phone !== existingCustomer.phone && customers.some(c => c.phone === phone)) {
-                Swal.fire({
-                    title: 'خطأ',
-                    text: 'رقم الهاتف موجود مسبقًا!',
-                    icon: 'error',
-                    confirmButtonColor: '#3F2A56'
-                });
-                return;
+            if (phone) {
+                const customers = await getAllCustomers();
+                const existingCustomer = customers.find(c => c.id === id);
+                if (phone !== existingCustomer.phone && customers.some(c => c.phone === phone)) {
+                    Swal.fire({
+                        title: 'خطأ',
+                        text: 'رقم الهاتف موجود مسبقًا!',
+                        icon: 'error',
+                        confirmButtonColor: '#3F2A56'
+                    });
+                    return;
+                }
             }
 
             const customer = { id, name, phone, address };
@@ -1321,8 +1308,8 @@
                             </div>
                             <div class="info">
                                 <p><strong>معرف الفاتورة:</strong> ${invoice.id}</p>
-                                <p><strong>الزبون:</strong> ${customer ? customer.name : 'غير معروف'}</p>
-                                <p><strong>رقم الهاتف:</strong> ${customer ? customer.phone : '-'}</p>
+                                <p><strong>الزبون:</strong> ${customer && customer.name ? customer.name : 'غير معروف'}</p>
+                                <p><strong>رقم الهاتف:</strong> ${customer && customer.phone ? customer.phone : '-'}</p>
                                 <p><strong>العنوان:</strong> ${customer && customer.address ? customer.address : '-'}</p>
                                 <p><strong>التاريخ:</strong> ${new Date(invoice.date).toLocaleString('ar-SA')}</p>
                             </div>
@@ -1427,8 +1414,8 @@
                             <h1>طيبة المدينة تلكوم - كشف حساب زبون</h1>
                         </div>
                         <div class="info">
-                            <p><strong>الزبون:</strong> ${customer ? customer.name : 'غير معروف'}</p>
-                            <p><strong>رقم الهاتف:</strong> ${customer ? customer.phone : '-'}</p>
+                            <p><strong>الزبون:</strong> ${customer && customer.name ? customer.name : 'غير معروف'}</p>
+                            <p><strong>رقم الهاتف:</strong> ${customer && customer.phone ? customer.phone : '-'}</p>
                             <p><strong>العنوان:</strong> ${customer && customer.address ? customer.address : '-'}</p>
                             <p><strong>من تاريخ:</strong> ${startDate.toLocaleDateString('ar-SA')}</p>
                             <p><strong>إلى تاريخ:</strong> ${endDate.toLocaleDateString('ar-SA')}</p>
