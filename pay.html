@@ -375,6 +375,7 @@
             <button class="btn" onclick="exportToCSV()"><i class="fas fa-file-csv"></i> تصدير إلى CSV</button>
             <input type="file" id="importFile" accept=".json,.csv" style="display: none;" onchange="importFile(event)">
             <button class="btn" onclick="document.getElementById('importFile').click()"><i class="fas fa-file-import"></i> استيراد ملف</button>
+<button class="btn" onclick="resetAllData()"><i class="fas fa-trash-restore"></i> البدء من جديد</button>
             <button class="btn" onclick="generateQRCode()"><i class="fas fa-qrcode"></i> إنشاء رمز QR</button>
             <button class="btn" onclick="scanQRCode()"><i class="fas fa-camera"></i> مسح رمز QR</button>
             <input type="file" id="importQRImage" accept="image/*" style="display: none;" onchange="importQRFromImage(event)">
@@ -1014,6 +1015,69 @@
                 icon: 'error',
                 confirmButtonColor: '#3F2A56'
             });
+        }
+    }
+}
+async function resetAllData() {
+    const confirmResult = await Swal.fire({
+        title: 'هل أنت متأكد؟',
+        text: 'سيؤدي هذا إلى حذف جميع بيانات الموثقين نهائيًا!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'حذف',
+        cancelButtonText: 'إلغاء',
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        customClass: {
+            popup: 'swal2-rtl'
+        }
+    });
+
+    if (confirmResult.isConfirmed) {
+        const passwordResult = await Swal.fire({
+            title: 'أدخل كلمة المرور',
+            input: 'password',
+            inputLabel: 'كلمة المرور',
+            inputPlaceholder: 'أدخل كلمة المرور...',
+            inputAttributes: {
+                autocapitalize: 'off',
+                autocorrect: 'off'
+            },
+            showCancelButton: true,
+            confirmButtonText: 'تأكيد',
+            cancelButtonText: 'إلغاء',
+            confirmButtonColor: '#3F2A56',
+            cancelButtonColor: '#6c757d',
+            customClass: {
+                popup: 'swal2-rtl'
+            }
+        });
+
+        if (passwordResult.isConfirmed) {
+            if (passwordResult.value === '1138') {
+                notaries = [];
+                localStorage.removeItem('notaries');
+                renderTable();
+                Swal.fire({
+                    title: 'تم الحذف',
+                    text: 'تم حذف جميع البيانات بنجاح!',
+                    icon: 'success',
+                    confirmButtonColor: '#3F2A56',
+                    customClass: {
+                        popup: 'swal2-rtl'
+                    }
+                });
+            } else {
+                Swal.fire({
+                    title: 'كلمة المرور غير صحيحة',
+                    text: 'كلمة المرور المدخلة غير صحيحة. حاول مرة أخرى.',
+                    icon: 'error',
+                    confirmButtonColor: '#3F2A56',
+                    customClass: {
+                        popup: 'swal2-rtl'
+                    }
+                });
+            }
         }
     }
 }
