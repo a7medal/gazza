@@ -301,7 +301,7 @@
             border-radius: 20px !important;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important;
         }
-        .swal2-cancel, .swal2-deny {
+        .swal2-cancel, .swال2-deny {
             background: linear-gradient(90deg, #6c757d, #5a6268) !important;
             border-radius: 20px !important;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important;
@@ -332,7 +332,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <img src="logo.png" alt="شعار طيبة المدينة تلكوم" onerror="this.src='https://via.placeholder.com/90?text=Logo';">
+            <img src="logo.png" alt="شعار طيبة المدينة تلكوم" onerror="this.src='https://via.placeholder.com/90?text=Logo'; this.style.display='none';">
             <h2>طيبة المدينة تلكوم</h2>
             <h4>بيع المنتجات</h4>
             <a href="home.html" class="home-btn"><i class="fas fa-home"></i> للرئيسية</a>
@@ -673,8 +673,6 @@
                 request.onupgradeneeded = (event) => {
                     db = event.target.result;
                     if (!db.objectStoreNames.contains('products')) {
-                        // Make sure 'products' store is created with 'id' as keyPath.
-                        // 'costPrice' is a property of product objects, not necessarily an index.
                         db.createObjectStore('products', { keyPath: 'id' });
                     }
                     if (!db.objectStoreNames.contains('invoices')) {
@@ -801,9 +799,10 @@
 
         async function updateDashboard() {
             const invoices = await getAllInvoices();
-            const paid = invoices.filter(i => parseFloat(i.amountPaid) >= parseFloat(i.totalAmount)).length;
+            const paid = invoices.filter(i => parseFloat(i.amountPaid) >= parseFloat(i.totalAmount) && parseFloat(i.totalAmount) > 0).length;
             const partial = invoices.filter(i => parseFloat(i.amountPaid) > 0 && parseFloat(i.amountPaid) < parseFloat(i.totalAmount)).length;
             const unpaid = invoices.filter(i => parseFloat(i.amountPaid) === 0 && parseFloat(i.totalAmount) > 0).length;
+
 
             document.getElementById('paidInvoices').innerText = paid;
             document.getElementById('partialInvoices').innerText = partial;
@@ -824,8 +823,8 @@
                 const amountPaid = parseFloat(invoice.amountPaid);
                 let statusClass, statusText;
 
-                if (totalAmount === 0 && amountPaid === 0) {
-                    statusClass = '';
+                if (totalAmount === 0 && amountPaid === 0) { // Consider invoices with 0 total and 0 paid (e.g. returns or empty)
+                    statusClass = ''; // No specific class or a 'neutral' class
                     statusText = 'لا يوجد مبلغ';
                 } else if (amountPaid >= totalAmount) {
                     statusClass = 'status-paid';
@@ -833,10 +832,11 @@
                 } else if (amountPaid > 0) {
                     statusClass = 'status-partial';
                     statusText = 'مدفوع جزئيًا';
-                } else {
+                } else { // amountPaid is 0 and totalAmount > 0
                     statusClass = 'status-unpaid';
                     statusText = 'لم يتم الدفع';
                 }
+
 
                 const row = document.createElement('tr');
                 row.innerHTML = `
@@ -854,8 +854,8 @@
                 `;
                 tableBody.appendChild(row);
             });
-
-            filterTable(); 
+            updateDashboard(); // Update dashboard after table is updated
+            // filterTable(); // Call filterTable if you want to apply existing filters immediately after refresh
         }
 
         async function updateCustomersTable() {
@@ -883,8 +883,8 @@
         async function filterTable() {
             const searchInput = document.getElementById('searchInput').value.toLowerCase();
             const statusFilter = document.getElementById('statusFilter').value;
-            const invoices = await getAllInvoices();
-            const customers = await getAllCustomers();
+            const invoices = await getAllInvoices(); // Fetch fresh list
+            const customers = await getAllCustomers(); // Fetch fresh list
             const tableBody = document.getElementById('invoicesTable');
             
             const filteredInvoices = invoices.filter(invoice => {
@@ -896,19 +896,26 @@
 
                 const totalAmount = parseFloat(invoice.totalAmount);
                 const amountPaid = parseFloat(invoice.amountPaid);
+
                 if (statusFilter === 'all') return true;
-                if (statusFilter === 'paid') return amountPaid >= totalAmount && totalAmount > 0;
+                if (statusFilter === 'paid') return amountPaid >= totalAmount && totalAmount > 0; // Ensure total > 0 for 'paid'
                 if (statusFilter === 'partial') return amountPaid > 0 && amountPaid < totalAmount;
-                if (statusFilter === 'unpaid') return amountPaid === 0 && totalAmount > 0;
-                return true; // Should not be reached if statusFilter is one of the above
+                if (statusFilter === 'unpaid') return amountPaid === 0 && totalAmount > 0; // Ensure total > 0 for 'unpaid'
+                
+                // This case should ideally not be reached if statusFilter has a valid value from the dropdown.
+                // If it's reached, it means an unknown filter value, so include the item.
+                return true; 
             });
 
             tableBody.innerHTML = ''; 
+            filteredInvoices.sort((a, b) => new Date(b.date) - new Date(a.date)); // Re-sort filtered results
+
             filteredInvoices.forEach((invoice, index) => {
                 const customer = customers.find(c => c.id === invoice.customerId);
                 const totalAmount = parseFloat(invoice.totalAmount);
                 const amountPaid = parseFloat(invoice.amountPaid);
                 let statusClass, statusText;
+
                  if (totalAmount === 0 && amountPaid === 0) {
                     statusClass = ''; statusText = 'لا يوجد مبلغ';
                 } else if (amountPaid >= totalAmount) {
@@ -934,13 +941,16 @@
                 `;
                 tableBody.appendChild(row);
             });
-            updateDashboard();
+            // No need to call updateDashboard here as it's called in updateInvoicesTable which is called by other functions.
+            // However, if filterTable is called independently (e.g., on search input), then dashboard might need update based on filtered view, or just reflect all invoices.
+            // For simplicity, let dashboard always reflect all invoices. It's updated by main table update functions.
         }
 
 
         async function populateCustomerSelect(selectElementId) {
             const customers = await getAllCustomers();
             const select = document.getElementById(selectElementId);
+            const currentValue = select.value; // Preserve current selection if possible
             select.innerHTML = '<option value="">اختر زبونًا...</option>'; 
             customers.forEach(customer => {
                 const option = document.createElement('option');
@@ -948,6 +958,9 @@
                 option.textContent = customer.name || `زبون (${customer.phone || 'معرف: ' + customer.id.slice(0,5)})`;
                 select.appendChild(option);
             });
+            if (currentValue) { // Attempt to restore selection
+                 select.value = currentValue;
+            }
         }
 
         async function updateCustomerInfo(selectElementId, phoneElementId, addressElementId) {
@@ -956,7 +969,7 @@
             const addressInput = document.getElementById(addressElementId);
 
             if (customerId) {
-                const customers = await getAllCustomers();
+                const customers = await getAllCustomers(); // Fetch fresh customer data
                 const customer = customers.find(c => c.id === customerId);
                 phoneInput.value = customer?.phone || '';
                 addressInput.value = customer?.address || '';
@@ -976,22 +989,30 @@
                 if (query.length < 1) return; 
 
                 const allProducts = await getAllProducts();
-                // Filter for available products (quantity > 0) before further filtering by query
                 const availableProducts = allProducts.filter(p => p.quantity > 0); 
                 
                 const filteredProducts = availableProducts.filter(p => 
                     p.name.toLowerCase().includes(query) || 
                     p.id.includes(query)
-                ).slice(0, 10); // Limit to 10 suggestions
+                ).slice(0, 10); 
 
                 if (filteredProducts.length > 0) {
                     filteredProducts.forEach(product => {
                         const div = document.createElement('div');
                         div.className = 'list-group-item list-group-item-action';
                         
-                        // Safely format prices, defaulting to 0 if not present, and handle costPrice
                         const salePriceFormatted = parseFloat(product.salePrice || 0).toFixed(2);
-                        const costPriceFormatted = product.costPrice ? parseFloat(product.costPrice).toFixed(2) : 'غ/م'; // غ/م for غير متوفر
+                        
+                        // --- MODIFICATION FOR costPrice ---
+                        let costPriceFormatted;
+                        if (typeof product.costPrice === 'number') { // Handles 0 as a valid cost price
+                            costPriceFormatted = parseFloat(product.costPrice).toFixed(2);
+                        } else if (product.costPrice && !isNaN(parseFloat(product.costPrice))) { // Handles string numbers
+                            costPriceFormatted = parseFloat(product.costPrice).toFixed(2);
+                        } else {
+                            costPriceFormatted = 'غ/م'; // Not available or not a valid number
+                        }
+                        // --- END MODIFICATION ---
                         
                         div.innerHTML = `
                             <strong>${product.name}</strong> (المعرف: ${product.id}) <br>
@@ -1022,35 +1043,36 @@
             if (existingRow) {
                 const quantityInput = existingRow.querySelector('.quantity');
                 const currentQuantity = parseInt(quantityInput.value);
-                if (currentQuantity < product.quantity) { // Check against actual stock for increment
+                if (currentQuantity < product.quantity) { 
                     quantityInput.value = currentQuantity + 1;
                 } else {
                     Swal.fire('تنبيه', `الكمية المطلوبة للمنتج "${product.name}" تتجاوز المخزون المتاح (${product.quantity}).`, 'warning');
                     return;
                 }
             } else {
-                if (product.quantity < 1) { // Check stock before adding new
+                if (product.quantity < 1) { 
                      Swal.fire('تنبيه', `المنتج "${product.name}" غير متوفر في المخزون.`, 'warning');
                     return;
                 }
                 const row = tableBody.insertRow();
                 row.dataset.productId = product.id; 
-                // row.dataset.originalQuantity = product.quantity; // Store product's current stock if needed for complex logic
-
+                
                 row.innerHTML = `
                     <td>${product.name}</td>
-                    <td><input type="number" class="form-control form-control-sm sale-price" value="${parseFloat(product.salePrice).toFixed(2)}" step="0.01" min="0.01"></td>
+                    <td><input type="number" class="form-control form-control-sm sale-price" value="${parseFloat(product.salePrice || 0).toFixed(2)}" step="0.01" min="0.01"></td>
                     <td><input type="number" class="form-control form-control-sm quantity" value="1" min="1" max="${product.quantity}"></td>
                     <td><input type="text" class="form-control form-control-sm note" placeholder="ملاحظة (اختياري)"></td>
-                    <td class="total">${parseFloat(product.salePrice).toFixed(2)}</td>
+                    <td class="total">${parseFloat(product.salePrice || 0).toFixed(2)}</td>
                     <td><button type="button" class="btn btn-sm btn-danger" onclick="removeProductFromInvoice(this.closest('tr'), '${productsTableId}')"><i class="fas fa-trash-alt"></i></button></td>
                 `;
                 row.querySelector('.sale-price').addEventListener('input', () => updateInvoiceTotals(productsTableId));
                 row.querySelector('.quantity').addEventListener('input', (e) => {
                     const requestedQuantity = parseInt(e.target.value);
-                    if (requestedQuantity > product.quantity) { // Check against product's total stock
-                        e.target.value = product.quantity; 
-                        Swal.fire('تنبيه', `الكمية المطلوبة للمنتج "${product.name}" تتجاوز المخزون المتاح (${product.quantity}). تم التعديل للحد الأقصى.`, 'warning');
+                    const maxQuantityForThisProduct = parseInt(e.target.max); // Use the max attribute of the input
+
+                    if (requestedQuantity > maxQuantityForThisProduct) {
+                        e.target.value = maxQuantityForThisProduct; 
+                        Swal.fire('تنبيه', `الكمية المطلوبة للمنتج "${product.name}" تتجاوز المخزون المتاح (${maxQuantityForThisProduct}). تم التعديل للحد الأقصى.`, 'warning');
                     }
                     updateInvoiceTotals(productsTableId);
                 });
@@ -1068,7 +1090,7 @@
             const tableBody = document.getElementById(productsTableId);
             const rows = tableBody.querySelectorAll('tr');
             let totalAmount = 0;
-            let totalItemsCount = 0; // Number of unique product lines
+            let totalItemsCount = 0; 
 
             rows.forEach(row => {
                 const salePriceInput = row.querySelector('.sale-price');
@@ -1151,7 +1173,7 @@
             const request = store.add(invoice);
 
             request.onsuccess = async () => {
-                await updateInvoicesTable();
+                await updateInvoicesTable(); // This also updates dashboard
                 bootstrap.Modal.getInstance(document.getElementById('addInvoiceModal')).hide();
                 document.getElementById('addInvoiceForm').reset();
                 document.getElementById('invoiceProducts').innerHTML = ''; 
@@ -1159,7 +1181,8 @@
                 document.getElementById('totalAmount').textContent = '0.00';
                 document.getElementById('customerPhoneDisplay').value = '';
                 document.getElementById('customerAddressDisplay').value = '';
-                await populateCustomerSelect('invoiceCustomer'); // Repopulate to reflect any changes
+                document.getElementById('invoiceDate').textContent = formatDateForDisplay(new Date().toISOString()); // Reset date
+                await populateCustomerSelect('invoiceCustomer'); 
                 Swal.fire('نجاح', 'تم إضافة الفاتورة وتحديث المخزون بنجاح!', 'success');
             };
             request.onerror = (e) => {
@@ -1202,7 +1225,7 @@
         async function editInvoice(invoiceId) {
             try {
                 await ensureDBInitialized();
-                const transaction = db.transaction(['invoices', 'customers', 'products'], 'readonly'); // Add 'products' for stock check
+                const transaction = db.transaction(['invoices', 'customers', 'products'], 'readonly'); 
                 const invoiceStore = transaction.objectStore('invoices');
                 const invoiceRequest = invoiceStore.get(invoiceId);
 
@@ -1231,16 +1254,13 @@
 
                     invoice.products.forEach(pInInvoice => {
                         const productDetailsFromDB = allProductsFromDB.find(pDB => pDB.id === pInInvoice.productId);
-                        // Current stock in DB + quantity in *this specific invoice* = total available for this item in edit mode
                         const currentStockInDB = productDetailsFromDB ? productDetailsFromDB.quantity : 0;
                         const maxQuantityForInput = currentStockInDB + pInInvoice.quantity;
 
 
                         const row = tableBody.insertRow();
                         row.dataset.productId = pInInvoice.productId;
-                        // Store the original quantity *sold in this invoice* to calculate stock diff later
                         row.dataset.originalQuantityInInvoice = pInInvoice.quantity; 
-                        // Store the max possible quantity for this item in edit mode
                         row.dataset.maxEditableQuantity = maxQuantityForInput;
 
 
@@ -1255,7 +1275,7 @@
                         row.querySelector('.sale-price').addEventListener('input', () => updateInvoiceTotals('editInvoiceProducts'));
                         row.querySelector('.quantity').addEventListener('input', (e) => {
                              const requestedQuantity = parseInt(e.target.value);
-                             const maxAllowed = parseInt(e.target.max); // Use the max attribute set on the input
+                             const maxAllowed = parseInt(e.target.max); 
                              if (requestedQuantity > maxAllowed) {
                                 e.target.value = maxAllowed;
                                 Swal.fire('تنبيه', `الكمية المطلوبة للمنتج "${pInInvoice.name}" تتجاوز المخزون المتاح. تم التعديل للحد الأقصى (${maxAllowed}).`, 'warning');
@@ -1282,7 +1302,7 @@
             const rows = productsTable.querySelectorAll('tr');
             
             const originalProductsJSON = document.getElementById('editInvoiceModal').dataset.originalProducts;
-            const originalProductsInInvoice = JSON.parse(originalProductsJSON || "[]"); // Products as they were when edit modal opened
+            const originalProductsInInvoice = JSON.parse(originalProductsJSON || "[]"); 
 
 
             if (!customerId) { Swal.fire('خطأ', 'الرجاء اختيار زبون!', 'error'); return; }
@@ -1295,8 +1315,6 @@
             let newTotalAmount = 0;
             let stockAdjustmentPromises = []; 
 
-            // Calculate stock adjustments based on changes
-            // 1. For products remaining in the invoice or with changed quantities
             for (const row of rows) {
                 const productId = row.dataset.productId;
                 const name = row.cells[0].textContent;
@@ -1315,8 +1333,6 @@
                 const originalProductInfo = originalProductsInInvoice.find(p => p.productId === productId);
                 const originalQuantitySoldInThisInvoice = originalProductInfo ? originalProductInfo.quantity : 0;
                 
-                // quantityChange > 0 means product is returned to stock (new_sold < old_sold)
-                // quantityChange < 0 means more product is taken from stock (new_sold > old_sold)
                 const quantityChangeForStock = originalQuantitySoldInThisInvoice - newQuantitySold; 
                 
                 if (quantityChangeForStock !== 0) {
@@ -1324,20 +1340,18 @@
                     if (productExists) {
                          stockAdjustmentPromises.push(adjustProductStock(productId, quantityChangeForStock));
                     } else {
-                        console.warn(`Product ${productId} not found in DB. Skipping stock adjustment.`);
+                        console.warn(`Product ${productId} not found in DB. Skipping stock adjustment for this item.`);
                     }
                 }
             }
             
-            // 2. For products removed from the invoice
             originalProductsInInvoice.forEach(async origP => {
                 if (!updatedProductsInInvoice.some(updP => updP.productId === origP.productId)) {
-                    // This product was removed, return its original quantity to stock
                     const productExists = await checkProductExists(origP.productId);
                      if (productExists) {
                         stockAdjustmentPromises.push(adjustProductStock(origP.productId, origP.quantity)); 
                      } else {
-                        console.warn(`Product ${origP.productId} (removed from invoice) not found in DB. Skipping stock adjustment.`);
+                        console.warn(`Product ${origP.productId} (removed from invoice) not found in DB. Skipping stock adjustment for this item.`);
                      }
                 }
             });
@@ -1361,7 +1375,8 @@
             if (invoiceDateStr && invoiceDateStr !== 'N/A') {
                 const parts = invoiceDateStr.match(/(\d{2})-(\d{2})-(\d{4}) (\d{2}):(\d{2})/);
                 if (parts) {
-                    invoiceDateISO = new Date(parts[3], parts[2] - 1, parts[1], parts[4], parts[5]).toISOString();
+                    // parts[1]=day, parts[2]=month, parts[3]=year, parts[4]=hour, parts[5]=minute
+                    invoiceDateISO = new Date(Date.UTC(parts[3], parts[2] - 1, parts[1], parts[4], parts[5])).toISOString();
                 } else {
                     invoiceDateISO = new Date().toISOString(); 
                 }
@@ -1384,7 +1399,7 @@
             const request = store.put(invoice);
 
             request.onsuccess = async () => {
-                await updateInvoicesTable();
+                await updateInvoicesTable(); // This also updates dashboard
                 bootstrap.Modal.getInstance(document.getElementById('editInvoiceModal')).hide();
                 Swal.fire('نجاح', 'تم تعديل الفاتورة وتحديث المخزون بنجاح!', 'success');
             };
@@ -1394,7 +1409,6 @@
             };
         }
 
-        // quantityChange: positive to add to stock, negative to remove from stock
         function adjustProductStock(productId, quantityChange) {
             return new Promise(async (resolve, reject) => {
                 try {
@@ -1406,12 +1420,15 @@
                     getRequest.onsuccess = () => {
                         const product = getRequest.result;
                         if (!product) {
-                            reject(new Error(`المنتج بالمعرف ${productId} غير موجود لتعديل المخزون.`));
+                            // It's possible a product was deleted from inventory system externally
+                            // while it was still in an invoice. Log this instead of hard failing the whole invoice update.
+                            console.warn(`المنتج بالمعرف ${productId} غير موجود لتعديل المخزون. سيتم تخطي هذا المنتج.`);
+                            resolve(); // Resolve to not block other stock adjustments
                             return;
                         }
                         
                         const newStock = product.quantity + quantityChange;
-                        if (newStock < 0) { // Should not happen if max quantity checks in UI are correct
+                        if (newStock < 0) { 
                              reject(new Error(`لا يمكن أن يكون مخزون المنتج "${product.name}" سالبًا. التغيير المطلوب للمخزون: ${quantityChange}, المخزون الحالي: ${product.quantity}.`));
                              return;
                         }
@@ -1443,7 +1460,7 @@
             if (result.isConfirmed) {
                 try {
                     await ensureDBInitialized();
-                    const readTx = db.transaction(['invoices'], 'readonly'); // Only invoices needed to get products
+                    const readTx = db.transaction(['invoices'], 'readonly'); 
                     const invoiceStoreRead = readTx.objectStore('invoices');
                     const getInvoiceRequest = invoiceStoreRead.get(invoiceId);
 
@@ -1458,7 +1475,6 @@
                         for (const p of invoiceToDelete.products) {
                             const productExists = await checkProductExists(p.productId);
                             if (productExists) {
-                                // Return quantity to stock (positive value for quantityChange)
                                 stockReturnPromises.push(adjustProductStock(p.productId, p.quantity));
                             } else {
                                 console.warn(`Product ${p.productId} from deleted invoice not found. Stock not returned for this item.`);
@@ -1475,7 +1491,7 @@
                             const deleteRequest = invoiceStoreWrite.delete(invoiceId);
 
                             deleteRequest.onsuccess = async () => {
-                                await updateInvoicesTable();
+                                await updateInvoicesTable(); // This also updates dashboard
                                 Swal.fire('نجاح', 'تم حذف الفاتورة وإرجاع المنتجات للمخزون بنجاح!', 'success');
                             };
                             deleteRequest.onerror = (e) => {
@@ -1508,14 +1524,21 @@
 
             if (phone) { 
                 const customers = await getAllCustomers();
-                if (customers.some(c => c.phone === phone)) {
+                if (customers.some(c => c.phone === phone && phone !== '')) { // Ensure phone isn't empty string
                     Swal.fire('خطأ', 'رقم الهاتف هذا مُسجل لزبون آخر!', 'error');
                     return;
                 }
             }
 
+
             const id = await generateUniqueId('customers');
-            const customer = { id, name, phone, address };
+            const customer = { 
+                id, 
+                name: name || null, // Store null if empty for consistency
+                phone: phone || null, 
+                address: address || null 
+            };
+
 
             const transaction = db.transaction(['customers'], 'readwrite');
             const store = transaction.objectStore('customers');
@@ -1571,20 +1594,25 @@
 
             if (phone) { 
                 const customers = await getAllCustomers();
-                if (customers.some(c => c.id !== id && c.phone === phone)) { 
+                if (customers.some(c => c.id !== id && c.phone === phone && phone !== '')) { 
                     Swal.fire('خطأ', 'رقم الهاتف هذا مُسجل لزبون آخر!', 'error');
                     return;
                 }
             }
 
-            const customer = { id, name, phone, address };
+            const customer = { 
+                id, 
+                name: name || null, 
+                phone: phone || null, 
+                address: address || null 
+            };
             const transaction = db.transaction(['customers'], 'readwrite');
             const store = transaction.objectStore('customers');
             const request = store.put(customer);
 
             request.onsuccess = async () => {
                 await updateCustomersTable();
-                await updateInvoicesTable(); 
+                await updateInvoicesTable(); // Refresh invoices in case customer name changed
                 await populateCustomerSelect('invoiceCustomer');
                 await populateCustomerSelect('editInvoiceCustomer');
                 await populateCustomerSelect('statementCustomer');
@@ -1597,9 +1625,10 @@
         async function deleteCustomer(customerId) {
             const invoices = await getAllInvoices();
             if (invoices.some(i => i.customerId === customerId)) {
-                Swal.fire('لا يمكن الحذف', 'لا يمكن حذف هذا الزبون لأنه مرتبط بفواتير حالية. يرجى حذف الفواتير المرتبطة به أولاً (إذا كانت هذه الإمكانية متاحة) أو تعديلها لزبون آخر.', 'error');
+                Swal.fire('لا يمكن الحذف', 'لا يمكن حذف هذا الزبون لأنه مرتبط بفواتير حالية. يرجى تعديل الفواتير المرتبطة به لزبون آخر أو حذفها (إذا كانت هذه الإمكانية متاحة).', 'error');
                 return;
             }
+
 
             const result = await Swal.fire({
                 title: 'تأكيد الحذف',
@@ -1652,7 +1681,6 @@
                             <meta charset="UTF-8">
                             <title>فاتورة رقم: ${invoice.id}</title>
                             <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
-                            <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"><\/script>
                             <style>
                                 @page { size: A5 landscape; margin: 5mm; }
                                 body { font-family: 'Cairo', sans-serif; direction: rtl; margin: 5mm; font-size: 10pt; }
@@ -1664,8 +1692,19 @@
                                 .invoice-details-text { flex-basis: 70%;} 
                                 .invoice-details, .customer-details { font-size: 0.85rem;}
                                 .invoice-details p, .customer-details p { margin: 2px 0; }
-                                .qr-code-container { flex-basis: 28%; text-align: left; padding-left: 5px; } 
-                                #invoiceQrCodeCanvas { max-width: 70px; max-height: 70px; border: 1px solid #eee; } /* Ensure canvas is visible */
+                                .qr-code-container { 
+                                    flex-basis: auto; /* Adjust to content */
+                                    min-width: 75px; 
+                                    text-align: center; /* Center the QR code if div is wider */
+                                    padding-left: 5px; 
+                                } 
+                                #invoiceQrCodeElement { /* The div where QR will be generated */
+                                    display: inline-block; /* Helps with sizing and centering */
+                                }
+                                #invoiceQrCodeElement canvas,
+                                #invoiceQrCodeElement img {
+                                    border: 1px solid #eee; /* Add border to the QR itself */
+                                }
                                 .products-table { width: 100%; border-collapse: collapse; margin-bottom: 8px; }
                                 .products-table th, .products-table td { padding: 4px; border: 1px solid #ccc; text-align: center; font-size: 0.8rem;}
                                 .products-table th { background-color: #f2f2f2; color: #333; font-weight:600; }
@@ -1698,7 +1737,7 @@
                                         </div>
                                     </div>
                                     <div class="qr-code-container">
-                                        <canvas id="invoiceQrCodeCanvas"></canvas>
+                                        <div id="invoiceQrCodeElement"></div> <!-- Target for QRCode.js -->
                                     </div>
                                 </div>
 
@@ -1733,11 +1772,12 @@
                                     <p>شكراً لتعاملكم معنا!</p>
                                 </div>
                             </div>
+                            <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"><\/script>
                             <script>
-                                document.addEventListener('DOMContentLoaded', function() {
-                                    var qrCanvas = document.getElementById('invoiceQrCodeCanvas');
-                                    if (qrCanvas && typeof QRCode !== 'undefined') { // Check if QRCode lib is loaded
-                                        new QRCode(qrCanvas, {
+                                window.onload = function() { // This is the onload for the print window's content
+                                    var qrElement = document.getElementById('invoiceQrCodeElement');
+                                    if (qrElement && typeof QRCode !== 'undefined') {
+                                        new QRCode(qrElement, {
                                             text: "${invoice.id}",
                                             width: 65,
                                             height: 65,
@@ -1745,21 +1785,23 @@
                                             colorLight : "#ffffff",
                                             correctLevel : QRCode.CorrectLevel.H
                                         });
-                                    } else if (!qrCanvas) {
-                                        console.error("QR Canvas element not found for printing.");
-                                    } else if (typeof QRCode === 'undefined') {
-                                         console.error("QRCode library not loaded in print window.");
+                                    } else {
+                                        console.error("QR Code generation failed in print window: Element or QRCode library not found.");
                                     }
-                                });
+                                };
                             <\/script>
                         </body>
                         </html>
                     `);
-                    printWindow.document.close(); // Important for some browsers
-                    printWindow.onload = function() { // Ensure all content including images/scripts are loaded
-                        printWindow.focus();
-                        printWindow.print();
-                        // printWindow.close(); // Optional: Close after print dialog
+                    printWindow.document.close(); 
+                    printWindow.onload = function() { // This is for the parent window's reference to the new window object
+                        // The new window's own window.onload (for its content) should have fired by now.
+                        // Add a slight delay to ensure rendering is complete before the print dialog.
+                        setTimeout(function() {
+                            printWindow.focus();
+                            printWindow.print();
+                            // printWindow.close(); // Optional: Close after print dialog
+                        }, 300); // 300ms delay, adjust if needed.
                     }
                 };
                 invoiceRequest.onerror = (e) => Swal.fire('خطأ', `فشل في جلب الفاتورة للطباعة: ${e.target.error}`, 'error');
@@ -1780,7 +1822,7 @@
             
             const startDate = new Date(startDateValue);
             const endDate = new Date(endDateValue);
-            endDate.setHours(23, 59, 59, 999); // Include the whole end day
+            endDate.setHours(23, 59, 59, 999); 
 
 
             if (startDate > endDate) {
@@ -1795,7 +1837,7 @@
             const filteredInvoices = invoices.filter(i => {
                 const invoiceDate = new Date(i.date);
                 return i.customerId === customerId && invoiceDate >= startDate && invoiceDate <= endDate;
-            }).sort((a, b) => new Date(a.date) - new Date(b.date)); // Sort by date
+            }).sort((a, b) => new Date(a.date) - new Date(b.date)); 
 
             const printWindow = window.open('', '_blank', 'height=800,width=600');
              if (!printWindow) {
@@ -1820,9 +1862,9 @@
                         .statement-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
                         .statement-table th, .statement-table td { padding: 8px; border: 1px solid #ccc; text-align: center; font-size:0.9rem; }
                         .statement-table th { background-color: #f2f2f2; color: #333; font-weight:600; }
-                        .status-paid { color: #198754; }
-                        .status-partial { color: #ffc107; }
-                        .status-unpaid { color: #dc3545; }
+                        .status-paid { color: #198754; font-weight: 700; }
+                        .status-partial { color: #ffc107; font-weight: 700; }
+                        .status-unpaid { color: #dc3545; font-weight: 700; }
                         .summary { margin-top: 20px; padding-top:10px; border-top: 1px solid #ccc; text-align:left; font-size:1rem;}
                         .summary p {margin: 5px 0; font-weight:600;}
                          @media print {
@@ -1891,9 +1933,11 @@
                 </html>
             `);
             printWindow.document.close();
-            printWindow.onload = function() {
-                printWindow.focus();
-                printWindow.print();
+            printWindow.onload = function() { // Parent window's reference onload
+                setTimeout(function() { // Delay to ensure rendering, especially if print window has complex content
+                    printWindow.focus();
+                    printWindow.print();
+                }, 300);
             }
             bootstrap.Modal.getInstance(document.getElementById('customerStatementModal')).hide();
             document.getElementById('customerStatementForm').reset();
@@ -1902,16 +1946,19 @@
         function startQrScanner() {
             const qrReaderContainer = document.getElementById('qr-reader-container');
             
-            // If a scanner instance exists and is active, stop it first.
             if (html5QrCodeScanner) {
-                 stopQrScanner(); // Ensure any previous instance is stopped.
+                 try {
+                    if (html5QrCodeScanner.getState() === Html5QrcodeScannerState.SCANNING) {
+                        stopQrScanner(); 
+                    }
+                 } catch (e) { console.warn("Error checking scanner state, attempting to stop anyway:", e); stopQrScanner(); }
             }
 
             qrReaderContainer.style.display = 'block';
             
             if (typeof Html5Qrcode === "undefined") {
                 Swal.fire('خطأ', 'مكتبة مسح QR غير محملة بشكل صحيح.', 'error');
-                qrReaderContainer.style.display = 'none'; // Hide container if lib not found
+                qrReaderContainer.style.display = 'none'; 
                 return;
             }
 
@@ -1919,7 +1966,7 @@
             const qrCodeSuccessCallback = (decodedText, decodedResult) => {
                 document.getElementById('searchInput').value = decodedText;
                 filterTable();
-                stopQrScanner(); // Stop and hide after successful scan
+                stopQrScanner(); 
                 Swal.fire('نجاح!', `تم العثور على الفاتورة: ${decodedText}`, 'success');
             };
             const config = { fps: 10, qrbox: {width: 250, height: 250}, aspectRatio: 1.0 }; 
@@ -1934,7 +1981,7 @@
             .catch((err) => {
                 console.error(`Unable to start QR scanning, error: ${err}`);
                 Swal.fire('خطأ', 'لم يتمكن من تشغيل ماسح QR. تأكد من صلاحيات الكاميرا أو أن الكاميرا غير مستخدمة بواسطة تطبيق آخر.', 'error');
-                stopQrScanner(); // Ensure scanner is stopped and hidden on error
+                stopQrScanner(); 
             });
         }
 
@@ -1944,14 +1991,14 @@
                 html5QrCodeScanner.stop().then(ignore => {
                     console.log("QR Code scanning stopped.");
                     if (html5QrCodeScanner && typeof html5QrCodeScanner.clear === 'function') {
-                        html5QrCodeScanner.clear(); // Clear the instance from the DOM element
+                        html5QrCodeScanner.clear(); 
                     }
-                    html5QrCodeScanner = null; // Release the instance
+                    // html5QrCodeScanner = null; // Do not nullify here if you want to reuse, but for safety, it's good
                 }).catch(err => {
                     console.error("Failed to stop QR Code scanner.", err);
-                    html5QrCodeScanner = null; // Still release instance on error
+                    // html5QrCodeScanner = null; 
                 }).finally(() => {
-                     qrReaderContainer.style.display = 'none'; // Always hide container
+                     qrReaderContainer.style.display = 'none'; 
                 });
             } else {
                  qrReaderContainer.style.display = 'none'; 
@@ -1978,7 +2025,6 @@
                 document.getElementById('invoiceCustomer').addEventListener('change', (e) => updateCustomerInfo('invoiceCustomer', 'customerPhoneDisplay', 'customerAddressDisplay'));
                 document.getElementById('editInvoiceCustomer').addEventListener('change', (e) => updateCustomerInfo('editInvoiceCustomer', 'editCustomerPhoneDisplay', 'editCustomerAddressDisplay'));
 
-                // QR Scanner Button Events
                 document.getElementById('scanQrBtn').addEventListener('click', startQrScanner);
                 document.getElementById('closeScannerBtn').addEventListener('click', stopQrScanner);
 
