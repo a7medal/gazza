@@ -30,396 +30,155 @@
             margin: 0 auto;
         }
         .home-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: linear-gradient(90deg, #3F2A56, #5a3f73);
-    color: white;
-    padding: 10px 20px;
-    border-radius: 25px;
-    text-decoration: none;
-    font-size: 1rem;
-    font-weight: 600;
-    font-family: 'Cairo', sans-serif;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    transition: transform 0.2s ease, background 0.3s ease, box-shadow 0.3s ease;
-    position: absolute;
-    top: 20px;
-    left: 20px; /* وضع الزر في الزاوية العلوية اليسرى */
-}
-
-.home-btn i {
-    font-size: 1.2rem;
-}
-
-.home-btn:hover {
-    background: linear-gradient(90deg, #5a3f73, #3F2A56);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-}
-
-.home-btn:focus {
-    outline: 2px solid #3F2A56;
-    outline-offset: 2px;
-}
-
-/* للشاشات الصغيرة */
-@media (max-width: 768px) {
-    .home-btn {
-        padding: 8px 16px;
-        font-size: 0.9rem;
-        top: 15px;
-        left: 15px;
-    }
-    .home-btn i {
-        font-size: 1rem;
-    }
-}
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(90deg, #3F2A56, #5a3f73);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-size: 1rem;
+            font-weight: 600;
+            font-family: 'Cairo', sans-serif;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s ease, background 0.3s ease, box-shadow 0.3s ease;
+            position: absolute;
+            top: 20px;
+            left: 20px; /* وضع الزر في الزاوية العلوية اليسرى */
+        }
+        .home-btn i { font-size: 1.2rem; }
+        .home-btn:hover {
+            background: linear-gradient(90deg, #5a3f73, #3F2A56);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        .home-btn:focus { outline: 2px solid #3F2A56; outline-offset: 2px; }
+        @media (max-width: 768px) {
+            .home-btn { padding: 8px 16px; font-size: 0.9rem; top: 15px; left: 15px; }
+            .home-btn i { font-size: 1rem; }
+        }
         .header {
             background: linear-gradient(135deg, #3F2A56, #5a3f73);
-            color: white;
-            padding: 40px 20px;
-            border-radius: 25px;
-            text-align: center;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-            margin-bottom: 30px;
-            position: relative;
-            z-index: 1;
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            overflow: hidden;
+            color: white; padding: 40px 20px; border-radius: 25px; text-align: center;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2); margin-bottom: 30px; position: relative;
+            z-index: 1; border: 2px solid rgba(255, 255, 255, 0.1); overflow: hidden;
         }
         .header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle, rgba(255, 255, 255, 0.1), transparent);
-            z-index: -1;
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1), transparent); z-index: -1;
         }
         .header img {
-            height: 90px;
-            margin-bottom: 15px;
-            filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.3));
-            transition: transform 0.3s ease;
-            clip-path: polygon(10% 0%, 100% 0%, 90% 100%, 0% 100%);
+            height: 90px; margin-bottom: 15px; filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.3));
+            transition: transform 0.3s ease; clip-path: polygon(10% 0%, 100% 0%, 90% 100%, 0% 100%);
         }
-        .header img:hover {
-            transform: scale(1.05);
-        }
-        .header h2 {
-            font-size: 2.2rem;
-            margin-bottom: 10px;
-            font-weight: 700;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
-        }
-        .header h4 {
-            font-size: 1.4rem;
-            opacity: 0.9;
-            font-weight: 400;
-            letter-spacing: 1px;
-        }
-        .dashboard {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin: 20px 0;
-        }
+        .header img:hover { transform: scale(1.05); }
+        .header h2 { font-size: 2.2rem; margin-bottom: 10px; font-weight: 700; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); }
+        .header h4 { font-size: 1.4rem; opacity: 0.9; font-weight: 400; letter-spacing: 1px; }
+        .dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 20px 0; }
         .card {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: #3F2A56;
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            position: relative;
-            overflow: hidden;
+            background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #3F2A56; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            text-align: center; transition: transform 0.3s ease, box-shadow 0.3s ease; position: relative; overflow: hidden;
         }
         .card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(145deg, rgba(63, 42, 86, 0.2), rgba(90, 63, 115, 0.2));
-            z-index: -1;
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(145deg, rgba(63, 42, 86, 0.2), rgba(90, 63, 115, 0.2)); z-index: -1;
         }
-        .card:hover {
-            transform: translateY(-10px) scale(1.02);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
-        }
-        .card i {
-            font-size: 2.8rem;
-            margin-bottom: 15px;
-            color: #3F2A56;
-            transition: transform 0.3s ease;
-        }
-        .card:hover i {
-            transform: scale(1.2);
-        }
-        .card h5 {
-            font-size: 1.3rem;
-            margin-bottom: 10px;
-            font-weight: 600;
-            color: #3F2A56;
-        }
-        .card h3 {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: #3F2A56;
-        }
-        .accounts-section {
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            margin: 20px 0;
-        }
-        .accounts-section h3 {
-            font-size: 1.7rem;
-            font-weight: 700;
-            color: #3F2A56;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-        .accounts-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        .accounts-table th, .accounts-table td {
-            padding: 12px;
-            text-align: center;
-            border-bottom: 1px solid #e0e0e0;
-        }
-        .accounts-table th {
-            background: linear-gradient(90deg, #3F2A56, #5a3f73);
-            color: white;
-            font-weight: 700;
-        }
-        .accounts-table td {
-            color: #3F2A56;
-        }
-        .accounts-table tr {
-            cursor: pointer;
-        }
-        .accounts-table tr:hover {
-            background-color: #f7f9fc;
-        }
-        .actions {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            margin: 25px 0;
-            justify-content: center;
-        }
+        .card:hover { transform: translateY(-10px) scale(1.02); box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2); }
+        .card i { font-size: 2.8rem; margin-bottom: 15px; color: #3F2A56; transition: transform 0.3s ease; }
+        .card:hover i { transform: scale(1.2); }
+        .card h5 { font-size: 1.3rem; margin-bottom: 10px; font-weight: 600; color: #3F2A56; }
+        .card h3 { font-size: 1.8rem; font-weight: 700; color: #3F2A56; }
+        .accounts-section { background: white; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); padding: 20px; margin: 20px 0; }
+        .accounts-section h3 { font-size: 1.7rem; font-weight: 700; color: #3F2A56; margin-bottom: 15px; text-align: center; }
+        .accounts-table { width: 100%; border-collapse: collapse; }
+        .accounts-table th, .accounts-table td { padding: 12px; text-align: center; border-bottom: 1px solid #e0e0e0; }
+        .accounts-table th { background: linear-gradient(90deg, #3F2A56, #5a3f73); color: white; font-weight: 700; }
+        .accounts-table td { color: #3F2A56; }
+        .accounts-table tr { cursor: pointer; }
+        .accounts-table tr:hover { background-color: #f7f9fc; }
+        .actions { display: flex; flex-wrap: wrap; gap: 12px; margin: 25px 0; justify-content: center; }
         .btn {
-            background: linear-gradient(90deg, #3F2A56, #5a3f73);
-            color: white;
-            padding: 12px 24px;
-            border-radius: 30px;
-            border: none;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: transform 0.2s ease, background 0.3s ease, box-shadow 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            background: linear-gradient(90deg, #3F2A56, #5a3f73); color: white; padding: 12px 24px; border-radius: 30px;
+            border: none; font-size: 1rem; cursor: pointer; transition: transform 0.2s ease, background 0.3s ease, box-shadow 0.3s ease;
+            display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
-        .btn:hover {
-            background: linear-gradient(90deg, #5a3f73, #3F2A56);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-        }
-        .btn:focus {
-            outline: 2px solid #3F2A56;
-            outline-offset: 2px;
-        }
-        .btn i {
-            font-size: 1.3rem;
-        }
-        .search-container {
+        .btn:hover { background: linear-gradient(90deg, #5a3f73, #3F2A56); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.3); }
+        .btn:focus { outline: 2px solid #3F2A56; outline-offset: 2px; }
+        .btn i { font-size: 1.3rem; }
+        .filter-controls {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
             margin-bottom: 20px;
             display: flex;
-            justify-content: center;
-            gap: 15px;
             flex-wrap: wrap;
+            gap: 15px;
+            align-items: flex-end;
         }
-        .search-container .filter-group {
-            display: flex;
-            flex-direction: column;
-            max-width: 200px;
+        .filter-group { display: flex; flex-direction: column; }
+        .filter-controls label { font-size: 0.9rem; font-weight: 600; color: #3F2A56; margin-bottom: 5px; }
+        .filter-controls input, .filter-controls select {
+            padding: 10px 15px; border-radius: 25px; border: 1px solid #ddd;
+            background: #f8f9fa; color: #3F2A56; font-size: 0.9rem;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
         }
-        .search-container label {
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: #3F2A56;
-            margin-bottom: 5px;
+        .filter-controls input:focus, .filter-controls select:focus {
+            outline: none; border-color: #3F2A56; box-shadow: 0 0 0 0.2rem rgba(63, 42, 86, 0.25);
         }
-        .search-container input, .search-container select {
-            width: 100%;
-            max-width: 200px;
-            padding: 12px 20px;
-            border-radius: 30px;
-            border: none;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            color: #3F2A56;
-            font-size: 1rem;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            transition: box-shadow 0.3s ease;
-        }
-        .search-container input:focus, .search-container select:focus {
-            outline: none;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
-        }
-        .search-container input::placeholder {
-            color: #3F2A56;
-            opacity: 0.7;
-        }
-        .table-container {
-            overflow-x: auto;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
-            padding: 15px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        th, td {
-            padding: 14px;
-            text-align: center;
-            border-bottom: 1px solid #e0e0e0;
-        }
-        th {
-            background: linear-gradient(90deg, #3F2A56, #5a3f73);
-            color: white;
-            font-weight: 700;
-        }
-        td {
-            color: #3F2A56;
-        }
-        tr {
-            cursor: pointer;
-        }
-        tr:hover {
-            background-color: #f7f9fc;
-        }
-        .action-btn {
-            cursor: pointer;
-            margin: 0 6px;
-            font-size: 1.3rem;
-            transition: color 0.3s ease;
-        }
-        .action-btn.edit:hover {
-            color: #007bff;
-        }
-        .action-btn.delete:hover {
-            color: #dc3545;
-        }
+        #dateRangePicker { display: none; gap: 10px; align-items: flex-end;}
+        .table-container { overflow-x: auto; background: white; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); padding: 15px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 14px; text-align: center; border-bottom: 1px solid #e0e0e0; }
+        th { background: linear-gradient(90deg, #3F2A56, #5a3f73); color: white; font-weight: 700; }
+        td { color: #3F2A56; }
+        tr { cursor: pointer; }
+        tr:hover { background-color: #f7f9fc; }
+        .action-btn { cursor: pointer; margin: 0 6px; font-size: 1.3rem; transition: color 0.3s ease; }
+        .action-btn.edit:hover { color: #007bff; }
+        .action-btn.delete:hover { color: #dc3545; }
         .modal-content {
-            border-radius: 20px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-            border: none;
-            background: linear-gradient(145deg, #ffffff, #f7f9fc);
-            animation: slideIn 0.3s ease-out;
+            border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); border: none;
+            background: linear-gradient(145deg, #ffffff, #f7f9fc); animation: slideIn 0.3s ease-out;
         }
-        @keyframes slideIn {
-            from { transform: translateY(-50px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
+        @keyframes slideIn { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .modal-header {
-            background: linear-gradient(90deg, #3F2A56, #5a3f73);
-            color: white;
-            border-top-left-radius: 20px;
-            border-top-right-radius: 20px;
-            padding: 20px;
-            position: relative;
-            overflow: hidden;
+            background: linear-gradient(90deg, #3F2A56, #5a3f73); color: white; border-top-left-radius: 20px;
+            border-top-right-radius: 20px; padding: 20px; position: relative; overflow: hidden;
         }
         .modal-header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle, rgba(255, 255, 255, 0.1), transparent);
-            z-index: -1;
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1), transparent); z-index: -1;
         }
-        .modal-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin: 0;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .modal-body {
-            padding: 30px;
-            background: #fff;
-            border-radius: 0;
-        }
-        .modal-body .form-label {
-            font-weight: 600;
-            color: #3F2A56;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 10px;
-        }
+        .modal-title { font-size: 1.5rem; font-weight: 700; margin: 0; display: flex; align-items: center; gap: 10px; }
+        .modal-body { padding: 30px; background: #fff; border-radius: 0; }
+        .modal-body .form-label { font-weight: 600; color: #3F2A56; display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
         .modal-body .form-control, .modal-body .form-select {
-            border-radius: 15px;
-            border: 1px solid #ddd;
-            padding: 12px;
-            font-size: 1rem;
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
-            background: #f7f9fc;
+            border-radius: 15px; border: 1px solid #ddd; padding: 12px; font-size: 1rem;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease; background: #f7f9fc;
         }
         .modal-body .form-control:focus, .modal-body .form-select:focus {
-            border-color: #3F2A56;
-            box-shadow: 0 0 8px rgba(63, 42, 86, 0.4);
-            background: #fff;
+            border-color: #3F2A56; box-shadow: 0 0 8px rgba(63,42,86,0.4); background: #fff;
         }
         .modal-footer {
-            padding: 20px;
-            background: linear-gradient(145deg, #f8f9fa, #e9ecef);
-            border-bottom-left-radius: 20px;
-            border-bottom-right-radius: 20px;
-            justify-content: center;
-            gap: 15px;
+            padding: 20px; background: linear-gradient(145deg, #f8f9fa, #e9ecef); border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px; justify-content: center; gap: 15px;
         }
         .modal-footer .btn {
-            background: linear-gradient(90deg, #3F2A56, #5a3f73);
-            color: white;
-            border-radius: 30px;
-            padding: 12px 30px;
-            font-size: 1rem;
-            font-weight: 600;
+            background: linear-gradient(90deg, #3F2A56, #5a3f73); color: white; border-radius: 30px;
+            padding: 12px 30px; font-size: 1rem; font-weight: 600;
             transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
         .modal-footer .btn:hover {
-            background: linear-gradient(90deg, #5a3f73, #3F2A56);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(90deg, #5a3f73, #3F2A56); transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
         }
-        .modal-footer .btn-secondary {
-            background: linear-gradient(90deg, #6c757d, #5a6268);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        }
-        .modal-footer .btn-secondary:hover {
-            background: linear-gradient(90deg, #5a6268, #495057);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-        }
+        .modal-footer .btn-secondary { background: linear-gradient(90deg, #6c757d, #5a6268); box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .modal-footer .btn-secondary:hover { background: linear-gradient(90deg, #5a6268, #495057); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.3); }
         @media (max-width: 768px) {
             .header { padding: 25px 15px; border-radius: 15px; }
             .header img { height: 70px; }
@@ -431,30 +190,16 @@
             .modal-title { font-size: 1.3rem; }
             .modal-body { padding: 20px; }
             .modal-body .form-control, .modal-body .form-select { font-size: 0.9rem; }
-            .search-container .filter-group { width: 100%; max-width: 100%; }
+            .filter-controls { flex-direction: column; }
+            .filter-group { width: 100%; }
+            #dateRangePicker { flex-direction: column; width: 100%;}
+            #dateRangePicker .filter-group { width: 100%; }
         }
-        .swal2-popup {
-            font-family: 'Cairo', sans-serif !important;
-            border-radius: 15px !important;
-        }
-        .swal2-title {
-            color: #3F2A56 !important;
-            font-weight: 700 !important;
-        }
-        .swal2-html-container {
-            text-align: right !important;
-            color: #3F2A56 !important;
-        }
-        .swal2-confirm {
-            background: linear-gradient(90deg, #3F2A56, #5a3f73) !important;
-            border-radius: 20px !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
-        }
-        .swal2-cancel {
-            background: linear-gradient(90deg, #6c757d, #5a6268) !important;
-            border-radius: 20px !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
-        }
+        .swal2-popup { font-family: 'Cairo', sans-serif !important; border-radius: 15px !important; }
+        .swal2-title { color: #3F2A56 !important; font-weight: 700 !important; }
+        .swal2-html-container { text-align: right !important; color: #3F2A56 !important; }
+        .swal2-confirm { background: linear-gradient(90deg, #3F2A56, #5a3f73) !important; border-radius: 20px !important; box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important; }
+        .swal2-cancel { background: linear-gradient(90deg, #6c757d, #5a6268) !important; border-radius: 20px !important; box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important; }
         #qrCanvas { display: none; }
         #scannerContainer { text-align: center; margin: 20px 0; }
         #scannerVideo { max-width: 100%; border-radius: 10px; border: 2px solid #3F2A56; }
@@ -465,30 +210,32 @@
 <body>
     <div class="container">
         <div class="header">
-            <img src="logo.png" alt="شعار طيبة المدينة تلكوم">
+            <img src="logo.png" alt="شعار طيبة المدينة تلكوم" onerror="this.style.display='none'">
             <h2>طيبة المدينة تلكوم</h2>
             <h4>ضبط الصندوق</h4>
             <a href="home.html" class="home-btn"><i class="fas fa-home"></i> للرئيسية</a>
         </div>
+
         <div class="dashboard">
             <div class="card">
                 <i class="fas fa-wallet"></i>
-                <h5>الرصيد</h5>
-                <h3 id="balance">0</h3>
+                <h5>الرصيد (للفترة المحددة)</h5>
+                <h3 id="balance">0.00</h3>
             </div>
             <div class="card">
                 <i class="fas fa-arrow-up"></i>
-                <h5>الرصيد الداخل</h5>
-                <h3 id="totalIn">0</h3>
+                <h5>الداخل (للفترة المحددة)</h5>
+                <h3 id="totalIn">0.00</h3>
             </div>
             <div class="card">
                 <i class="fas fa-arrow-down"></i>
-                <h5>الرصيد الخارج</h5>
-                <h3 id="totalOut">0</h3>
+                <h5>الخارج (للفترة المحددة)</h5>
+                <h3 id="totalOut">0.00</h3>
             </div>
         </div>
+
         <div class="accounts-section">
-            <h3>الحسابات الموجودة</h3>
+            <h3>الحسابات (أرصدة الفترة المحددة)</h3>
             <div class="table-container">
                 <table class="accounts-table">
                     <thead>
@@ -503,35 +250,53 @@
                 </table>
             </div>
         </div>
+
         <div class="actions">
             <button class="btn" data-bs-toggle="modal" data-bs-target="#addTransactionModal"><i class="fas fa-plus"></i> إضافة معاملة</button>
             <button class="btn" data-bs-toggle="modal" data-bs-target="#addAccountModal"><i class="fas fa-user-plus"></i> إضافة حساب</button>
-            <button class="btn" onclick="exportToJSON()"><i class="fas fa-file-code"></i> تصدير إلى JSON</button>
-            <button class="btn" onclick="exportToCSV()"><i class="fas fa-file-csv"></i> تصدير إلى CSV</button>
+            <button class="btn" onclick="exportVisibleToJSON()"><i class="fas fa-file-code"></i> تصدير المعروض JSON</button>
+            <button class="btn" onclick="exportVisibleToCSV()"><i class="fas fa-file-csv"></i> تصدير المعروض CSV</button>
             <input type="file" id="importFile" accept=".json,.csv" style="display: none;" onchange="importFile(event)">
             <button class="btn" onclick="document.getElementById('importFile').click()"><i class="fas fa-file-import"></i> استيراد ملف</button>
-            <button class="btn" onclick="generateQRCode()"><i class="fas fa-qrcode"></i> إنشاء QR Code</button>
-            <button class="btn" onclick="startQRScanner()"><i class="fas fa-camera"></i> استقبال QR Code</button>
-            <button class="btn" onclick="printTable()"><i class="fas fa-print"></i> طباعة</button>
+            <button class="btn" onclick="generateQRCodeForVisible()"><i class="fas fa-qrcode"></i> QR للمعروض</button>
+            <button class="btn" onclick="startQRScanner()"><i class="fas fa-camera"></i> استقبال QR</button>
+            <button class="btn" onclick="printTable()"><i class="fas fa-print"></i> طباعة المعروض</button>
         </div>
-        <div class="search-container">
+
+        <div class="filter-controls">
             <div class="filter-group">
-                <label for="startDate">من التاريخ</label>
-                <input type="date" id="startDate" onchange="filterTable()">
+                <label for="dateFilter">فلترة حسب التاريخ:</label>
+                <select id="dateFilter" onchange="handleDateFilterChange()">
+                    <option value="today">اليوم</option>
+                    <option value="yesterday">الأمس</option>
+                    <option value="range">تحديد نطاق</option>
+                    <option value="all">كل الأوقات</option>
+                </select>
+            </div>
+            <div id="dateRangePicker">
+                <div class="filter-group">
+                    <label for="startDate">من تاريخ:</label>
+                    <input type="date" id="startDate" onchange="filterTable()">
+                </div>
+                <div class="filter-group">
+                    <label for="endDate">إلى تاريخ:</label>
+                    <input type="date" id="endDate" onchange="filterTable()">
+                </div>
             </div>
             <div class="filter-group">
-                <label for="endDate">إلى التاريخ</label>
-                <input type="date" id="endDate" onchange="filterTable()">
-            </div>
-            <div class="filter-group">
-                <label for="typeFilter">نوع المعاملة</label>
+                <label for="typeFilter">نوع المعاملة:</label>
                 <select id="typeFilter" onchange="filterTable()">
                     <option value="all">الكل</option>
                     <option value="in">داخل</option>
                     <option value="out">خارج</option>
                 </select>
             </div>
+             <div class="filter-group" style="flex-grow: 1;">
+                <label for="searchInput">بحث (بيان/حساب):</label>
+                <input type="search" id="searchInput" placeholder="اكتب للبحث..." oninput="filterTable()">
+            </div>
         </div>
+
         <div class="table-container">
             <table>
                 <thead>
@@ -552,6 +317,7 @@
         <input type="file" id="qrImageInput" accept="image/*" style="display: none;" onchange="importQRFromImage(event)">
     </div>
 
+    <!-- Modals (Add Transaction, Edit Transaction, Add Account, Edit Account) remain largely the same in structure -->
     <!-- نافذة إضافة معاملة -->
     <div class="modal fade" id="addTransactionModal" tabindex="-1" aria-labelledby="addTransactionModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -607,7 +373,7 @@
                 </div>
                 <div class="modal-body">
                     <form id="editTransactionForm">
-                        <input type="hidden" id="editIndex">
+                        <input type="hidden" id="editId">
                         <div class="mb-3">
                             <label for="editType" class="form-label"><i class="fas fa-exchange-alt"></i> نوع المعاملة</label>
                             <select class="form-select" id="editType" required>
@@ -677,9 +443,9 @@
                 </div>
                 <div class="modal-body">
                     <form id="editAccountForm">
-                        <input type="hidden" id="editAccountIndex">
+                        <input type="hidden" id="editAccountOldName">
                         <div class="mb-3">
-                            <label for="editAccountName" class="form-label"><i class="fas fa-user"></i> اسم الحساب</label>
+                            <label for="editAccountName" class="form-label"><i class="fas fa-user"></i> اسم الحساب الجديد</label>
                             <input type="text" class="form-control" id="editAccountName" required>
                         </div>
                     </form>
@@ -693,41 +459,248 @@
     </div>
 
     <script>
-        let transactions = JSON.parse(localStorage.getItem('cashBoxTransactions')) || [];
-        let accounts = JSON.parse(localStorage.getItem('cashBoxAccounts')) || [];
+        const DB_NAME = 'cashBoxDB';
+        const DB_VERSION = 1;
+        const TRANSACTIONS_STORE_NAME = 'transactions';
+        const ACCOUNTS_STORE_NAME = 'accounts';
+        let db;
+
+        // This array will hold the transactions currently displayed in the table (after filtering)
+        let displayedTransactions = [];
+        let allAccounts = []; // This will hold all account names from DB for dropdowns etc.
+
         let stream = null;
+        const successSound = new Audio('https://www.soundjay.com/buttons/beep-01a.mp3'); // For import success
 
-        // إنشاء صوت لتأكيد الاستيراد الناجح
-        const successSound = new Audio('https://www.soundjay.com/buttons/beep-01a.mp3');
-
-        function formatDateTime(date) {
-            return date.toLocaleString('en-US', {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-                hour12: false
-            }).replace(/(\d+)\/(\d+)\/(\d+), (\d+):(\d+):(\d+)/, '$3-$1-$2 $4:$5:$6');
+        // --- IndexedDB Helper Functions ---
+        function openDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(DB_NAME, DB_VERSION);
+                request.onerror = (event) => reject("Database error: " + event.target.errorCode);
+                request.onsuccess = (event) => {
+                    db = event.target.result;
+                    resolve(db);
+                };
+                request.onupgradeneeded = (event) => {
+                    db = event.target.result;
+                    if (!db.objectStoreNames.contains(TRANSACTIONS_STORE_NAME)) {
+                        const transactionStore = db.createObjectStore(TRANSACTIONS_STORE_NAME, { keyPath: 'id', autoIncrement: true });
+                        transactionStore.createIndex('datetime', 'datetime', { unique: false });
+                        transactionStore.createIndex('account', 'account', { unique: false });
+                        transactionStore.createIndex('type', 'type', { unique: false });
+                         transactionStore.createIndex('date', 'date', { unique: false }); // For YYYY-MM-DD queries
+                    }
+                    if (!db.objectStoreNames.contains(ACCOUNTS_STORE_NAME)) {
+                        const accountStore = db.createObjectStore(ACCOUNTS_STORE_NAME, { keyPath: 'name' });
+                        // No initial accounts, user adds them
+                    }
+                };
+            });
         }
 
-        function sortTransactionsByDate() {
-            transactions.sort((a, b) => new Date(b.datetime) - new Date(a.datetime));
+        function addRecord(storeName, record) {
+            return new Promise((resolve, reject) => {
+                if (!db) { reject("Database not open"); return; }
+                const transaction = db.transaction([storeName], 'readwrite');
+                const store = transaction.objectStore(storeName);
+                const request = store.add(record);
+                request.onsuccess = () => resolve(request.result); // Returns the key of the new record
+                request.onerror = (event) => reject("Error adding record: " + event.target.error);
+            });
+        }
+        
+        function getRecord(storeName, key) {
+            return new Promise((resolve, reject) => {
+                if (!db) { reject("Database not open"); return; }
+                const transaction = db.transaction([storeName], 'readonly');
+                const store = transaction.objectStore(storeName);
+                const request = store.get(key);
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = (event) => reject("Error getting record: " + event.target.error);
+            });
         }
 
-        function getAccountBalance(account, excludeIndex = -1) {
-            return transactions.reduce((balance, t, index) => {
-                if (t.account !== account || index === excludeIndex) return balance;
-                return balance + (t.type === 'in' ? parseFloat(t.amount) : -parseFloat(t.amount));
-            }, 0);
+        function getAllRecords(storeName) {
+            return new Promise((resolve, reject) => {
+                if (!db) { reject("Database not open"); return; }
+                const transaction = db.transaction([storeName], 'readonly');
+                const store = transaction.objectStore(storeName);
+                const request = store.getAll();
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = (event) => reject("Error getting all records: " + event.target.error);
+            });
         }
 
-        function updateDashboard() {
-            const totalIn = transactions
+        function updateRecord(storeName, record) {
+            return new Promise((resolve, reject) => {
+                if (!db) { reject("Database not open"); return; }
+                const transaction = db.transaction([storeName], 'readwrite');
+                const store = transaction.objectStore(storeName);
+                const request = store.put(record);
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = (event) => reject("Error updating record: " + event.target.error);
+            });
+        }
+
+        function deleteRecord(storeName, key) {
+            return new Promise((resolve, reject) => {
+                if (!db) { reject("Database not open"); return; }
+                const transaction = db.transaction([storeName], 'readwrite');
+                const store = transaction.objectStore(storeName);
+                const request = store.delete(key);
+                request.onsuccess = () => resolve();
+                request.onerror = (event) => reject("Error deleting record: " + event.target.error);
+            });
+        }
+
+        // Specific function to get transactions based on filters
+        function getFilteredTransactionsDB(startDateStr, endDateStr, typeFilterVal, searchTerm) {
+            return new Promise((resolve, reject) => {
+                if (!db) { reject("Database not open"); return; }
+                const transaction = db.transaction([TRANSACTIONS_STORE_NAME], 'readonly');
+                const store = transaction.objectStore(TRANSACTIONS_STORE_NAME);
+                const index = store.index('date'); // Use the 'date' index
+                
+                let keyRange;
+                if (startDateStr && endDateStr) {
+                    keyRange = IDBKeyRange.bound(startDateStr, endDateStr);
+                } else if (startDateStr) {
+                    keyRange = IDBKeyRange.lowerBound(startDateStr);
+                } else if (endDateStr) {
+                    keyRange = IDBKeyRange.upperBound(endDateStr);
+                } else {
+                    keyRange = null; // Get all if no date range
+                }
+
+                const request = keyRange ? index.getAll(keyRange) : store.getAll();
+                let results = [];
+
+                request.onsuccess = () => {
+                    results = request.result;
+                    // Further filter by type and search term in JavaScript
+                    if (typeFilterVal !== 'all') {
+                        results = results.filter(t => t.type === typeFilterVal);
+                    }
+                    if (searchTerm) {
+                        const lowerSearchTerm = searchTerm.toLowerCase();
+                        results = results.filter(t => 
+                            t.description.toLowerCase().includes(lowerSearchTerm) ||
+                            t.account.toLowerCase().includes(lowerSearchTerm)
+                        );
+                    }
+                    // Sort by full datetime descending
+                    results.sort((a, b) => new Date(b.datetime) - new Date(a.datetime));
+                    resolve(results);
+                };
+                request.onerror = (event) => reject("Error fetching filtered transactions: " + event.target.error);
+            });
+        }
+        // --- End IndexedDB Helper Functions ---
+
+
+        function formatToISODate(date) { // YYYY-MM-DD
+            return date.getFullYear() + '-' +
+                   ('0' + (date.getMonth() + 1)).slice(-2) + '-' +
+                   ('0' + date.getDate()).slice(-2);
+        }
+
+        function formatToDateTimeLocal(date) { // For datetime-local input
+             const YYYY = date.getFullYear();
+             const MM = ('0' + (date.getMonth() + 1)).slice(-2);
+             const DD = ('0' + date.getDate()).slice(-2);
+             const hh = ('0' + date.getHours()).slice(-2);
+             const mm = ('0' + date.getMinutes()).slice(-2);
+             return `${YYYY}-${MM}-${DD}T${hh}:${mm}`;
+        }
+        
+        function setCurrentDateTimeForPicker() {
+            const now = new Date();
+            const formattedDateTime = formatToDateTimeLocal(now);
+            if(document.getElementById('datetime')) document.getElementById('datetime').value = formattedDateTime;
+            // For edit modal, it will be set when opening the modal
+        }
+        
+        function handleDateFilterChange() {
+            const dateFilter = document.getElementById('dateFilter').value;
+            const dateRangePicker = document.getElementById('dateRangePicker');
+            if (dateFilter === 'range') {
+                dateRangePicker.style.display = 'flex';
+            } else {
+                dateRangePicker.style.display = 'none';
+            }
+            filterTable();
+        }
+
+        async function filterTable() {
+            const dateFilter = document.getElementById('dateFilter').value;
+            let startDateStr = '';
+            let endDateStr = '';
+
+            const today = new Date();
+            const yesterday = new Date(today);
+            yesterday.setDate(today.getDate() - 1);
+
+            if (dateFilter === 'today') {
+                startDateStr = formatToISODate(today);
+                endDateStr = formatToISODate(today);
+            } else if (dateFilter === 'yesterday') {
+                startDateStr = formatToISODate(yesterday);
+                endDateStr = formatToISODate(yesterday);
+            } else if (dateFilter === 'range') {
+                startDateStr = document.getElementById('startDate').value;
+                endDateStr = document.getElementById('endDate').value;
+                 if (startDateStr && endDateStr && startDateStr > endDateStr) {
+                    Swal.fire('خطأ', 'تاريخ البداية لا يمكن أن يكون بعد تاريخ النهاية', 'error');
+                    return;
+                }
+            } else { // 'all'
+                startDateStr = ''; // No specific start
+                endDateStr = '';   // No specific end
+            }
+
+
+            const typeFilterVal = document.getElementById('typeFilter').value;
+            const searchTerm = document.getElementById('searchInput').value.trim();
+
+            try {
+                displayedTransactions = await getFilteredTransactionsDB(startDateStr, endDateStr, typeFilterVal, searchTerm);
+                renderTransactionsTable(displayedTransactions);
+                updateDashboard(displayedTransactions);
+                await updateAccountsTable(displayedTransactions); // Pass filtered transactions
+            } catch (error) {
+                console.error("Error filtering table:", error);
+                Swal.fire('خطأ', 'حدث خطأ أثناء جلب البيانات.', 'error');
+            }
+        }
+        
+        function renderTransactionsTable(transactionsToRender) {
+            const tableBody = document.getElementById('transactionsTable');
+            tableBody.innerHTML = '';
+            transactionsToRender.forEach((transaction, index) => {
+                const row = document.createElement('tr');
+                row.setAttribute('data-id', transaction.id); // Use DB id
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${transaction.type === 'in' ? 'داخل' : 'خارج'}</td>
+                    <td>${transaction.datetime}</td>
+                    <td>${parseFloat(transaction.amount).toFixed(2)}</td>
+                    <td>${transaction.description}</td>
+                    <td>${transaction.account}</td>
+                    <td>
+                        <i class="fas fa-edit action-btn edit" onclick="editTransaction(${transaction.id});event.stopPropagation();"></i>
+                        <i class="fas fa-trash action-btn delete" onclick="deleteTransaction(${transaction.id});event.stopPropagation();"></i>
+                    </td>
+                `;
+                row.addEventListener('click', () => showTransactionDetails(transaction.id));
+                tableBody.appendChild(row);
+            });
+        }
+
+        function updateDashboard(transactionsForDashboard) {
+            const totalIn = transactionsForDashboard
                 .filter(t => t.type === 'in')
                 .reduce((sum, t) => sum + parseFloat(t.amount), 0);
-            const totalOut = transactions
+            const totalOut = transactionsForDashboard
                 .filter(t => t.type === 'out')
                 .reduce((sum, t) => sum + parseFloat(t.amount), 0);
             const balance = totalIn - totalOut;
@@ -737,34 +710,112 @@
             document.getElementById('totalOut').innerText = totalOut.toFixed(2);
         }
 
-        function updateAccountsTable() {
+        async function updateAccountsTable(transactionsForBalance) {
             const tableBody = document.getElementById('accountsTable');
             tableBody.innerHTML = '';
-            accounts.forEach((account, index) => {
-                const balance = getAccountBalance(account);
+            // allAccounts should be populated from DB initially
+            if (!allAccounts || allAccounts.length === 0) {
+                allAccounts = await getAllRecords(ACCOUNTS_STORE_NAME);
+            }
+
+            allAccounts.forEach((acc, index) => { // acc is an object {name: "AccountName"}
+                const balance = getAccountBalance(acc.name, transactionsForBalance);
                 const row = document.createElement('tr');
-                row.setAttribute('data-account', account);
+                row.setAttribute('data-account', acc.name);
                 row.innerHTML = `
                     <td>${index + 1}</td>
-                    <td>${account}</td>
+                    <td>${acc.name}</td>
                     <td>${balance.toFixed(2)}</td>
                     <td>
-                        <i class="fas fa-edit action-btn edit" onclick="editAccount(${index});event.stopPropagation();"></i>
-                        <i class="fas fa-trash action-btn delete" onclick="deleteAccount(${index});event.stopPropagation();"></i>
+                        <i class="fas fa-edit action-btn edit" onclick="openEditAccountModal('${acc.name}');event.stopPropagation();"></i>
+                        <i class="fas fa-trash action-btn delete" onclick="deleteAccount('${acc.name}');event.stopPropagation();"></i>
                     </td>
                 `;
                 row.addEventListener('click', (e) => {
                     if (!e.target.classList.contains('action-btn')) {
-                        showAccountTransactions(account);
+                        showAccountTransactions(acc.name, transactionsForBalance);
                     }
                 });
                 tableBody.appendChild(row);
             });
+            populateAccountDropdowns(); // Ensure dropdowns are also up-to-date
+        }
+        
+        // Calculates balance for an account based on a GIVEN set of transactions
+        function getAccountBalance(accountName, transactionsArray) {
+            return transactionsArray.reduce((balance, t) => {
+                if (t.account !== accountName) return balance;
+                return balance + (t.type === 'in' ? parseFloat(t.amount) : -parseFloat(t.amount));
+            }, 0);
         }
 
-        function showAccountTransactions(account) {
-            const accountTransactions = transactions.filter(t => t.account === account);
-            sortTransactionsByDate();
+        // Calculates ALL-TIME balance for an account (used for deletion check)
+        async function getAllTimeAccountBalance(accountName) {
+            const allTransactionsForAccount = await getFilteredTransactionsDB(null, null, 'all', accountName);
+            // Further filter, because searchTerm in getFilteredTransactionsDB is OR on desc/account
+            const specificAccountTransactions = allTransactionsForAccount.filter(t => t.account === accountName);
+            return specificAccountTransactions.reduce((balance, t) => {
+                return balance + (t.type === 'in' ? parseFloat(t.amount) : -parseFloat(t.amount));
+            }, 0);
+        }
+
+        async function populateAccountDropdowns() {
+            allAccounts = await getAllRecords(ACCOUNTS_STORE_NAME);
+            const accountSelect = document.getElementById('account');
+            const editAccountSelect = document.getElementById('editAccount');
+            
+            const currentAccountVal = accountSelect.value;
+            const currentEditAccountVal = editAccountSelect.value;
+
+            accountSelect.innerHTML = '<option value="">اختر حسابًا</option>';
+            editAccountSelect.innerHTML = '<option value="">اختر حسابًا</option>';
+            
+            allAccounts.forEach(acc => {
+                const option = document.createElement('option');
+                option.value = acc.name;
+                option.text = acc.name;
+                accountSelect.appendChild(option.cloneNode(true));
+                editAccountSelect.appendChild(option);
+            });
+            accountSelect.value = currentAccountVal;
+            editAccountSelect.value = currentEditAccountVal;
+        }
+
+
+        async function showTransactionDetails(transactionId) {
+            try {
+                const transaction = await getRecord(TRANSACTIONS_STORE_NAME, transactionId);
+                if (!transaction) {
+                    Swal.fire('خطأ', 'المعاملة غير موجودة', 'error');
+                    return;
+                }
+                Swal.fire({
+                    title: 'تفاصيل المعاملة',
+                    html: `
+                        <div style="text-align: right; font-family: 'Cairo', sans-serif; color: #3F2A56;">
+                            <p><strong>نوع المعاملة:</strong> ${transaction.type === 'in' ? 'داخل' : 'خارج'}</p>
+                            <p><strong>التاريخ والوقت:</strong> ${transaction.datetime}</p>
+                            <p><strong>المبلغ:</strong> ${parseFloat(transaction.amount).toFixed(2)}</p>
+                            <p><strong>البيان:</strong> ${transaction.description}</p>
+                            <p><strong>الحساب:</strong> ${transaction.account}</p>
+                        </div>
+                    `,
+                    icon: 'info',
+                    confirmButtonText: 'إغلاق',
+                    confirmButtonColor: '#3F2A56',
+                    customClass: { popup: 'swal2-rtl' }
+                });
+            } catch (error) {
+                console.error("Error showing transaction details:", error);
+                Swal.fire('خطأ', 'حدث خطأ أثناء عرض التفاصيل.', 'error');
+            }
+        }
+
+        function showAccountTransactions(accountName, transactionsToDisplay) {
+            // Filter the provided transactions for the specific account
+            const accountTransactions = transactionsToDisplay.filter(t => t.account === accountName)
+                                       .sort((a, b) => new Date(b.datetime) - new Date(a.datetime));
+
             let tableHTML = `
                 <table style="width: 100%; border-collapse: collapse; font-family: 'Cairo', sans-serif; direction: rtl;">
                     <thead>
@@ -781,7 +832,7 @@
             if (accountTransactions.length === 0) {
                 tableHTML += `
                     <tr>
-                        <td colspan="5" style="padding: 10px; border: 1px solid #ddd; text-align: center;">لا توجد معاملات لهذا الحساب</td>
+                        <td colspan="5" style="padding: 10px; border: 1px solid #ddd; text-align: center;">لا توجد معاملات لهذا الحساب في الفترة المحددة</td>
                     </tr>
                 `;
             } else {
@@ -791,18 +842,15 @@
                             <td style="padding: 10px; border: 1px solid #ddd;">${index + 1}</td>
                             <td style="padding: 10px; border: 1px solid #ddd;">${transaction.type === 'in' ? 'داخل' : 'خارج'}</td>
                             <td style="padding: 10px; border: 1px solid #ddd;">${transaction.datetime}</td>
-                            <td style="padding: 10px; border: 1px solid #ddd;">${transaction.amount}</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">${parseFloat(transaction.amount).toFixed(2)}</td>
                             <td style="padding: 10px; border: 1px solid #ddd;">${transaction.description}</td>
                         </tr>
                     `;
                 });
             }
-            tableHTML += `
-                    </tbody>
-                </table>
-            `;
+            tableHTML += `</tbody></table>`;
             Swal.fire({
-                title: `معاملات الحساب: ${account}`,
+                title: `معاملات الحساب: ${accountName} (للفترة المحددة)`,
                 html: tableHTML,
                 icon: 'info',
                 confirmButtonText: 'إغلاق',
@@ -811,519 +859,474 @@
                 width: '800px'
             });
         }
-
-        function populateAccounts() {
-            const accountSelect = document.getElementById('account');
-            const editAccountSelect = document.getElementById('editAccount');
-            accountSelect.innerHTML = '<option value="">اختر حسابًا</option>';
-            editAccountSelect.innerHTML = '<option value="">اختر حسابًا</option>';
-            accounts.forEach(account => {
-                const option = document.createElement('option');
-                option.value = account;
-                option.text = account;
-                accountSelect.appendChild(option.cloneNode(true));
-                editAccountSelect.appendChild(option);
-            });
-        }
-
-        function filterTable() {
-            const startDate = document.getElementById('startDate').value;
-            const endDate = document.getElementById('endDate').value;
-            const typeFilter = document.getElementById('typeFilter').value;
-
-            const tableBody = document.getElementById('transactionsTable');
-            tableBody.innerHTML = '';
-            sortTransactionsByDate();
-
-            const filteredTransactions = transactions.filter(transaction => {
-                const transactionDate = transaction.datetime.split(' ')[0];
-                const matchesDate = (
-                    (!startDate || transactionDate >= startDate) &&
-                    (!endDate || transactionDate <= endDate)
-                );
-                const matchesType = (
-                    typeFilter === 'all' ||
-                    (typeFilter === 'in' && transaction.type === 'in') ||
-                    (typeFilter === 'out' && transaction.type === 'out')
-                );
-                return matchesDate && matchesType;
-            });
-
-            filteredTransactions.forEach((transaction, index) => {
-                const originalIndex = transactions.indexOf(transaction);
-                const row = document.createElement('tr');
-                row.setAttribute('data-index', originalIndex);
-                row.innerHTML = `
-                    <td>${index + 1}</td>
-                    <td>${transaction.type === 'in' ? 'داخل' : 'خارج'}</td>
-                    <td>${transaction.datetime}</td>
-                    <td>${transaction.amount}</td>
-                    <td>${transaction.description}</td>
-                    <td>${transaction.account}</td>
-                    <td>
-                        <i class="fas fa-edit action-btn edit" onclick="editTransaction(${originalIndex});event.stopPropagation();"></i>
-                        <i class="fas fa-trash action-btn delete" onclick="deleteTransaction(${originalIndex});event.stopPropagation();"></i>
-                    </td>
-                `;
-                row.addEventListener('click', () => showTransactionDetails(originalIndex));
-                tableBody.appendChild(row);
-            });
-
-            updateDashboard();
-            updateAccountsTable();
-        }
-
-        function showTransactionDetails(index) {
-            const transaction = transactions[index];
-            Swal.fire({
-                title: 'تفاصيل المعاملة',
-                html: `
-                    <div style="text-align: right; font-family: 'Cairo', sans-serif; color: #3F2A56;">
-                        <p><strong>نوع المعاملة:</strong> ${transaction.type === 'in' ? 'داخل' : 'خارج'}</p>
-                        <p><strong>التاريخ والوقت:</strong> ${transaction.datetime}</p>
-                        <p><strong>المبلغ:</strong> ${transaction.amount}</p>
-                        <p><strong>البيان:</strong> ${transaction.description}</p>
-                        <p><strong>الحساب:</strong> ${transaction.account}</p>
-                    </div>
-                `,
-                icon: 'info',
-                confirmButtonText: 'إغلاق',
-                confirmButtonColor: '#3F2A56',
-                customClass: { popup: 'swal2-rtl' }
-            });
-        }
-
-        function addAccount() {
+        
+        async function addAccount() {
             const accountName = document.getElementById('accountName').value.trim();
-            if (accountName) {
-                if (accounts.includes(accountName)) {
-                    Swal.fire({
-                        title: 'خطأ في الإدخال',
-                        text: 'اسم الحساب موجود مسبقًا! الرجاء اختيار اسم آخر.',
-                        icon: 'error',
-                        confirmButtonColor: '#3F2A56'
-                    });
+            if (!accountName) {
+                Swal.fire('خطأ', 'الرجاء إدخال اسم الحساب.', 'error');
+                return;
+            }
+            try {
+                const existingAccount = await getRecord(ACCOUNTS_STORE_NAME, accountName);
+                if (existingAccount) {
+                    Swal.fire('خطأ', 'اسم الحساب موجود بالفعل.', 'error');
                     return;
                 }
-                accounts.push(accountName);
-                localStorage.setItem('cashBoxAccounts', JSON.stringify(accounts));
-                populateAccounts();
-                updateAccountsTable();
+                await addRecord(ACCOUNTS_STORE_NAME, { name: accountName });
+                allAccounts = await getAllRecords(ACCOUNTS_STORE_NAME); // Refresh local cache
+                await populateAccountDropdowns();
+                await updateAccountsTable(displayedTransactions); // Re-render accounts table with current period balances
+                
                 bootstrap.Modal.getInstance(document.getElementById('addAccountModal')).hide();
                 document.getElementById('addAccountForm').reset();
-                Swal.fire({
-                    title: 'نجاح',
-                    text: `تم إضافة الحساب "${accountName}" بنجاح!`,
-                    icon: 'success',
-                    confirmButtonColor: '#3F2A56'
-                });
+                Swal.fire('نجاح', `تم إضافة حساب "${accountName}" بنجاح.`, 'success');
+            } catch (error) {
+                console.error("Error adding account:", error);
+                Swal.fire('خطأ', 'حدث خطأ أثناء إضافة الحساب.', 'error');
             }
         }
 
-        function editAccount(index) {
-            document.getElementById('editAccountIndex').value = index;
-            document.getElementById('editAccountName').value = accounts[index];
+        function openEditAccountModal(accountName) {
+            document.getElementById('editAccountOldName').value = accountName;
+            document.getElementById('editAccountName').value = accountName;
             new bootstrap.Modal(document.getElementById('editAccountModal')).show();
         }
 
         async function updateAccount() {
-            const index = parseInt(document.getElementById('editAccountIndex').value);
+            const oldName = document.getElementById('editAccountOldName').value;
             const newName = document.getElementById('editAccountName').value.trim();
 
             if (!newName) {
-                Swal.fire({
-                    title: 'خطأ في الإدخال',
-                    text: 'الرجاء إدخال اسم الحساب!',
-                    icon: 'error',
-                    confirmButtonColor: '#3F2A56'
-                });
+                Swal.fire('خطأ', 'الرجاء إدخال اسم الحساب الجديد.', 'error');
                 return;
             }
-
-            if (newName !== accounts[index] && accounts.includes(newName)) {
-                Swal.fire({
-                    title: 'خطأ في الإدخال',
-                    text: 'اسم الحساب موجود مسبقًا! الرجاء اختيار اسم آخر.',
-                    icon: 'error',
-                    confirmButtonColor: '#3F2A56'
-                });
-                return;
+            if (oldName === newName) {
+                 bootstrap.Modal.getInstance(document.getElementById('editAccountModal')).hide();
+                 return; // No change
             }
 
-            const oldName = accounts[index];
-            accounts[index] = newName;
-
-            transactions.forEach(t => {
-                if (t.account === oldName) {
-                    t.account = newName;
+            try {
+                const existingNewName = await getRecord(ACCOUNTS_STORE_NAME, newName);
+                if (existingNewName) {
+                    Swal.fire('خطأ', `اسم الحساب "${newName}" موجود بالفعل.`, 'error');
+                    return;
                 }
-            });
 
-            localStorage.setItem('cashBoxAccounts', JSON.stringify(accounts));
-            localStorage.setItem('cashBoxTransactions', JSON.stringify(transactions));
-            populateAccounts();
-            filterTable();
-            bootstrap.Modal.getInstance(document.getElementById('editAccountModal')).hide();
-            document.getElementById('editAccountForm').reset();
+                // Update account name in ACCOUNTS_STORE
+                await deleteRecord(ACCOUNTS_STORE_NAME, oldName);
+                await addRecord(ACCOUNTS_STORE_NAME, { name: newName });
 
-            Swal.fire({
-                title: 'نجاح',
-                text: `تم تعديل الحساب من "${oldName}" إلى "${newName}" بنجاح!`,
-                icon: 'success',
-                confirmButtonColor: '#3F2A56'
-            });
-        }
+                // Update account name in all associated transactions
+                const tx = db.transaction(TRANSACTIONS_STORE_NAME, 'readwrite');
+                const store = tx.objectStore(TRANSACTIONS_STORE_NAME);
+                const accountIndex = store.index('account');
+                const request = accountIndex.openCursor(IDBKeyRange.only(oldName));
 
-        async function deleteAccount(index) {
-            const account = accounts[index];
-            const balance = getAccountBalance(account);
-
-            if (balance !== 0) {
-                Swal.fire({
-                    title: 'خطأ',
-                    text: `لا يمكن حذف الحساب "${account}" لأن رصيده (${balance.toFixed(2)}) غير صفر.`,
-                    icon: 'error',
-                    confirmButtonColor: '#3F2A56'
-                });
-                return;
+                request.onsuccess = (event) => {
+                    const cursor = event.target.result;
+                    if (cursor) {
+                        const transaction = cursor.value;
+                        transaction.account = newName;
+                        cursor.update(transaction);
+                        cursor.continue();
+                    } else {
+                        // All updates done
+                        finishAccountUpdate();
+                    }
+                };
+                request.onerror = (event) => {
+                     console.error("Error updating transactions for account rename:", event.target.error);
+                     Swal.fire('خطأ', 'فشل تحديث المعاملات المرتبطة بالحساب.', 'error');
+                }
+            } catch (error) {
+                console.error("Error updating account:", error);
+                Swal.fire('خطأ', 'حدث خطأ أثناء تعديل الحساب.', 'error');
             }
-
-            const result = await Swal.fire({
-                title: 'تأكيد الحذف',
-                text: `هل أنت متأكد من حذف الحساب "${account}"؟ لا يمكن التراجع عن هذا الإجراء.`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'حذف',
-                cancelButtonText: 'إلغاء',
-                confirmButtonColor: '#dc3545',
-                cancelButtonColor: '#6c757d'
-            });
-
-            if (result.isConfirmed) {
-                accounts.splice(index, 1);
-                localStorage.setItem('cashBoxAccounts', JSON.stringify(accounts));
-                populateAccounts();
-                updateAccountsTable();
-                Swal.fire({
-                    title: 'نجاح',
-                    text: `تم حذف الحساب "${account}" بنجاح!`,
-                    icon: 'success',
-                    confirmButtonColor: '#3F2A56'
-                });
+            
+            async function finishAccountUpdate() {
+                allAccounts = await getAllRecords(ACCOUNTS_STORE_NAME); // Refresh cache
+                await populateAccountDropdowns();
+                await filterTable(); // This will re-render everything with new names
+                bootstrap.Modal.getInstance(document.getElementById('editAccountModal')).hide();
+                Swal.fire('نجاح', `تم تعديل اسم الحساب من "${oldName}" إلى "${newName}".`, 'success');
             }
         }
 
-        function addTransaction() {
+        async function deleteAccount(accountName) {
+            try {
+                // Check ALL-TIME balance. An account can only be deleted if its all-time balance is zero.
+                const balance = await getAllTimeAccountBalance(accountName);
+                if (balance !== 0) {
+                    Swal.fire('خطأ', `لا يمكن حذف الحساب "${accountName}" لأن رصيده الكلي (${balance.toFixed(2)}) ليس صفرًا.`, 'error');
+                    return;
+                }
+
+                const result = await Swal.fire({
+                    title: 'تأكيد الحذف',
+                    text: `هل أنت متأكد من حذف حساب "${accountName}"؟ لا يمكن التراجع عن هذا.`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'حذف',
+                    cancelButtonText: 'إلغاء'
+                });
+
+                if (result.isConfirmed) {
+                    await deleteRecord(ACCOUNTS_STORE_NAME, accountName);
+                    allAccounts = await getAllRecords(ACCOUNTS_STORE_NAME); // Refresh cache
+                    await populateAccountDropdowns();
+                    await updateAccountsTable(displayedTransactions); // Re-render accounts table
+                    Swal.fire('نجاح', `تم حذف حساب "${accountName}".`, 'success');
+                }
+            } catch (error) {
+                console.error("Error deleting account:", error);
+                Swal.fire('خطأ', 'حدث خطأ أثناء حذف الحساب.', 'error');
+            }
+        }
+        
+        async function addTransaction() {
             const type = document.getElementById('type').value;
-            const datetime = document.getElementById('datetime').value;
+            const datetimeFull = document.getElementById('datetime').value; // YYYY-MM-DDTHH:mm
             const amount = document.getElementById('amount').value;
             const description = document.getElementById('description').value.trim();
             const account = document.getElementById('account').value;
 
-            if (!type || !datetime || !amount || !description || !account) {
-                Swal.fire({
-                    title: 'خطأ في الإدخال',
-                    text: 'الرجاء ملء جميع الحقول المطلوبة!',
-                    icon: 'error',
-                    confirmButtonColor: '#3F2A56'
-                });
+            if (!type || !datetimeFull || !amount || !description || !account) {
+                Swal.fire('خطأ', 'الرجاء ملء جميع الحقول.', 'error');
+                return;
+            }
+             if (parseFloat(amount) <= 0) {
+                Swal.fire('خطأ', 'المبلغ يجب أن يكون أكبر من صفر.', 'error');
                 return;
             }
 
+            const datetime = datetimeFull.replace('T', ' '); // YYYY-MM-DD HH:mm
+            const dateOnly = datetimeFull.split('T')[0]; // YYYY-MM-DD for indexing
+
+            // Check balance for 'out' transactions against ALL-TIME balance
             if (type === 'out') {
-                const balance = getAccountBalance(account);
-                if (parseFloat(amount) > balance) {
-                    Swal.fire({
-                        title: 'رصيد غير كافٍ',
-                        text: `الرصيد الحالي للحساب "${account}" هو ${balance.toFixed(2)}. لا يمكن إتمام المعاملة بمبلغ ${amount}.`,
-                        icon: 'error',
-                        confirmButtonColor: '#3F2A56'
-                    });
+                const allTimeBalance = await getAllTimeAccountBalance(account);
+                if (parseFloat(amount) > allTimeBalance) {
+                    Swal.fire('رصيد غير كافٍ', `الرصيد الكلي للحساب "${account}" هو ${allTimeBalance.toFixed(2)}. لا يمكن سحب ${amount}.`, 'error');
                     return;
                 }
             }
+            
+            const newTransaction = { type, datetime, date: dateOnly, amount: parseFloat(amount).toFixed(2), description, account };
 
-            transactions.push({ type, datetime: datetime.replace('T', ' '), amount, description, account });
-            localStorage.setItem('cashBoxTransactions', JSON.stringify(transactions));
-            filterTable();
-            bootstrap.Modal.getInstance(document.getElementById('addTransactionModal')).hide();
-            document.getElementById('addTransactionForm').reset();
-            setCurrentDateTime();
-            Swal.fire({
-                title: 'نجاح',
-                text: 'تم إضافة المعاملة بنجاح!',
-                icon: 'success',
-                confirmButtonColor: '#3F2A56'
-            });
+            try {
+                await addRecord(TRANSACTIONS_STORE_NAME, newTransaction);
+                await filterTable(); // Refresh the view
+                bootstrap.Modal.getInstance(document.getElementById('addTransactionModal')).hide();
+                document.getElementById('addTransactionForm').reset();
+                setCurrentDateTimeForPicker(); // Reset datetime picker for next entry
+                Swal.fire('نجاح', 'تمت إضافة المعاملة بنجاح!', 'success');
+            } catch (error) {
+                console.error("Error adding transaction:", error);
+                Swal.fire('خطأ', 'حدث خطأ أثناء إضافة المعاملة.', 'error');
+            }
         }
 
-        function editTransaction(index) {
-            document.getElementById('editIndex').value = index;
-            document.getElementById('editType').value = transactions[index].type;
-            document.getElementById('editDatetime').value = transactions[index].datetime.replace(' ', 'T');
-            document.getElementById('editAmount').value = transactions[index].amount;
-            document.getElementById('editDescription').value = transactions[index].description;
-            document.getElementById('editAccount').value = transactions[index].account;
-            new bootstrap.Modal(document.getElementById('editTransactionModal')).show();
+        async function editTransaction(transactionId) {
+            try {
+                const transaction = await getRecord(TRANSACTIONS_STORE_NAME, transactionId);
+                if (!transaction) {
+                    Swal.fire('خطأ', 'المعاملة غير موجودة.', 'error');
+                    return;
+                }
+                document.getElementById('editId').value = transaction.id;
+                document.getElementById('editType').value = transaction.type;
+                document.getElementById('editDatetime').value = transaction.datetime.replace(' ', 'T');
+                document.getElementById('editAmount').value = transaction.amount;
+                document.getElementById('editDescription').value = transaction.description;
+                document.getElementById('editAccount').value = transaction.account; // Ensure dropdown is populated before this
+                
+                new bootstrap.Modal(document.getElementById('editTransactionModal')).show();
+            } catch (error) {
+                console.error("Error fetching transaction for edit:", error);
+                Swal.fire('خطأ', 'حدث خطأ أثناء جلب المعاملة للتعديل.', 'error');
+            }
         }
 
         async function updateTransaction() {
-            const index = parseInt(document.getElementById('editIndex').value);
+            const id = parseInt(document.getElementById('editId').value);
             const type = document.getElementById('editType').value;
-            const datetime = document.getElementById('editDatetime').value;
+            const datetimeFull = document.getElementById('editDatetime').value;
             const amount = document.getElementById('editAmount').value;
             const description = document.getElementById('editDescription').value.trim();
             const account = document.getElementById('editAccount').value;
 
-            if (!type || !datetime || !amount || !description || !account) {
-                Swal.fire({
-                    title: 'خطأ في الإدخال',
-                    text: 'الرجاء ملء جميع الحقول المطلوبة!',
-                    icon: 'error',
-                    confirmButtonColor: '#3F2A56'
-                });
+            if (!type || !datetimeFull || !amount || !description || !account) {
+                Swal.fire('خطأ', 'الرجاء ملء جميع الحقول.', 'error');
+                return;
+            }
+            if (parseFloat(amount) <= 0) {
+                Swal.fire('خطأ', 'المبلغ يجب أن يكون أكبر من صفر.', 'error');
                 return;
             }
 
+            const datetime = datetimeFull.replace('T', ' ');
+            const dateOnly = datetimeFull.split('T')[0];
+
+            // Balance check for 'out' transactions needs careful handling.
+            // It should consider all transactions EXCEPT the one being edited, then add the new amount.
             if (type === 'out') {
-                const balance = getAccountBalance(account, index);
-                if (parseFloat(amount) > balance) {
-                    Swal.fire({
-                        title: 'رصيد غير كافٍ',
-                        text: `الرصيد الحالي للحساب "${account}" هو ${balance.toFixed(2)}. لا يمكن إتمام المعاملة بمبلغ ${amount}.`,
-                        icon: 'error',
-                        confirmButtonColor: '#3F2A56'
-                    });
+                const allDbTransactions = await getFilteredTransactionsDB(null, null, 'all', null); // Fetch all
+                let tempBalance = 0;
+                allDbTransactions.forEach(t => {
+                    if (t.account === account && t.id !== id) { // Exclude the current transaction being edited
+                        tempBalance += (t.type === 'in' ? parseFloat(t.amount) : -parseFloat(t.amount));
+                    }
+                });
+                // Now, if the edited transaction itself was 'in' and is changing to 'out', or if it was 'out'
+                // its old value is already excluded. We just need to check if the new 'out' amount is valid.
+                // The `tempBalance` is the balance *without* this transaction.
+                if (parseFloat(amount) > tempBalance) {
+                     Swal.fire('رصيد غير كافٍ', `الرصيد الكلي للحساب "${account}" (بدون هذه المعاملة) هو ${tempBalance.toFixed(2)}. لا يمكن تعديل السحب إلى ${amount}.`, 'error');
                     return;
                 }
             }
 
-            transactions[index] = { type, datetime: datetime.replace('T', ' '), amount, description, account };
-            localStorage.setItem('cashBoxTransactions', JSON.stringify(transactions));
-            filterTable();
-            bootstrap.Modal.getInstance(document.getElementById('editTransactionModal')).hide();
-            Swal.fire({
-                title: 'نجاح',
-                text: 'تم تعديل المعاملة بنجاح!',
-                icon: 'success',
-                confirmButtonColor: '#3F2A56'
-            });
-        }
+            const updatedTransaction = { id, type, datetime, date: dateOnly, amount: parseFloat(amount).toFixed(2), description, account };
 
-        async function deleteTransaction(index) {
-            const result = await Swal.fire({
-                title: 'تأكيد الحذف',
-                text: 'هل أنت متأكد من حذف هذه المعاملة؟ لا يمكن التراجع عن هذا الإجراء.',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'حذف',
-                cancelButtonText: 'إلغاء',
-                confirmButtonColor: '#dc3545',
-                cancelButtonColor: '#6c757d'
-            });
-            if (result.isConfirmed) {
-                transactions.splice(index, 1);
-                localStorage.setItem('cashBoxTransactions', JSON.stringify(transactions));
-                filterTable();
-                Swal.fire({
-                    title: 'نجاح',
-                    text: 'تم حذف المعاملة بنجاح!',
-                    icon: 'success',
-                    confirmButtonColor: '#3F2A56'
-                });
+            try {
+                await updateRecord(TRANSACTIONS_STORE_NAME, updatedTransaction);
+                await filterTable();
+                bootstrap.Modal.getInstance(document.getElementById('editTransactionModal')).hide();
+                Swal.fire('نجاح', 'تم تعديل المعاملة بنجاح!', 'success');
+            } catch (error) {
+                console.error("Error updating transaction:", error);
+                Swal.fire('خطأ', 'حدث خطأ أثناء تعديل المعاملة.', 'error');
             }
         }
 
-        function exportToJSON() {
-            sortTransactionsByDate();
-            const dataStr = JSON.stringify(transactions, null, 2);
+        async function deleteTransaction(transactionId) {
+            const result = await Swal.fire({
+                title: 'تأكيد الحذف',
+                text: 'هل أنت متأكد من حذف هذه المعاملة؟',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'حذف',
+                cancelButtonText: 'إلغاء'
+            });
+            if (result.isConfirmed) {
+                try {
+                    // Before deleting, check if this deletion would cause a negative ALL-TIME balance for the account
+                    const transactionToDelete = await getRecord(TRANSACTIONS_STORE_NAME, transactionId);
+                    if (transactionToDelete.type === 'in') { // If we delete an 'in' transaction
+                        const allTimeBalance = await getAllTimeAccountBalance(transactionToDelete.account);
+                        const balanceAfterDeletingThisIn = allTimeBalance - parseFloat(transactionToDelete.amount);
+                        if (balanceAfterDeletingThisIn < 0) {
+                            Swal.fire('خطأ في الحذف', `حذف هذه المعاملة سيجعل الرصيد الكلي للحساب "${transactionToDelete.account}" سالبًا (${balanceAfterDeletingThisIn.toFixed(2)}). لا يمكن الحذف.`, 'error');
+                            return;
+                        }
+                    }
+
+                    await deleteRecord(TRANSACTIONS_STORE_NAME, transactionId);
+                    await filterTable();
+                    Swal.fire('نجاح', 'تم حذف المعاملة بنجاح!', 'success');
+                } catch (error) {
+                    console.error("Error deleting transaction:", error);
+                    Swal.fire('خطأ', 'حدث خطأ أثناء حذف المعاملة.', 'error');
+                }
+            }
+        }
+        
+        // --- Export / Import / QR Functions (Modified to use displayedTransactions) ---
+        function exportVisibleToJSON() {
+            // displayedTransactions is already sorted by date by filterTable
+            const dataStr = JSON.stringify(displayedTransactions, null, 2);
             const blob = new Blob([dataStr], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'cashbox_transactions.json';
+            a.download = 'cashbox_visible_transactions.json';
             a.click();
             URL.revokeObjectURL(url);
-            Swal.fire({
-                title: 'نجاح',
-                text: 'تم تصدير البيانات إلى ملف JSON بنجاح!',
-                icon: 'success',
-                confirmButtonColor: '#3F2A56'
-            });
+            Swal.fire('نجاح', 'تم تصدير البيانات المعروضة إلى JSON!', 'success');
         }
 
-        function exportToCSV() {
-            sortTransactionsByDate();
+        function exportVisibleToCSV() {
             const headers = ['نوع المعاملة,التاريخ والوقت,المبلغ,البيان,الحساب'];
-            const rows = transactions.map(t => `${t.type === 'in' ? 'داخل' : 'خارج'},${t.datetime},${t.amount},${t.description},${t.account}`);
-            const csv = [headers, ...rows].join('\n');
-            const blob = new Blob([csv], { type: 'text/csv' });
+            const rows = displayedTransactions.map(t => 
+                `${t.type === 'in' ? 'داخل' : 'خارج'},"${t.datetime}","${t.amount}","${t.description}","${t.account}"`
+            );
+            const csv = [headers.join(','), ...rows].join('\n');
+            const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' }); // Added BOM for Excel
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'cashbox_transactions.csv';
+            a.download = 'cashbox_visible_transactions.csv';
             a.click();
             URL.revokeObjectURL(url);
-            Swal.fire({
-                title: 'نجاح',
-                text: 'تم تصدير البيانات إلى ملف CSV بنجاح!',
-                icon: 'success',
-                confirmButtonColor: '#3F2A56'
-            });
+            Swal.fire('نجاح', 'تم تصدير البيانات المعروضة إلى CSV!', 'success');
         }
-
+        
         async function importFile(event) {
             const file = event.target.files[0];
+            if (!file) return;
             const reader = new FileReader();
+
             reader.onload = async function(e) {
-                let newTransactions = [];
-                if (file.name.endsWith('.json')) {
-                    newTransactions = JSON.parse(e.target.result);
-                } else if (file.name.endsWith('.csv')) {
-                    const data = e.target.result;
-                    const rows = data.split('\n').slice(1).filter(row => row.trim());
-                    newTransactions = rows.map(row => {
-                        const [type, datetime, amount, description, account] = row.split(',');
-                        return {
-                            type: type === 'داخل' ? 'in' : 'out',
-                            datetime,
-                            amount: parseFloat(amount).toFixed(2),
-                            description,
-                            account
-                        };
-                    });
-                }
+                let newTransactionsRaw = [];
+                let importedAccounts = new Set(); // To collect accounts from imported file
 
-                // إضافة الحسابات الجديدة تلقائيًا
-                newTransactions.forEach(t => {
-                    if (!accounts.includes(t.account) && t.account) {
-                        accounts.push(t.account);
+                try {
+                    if (file.name.endsWith('.json')) {
+                        newTransactionsRaw = JSON.parse(e.target.result);
+                    } else if (file.name.endsWith('.csv')) {
+                        const data = e.target.result;
+                        const rows = data.split('\n').slice(1).filter(row => row.trim());
+                        newTransactionsRaw = rows.map(row => {
+                            // More robust CSV parsing, handling potential commas in description
+                            const values = [];
+                            let currentVal = '';
+                            let inQuotes = false;
+                            for (let char of row) {
+                                if (char === '"') {
+                                    inQuotes = !inQuotes;
+                                } else if (char === ',' && !inQuotes) {
+                                    values.push(currentVal.trim());
+                                    currentVal = '';
+                                } else {
+                                    currentVal += char;
+                                }
+                            }
+                            values.push(currentVal.trim()); // last value
+                            
+                            if (values.length < 5) return null; // Skip malformed rows
+                            
+                            return {
+                                type: values[0] === 'داخل' ? 'in' : 'out',
+                                datetime: values[1],
+                                amount: parseFloat(values[2]).toFixed(2),
+                                description: values[3],
+                                account: values[4]
+                            };
+                        }).filter(Boolean); // Remove nulls from malformed rows
+                    } else {
+                        throw new Error('صيغة ملف غير مدعومة. استخدم JSON أو CSV.');
                     }
-                });
-                localStorage.setItem('cashBoxAccounts', JSON.stringify(accounts));
-                populateAccounts();
-                updateAccountsTable();
 
-                // التحقق من صحة المعاملات
-                const invalidTransactions = newTransactions.filter(t => 
-                    !t.type || !t.datetime || !t.amount || !t.description || !t.account || 
-                    isNaN(parseFloat(t.amount)) || parseFloat(t.amount) < 0
-                );
-                if (invalidTransactions.length > 0) {
-                    Swal.fire({
-                        title: 'خطأ في البيانات',
-                        text: 'تم العثور على معاملات غير صالحة في الملف. الرجاء التحقق من تنسيق الملف.',
-                        icon: 'error',
-                        confirmButtonColor: '#3F2A56'
-                    });
-                    return;
-                }
+                    if (!Array.isArray(newTransactionsRaw)) throw new Error("بيانات الملف غير صالحة.");
 
-                // ترتيب المعاملات حسب التاريخ
-                newTransactions.sort((a, b) => new Date(a.datetime) - new Date(b.datetime));
-
-                // محاكاة إضافة المعاملات للتحقق من الأرصدة
-                const tempTransactions = [...transactions, ...newTransactions];
-                const negativeBalances = [];
-                accounts.forEach(account => {
-                    const balance = tempTransactions.reduce((bal, t) => {
-                        if (t.account !== account) return bal;
-                        return bal + (t.type === 'in' ? parseFloat(t.amount) : -parseFloat(t.amount));
-                    }, 0);
-                    if (balance < 0) {
-                        negativeBalances.push({ account, balance: balance.toFixed(2) });
-                    }
-                });
-
-                // عرض تحذير إذا كانت هناك أرصدة سالبة
-                if (negativeBalances.length > 0) {
-                    let warningMessage = 'تم العثور على حسابات برصيد سالب بعد الاستيراد:<br>';
-                    negativeBalances.forEach(({ account, balance }) => {
-                        warningMessage += `الحساب: ${account}, الرصيد: ${balance}<br>`;
-                    });
-                    warningMessage += 'هل تريد المتابعة على أي حال؟';
-
-                    const result = await Swal.fire({
-                        title: 'تحذير: رصيد سالب',
-                        html: warningMessage,
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonText: 'المتابعة على أي حال',
-                        cancelButtonText: 'إلغاء',
-                        confirmButtonColor: '#3F2A56',
-                        cancelButtonColor: '#dc3545',
-                        customClass: { popup: 'swal2-rtl' }
-                    });
-
-                    if (!result.isConfirmed) {
-                        Swal.fire({
-                            title: 'تم الإلغاء',
-                            text: 'لم يتم استيراد الملف بسبب الأرصدة السالبة.',
-                            icon: 'info',
-                            confirmButtonColor: '#3F2A56'
+                    // Validate and prepare transactions for DB
+                    const transactionsToImport = [];
+                    for (const t of newTransactionsRaw) {
+                        if (!t.type || !t.datetime || isNaN(parseFloat(t.amount)) || parseFloat(t.amount) <= 0 || !t.description || !t.account) {
+                            console.warn("Skipping invalid transaction during import:", t);
+                            continue; // Skip invalid transactions
+                        }
+                        const dateOnly = t.datetime.split(' ')[0].split('T')[0]; // Ensure YYYY-MM-DD
+                        transactionsToImport.push({
+                            type: t.type,
+                            datetime: t.datetime.replace('T', ' '),
+                            date: dateOnly,
+                            amount: parseFloat(t.amount).toFixed(2),
+                            description: t.description,
+                            account: t.account
                         });
-                        return;
+                        importedAccounts.add(t.account);
                     }
+                    
+                    if (transactionsToImport.length === 0) {
+                         Swal.fire('لا توجد بيانات', 'لم يتم العثور على معاملات صالحة في الملف.', 'info');
+                         return;
+                    }
+
+                    // Add new accounts from the imported file
+                    for (const accName of importedAccounts) {
+                        const existing = await getRecord(ACCOUNTS_STORE_NAME, accName);
+                        if (!existing) {
+                            await addRecord(ACCOUNTS_STORE_NAME, { name: accName });
+                        }
+                    }
+                    allAccounts = await getAllRecords(ACCOUNTS_STORE_NAME); // Refresh accounts cache
+                    await populateAccountDropdowns();
+
+
+                    // Balance check before bulk import
+                    const allCurrentDBTransactions = await getFilteredTransactionsDB(null, null, 'all', null);
+                    const tempAllTransactions = [...allCurrentDBTransactions, ...transactionsToImport];
+                    
+                    const negativeBalancesInfo = [];
+                    for (const accName of importedAccounts) { // Check only for accounts involved in import
+                        let balance = 0;
+                        tempAllTransactions.forEach(tx => {
+                            if (tx.account === accName) {
+                                balance += (tx.type === 'in' ? parseFloat(tx.amount) : -parseFloat(tx.amount));
+                            }
+                        });
+                        if (balance < 0) {
+                            negativeBalancesInfo.push(`الحساب: ${accName}, الرصيد سيصبح: ${balance.toFixed(2)}`);
+                        }
+                    }
+
+                    if (negativeBalancesInfo.length > 0) {
+                        const proceed = await Swal.fire({
+                            title: 'تحذير: أرصدة سالبة محتملة',
+                            html: `استيراد هذه البيانات قد يؤدي إلى أرصدة سالبة لبعض الحسابات:<br>${negativeBalancesInfo.join('<br>')}<br>هل تريد المتابعة؟`,
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonText: 'متابعة الاستيراد',
+                            cancelButtonText: 'إلغاء'
+                        });
+                        if (!proceed.isConfirmed) {
+                            Swal.fire('تم الإلغاء', 'لم يتم استيراد البيانات.', 'info');
+                            return;
+                        }
+                    }
+
+                    // Bulk add transactions
+                    const txStore = db.transaction(TRANSACTIONS_STORE_NAME, 'readwrite');
+                    const store = txStore.objectStore(TRANSACTIONS_STORE_NAME);
+                    for (const trans of transactionsToImport) {
+                        store.add(trans); // No need to await inside loop for performance
+                    }
+
+                    txStore.oncomplete = async () => {
+                        successSound.play();
+                        await filterTable(); // Refresh view
+                        Swal.fire('نجاح', `تم استيراد ${transactionsToImport.length} معاملة بنجاح!`, 'success');
+                    };
+                    txStore.onerror = (event) => {
+                        console.error("Error bulk adding transactions:", event.target.error);
+                        Swal.fire('خطأ', 'حدث خطأ أثناء حفظ المعاملات المستوردة.', 'error');
+                    };
+
+                } catch (error) {
+                    console.error("Error importing file:", error);
+                    Swal.fire('خطأ في الاستيراد', error.message || 'فشل استيراد الملف. تحقق من التنسيق.', 'error');
+                } finally {
+                    event.target.value = null; // Reset file input
                 }
-
-                // إضافة المعاملات
-                transactions = tempTransactions;
-                localStorage.setItem('cashBoxTransactions', JSON.stringify(transactions));
-                filterTable();
-                successSound.play();
-                Swal.fire({
-                    title: 'نجاح',
-                    text: 'تم استيراد البيانات بنجاح مع إضافة الحسابات الجديدة!',
-                    icon: 'success',
-                    confirmButtonColor: '#3F2A56'
-                });
             };
-
-            if (file.name.endsWith('.json') || file.name.endsWith('.csv')) {
-                reader.readAsText(file);
-            } else {
-                Swal.fire({
-                    title: 'خطأ',
-                    text: 'الرجاء تحميل ملف بصيغة JSON أو CSV!',
-                    icon: 'error',
-                    confirmButtonColor: '#3F2A56'
-                });
-            }
+            reader.readAsText(file);
         }
 
-        function generateQRCode() {
+
+        function generateQRCodeForVisible() { // Generates QR for currently displayed transactions
+            const allDbAccounts = allAccounts.map(a => a.name); // Get just names
             const data = {
-                transactions: transactions,
-                accounts: accounts
+                transactions: displayedTransactions.map(t => ({ // Send only essential data, no id from DB
+                    type: t.type, 
+                    datetime: t.datetime, 
+                    amount: t.amount, 
+                    description: t.description, 
+                    account: t.account 
+                })),
+                accounts: allDbAccounts // Send all account names currently in DB
             };
             const dataString = JSON.stringify(data);
             const qrCanvas = document.getElementById('qrCanvas');
             QRCode.toCanvas(qrCanvas, dataString, { width: 300, margin: 2 }, (error) => {
                 if (error) {
-                    Swal.fire({
-                        title: 'خطأ',
-                        text: 'فشل في إنشاء رمز QR!',
-                        icon: 'error',
-                        confirmButtonColor: '#3F2A56'
-                    });
+                    Swal.fire('خطأ', 'فشل إنشاء QR Code.', 'error');
                     return;
                 }
                 Swal.fire({
-                    title: 'رمز QR جاهز',
-                    html: `
-                        <canvas id="tempQRCanvas"></canvas>
-                        <p>امسح هذا الرمز من جهاز آخر لنقل البيانات</p>
-                        <div class="scanner-buttons">
-                            <button class="btn" onclick="exportQRCode()">تصدير كصورة</button>
-                        </div>
-                    `,
-                    showCancelButton: true,
-                    confirmButtonText: 'إغلاق',
-                    cancelButtonText: 'إلغاء',
-                    confirmButtonColor: '#3F2A56',
-                    cancelButtonColor: '#6c757d',
-                    customClass: { popup: 'swal2-rtl' },
-                    width: '500px',
+                    title: 'QR Code جاهز (للمعاملات المعروضة)',
+                    html: `<canvas id="tempQRCanvas"></canvas><p>امسح هذا الرمز لنقل البيانات المعروضة.</p>
+                           <div class="scanner-buttons"><button class="btn" onclick="exportQRCodeImage()">تصدير كصورة</button></div>`,
                     didOpen: () => {
                         const tempCanvas = document.getElementById('tempQRCanvas');
                         tempCanvas.width = qrCanvas.width;
@@ -1334,29 +1337,129 @@
             });
         }
 
-        function exportQRCode() {
-            const qrCanvas = document.getElementById('qrCanvas');
-            const dataURL = qrCanvas.toDataURL('image/png');
+        function exportQRCodeImage() { // Helper for QR export button in Swal
+            const tempCanvas = document.getElementById('tempQRCanvas');
+             if (!tempCanvas) { // Fallback to main if temp not found
+                const qrCanvas = document.getElementById('qrCanvas');
+                if (!qrCanvas) { Swal.fire('خطأ', 'لم يتم العثور على لوحة QR.', 'error'); return; }
+                 const dataURL = qrCanvas.toDataURL('image/png');
+                 const a = document.createElement('a');
+                 a.href = dataURL;
+                 a.download = 'cashbox_qr_code.png';
+                 a.click();
+                 Swal.fire('نجاح', 'تم تصدير صورة QR بنجاح!', 'success');
+                 return;
+            }
+            const dataURL = tempCanvas.toDataURL('image/png');
             const a = document.createElement('a');
             a.href = dataURL;
-            a.download = 'qrcode.png';
+            a.download = 'cashbox_qr_code.png';
             a.click();
-            Swal.fire({
-                title: 'نجاح',
-                text: 'تم تصدير رمز QR كصورة بنجاح!',
-                icon: 'success',
-                confirmButtonColor: '#3F2A56'
-            });
+            Swal.fire('نجاح', 'تم تصدير صورة QR بنجاح!', 'success');
         }
 
-        function startQRScanner() {
+        async function processQRData(data) { // Data is parsed JSON from QR
+            if (!data || !Array.isArray(data.transactions) || !Array.isArray(data.accounts)) {
+                Swal.fire('خطأ', 'بيانات QR غير صالحة أو غير مكتملة.', 'error');
+                return;
+            }
+
+            const transactionsFromQR = data.transactions;
+            const accountsFromQR = data.accounts; // Array of account names
+
+            // Add new accounts from QR
+            for (const accName of accountsFromQR) {
+                const existing = await getRecord(ACCOUNTS_STORE_NAME, accName);
+                if (!existing) {
+                    await addRecord(ACCOUNTS_STORE_NAME, { name: accName });
+                }
+            }
+            allAccounts = await getAllRecords(ACCOUNTS_STORE_NAME); // Refresh accounts cache
+            await populateAccountDropdowns();
+
+            // Prepare transactions for DB
+            const transactionsToImport = [];
+             for (const t of transactionsFromQR) {
+                if (!t.type || !t.datetime || isNaN(parseFloat(t.amount)) || parseFloat(t.amount) <= 0 || !t.description || !t.account) {
+                    console.warn("Skipping invalid transaction from QR:", t);
+                    continue;
+                }
+                const dateOnly = t.datetime.split(' ')[0].split('T')[0];
+                transactionsToImport.push({
+                    type: t.type,
+                    datetime: t.datetime.replace('T', ' '),
+                    date: dateOnly,
+                    amount: parseFloat(t.amount).toFixed(2),
+                    description: t.description,
+                    account: t.account
+                });
+            }
+
+            if (transactionsToImport.length === 0) {
+                 Swal.fire('لا توجد بيانات', 'لم يتم العثور على معاملات صالحة في رمز QR.', 'info');
+                 return;
+            }
+
+            // Balance check (similar to file import)
+            const allCurrentDBTransactions = await getFilteredTransactionsDB(null, null, 'all', null);
+            const tempAllTransactions = [...allCurrentDBTransactions, ...transactionsToImport];
+            const negativeBalancesInfo = [];
+            const involvedAccounts = new Set(transactionsToImport.map(t => t.account));
+
+            for (const accName of involvedAccounts) {
+                let balance = 0;
+                tempAllTransactions.forEach(tx => {
+                    if (tx.account === accName) {
+                        balance += (tx.type === 'in' ? parseFloat(tx.amount) : -parseFloat(tx.amount));
+                    }
+                });
+                if (balance < 0) {
+                    negativeBalancesInfo.push(`الحساب: ${accName}, الرصيد سيصبح: ${balance.toFixed(2)}`);
+                }
+            }
+
+            if (negativeBalancesInfo.length > 0) {
+                const proceed = await Swal.fire({
+                    title: 'تحذير: أرصدة سالبة محتملة',
+                    html: `استيراد هذه البيانات قد يؤدي إلى أرصدة سالبة لبعض الحسابات:<br>${negativeBalancesInfo.join('<br>')}<br>هل تريد المتابعة؟`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'متابعة الاستيراد',
+                    cancelButtonText: 'إلغاء'
+                });
+                if (!proceed.isConfirmed) {
+                    Swal.fire('تم الإلغاء', 'لم يتم استيراد البيانات.', 'info');
+                    return;
+                }
+            }
+
+            // Bulk add transactions
+            const txStore = db.transaction(TRANSACTIONS_STORE_NAME, 'readwrite');
+            const store = txStore.objectStore(TRANSACTIONS_STORE_NAME);
+            for (const trans of transactionsToImport) {
+                store.add(trans);
+            }
+
+            txStore.oncomplete = async () => {
+                successSound.play();
+                await filterTable();
+                Swal.fire('نجاح', `تم استيراد ${transactionsToImport.length} معاملة من QR بنجاح!`, 'success');
+            };
+            txStore.onerror = (event) => {
+                console.error("Error bulk adding transactions from QR:", event.target.error);
+                Swal.fire('خطأ', 'حدث خطأ أثناء حفظ المعاملات المستوردة من QR.', 'error');
+            };
+        }
+        
+        // --- QR Scanner Functions (largely unchanged, but call new processQRData) ---
+        function startQRScanner() { /* ... same as before ... */ 
             Swal.fire({
                 title: 'مسح رمز QR',
                 html: `
                     <div id="scannerContainer">
                         <video id="scannerVideo" autoplay playsinline style="max-width: 100%; border-radius: 10px; border: 2px solid #3F2A56;"></video>
                         <div class="scanner-buttons">
-                            <button class="btn" onclick="stopQRScanner()">إيقاف المسح</button>
+                            <button class="btn" onclick="stopQRScannerFromSwal()">إيقاف المسح</button>
                             <button class="btn" onclick="document.getElementById('qrImageInput').click()">استيراد من صورة</button>
                         </div>
                     </div>
@@ -1364,7 +1467,6 @@
                 showConfirmButton: false,
                 showCancelButton: true,
                 cancelButtonText: 'إغلاق',
-                cancelButtonColor: '#6c757d',
                 customClass: { popup: 'swal2-rtl' },
                 width: '600px',
                 didOpen: async () => {
@@ -1372,10 +1474,10 @@
                         stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
                         const video = document.getElementById('scannerVideo');
                         video.srcObject = stream;
-                        video.play();
+                        video.onloadedmetadata = () => video.play(); // Ensure video plays
 
                         const canvas = document.createElement('canvas');
-                        const context = canvas.getContext('2d');
+                        const context = canvas.getContext('2d', { willReadFrequently: true });
 
                         function scan() {
                             if (video.readyState === video.HAVE_ENOUGH_DATA) {
@@ -1392,28 +1494,19 @@
                                     Swal.close();
                                     try {
                                         const data = JSON.parse(code.data);
-                                        processQRData(data);
+                                        processQRData(data); // Use new processing function
                                     } catch (e) {
-                                        Swal.fire({
-                                            title: 'خطأ',
-                                            text: 'البيانات في رمز QR غير صالحة!',
-                                            icon: 'error',
-                                            confirmButtonColor: '#3F2A56'
-                                        });
+                                        Swal.fire('خطأ', 'البيانات في رمز QR غير صالحة!', 'error');
                                     }
                                     return;
                                 }
                             }
-                            requestAnimationFrame(scan);
+                           if (stream) requestAnimationFrame(scan); // Continue scanning only if stream active
                         }
                         requestAnimationFrame(scan);
                     } catch (error) {
-                        Swal.fire({
-                            title: 'خطأ',
-                            text: 'فشل في الوصول إلى الكاميرا! تأكد من منح الأذونات.',
-                            icon: 'error',
-                            confirmButtonColor: '#3F2A56'
-                        });
+                         console.error("QR Scanner Error:", error);
+                        Swal.fire('خطأ', 'فشل الوصول للكاميرا. تأكد من الأذونات.', 'error');
                     }
                 },
                 willClose: () => {
@@ -1421,35 +1514,33 @@
                 }
             });
         }
-
-        function stopQRScanner() {
+        function stopQRScanner() { /* ... same as before ... */ 
             if (stream) {
                 stream.getTracks().forEach(track => track.stop());
                 stream = null;
             }
-            const scannerContainer = document.getElementById('scannerContainer');
-            if (scannerContainer) {
-                scannerContainer.style.display = 'none';
-            }
-            const scannerVideo = document.getElementById('scannerVideo');
-            if (scannerVideo) {
-                scannerVideo.srcObject = null;
+            const video = document.getElementById('scannerVideo');
+            if (video) {
+                video.srcObject = null;
+                video.pause();
             }
         }
-
-        function importQRFromImage(event) {
+        function stopQRScannerFromSwal(){ // To be called from button inside Swal
+            stopQRScanner();
+            Swal.close();
+        }
+        function importQRFromImage(event) { /* ... same as before, calls processQRData ... */ 
             const file = event.target.files[0];
             if (!file) return;
 
             const reader = new FileReader();
             reader.onload = function(e) {
                 const img = new Image();
-                img.src = e.target.result;
                 img.onload = () => {
                     const canvas = document.createElement('canvas');
                     canvas.width = img.width;
                     canvas.height = img.height;
-                    const context = canvas.getContext('2d');
+                    const context = canvas.getContext('2d', { willReadFrequently: true });
                     context.drawImage(img, 0, 0, img.width, img.height);
                     const imageData = context.getImageData(0, 0, img.width, img.height);
                     const code = jsQR(imageData.data, imageData.width, imageData.height, {
@@ -1457,512 +1548,161 @@
                     });
 
                     if (code) {
-                        stopQRScanner();
-                        Swal.close();
+                        stopQRScanner(); 
+                        Swal.close(); // Close scanner Swal if open
                         try {
                             const data = JSON.parse(code.data);
-                            processQRData(data);
+                            processQRData(data); // Use new processing function
                         } catch (e) {
-                            Swal.fire({
-                                title: 'خطأ',
-                                text: 'البيانات في رمز QR غير صالحة!',
-                                icon: 'error',
-                                confirmButtonColor: '#3F2A56'
-                            });
+                            Swal.fire('خطأ', 'بيانات QR من الصورة غير صالحة!', 'error');
                         }
                     } else {
-                        Swal.fire({
-                            title: 'خطأ',
-                            text: 'لم يتم العثور على رمز QR في الصورة!',
-                            icon: 'error',
-                            confirmButtonColor: '#3F2A56'
-                        });
+                        Swal.fire('خطأ', 'لم يتم العثور على رمز QR في الصورة!', 'error');
                     }
                 };
+                img.src = e.target.result;
             };
             reader.readAsDataURL(file);
+            event.target.value = null; // Reset file input
         }
 
-        async function processQRData(data) {
-            if (!data.transactions || !data.accounts) {
-                Swal.fire({
-                    title: 'خطأ',
-                    text: 'البيانات غير مكتملة! يجب أن تحتوي على transactions وaccounts.',
-                    icon: 'error',
-                    confirmButtonColor: '#3F2A56'
-                });
-                return;
-            }
-
-            const newTransactions = data.transactions;
-            const newAccounts = data.accounts;
-
-            // إضافة الحسابات الجديدة
-            newAccounts.forEach(account => {
-                if (!accounts.includes(account)) {
-                    accounts.push(account);
-                }
-            });
-            localStorage.setItem('cashBoxAccounts', JSON.stringify(accounts));
-            populateAccounts();
-            updateAccountsTable();
-
-            // التحقق من صحة المعاملات
-            const invalidTransactions = newTransactions.filter(t =>
-                !t.type || !t.datetime || !t.amount || !t.description || !t.account ||
-                isNaN(parseFloat(t.amount)) || parseFloat(t.amount) < 0
-            );
-            if (invalidTransactions.length > 0) {
-                Swal.fire({
-                    title: 'خطأ في البيانات',
-                    text: 'تم العثور على معاملات غير صالحة.',
-                    icon: 'error',
-                    confirmButtonColor: '#3F2A56'
-                });
-                return;
-            }
-
-            // ترتيب المعاملات
-            newTransactions.sort((a, b) => new Date(a.datetime) - new Date(b.datetime));
-
-            // التحقق من الأرصدة
-            const tempTransactions = [...transactions, ...newTransactions];
-            const negativeBalances = [];
-            accounts.forEach(account => {
-                const balance = tempTransactions.reduce((bal, t) => {
-                    if (t.account !== account) return bal;
-                    return bal + (t.type === 'in' ? parseFloat(t.amount) : -parseFloat(t.amount));
-                }, 0);
-                if (balance < 0) {
-                    negativeBalances.push({ account, balance: balance.toFixed(2) });
-                }
-            });
-
-            if (negativeBalances.length > 0) {
-                let warningMessage = 'تم العثور على حسابات برصيد سالب بعد الاستيراد:<br>';
-                negativeBalances.forEach(({ account, balance }) => {
-                    warningMessage += `الحساب: ${account}, الرصيد: ${balance}<br>`;
-                });
-                warningMessage += 'هل تريد المتابعة على أي حال؟';
-                const result = await Swal.fire({
-                    title: 'تحذير: رصيد سالب',
-                    html: warningMessage,
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonText: 'المتابعة على أي حال',
-                    cancelButtonText: 'إلغاء',
-                    confirmButtonColor: '#3F2A56',
-                    cancelButtonColor: '#dc3545',
-                    customClass: { popup: 'swal2-rtl' }
-                });
-                if (!result.isConfirmed) {
-                    Swal.fire({
-                        title: 'تم الإلغاء',
-                        text: 'لم يتم استيراد البيانات بسبب الأرصدة السالبة.',
-                        icon: 'info',
-                        confirmButtonColor: '#3F2A56'
-                    });
-                    return;
-                }
-            }
-
-            transactions = tempTransactions;
-            localStorage.setItem('cashBoxTransactions', JSON.stringify(transactions));
-            filterTable();
-            successSound.play();
-            Swal.fire({
-                title: 'نجاح',
-                text: 'تم استيراد البيانات من رمز QR بنجاح!',
-                icon: 'success',
-                confirmButtonColor: '#3F2A56'
-            });
-        }
-
-        function setCurrentDateTime() {
-            const now = new Date();
-            const formattedDateTime = now.toISOString().slice(0, 16);
-            document.getElementById('datetime').value = formattedDateTime;
-            document.getElementById('editDatetime').value = formattedDateTime;
-        }
-
+        // --- Print Function (uses displayedTransactions) ---
         function printTable() {
-    try {
-        const itemsPerPage = 20;
-        const startDate = document.getElementById('startDate').value;
-        const endDate = document.getElementById('endDate').value;
-        const typeFilter = document.getElementById('typeFilter').value;
+            // Uses `displayedTransactions` which are already filtered and sorted.
+            const itemsPerPage = 20; // Adjust as needed
 
-        const inTransactions = transactions.filter(transaction => {
-            const transactionDate = transaction.datetime.split(' ')[0];
-            const matchesDate = (
-                (!startDate || transactionDate >= startDate) &&
-                (!endDate || transactionDate <= endDate)
-            );
-            return matchesDate && (typeFilter === 'all' || typeFilter === 'in') && transaction.type === 'in';
-        });
+            // Separate transactions by type for printing
+            const inTransactionsToPrint = displayedTransactions.filter(t => t.type === 'in');
+            const outTransactionsToPrint = displayedTransactions.filter(t => t.type === 'out');
 
-        const outTransactions = transactions.filter(transaction => {
-            const transactionDate = transaction.datetime.split(' ')[0];
-            const matchesDate = (
-                (!startDate || transactionDate >= startDate) &&
-                (!endDate || transactionDate <= endDate)
-            );
-            return matchesDate && (typeFilter === 'all' || typeFilter === 'out') && transaction.type === 'out';
-        });
+            const totalIn = inTransactionsToPrint.reduce((sum, t) => sum + parseFloat(t.amount), 0);
+            const totalOut = outTransactionsToPrint.reduce((sum, t) => sum + parseFloat(t.amount), 0);
+            const balance = totalIn - totalOut;
 
-        const totalIn = inTransactions.reduce((sum, t) => sum + parseFloat(t.amount), 0);
-        const totalOut = outTransactions.reduce((sum, t) => sum + parseFloat(t.amount), 0);
-        const balance = totalIn - totalOut;
+            const printDate = new Date().toLocaleDateString('ar-EG-u-nu-latn', { year: 'numeric', month: 'long', day: 'numeric' });
+            
+            const printWindow = window.open('', '_blank', 'height=700,width=1000');
+            if (!printWindow) {
+                Swal.fire('خطأ', 'فشل فتح نافذة الطباعة. تحقق من إعدادات المتصفح.', 'error');
+                return;
+            }
 
-        const inPages = Math.ceil(inTransactions.length / itemsPerPage);
-        const outPages = Math.ceil(outTransactions.length / itemsPerPage);
-        const totalPages = Math.max(inPages, outPages);
-
-        const printWindow = window.open('', '_blank', 'height=700,width=1000');
-        if (!printWindow) {
-            throw new Error('فشل في فتح نافذة الطباعة. تحقق من إعدادات المتصفح.');
-        }
-
-        const printDate = new Date().toLocaleString('en-US', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric'
-        }).replace(/(\d+)\/(\d+)\/(\d+)/, '$1/$2/$3');
-
-        printWindow.document.write(`
-            <html>
-            <head>
-                <title>ضبط الصندوق</title>
+            let content = `
+                <html><head><title>تقرير ضبط الصندوق</title>
                 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
-                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
                 <style>
-                    @page { 
-                        size: A4; 
-                        margin: 10mm; 
-                    }
-                    body { 
-                        font-family: 'Cairo', sans-serif; 
-                        direction: rtl; 
-                        margin: 10mm; 
-                        background: #fff; 
-                        color: #000; 
-                    }
-                    .container { 
-                        max-width: 1000px; 
-                        margin: 0 auto; 
-                    }
-                    .header { 
-                        display: flex; 
-                        justify-content: space-between; 
-                        align-items: center; 
-                        margin-bottom: 20px; 
-                        padding-bottom: 10px; 
-                        border-bottom: 1px solid #000; 
-                    }
-                    .header img { 
-                        height: 70px; 
-                        clip-path: polygon(10% 0%, 100% 0%, 90% 100%, 0% 100%); 
-                        margin-right: 10px; 
-                    }
-                    .header h1 { 
-                        font-size: 1.6rem; 
-                        font-weight: 700; 
-                        margin: 0; 
-                        text-align: center; 
-                        flex-grow: 1; 
-                        color: #3F2A56; 
-                    }
-                    .dashboard-container { 
-                        display: flex; 
-                        justify-content: space-between; 
-                        gap: 20px; 
-                        margin-bottom: 20px; 
-                    }
-                    .dashboard-section { 
-                        flex: 1; 
-                        border: 1px solid #000; 
-                        padding: 15px; 
-                        border-radius: 5px; 
-                        background: #fff; 
-                        text-align: center; 
-                    }
-                    .dashboard-section h4 { 
-                        font-size: 1.2rem; 
-                        font-weight: 700; 
-                        margin: 0 0 10px; 
-                        border-bottom: 1px solid #000; 
-                        padding-bottom: 5px; 
-                        color: #3F2A56; 
-                    }
-                    .dashboard-section p { 
-                        margin: 5px 0; 
-                        font-size: 1rem; 
-                        line-height: 1.5; 
-                        font-weight: 600; 
-                    }
-                    .balance-container { 
-                        text-align: center; 
-                        margin: 20px 0; 
-                        border: 1px solid #000; 
-                        padding: 10px; 
-                        border-radius: 5px; 
-                        background: #fff; 
-                    }
-                    .balance-container h4 { 
-                        font-size: 1.2rem; 
-                        font-weight: 700; 
-                        margin: 0 0 10px; 
-                        color: #3F2A56; 
-                    }
-                    .balance-container p { 
-                        font-size: 1.1rem; 
-                        font-weight: 600; 
-                        margin: 0; 
-                    }
-                    h2 { 
-                        text-align: center; 
-                        font-size: 1.7rem; 
-                        font-weight: 700; 
-                        margin: 20px 0; 
-                        border-bottom: 1px solid #000; 
-                        padding-bottom: 5px; 
-                        color: #3F2A56; 
-                    }
-                    .transactions-count { 
-                        text-align: center; 
-                        font-size: 1.1rem; 
-                        font-weight: 600; 
-                        margin-bottom: 10px; 
-                        color: #5a3f73; 
-                    }
-                    .print-date { 
-                        text-align: center; 
-                        font-size: 1.1rem; 
-                        font-weight: 600; 
-                        margin-bottom: 20px; 
-                        color: #3F2A56; 
-                    }
-                    table { 
-                        width: 100%; 
-                        border-collapse: collapse; 
-                        margin: 20px 0; 
-                        border: 1px solid #000; 
-                    }
-                    th, td { 
-                        padding: 12px; 
-                        text-align: center; 
-                        border: 1px solid #000; 
-                        font-size: 1rem; 
-                    }
-                    th { 
-                        background: linear-gradient(90deg, #3F2A56, #5a3f73); 
-                        color: white; 
-                        font-weight: 700; 
-                    }
-                    td { 
-                        background: #fff; 
-                        color: #000; 
-                    }
-                    .page-break { 
-                        page-break-before: always; 
-                    }
-                    .page-number { 
-                        text-align: center; 
-                        font-size: 1rem; 
-                        margin-top: 10px; 
-                        color: #3F2A56; 
-                    }
-                    .footer { 
-                        text-align: center; 
-                        font-size: 1rem; 
-                        font-weight: 600; 
-                        margin-top: 10px; 
-                        position: running(footer); 
-                        color: #3F2A56; 
-                    }
-                    @media print {
-                        .footer {
-                            position: fixed;
-                            bottom: 10mm;
-                            width: 100%;
-                        }
-                    }
+                    @page { size: A4; margin: 15mm; }
+                    body { font-family: 'Cairo', sans-serif; direction: rtl; margin: 0; color: #000; }
+                    .print-container { padding: 10mm; }
+                    .print-header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #3F2A56; padding-bottom: 10px; }
+                    .print-header img { height: 60px; vertical-align: middle; margin-left: 15px; }
+                    .print-header h1 { font-size: 1.8rem; color: #3F2A56; margin: 0; display: inline-block;}
+                    .print-info { margin-bottom: 20px; font-size: 0.9rem; }
+                    .print-info p { margin: 5px 0; }
+                    .dashboard-summary { display: flex; justify-content: space-around; margin-bottom: 20px; padding: 10px; border: 1px solid #ccc; border-radius: 5px; background: #f9f9f9;}
+                    .dashboard-summary div { text-align: center; }
+                    .dashboard-summary h4 { margin: 0 0 5px 0; font-size: 1rem; color: #3F2A56;}
+                    .dashboard-summary p { margin: 0; font-size: 1.1rem; font-weight: bold; }
+                    h2.table-title { text-align: center; font-size: 1.5rem; color: #3F2A56; margin: 25px 0 10px 0; border-bottom: 1px solid #ccc; padding-bottom: 5px;}
+                    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 0.9rem; }
+                    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+                    th { background-color: #3F2A56; color: white; font-weight: 600; }
+                    .page-break { page-break-before: always; }
+                    .footer { text-align: center; font-size: 0.8rem; margin-top: 20px; position: fixed; bottom: 10mm; width: calc(100% - 30mm); } /* Adjust width for margins */
+                    .page-number::after { content: counter(page); }
                 </style>
-            </head>
-            <body>
-                <div class="container">
-                    <div class="header">
-                        <img src="logo.png" alt="شعار طيبة المدينة تلكوم" onerror="this.src='https://via.placeholder.com/70x70.png?text=Logo';">
+                </head><body><div class="print-container">
+                    <div class="print-header">
+                        <img src="logo.png" alt="شعار" onerror="this.style.display='none'">
                         <h1>طيبة المدينة تلكوم - تقرير ضبط الصندوق</h1>
                     </div>
-                    <div class="print-date">تاريخ الطباعة: ${printDate}</div>
-                    <div class="dashboard-container">
-                        <div class="dashboard-section">
-                            <h4>الرصيد</h4>
-                            <p>${balance.toFixed(2)}</p>
-                        </div>
-                        <div class="dashboard-section">
-                            <h4>الرصيد الداخل</h4>
-                            <p>${totalIn.toFixed(2)}</p>
-                        </div>
-                        <div class="dashboard-section">
-                            <h4>الرصيد الخارج</h4>
-                            <p>${totalOut.toFixed(2)}</p>
-                        </div>
+                    <div class="print-info">
+                        <p>تاريخ الطباعة: ${printDate}</p>
+                        <p>الفترة المحددة: ${document.getElementById('dateFilter').selectedOptions[0].text} 
+                           ${document.getElementById('dateFilter').value === 'range' ? ` (${document.getElementById('startDate').value || 'البداية'} - ${document.getElementById('endDate').value || 'النهاية'})` : ''}
+                        </p>
                     </div>
-                    <div class="balance-container">
-                        <h4>الرصيد الإجمالي</h4>
-                        <p>${balance.toFixed(2)}</p>
+                    <div class="dashboard-summary">
+                        <div><h4>الرصيد للفترة</h4><p>${balance.toFixed(2)}</p></div>
+                        <div><h4>الإجمالي الداخل للفترة</h4><p>${totalIn.toFixed(2)}</p></div>
+                        <div><h4>الإجمالي الخارج للفترة</h4><p>${totalOut.toFixed(2)}</p></div>
                     </div>
-        `);
+            `;
 
-        // جدول المعاملات "داخل"
-        if (inTransactions.length > 0) {
-            printWindow.document.write(`
-                <h2>المعاملات الداخلة</h2>
-                <div class="transactions-count">عدد المعاملات: ${inTransactions.length}</div>
-            `);
-            for (let page = 0; page < inPages; page++) {
-                if (page > 0) {
-                    printWindow.document.write('<div class="page-break"></div>');
+            function addTableToContent(title, transactions, pageNumStart, totalPages) {
+                if (transactions.length === 0) {
+                    content += `<h2 class="table-title">${title}</h2><p style="text-align:center;">لا توجد معاملات.</p>`;
+                    return pageNumStart;
                 }
-                printWindow.document.write(`
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>التاريخ والوقت</th>
-                                <th>المبلغ</th>
-                                <th>البيان</th>
-                                <th>الحساب</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                `);
-                const start = page * itemsPerPage;
-                const end = Math.min(start + itemsPerPage, inTransactions.length);
-                for (let i = start; i < end; i++) {
-                    const transaction = inTransactions[i];
-                    printWindow.document.write(`
-                        <tr>
-                            <td>${i + 1}</td>
-                            <td>${transaction.datetime}</td>
-                            <td>${transaction.amount}</td>
-                            <td>${transaction.description}</td>
-                            <td>${transaction.account}</td>
-                        </tr>
-                    `);
+                
+                let currentPage = pageNumStart;
+                const numPagesForThisTable = Math.ceil(transactions.length / itemsPerPage);
+
+                for (let p = 0; p < numPagesForThisTable; p++) {
+                    if (p > 0 || pageNumStart > 1 && p === 0 && title !== "المعاملات الداخلة") { // Ensure page break for new sections or continued tables
+                        content += `<div class="page-break"></div>
+                        <div class="print-header">
+                           <img src="logo.png" alt="شعار" onerror="this.style.display='none'">
+                           <h1>طيبة المدينة تلكوم - تقرير ضبط الصندوق (تابع)</h1>
+                        </div>`;
+                    }
+                    content += `<h2 class="table-title">${title} ${numPagesForThisTable > 1 ? `(صفحة ${p+1} من ${numPagesForThisTable})` : ''}</h2>`;
+                    content += `<table><thead><tr><th>#</th><th>التاريخ والوقت</th><th>المبلغ</th><th>البيان</th><th>الحساب</th></tr></thead><tbody>`;
+                    const startIdx = p * itemsPerPage;
+                    const endIdx = Math.min(startIdx + itemsPerPage, transactions.length);
+                    for (let i = startIdx; i < endIdx; i++) {
+                        const t = transactions[i];
+                        content += `<tr><td>${i + 1}</td><td>${t.datetime}</td><td>${parseFloat(t.amount).toFixed(2)}</td><td>${t.description}</td><td>${t.account}</td></tr>`;
+                    }
+                    content += `</tbody></table>`;
+                    content += `<div class="footer">صفحة ${currentPage} من ${totalPages}</div>`;
+                    currentPage++;
                 }
-                printWindow.document.write(`
-                        </tbody>
-                    </table>
-                    <div class="page-number">صفحة ${page + 1} من ${totalPages}</div>
-                    <div class="footer">طيبة المدينة تلكوم - تقرير ضبط الصندوق</div>
-                `);
+                return currentPage;
             }
-        } else {
-            printWindow.document.write(`
-                <h2>المعاملات الداخلة</h2>
-                <div class="transactions-count">عدد المعاملات: 0</div>
-                <p style="text-align: center; font-size: 1rem;">لا توجد معاملات داخلة في النطاق المحدد.</p>
-            `);
+            
+            const totalInPages = Math.ceil(inTransactionsToPrint.length / itemsPerPage);
+            const totalOutPages = Math.ceil(outTransactionsToPrint.length / itemsPerPage);
+            const grandTotalPages = (totalInPages || 1) + (totalOutPages || 1) - (totalInPages > 0 && totalOutPages > 0 && (inTransactionsToPrint.length % itemsPerPage !== 0) ? 1: 0) ; // crude estimate for footer
+            
+            let currentPageNum = 1;
+            currentPageNum = addTableToContent("المعاملات الداخلة", inTransactionsToPrint, currentPageNum, grandTotalPages);
+            currentPageNum = addTableToContent("المعاملات الخارجة", outTransactionsToPrint, currentPageNum, grandTotalPages);
+
+            content += `</div></body></html>`;
+            printWindow.document.write(content);
+            printWindow.document.close();
+            printWindow.onload = () => { // Wait for content to load
+                 setTimeout(() => { // Ensure images/styles are applied
+                    printWindow.focus();
+                    // printWindow.print(); // Can be enabled for auto-print
+                }, 500);
+            };
         }
 
-        // جدول المعاملات "خارج"
-        if (outTransactions.length > 0) {
-            printWindow.document.write(`
-                <div class="page-break"></div>
-                <h2>المعاملات الخارجة</h2>
-                <div class="transactions-count">عدد المعاملات: ${outTransactions.length}</div>
-            `);
-            for (let page = 0; page < outPages; page++) {
-                if (page > 0) {
-                    printWindow.document.write('<div class="page-break"></div>');
-                }
-                printWindow.document.write(`
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>التاريخ والوقت</th>
-                                <th>المبلغ</th>
-                                <th>البيان</th>
-                                <th>الحساب</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                `);
-                const start = page * itemsPerPage;
-                const end = Math.min(start + itemsPerPage, outTransactions.length);
-                for (let i = start; i < end; i++) {
-                    const transaction = outTransactions[i];
-                    printWindow.document.write(`
-                        <tr>
-                            <td>${i + 1}</td>
-                            <td>${transaction.datetime}</td>
-                            <td>${transaction.amount}</td>
-                            <td>${transaction.description}</td>
-                            <td>${transaction.account}</td>
-                        </tr>
-                    `);
-                }
-                printWindow.document.write(`
-                        </tbody>
-                    </table>
-                    <div class="page-number">صفحة ${page + 1} من ${totalPages}</div>
-                    <div class="footer">طيبة المدينة تلكوم - تقرير ضبط الصندوق</div>
-                `);
+
+        // --- Initial Load ---
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                await openDB();
+                setCurrentDateTimeForPicker();
+                handleDateFilterChange(); // This will also call filterTable
+                allAccounts = await getAllRecords(ACCOUNTS_STORE_NAME); // Initial fetch for all accounts
+                await populateAccountDropdowns();
+                await filterTable(); // Initial data load and display for "Today"
+            } catch (error) {
+                console.error("Initialization error:", error);
+                Swal.fire('خطأ في التهيئة', 'لم يتمكن من فتح قاعدة البيانات أو تحميل البيانات الأولية.', 'error');
             }
-        } else {
-            printWindow.document.write(`
-                <div class="page-break"></div>
-                <h2>المعاملات الخارجة</h2>
-                <div class="transactions-count">عدد المعاملات: 0</div>
-                <p style="text-align: center; font-size: 1rem;">لا توجد معاملات خارجة في النطاق المحدد.</p>
-            `);
-        }
-
-        // إغلاق الوثيقة
-        printWindow.document.write(`
-                </div>
-            </body>
-            </html>
-        `);
-        printWindow.document.close();
-
-        // إعطاء وقت قصير لتحميل الصورة قبل الطباعة
-        printWindow.onload = () => {
-            setTimeout(() => {
-                printWindow.focus();
-                // تعطيل الطباعة التلقائية للسماح للمستخدم بمراجعة المعاينة
-                // printWindow.print();
-            }, 500);
-        };
-    } catch (error) {
-        console.error('خطأ أثناء الطباعة:', error);
-        Swal.fire({
-            title: 'خطأ',
-            text: 'حدث خطأ أثناء إنشاء تقرير الطباعة. الرجاء المحاولة مرة أخرى.',
-            icon: 'error',
-            confirmButtonColor: '#3F2A56'
-        });
-        if (printWindow) {
-            printWindow.close();
-        }
-    }
-}
-// تهيئة الصفحة عند التحميل
-        document.addEventListener('DOMContentLoaded', () => {
-            setCurrentDateTime();
-            populateAccounts();
-            filterTable();
-            updateAccountsTable();
         });
 
-        // إغلاق الكاميرا عند إغلاق النافذة
         window.addEventListener('unload', () => {
             stopQRScanner();
+            if (db) {
+                db.close();
+            }
         });
+
     </script>
 </body>
 </html>
