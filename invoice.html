@@ -359,6 +359,9 @@
             <button class="btn" data-bs-toggle="modal" data-bs-target="#addInvoiceModal"><i class="fas fa-plus"></i> إضافة فاتورة</button>
             <button class="btn" data-bs-toggle="modal" data-bs-target="#addCustomerModal"><i class="fas fa-user-plus"></i> إضافة زبون</button>
             <button class="btn" data-bs-toggle="modal" data-bs-target="#customerStatementModal"><i class="fas fa-file-alt"></i> كشف حساب زبون</button>
+            <button class="btn" onclick="exportSalesData()"><i class="fas fa-file-export"></i> تصدير بيانات المبيعات (JSON)</button>
+            <input type="file" id="importSalesFile" accept=".json" style="display: none;" onchange="importSalesData(event)">
+            <button class="btn" onclick="document.getElementById('importSalesFile').click()"><i class="fas fa-file-import"></i> استيراد بيانات المبيعات (JSON)</button>
         </div>
 
         <div class="section">
@@ -682,7 +685,7 @@
 
     <!-- نافذة كشف حساب زبون -->
     <div class="modal fade" id="customerStatementModal" tabindex="-1" aria-labelledby="customerStatementModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg"> <!-- modal-lg for wider statement -->
+        <div class="modal-dialog modal-lg"> 
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="customerStatementModalLabel"><i class="fas fa-file-invoice"></i> كشف حساب زبون</h5>
@@ -701,7 +704,6 @@
                             <select class="form-select" id="statementType" required>
                                 <option value="invoices_summary">ملخص فواتير</option>
                                 <option value="detailed_general">كشف عام مفصل</option>
-                                <!-- <option value="payments_only" disabled>كشف دفعات فقط (قيد التطوير)</option> -->
                             </select>
                         </div>
                         <div class="mb-3">
@@ -723,14 +725,14 @@
     </div>
 
     <script>
-        let db; // For InventoryDB
-        let cashBoxDB; // For CashBoxDB
+        let db; 
+        let cashBoxDB; 
         let html5QrCodeScanner;
 
         const INVENTORY_DB_NAME = 'InventoryDB';
         const INVENTORY_DB_VERSION = 3; 
         const CASHBOX_DB_NAME = 'cashBoxDB';
-        const CASHBOX_DB_VERSION = 1;
+        const CASHBOX_DB_VERSION = 2; // Increment if cashbox structure changed (e.g., new indexes)
 
 
         function formatDateForDisplay(isoString) {
@@ -760,16 +762,35 @@
                 request.onupgradeneeded = (event) => {
                     db = event.target.result;
                     if (!db.objectStoreNames.contains('products')) {
-                        db.createObjectStore('products', { keyPath: 'id' });
+                        const productStore = db.createObjectStore('products', { keyPath: 'id' });
+                        productStore.createIndex('name', 'name', { unique: false }); // Add index if not exists
+                    } else {
+                        const productStore = event.target.transaction.objectStore('products');
+                         if (!productStore.indexNames.contains('name')) {
+                            productStore.createIndex('name', 'name', { unique: false });
+                        }
                     }
                     if (!db.objectStoreNames.contains('invoices')) {
                         const invoiceStore = db.createObjectStore('invoices', { keyPath: 'id' });
                         invoiceStore.createIndex('customerId', 'customerId', { unique: false });
                         invoiceStore.createIndex('date', 'date', {unique: false});
+                    } else {
+                        const invoiceStore = event.target.transaction.objectStore('invoices');
+                         if (!invoiceStore.indexNames.contains('customerId')) {
+                            invoiceStore.createIndex('customerId', 'customerId', { unique: false });
+                        }
+                        if (!invoiceStore.indexNames.contains('date')) {
+                            invoiceStore.createIndex('date', 'date', {unique: false});
+                        }
                     }
                     if (!db.objectStoreNames.contains('customers')) {
                         const customerStore = db.createObjectStore('customers', { keyPath: 'id' });
                         customerStore.createIndex('phone', 'phone', { unique: false });
+                    } else {
+                        const customerStore = event.target.transaction.objectStore('customers');
+                        if (!customerStore.indexNames.contains('phone')) {
+                            customerStore.createIndex('phone', 'phone', { unique: false });
+                        }
                     }
                     if (!db.objectStoreNames.contains('cashBoxAccounts')) {
                          db.createObjectStore('cashBoxAccounts', { keyPath: 'name' });
@@ -777,10 +798,11 @@
                 };
                 request.onsuccess = (event) => {
                     db = event.target.result;
+                    console.log("InventoryDB opened successfully.");
                     resolve(db);
                 };
                 request.onerror = (event) => {
-                    console.error("InventoryDB error: " + event.target.errorCode);
+                    console.error("InventoryDB error: ", event.target.error);
                     reject(event.target.error);
                 };
             });
@@ -800,16 +822,29 @@
                         transactionStore.createIndex('account', 'account', { unique: false });
                         transactionStore.createIndex('type', 'type', { unique: false });
                         transactionStore.createIndex('date', 'date', { unique: false });
-                         // Add an index for description to search for invoice IDs
                         transactionStore.createIndex('description', 'description', { unique: false });
+                        transactionStore.createIndex('invoiceId', 'invoiceId', { unique: false });      // New index
+                        transactionStore.createIndex('customerId', 'customerId', { unique: false });  // New index
+                    } else { // Store exists, check/add new indexes
+                        const transactionStore = event.target.transaction.objectStore('transactions');
+                        if (!transactionStore.indexNames.contains('description')) {
+                             transactionStore.createIndex('description', 'description', { unique: false });
+                        }
+                        if (!transactionStore.indexNames.contains('invoiceId')) {
+                             transactionStore.createIndex('invoiceId', 'invoiceId', { unique: false });
+                        }
+                        if (!transactionStore.indexNames.contains('customerId')) {
+                             transactionStore.createIndex('customerId', 'customerId', { unique: false });
+                        }
                     }
                 };
                 request.onsuccess = (event) => {
                     cashBoxDB = event.target.result;
+                    console.log("CashBoxDB opened successfully.");
                     resolve(cashBoxDB);
                 };
                 request.onerror = (event) => {
-                    console.error("CashBoxDB error: " + event.target.errorCode);
+                    console.error("CashBoxDB error: ", event.target.error);
                     reject(event.target.error);
                 };
             });
@@ -985,9 +1020,9 @@
             }
         }
 
-        function togglePaymentAccountField(accountGroupId, amountPaidValue) { // Pass group ID
+        function togglePaymentAccountField(accountGroupId, amountPaidValue) { 
             const accountGroupElement = document.getElementById(accountGroupId);
-            const accountSelectElement = accountGroupElement.querySelector('select'); // Find select within group
+            const accountSelectElement = accountGroupElement.querySelector('select'); 
             
             const amountPaid = parseFloat(amountPaidValue);
             if (amountPaid > 0) {
@@ -1249,7 +1284,7 @@
                 suggestionsDiv.innerHTML = ''; 
                 if (query.length < 1) return; 
 
-                const allProducts = await getAllProducts();
+                const allProducts = await getAllProducts(); // This should come from InventoryDB
                 const availableProducts = allProducts.filter(p => p.quantity > 0); 
                 
                 const filteredProducts = availableProducts.filter(p => 
@@ -1262,9 +1297,10 @@
                         const div = document.createElement('div');
                         div.className = 'list-group-item list-group-item-action';
                         const salePriceFormatted = parseFloat(product.salePrice || 0).toFixed(2);
+                        // سعر الشراء مهم هنا للعرض في الاقتراحات
                         let costPriceFormatted = 'غ/م';
-                        if (typeof product.costPrice === 'number' || (product.costPrice && !isNaN(parseFloat(product.costPrice)))) {
-                            costPriceFormatted = parseFloat(product.costPrice).toFixed(2);
+                        if (product.purchasePrice !== undefined && product.purchasePrice !== null && !isNaN(parseFloat(product.purchasePrice))) {
+                            costPriceFormatted = parseFloat(product.purchasePrice).toFixed(2);
                         }
                         
                         div.innerHTML = `
@@ -1309,6 +1345,7 @@
                 }
                 const row = tableBody.insertRow();
                 row.dataset.productId = product.id; 
+                row.dataset.productPurchasePrice = product.purchasePrice; // Store purchase price
                 
                 row.innerHTML = `
                     <td>${product.name}</td>
@@ -1385,7 +1422,7 @@
 
             const productsInInvoice = [];
             let totalAmount = 0;
-            let stockUpdatePromises = [];
+            // لا نخصم من المخزون هنا، سيتم الخصم بعد الحفظ الناجح
 
             for (const row of rows) {
                 const productId = row.dataset.productId;
@@ -1398,17 +1435,18 @@
                 if (isNaN(salePrice) || salePrice <=0 || isNaN(quantitySold) || quantitySold <=0) {
                     Swal.fire('خطأ', `بيانات غير صالحة للمنتج "${name}".`, 'error'); return;
                 }
-                productsInInvoice.push({ productId, name, salePrice, quantity: quantitySold, note, total: itemTotal });
+                productsInInvoice.push({ 
+                    productId, 
+                    name, 
+                    salePrice, 
+                    quantity: quantitySold, 
+                    note, 
+                    total: itemTotal,
+                    purchasePrice: row.dataset.productPurchasePrice // Store purchase price
+                });
                 totalAmount += itemTotal;
-                stockUpdatePromises.push(updateProductStock(productId, quantitySold));
             }
              if (amountPaid > totalAmount) { Swal.fire('خطأ', 'المبلغ المدفوع لا يمكن أن يكون أكبر من المجموع الكلي!', 'error'); return; }
-
-            try {
-                await Promise.all(stockUpdatePromises); 
-            } catch (error) {
-                Swal.fire('خطأ في تحديث المخزون', error.message, 'error'); return;
-            }
 
             const id = await generateUniqueId('invoices');
             const currentDate = new Date();
@@ -1419,19 +1457,32 @@
                 date: currentDate.toISOString()
             };
 
+            // حفظ الفاتورة أولاً
             await addRecordToDb('invoices', invoice);
+
+            // ثم تحديث المخزون
+            let stockUpdatePromises = productsInInvoice.map(p => updateProductStock(p.productId, p.quantity));
+            try {
+                await Promise.all(stockUpdatePromises); 
+            } catch (error) {
+                // هنا يجب التفكير في آلية rollback إذا فشل تحديث المخزون بعد حفظ الفاتورة
+                // للتبسيط الآن، سنقوم فقط بإظهار خطأ
+                console.error("فشل تحديث مخزون بعض المنتجات بعد حفظ الفاتورة:", error);
+                Swal.fire('تحذير', 'تم حفظ الفاتورة، ولكن حدث خطأ أثناء تحديث مخزون بعض المنتجات. يرجى مراجعة المخزون يدويًا.', 'warning');
+                // لا نوقف العملية هنا، الفاتورة تم حفظها
+            }
+
 
             if (amountPaid > 0 && paymentAccount) {
                 const cashBoxTransaction = {
-                    // id will be auto-generated by cashBoxDB if it's set to autoIncrement
                     type: 'in',
                     datetime: currentDate.toISOString().slice(0, 19).replace('T', ' '), 
                     date: currentDate.toISOString().slice(0,10), 
                     amount: amountPaid.toFixed(2),
                     description: `دفعة للفاتورة رقم ${id}`,
                     account: paymentAccount,
-                    invoiceId: id, // Store invoiceId for better linking if needed later
-                    customerId: customerId // Store customerId for easier payment tracking per customer
+                    invoiceId: id, 
+                    customerId: customerId 
                 };
                 await addRecordToDb('transactions', cashBoxTransaction, cashBoxDB);
             }
@@ -1466,7 +1517,7 @@
                             reject(new Error(`مخزون "${product.name}" (${product.quantity}) غير كاف للكمية المطلوبة (${quantitySold}).`));
                             return;
                         }
-                        product.quantity -= quantitySold;
+                        product.quantity -= quantitySold; // Deduct stock
                         const updateRequest = store.put(product);
                         updateRequest.onsuccess = () => resolve();
                         updateRequest.onerror = (e) => reject(new Error(`فشل تحديث مخزون ${product.name}: ${e.target.error}`));
@@ -1502,12 +1553,13 @@
                 invoice.products.forEach(pInInvoice => {
                     const productDetailsFromDB = allProductsFromDB.find(pDB => pDB.id === pInInvoice.productId);
                     const currentStockInDB = productDetailsFromDB ? productDetailsFromDB.quantity : 0;
+                    // عند التعديل، الكمية القصوى التي يمكن إدخالها هي المخزون الحالي + الكمية الأصلية في هذه الفاتورة
                     const maxQuantityForInput = currentStockInDB + pInInvoice.quantity;
 
                     const row = tableBody.insertRow();
                     row.dataset.productId = pInInvoice.productId;
                     row.dataset.originalQuantityInInvoice = pInInvoice.quantity; 
-                    row.dataset.maxEditableQuantity = maxQuantityForInput;
+                    row.dataset.productPurchasePrice = productDetailsFromDB ? productDetailsFromDB.purchasePrice : '0.00'; // Store purchase price
 
                     row.innerHTML = `
                         <td>${pInInvoice.name}</td>
@@ -1523,7 +1575,7 @@
                          const maxAllowed = parseInt(e.target.max); 
                          if (requestedQuantity > maxAllowed) {
                             e.target.value = maxAllowed;
-                            Swal.fire('تنبيه', `الكمية المطلوبة للمنتج "${pInInvoice.name}" تتجاوز المخزون المتاح.`, 'warning');
+                            Swal.fire('تنبيه', `الكمية المطلوبة للمنتج "${pInInvoice.name}" تتجاوز المخزون المتاح + الكمية الأصلية في الفاتورة.`, 'warning');
                         }
                         updateInvoiceTotals('editInvoiceProducts');
                     });
@@ -1557,10 +1609,9 @@
                  Swal.fire('خطأ', 'الرجاء اختيار حساب الدفع للزيادة في المبلغ المدفوع!', 'error'); return;
             }
             
-
             const updatedProductsInInvoice = [];
             let newTotalAmount = 0;
-            let stockAdjustmentPromises = []; 
+            let stockAdjustmentOperations = []; // To hold { productId, quantityChange }
 
             for (const row of rows) {
                 const productId = row.dataset.productId;
@@ -1569,34 +1620,48 @@
                 const newQuantitySold = parseInt(row.querySelector('.quantity').value);
                 const note = row.querySelector('.note').value;
                 const itemTotal = salePrice * newQuantitySold;
+                const purchasePrice = row.dataset.productPurchasePrice; // Retrieve stored purchase price
 
                 if (isNaN(salePrice) || salePrice <=0 || isNaN(newQuantitySold) || newQuantitySold <=0) {
                     Swal.fire('خطأ', `بيانات غير صالحة للمنتج "${name}".`, 'error'); return;
                 }
-                updatedProductsInInvoice.push({ productId, name, salePrice, quantity: newQuantitySold, note, total: itemTotal });
+                updatedProductsInInvoice.push({ productId, name, salePrice, quantity: newQuantitySold, note, total: itemTotal, purchasePrice });
                 newTotalAmount += itemTotal;
 
                 const originalProductInfo = originalProductsInInvoice.find(p => p.productId === productId);
                 const originalQuantitySoldInThisInvoice = originalProductInfo ? originalProductInfo.quantity : 0;
+                // quantityChangeForStock: positive means return to stock, negative means deduct more from stock
                 const quantityChangeForStock = originalQuantitySoldInThisInvoice - newQuantitySold; 
                 if (quantityChangeForStock !== 0) {
-                    const productExists = await checkProductExists(productId);
-                    if (productExists) { stockAdjustmentPromises.push(adjustProductStock(productId, quantityChangeForStock));}
+                    stockAdjustmentOperations.push({productId, quantityChange: quantityChangeForStock});
                 }
             }
             
-            originalProductsInInvoice.forEach(async origP => { 
+            // Handle products that were completely removed from the invoice
+            originalProductsInInvoice.forEach(origP => { 
                 if (!updatedProductsInInvoice.some(updP => updP.productId === origP.productId)) {
-                    const productExists = await checkProductExists(origP.productId);
-                     if (productExists) { stockAdjustmentPromises.push(adjustProductStock(origP.productId, origP.quantity)); }
+                    stockAdjustmentOperations.push({productId: origP.productId, quantityChange: origP.quantity}); // Return all original quantity to stock
                 }
             });
 
             if (newAmountPaid > newTotalAmount) { Swal.fire('خطأ', 'المبلغ المدفوع لا يمكن أن يكون أكبر من المجموع الكلي!', 'error'); return; }
 
+            // First, attempt all stock adjustments. If any fail, stop and report.
             try {
-                if (stockAdjustmentPromises.length > 0) { await Promise.all(stockAdjustmentPromises); }
-            } catch (error) { Swal.fire('خطأ في تحديث المخزون', error.message, 'error'); return; }
+                for (const op of stockAdjustmentOperations) {
+                    const productExists = await checkProductExists(op.productId);
+                    if (productExists) {
+                        await adjustProductStock(op.productId, op.quantityChange);
+                    } else {
+                         console.warn(`Product ${op.productId} for stock adjustment not found. Skipping.`);
+                    }
+                }
+            } catch (error) { 
+                Swal.fire('خطأ في تحديث المخزون', error.message, 'error'); 
+                // Important: Consider if you need to revert any successful stock adjustments made so far in this loop.
+                // For simplicity here, we stop. A more robust system would use a transaction-like approach.
+                return; 
+            }
             
             const originalInvoice = await getRecordFromDb('invoices', id); 
             const invoiceDateISO = originalInvoice ? originalInvoice.date : new Date().toISOString();
@@ -1625,7 +1690,6 @@
                 await addRecordToDb('transactions', cashBoxTransaction, cashBoxDB);
             }
             
-
             await updateInvoicesTable();
             await updateCustomersTable();
             bootstrap.Modal.getInstance(document.getElementById('editInvoiceModal')).hide();
@@ -1645,9 +1709,9 @@
                         const product = getRequest.result;
                         if (!product) { console.warn(`المنتج ${productId} غير موجود لتعديل المخزون.`); resolve(); return; }
                         
-                        const newStock = product.quantity + quantityChange;
+                        const newStock = product.quantity + quantityChange; // Add if positive, subtract if negative
                         if (newStock < 0) { 
-                             reject(new Error(`لا يمكن أن يكون مخزون "${product.name}" سالبًا.`)); return;
+                             reject(new Error(`لا يمكن أن يكون مخزون "${product.name}" سالبًا. التغيير المطلوب: ${quantityChange}, الحالي: ${product.quantity}, الجديد المقترح: ${newStock}`)); return;
                         }
                         product.quantity = newStock;
                         const updateRequest = store.put(product);
@@ -1845,7 +1909,7 @@
                         window.onload = function() {
                             var qrElement = document.getElementById('invoiceQrCodeElement');
                             if (qrElement && typeof QRCode !== 'undefined') { new QRCode(qrElement, {text: "${invoice.id}", width: 65, height: 65, colorDark : "#000000", colorLight : "#ffffff", correctLevel : QRCode.CorrectLevel.H}); }
-                             // setTimeout(function(){ window.print(); /* window.close(); */ }, 500); // Auto print removed for preview
+                            // setTimeout(function(){ window.print(); /* window.close(); */ }, 500); 
                         };
                     <\/script></body></html>`);
             printWindow.document.close(); 
@@ -1863,7 +1927,7 @@
             }
             
             const startDate = new Date(startDateValue);
-            startDate.setHours(0,0,0,0); // Start of day
+            startDate.setHours(0,0,0,0); 
             const endDate = new Date(endDateValue);
             endDate.setHours(23, 59, 59, 999); 
             if (startDate > endDate) { Swal.fire('خطأ', 'تاريخ البداية يجب أن يكون قبل أو نفس تاريخ النهاية!', 'error'); return; }
@@ -1937,18 +2001,13 @@
                     return i.customerId === customerId && invoiceDate >= startDate && invoiceDate <= endDate;
                 });
 
-                // Fetch cash box transactions related to this customer's invoices within the date range
-                // This is a simplified link via description. A dedicated invoiceId field in cashbox transactions would be better.
                 const cashBoxTransactions = await getAllRecordsFromDb('transactions', cashBoxDB);
                 const customerPayments = cashBoxTransactions.filter(t => {
-                    const transactionDate = new Date(t.datetime); // Assuming datetime is ISO string or parsable
-                    const isPaymentForThisCustomerInvoice = t.description.includes("فاتورة رقم") && 
-                                                            customerInvoices.some(inv => t.description.includes(inv.id));
-                    // Or if customerId was stored directly in cashBoxTransaction
-                    const isDirectCustomerPayment = t.customerId === customerId; 
-
+                    const transactionDate = new Date(t.datetime); 
+                    // Check if customerId matches OR if description links to one of this customer's invoices
+                    const isLinkedToCustomerInvoice = customerInvoices.some(inv => t.invoiceId === inv.id || (t.description && t.description.includes(inv.id)));
                     return t.type === 'in' && 
-                           (isPaymentForThisCustomerInvoice || isDirectCustomerPayment) && 
+                           (t.customerId === customerId || isLinkedToCustomerInvoice) && 
                            transactionDate >= startDate && transactionDate <= endDate;
                 });
                 
@@ -1957,17 +2016,21 @@
                     combinedEntries.push({
                         date: new Date(inv.date),
                         type: 'فاتورة',
-                        reference: inv.id,
+                        reference: `فاتورة رقم ${inv.id}`,
                         debit: parseFloat(inv.totalAmount),
-                        credit: 0,
-                        balance: 0 // Will calculate running balance
+                        credit: 0, 
+                        balance: 0 
                     });
+                     // If the invoice itself had a payment recorded at the time of creation, add it as a separate credit entry.
+                    // This is only if the invoice payment was not already captured as a separate cashbox transaction.
+                    // For simplicity, we assume initial invoice payments are captured in cashbox if amountPaid > 0.
+                    // So, we will rely on cashBoxTransactions for credits.
                 });
                 customerPayments.forEach(pmt => {
                      combinedEntries.push({
                         date: new Date(pmt.datetime),
                         type: 'دفعة',
-                        reference: pmt.description, // Or pmt.invoiceId if available
+                        reference: pmt.description, 
                         debit: 0,
                         credit: parseFloat(pmt.amount),
                         balance: 0
@@ -2010,7 +2073,6 @@
             printWindow.focus(); 
             bootstrap.Modal.getInstance(document.getElementById('customerStatementModal')).hide();
             document.getElementById('customerStatementForm').reset();
-             // Reset statement dates to today
             const todayForStatement = new Date().toISOString().split('T')[0];
             document.getElementById('startDate').value = todayForStatement;
             document.getElementById('endDate').value = todayForStatement;
@@ -2018,7 +2080,7 @@
 
         function startQrScanner() {
             const qrReaderContainer = document.getElementById('qr-reader-container');
-            if (html5QrCodeScanner && typeof html5QrCodeScanner.getState === 'function' && html5QrCodeScanner.getState() === 2 /* SCANNING STATE */) {
+            if (html5QrCodeScanner && typeof html5QrCodeScanner.getState === 'function' && html5QrCodeScanner.getState() === 2 ) {
                 stopQrScanner(); 
             }
             qrReaderContainer.style.display = 'block';
@@ -2044,13 +2106,134 @@
                 .finally(() => { qrReaderContainer.style.display = 'none'; });
             } else { qrReaderContainer.style.display = 'none'; }
         }
+        
+        // --- Import/Export for Sales Data (Invoices & Customers) ---
+        async function exportSalesData() {
+            try {
+                await ensureInventoryDBInitialized();
+                const invoices = await getAllInvoices();
+                const customers = await getAllCustomers();
+                // Products are already handled by product.html, not typically exported with sales transactionally
+                
+                const salesData = {
+                    invoices: invoices,
+                    customers: customers
+                };
+
+                const dataStr = JSON.stringify(salesData, null, 2);
+                const blob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'sales_data.json';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                Swal.fire({ title: 'نجاح', text: 'تم تصدير بيانات المبيعات (الفواتير والزبائن) بنجاح!', icon: 'success', confirmButtonColor: '#3F2A56' });
+
+            } catch (error) {
+                console.error("خطأ في تصدير بيانات المبيعات:", error);
+                Swal.fire({ title: 'خطأ', text: 'فشل تصدير بيانات المبيعات: ' + error.message, icon: 'error', confirmButtonColor: '#3F2A56' });
+            }
+        }
+
+        async function importSalesData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                try {
+                    await ensureInventoryDBInitialized();
+                    const salesData = JSON.parse(e.target.result);
+
+                    if (!salesData || ( !Array.isArray(salesData.customers) && !Array.isArray(salesData.invoices) ) ) {
+                        Swal.fire('خطأ', 'ملف البيانات غير صالح أو لا يحتوي على المفاتيح "customers" أو "invoices".', 'error');
+                        return;
+                    }
+
+                    let importedCustomersCount = 0;
+                    let importedInvoicesCount = 0;
+                    let skippedCustomers = 0;
+                    let skippedInvoices = 0;
+
+                    // Import Customers
+                    if (salesData.customers && Array.isArray(salesData.customers)) {
+                        const customerTx = db.transaction(['customers'], 'readwrite');
+                        const customerStore = customerTx.objectStore('customers');
+                        for (const cust of salesData.customers) {
+                            if (cust.id && cust.name) { // Basic validation
+                                try {
+                                    await new Promise((resolve, reject) => {
+                                        const req = customerStore.put(cust); // put will add or update
+                                        req.onsuccess = resolve;
+                                        req.onerror = reject;
+                                    });
+                                    importedCustomersCount++;
+                                } catch (err) {
+                                    console.warn("Failed to import customer:", cust, err);
+                                    skippedCustomers++;
+                                }
+                            } else {
+                                skippedCustomers++;
+                            }
+                        }
+                    }
+
+                    // Import Invoices
+                    // This is more complex due to dependencies (products, customers)
+                    // For now, we'll import them assuming products/customers exist or user handles discrepancies
+                    if (salesData.invoices && Array.isArray(salesData.invoices)) {
+                        const invoiceTx = db.transaction(['invoices'], 'readwrite');
+                        const invoiceStore = invoiceTx.objectStore('invoices');
+                        for (const inv of salesData.invoices) {
+                            if (inv.id && inv.customerId && Array.isArray(inv.products)) { // Basic validation
+                                 try {
+                                    await new Promise((resolve, reject) => {
+                                        const req = invoiceStore.put(inv);
+                                        req.onsuccess = resolve;
+                                        req.onerror = reject;
+                                    });
+                                    importedInvoicesCount++;
+                                } catch (err) {
+                                     console.warn("Failed to import invoice:", inv, err);
+                                    skippedInvoices++;
+                                }
+                            } else {
+                                skippedInvoices++;
+                            }
+                        }
+                    }
+                    
+                    await updateCustomersTable();
+                    await updateInvoicesTable();
+                    await populateCustomerSelect('invoiceCustomer');
+                    await populateCustomerSelect('editInvoiceCustomer');
+                    await populateCustomerSelect('statementCustomer');
+
+                    Swal.fire('نجاح الاستيراد', 
+                        `تم استيراد ${importedCustomersCount} زبون (تم تخطي ${skippedCustomers}).<br>` +
+                        `تم استيراد ${importedInvoicesCount} فاتورة (تم تخطي ${skippedInvoices}).<br>` +
+                        `يرجى التحقق من البيانات المستوردة. قد تحتاج المنتجات إلى الاستيراد بشكل منفصل عبر صفحة المنتجات.`, 
+                        'success');
+
+                } catch (error) {
+                    console.error("خطأ في استيراد بيانات المبيعات:", error);
+                    Swal.fire('خطأ', 'فشل استيراد بيانات المبيعات: ' + error.message, 'error');
+                } finally {
+                    event.target.value = null; // Reset file input
+                }
+            };
+            reader.readAsText(file);
+        }
 
 
         document.addEventListener('DOMContentLoaded', async () => {
             try {
-                await initInventoryDB();
-                await openCashBoxDB(); 
-                await syncCashBoxAccounts(); 
+                await initInventoryDB(); // Initialize sales page DB
+                await openCashBoxDB(); // Also open/initialize cashbox DB
+                await syncCashBoxAccounts(); // Sync accounts on load
 
                 await Promise.all([
                     updateInvoicesTable(), 
