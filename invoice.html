@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>بيع المنتجات</title>
+    <title>إدارة المنتجات</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <!-- QR Code Libraries -->
-    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
-    <script src="https://unpkg.com/html5-qrcode@2.0.9/dist/html5-qrcode.min.js"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
     <style>
+        /* نفس أنماط CSS المقدمة بدون تغييرات، لأنها تعمل بشكل جيد */
         * {
             margin: 0;
             padding: 0;
@@ -41,16 +41,35 @@
             text-decoration: none;
             font-size: 1rem;
             font-weight: 600;
+            font-family: 'Cairo', sans-serif;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
             transition: transform 0.2s ease, background 0.3s ease, box-shadow 0.3s ease;
             position: absolute;
             top: 20px;
             left: 20px;
         }
+        .home-btn i {
+            font-size: 1.2rem;
+        }
         .home-btn:hover {
             background: linear-gradient(90deg, #5a3f73, #3F2A56);
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        .home-btn:focus {
+            outline: 2px solid #3F2A56;
+            outline-offset: 2px;
+        }
+        @media (max-width: 768px) {
+            .home-btn {
+                padding: 8px 16px;
+                font-size: 0.9rem;
+                top: 15px;
+                left: 15px;
+            }
+            .home-btn i {
+                font-size: 1rem;
+            }
         }
         .header {
             background: linear-gradient(135deg, #3F2A56, #5a3f73);
@@ -63,21 +82,39 @@
             position: relative;
             z-index: 1;
             border: 2px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+        }
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1), transparent);
+            z-index: -1;
         }
         .header img {
             height: 90px;
             margin-bottom: 15px;
             filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.3));
+            transition: transform 0.3s ease;
+            clip-path: polygon(10% 0%, 100% 0%, 90% 100%, 0% 100%);
+        }
+        .header img:hover {
+            transform: scale(1.05);
         }
         .header h2 {
             font-size: 2.2rem;
             margin-bottom: 10px;
             font-weight: 700;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
         }
         .header h4 {
             font-size: 1.4rem;
             opacity: 0.9;
             font-weight: 400;
+            letter-spacing: 1px;
         }
         .dashboard {
             display: grid;
@@ -94,61 +131,85 @@
             border-radius: 20px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             text-align: center;
-            transition: transform 0.3s ease;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(145deg, rgba(63, 42, 86, 0.2), rgba(90, 63, 115, 0.2));
+            z-index: -1;
         }
         .card:hover {
-            transform: translateY(-10px);
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
         }
         .card i {
             font-size: 2.8rem;
             margin-bottom: 15px;
             color: #3F2A56;
+            transition: transform 0.3s ease;
+        }
+        .card:hover i {
+            transform: scale(1.2);
         }
         .card h5 {
             font-size: 1.3rem;
             margin-bottom: 10px;
             font-weight: 600;
+            color: #3F2A56;
         }
         .card h3 {
             font-size: 1.8rem;
             font-weight: 700;
+            color: #3F2A56;
         }
-        .section {
+        .products-section {
             background: white;
             border-radius: 15px;
             box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
             padding: 20px;
             margin: 20px 0;
         }
-        .section h3 {
+        .products-section h3 {
             font-size: 1.7rem;
             font-weight: 700;
             color: #3F2A56;
             margin-bottom: 15px;
             text-align: center;
         }
-        .table-container {
-            overflow-x: auto;
-        }
-        table {
+        .products-table {
             width: 100%;
             border-collapse: collapse;
         }
-        th, td {
+        .products-table th, .products-table td {
             padding: 12px;
             text-align: center;
             border-bottom: 1px solid #e0e0e0;
         }
-        th {
+        .products-table th {
             background: linear-gradient(90deg, #3F2A56, #5a3f73);
             color: white;
             font-weight: 700;
         }
-        td {
+        .products-table td {
             color: #3F2A56;
         }
-        tr:hover {
+        .products-table tr {
+            cursor: pointer;
+        }
+        .products-table tr:hover {
             background-color: #f7f9fc;
+        }
+        .low-stock {
+            color: #dc3545 !important;
+            font-weight: 700;
+            background-color: rgba(220, 53, 69, 0.1);
         }
         .actions {
             display: flex;
@@ -169,74 +230,111 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
         .btn:hover {
             background: linear-gradient(90deg, #5a3f73, #3F2A56);
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
         }
-        .search-controls { 
+        .btn:focus {
+            outline: 2px solid #3F2A56;
+            outline-offset: 2px;
+        }
+        .btn i {
+            font-size: 1.3rem;
+        }
+        .search-container {
             margin-bottom: 20px;
             display: flex;
-            justify-content: space-between; 
-            align-items: flex-end;
+            justify-content: center;
             gap: 15px;
             flex-wrap: wrap;
         }
-        .search-controls .filter-group {
+        .search-container .filter-group {
             display: flex;
             flex-direction: column;
+            max-width: 200px;
         }
-        .search-controls .filter-group label {
+        .search-container label {
             font-size: 0.9rem;
             font-weight: 600;
             color: #3F2A56;
             margin-bottom: 5px;
         }
-        .search-controls .filter-group input, .search-controls .filter-group select {
-            padding: 10px 15px;
-            border-radius: 25px;
-            border: 1px solid #ddd;
-            background: #f8f9fa;
-            color: #3F2A56;
-            font-size: 0.9rem;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
-        }
-
-        #scanQrBtn {
-            padding: 10px 15px;
-            height: 46px; 
-            border-radius: 30px;
-        }
-         #qr-reader-container {
-            margin-top: 10px;
-            border: 1px solid #ccc;
-            border-radius: 10px;
-            padding:10px;
-            background-color: #f9f9f9;
-        }
-        #qr-reader {
+        .search-container input, .search-container select {
             width: 100%;
-            max-width: 400px;
-            margin: 0 auto;
+            max-width: 200px;
+            padding: 12px 20px;
+            border-radius: 30px;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            color: #3F2A56;
+            font-size: 1rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: box-shadow 0.3s ease;
         }
-
+        .search-container input:focus, .search-container select:focus {
+            outline: none;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+        }
+        .search-container input::placeholder {
+            color: #3F2A56;
+            opacity: 0.7;
+        }
+        .table-container {
+            overflow-x: auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 14px;
+            text-align: center;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        th {
+            background: linear-gradient(90deg, #3F2A56, #5a3f73);
+            color: white;
+            font-weight: 700;
+        }
+        td {
+            color: #3F2A56;
+        }
+        tr {
+            cursor: pointer;
+        }
+        tr:hover {
+            background-color: #f7f9fc;
+        }
         .action-btn {
             cursor: pointer;
-            margin: 0 3px; 
-            font-size: 1.2rem; 
+            margin: 0 6px;
+            font-size: 1.3rem;
             transition: color 0.3s ease;
         }
-        .action-btn.edit:hover { color: #007bff; }
-        .action-btn.print:hover { color: #198754; }
-        .action-btn.add-payment:hover { color: #ffc107; }
-
-
+        .action-btn.edit:hover {
+            color: #007bff;
+        }
+        .action-btn.delete:hover {
+            color: #dc3545;
+        }
         .modal-content {
             border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            border: none;
             background: linear-gradient(145deg, #ffffff, #f7f9fc);
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
         .modal-header {
             background: linear-gradient(90deg, #3F2A56, #5a3f73);
@@ -244,1844 +342,1294 @@
             border-top-left-radius: 20px;
             border-top-right-radius: 20px;
             padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .modal-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1), transparent);
+            z-index: -1;
         }
         .modal-title {
             font-size: 1.5rem;
             font-weight: 700;
+            margin: 0;
             display: flex;
             align-items: center;
             gap: 10px;
         }
         .modal-body {
             padding: 30px;
+            background: #fff;
+            border-radius: 0;
         }
         .modal-body .form-label {
             font-weight: 600;
             color: #3F2A56;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
         }
         .modal-body .form-control, .modal-body .form-select {
             border-radius: 15px;
-            padding: 12px;
-            background: #f7f9fc;
             border: 1px solid #ddd;
+            padding: 12px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            background: #f7f9fc;
         }
-         .modal-body .form-control:focus, .modal-body .form-select:focus {
+        .modal-body .form-control:focus, .modal-body .form-select:focus {
             border-color: #3F2A56;
-            box-shadow: 0 0 0 0.25rem rgba(63, 42, 86, 0.25);
+            box-shadow: 0 0 8px rgba(63, 42, 86, 0.4);
+            background: #fff;
         }
         .modal-footer {
             padding: 20px;
-            background: #f8f9fa;
+            background: linear-gradient(145deg, #f8f9fa, #e9ecef);
             border-bottom-left-radius: 20px;
             border-bottom-right-radius: 20px;
+            justify-content: center;
+            gap: 15px;
         }
         .modal-footer .btn {
-            padding: 12px 30px;
-        }
-        .product-table th, .product-table td {
-            padding: 8px;
-        }
-        .modal-body .product-table th {
+            background: linear-gradient(90deg, #3F2A56, #5a3f73);
             color: white;
-             background: linear-gradient(90deg, #3F2A56, #5a3f73);
+            border-radius: 30px;
+            padding: 12px 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
-        .status-paid { color: #198754; font-weight: 700; }
-        .status-partial { color: #ffc107; font-weight: 700; }
-        .status-unpaid { color: #dc3545; font-weight: 700; }
-        .balance-positive { color: #dc3545; font-weight: 700; } 
-        .balance-neutral-negative { color: #198754; font-weight: 700; } 
-
+        .modal-footer .btn:hover {
+            background: linear-gradient(90deg, #5a3f73, #3F2A56);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        .modal-footer .btn-secondary {
+            background: linear-gradient(90deg, #6c757d, #5a6268);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        .modal-footer .btn-secondary:hover {
+            background: linear-gradient(90deg, #5a6268, #495057);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        @media (max-width: 768px) {
+            .header { padding: 25px 15px; border-radius: 15px; }
+            .header img { height: 70px; }
+            .header h2 { font-size: 1.7rem; }
+            .header h4 { font-size: 1.1rem; }
+            .card h3 { font-size: 1.5rem; }
+            .btn { padding: 10px 18px; font-size: 0.9rem; }
+            th, td { padding: 10px; font-size: 0.9rem; }
+            .modal-title { font-size: 1.3rem; }
+            .modal-body { padding: 20px; }
+            .modal-body .form-control, .modal-body .form-select { font-size: 0.9rem; }
+            .search-container .filter-group { width: 100%; max-width: 100%; }
+        }
         .swal2-popup {
             font-family: 'Cairo', sans-serif !important;
             border-radius: 15px !important;
         }
-        .swal2-title { color: #3F2A56 !important; }
-        .swal2-html-container { text-align: right !important; }
+        .swal2-title {
+            color: #3F2A56 !important;
+            font-weight: 700 !important;
+        }
+        .swal2-html-container {
+            text-align: right !important;
+            color: #3F2A56 !important;
+        }
         .swal2-confirm {
             background: linear-gradient(90deg, #3F2A56, #5a3f73) !important;
             border-radius: 20px !important;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
         }
-        .swal2-cancel, .swal2-deny {
+        .swal2-cancel {
             background: linear-gradient(90deg, #6c757d, #5a6268) !important;
             border-radius: 20px !important;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
         }
-        #productSuggestions div, #editProductSuggestions div {
-            padding: 8px;
-            border-bottom: 1px solid #eee;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        #productSuggestions div:hover, #editProductSuggestions div:hover {
-            background-color: #f0f0f0;
-        }
-
-        @media (max-width: 768px) {
-            .header { padding: 25px 15px; }
-            .header img { height: 70px; }
-            .header h2 { font-size: 1.7rem; }
-            .btn { padding: 10px 18px; font-size: 0.9rem; }
-            th, td { padding: 10px; font-size: 0.9rem; }
-            .modal-body { padding: 20px; }
-            .search-controls { flex-direction: column; align-items: stretch;}
-            .search-controls .filter-group { max-width: none; }
-            #scanQrBtn { width: 100%; margin-top: 10px;}
-        }
+        #qrCanvas { display: none; }
+        #scannerContainer { text-align: center; margin: 20px 0; }
+        #scannerVideo { max-width: 100%; border-radius: 10px; border: 2px solid #3F2A56; }
+        .scanner-buttons { display: flex; justify-content: center; gap: 10px; margin-top: 10px; }
+        .swal2-actions { justify-content: center !important; gap: 10px; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <img src="logo.png" alt="شعار طيبة المدينة تلكوم" onerror="this.style.display='none';">
+            <img src="logo.png" alt="شعار طيبة المدينة تلكوم" onerror="this.src='https://via.placeholder.com/90?text=Logo'; this.style.clipPath='none';">
             <h2>طيبة المدينة تلكوم</h2>
-            <h4>بيع المنتجات</h4>
+            <h4>إدارة المنتجات</h4>
             <a href="home.html" class="home-btn"><i class="fas fa-home"></i> للرئيسية</a>
         </div>
         <div class="dashboard">
             <div class="card">
-                <i class="fas fa-check-circle"></i>
-                <h5>الفواتير المدفوعة</h5>
-                <h3 id="paidInvoices">0</h3>
+                <i class="fas fa-dollar-sign"></i>
+                <h5>إجمالي سعر الشراء</h5>
+                <h3 id="totalPurchasePrice">0.00</h3>
             </div>
             <div class="card">
-                <i class="fas fa-exclamation-circle"></i>
-                <h5>الفواتير المدفوعة جزئيًا</h5>
-                <h3 id="partialInvoices">0</h3>
+                <i class="fas fa-dollar-sign"></i>
+                <h5>إجمالي سعر البيع</h5>
+                <h3 id="totalSalePrice">0.00</h3>
             </div>
             <div class="card">
-                <i class="fas fa-times-circle"></i>
-                <h5>الفواتير غير المدفوعة</h5>
-                <h3 id="unpaidInvoices">0</h3>
+                <i class="fas fa-boxes"></i>
+                <h5>عدد المنتجات</h5>
+                <h3 id="totalProducts">0</h3>
             </div>
         </div>
         <div class="actions">
-            <button class="btn" data-bs-toggle="modal" data-bs-target="#addInvoiceModal"><i class="fas fa-plus"></i> إضافة فاتورة</button>
-            <button class="btn" data-bs-toggle="modal" data-bs-target="#addCustomerModal"><i class="fas fa-user-plus"></i> إضافة زبون</button>
-            <button class="btn" data-bs-toggle="modal" data-bs-target="#customerStatementModal"><i class="fas fa-file-alt"></i> كشف حساب زبون</button>
+            <button class="btn" data-bs-toggle="modal" data-bs-target="#addProductModal"><i class="fas fa-plus"></i> إضافة منتج</button>
+            <button class="btn" onclick="exportToJSON()"><i class="fas fa-file-code"></i> تصدير إلى JSON</button>
+            <button class="btn" onclick="exportToCSV()"><i class="fas fa-file-csv"></i> تصدير إلى CSV</button>
+            <input type="file" id="importFile" accept=".json,.csv" style="display: none;" onchange="importFile(event)">
+            <button class="btn" onclick="document.getElementById('importFile').click()"><i class="fas fa-file-import"></i> استيراد ملف</button>
+            <button class="btn" onclick="generateQRCode()"><i class="fas fa-qrcode"></i> إنشاء QR Code</button>
+            <button class="btn" onclick="startQRScanner()"><i class="fas fa-camera"></i> استقبال QR Code</button>
+            <button class="btn" onclick="printTable()"><i class="fas fa-print"></i> طباعة</button>
         </div>
-
-        <div class="section">
-            <h3>إدارة الزبائن</h3>
-            <div class="search-controls mb-3">
-                 <div class="filter-group flex-grow-1">
-                    <label for="customerSearchInput">البحث عن زبون</label>
-                    <input type="text" id="customerSearchInput" placeholder="ابحث بالاسم أو الهاتف" oninput="filterCustomersTable()">
-                </div>
-            </div>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>الاسم</th>
-                            <th>رقم الهاتف</th>
-                            <th>العنوان</th>
-                            <th>الرصيد</th>
-                            <th>الإجراءات</th>
-                        </tr>
-                    </thead>
-                    <tbody id="customersTable"></tbody>
-                </table>
-            </div>
-        </div>
-
-        <div class="section">
-            <h3>الفواتير</h3>
-            <div class="search-controls">
-                <div class="filter-group flex-grow-1">
-                    <label for="invoiceSearchInput">البحث عن فاتورة</label>
-                    <input type="text" id="invoiceSearchInput" placeholder="ابحث بالزبون أو معرف الفاتورة" oninput="filterInvoicesTable()">
-                </div>
-                <button id="scanQrBtn" class="btn btn-info" title="مسح QR Code للبحث عن فاتورة"><i class="fas fa-qrcode"></i> مسح</button>
+        <div class="products-section">
+            <h3>المنتجات الموجودة</h3>
+            <div class="search-container">
                 <div class="filter-group">
-                    <label for="statusFilter">حالة الفاتورة</label>
-                    <select id="statusFilter" onchange="filterInvoicesTable()">
+                    <label for="searchInput">البحث</label>
+                    <input type="text" id="searchInput" placeholder="ابحث بالاسم أو المعرف" oninput="filterTable()">
+                </div>
+                <div class="filter-group">
+                    <label for="stockFilter">حالة المخزون</label>
+                    <select id="stockFilter" onchange="filterTable()">
                         <option value="all">الكل</option>
-                        <option value="paid">مدفوع</option>
-                        <option value="partial">مدفوع جزئيًا</option>
-                        <option value="unpaid">لم يتم الدفع</option>
+                        <option value="empty">فارغة</option>
+                        <option value="low">على وشك النفاذ (أقل من 2)</option>
                     </select>
                 </div>
             </div>
-             <div id="qr-reader-container" style="display: none;">
-                <div id="qr-reader"></div>
-                <button id="closeScannerBtn" class="btn btn-sm btn-danger mt-2" style="display:block; margin: 0 auto;">إغلاق الماسح</button>
-            </div>
             <div class="table-container">
-                <table>
+                <table class="products-table">
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th>معرف الفاتورة</th>
-                            <th>الزبون</th>
-                            <th>رقم الهاتف</th>
-                            <th>المبلغ الكلي</th>
-                            <th>حالة الفاتورة</th>
+                            <th>معرف المنتج</th>
+                            <th>اسم المنتج</th>
+                            <th>سعر الشراء</th>
+                            <th>سعر البيع</th>
+                            <th>الكمية</th>
                             <th>الإجراءات</th>
                         </tr>
                     </thead>
-                    <tbody id="invoicesTable"></tbody>
+                    <tbody id="productsTable"></tbody>
                 </table>
             </div>
         </div>
+        <canvas id="qrCanvas" style="display: none;"></canvas>
+        <input type="file" id="qrImageInput" accept="image/*" style="display: none;" onchange="importQRFromImage(event)">
     </div>
 
-    <!-- نافذة إضافة فاتورة -->
-    <div class="modal fade" id="addInvoiceModal" tabindex="-1" aria-labelledby="addInvoiceModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="addInvoiceModalLabel"><i class="fas fa-file-invoice-dollar"></i> إضافة فاتورة جديدة</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="addInvoiceForm">
-                        <div class="mb-3">
-                            <label for="invoiceCustomer" class="form-label"><i class="fas fa-user"></i> الزبون</label>
-                            <select class="form-select" id="invoiceCustomer" required>
-                                <option value="">اختر زبونًا</option>
-                            </select>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="customerPhoneDisplay" class="form-label"><i class="fas fa-phone"></i> رقم الهاتف</label>
-                                <input type="text" class="form-control" id="customerPhoneDisplay" readonly>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="customerAddressDisplay" class="form-label"><i class="fas fa-map-marker-alt"></i> العنوان</label>
-                                <input type="text" class="form-control" id="customerAddressDisplay" readonly>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="productSearch" class="form-label"><i class="fas fa-search"></i> البحث عن منتج</label>
-                            <input type="text" class="form-control" id="productSearch" placeholder="ابحث بالاسم أو المعرف">
-                            <div id="productSuggestions" class="mt-2 list-group" style="max-height: 150px; overflow-y: auto;"></div>
-                        </div>
-                        <h5><i class="fas fa-boxes"></i> المنتجات</h5>
-                        <div class="table-container">
-                            <table class="product-table table">
-                                <thead>
-                                    <tr>
-                                        <th>اسم المنتج</th>
-                                        <th>سعر البيع</th>
-                                        <th>الكمية</th>
-                                        <th>الملاحظة</th>
-                                        <th>الإجمالي</th>
-                                        <th>الإجراءات</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="invoiceProducts"></tbody>
-                            </table>
-                        </div>
-                        <div class="mt-3">
-                            <p><strong><i class="fas fa-calendar-alt"></i> التاريخ:</strong> <span id="invoiceDate"></span></p>
-                            <p><strong><i class="fas fa-hashtag"></i> عدد المواد:</strong> <span id="totalItems">0</span></p>
-                            <p><strong><i class="fas fa-coins"></i> المجموع الكلي:</strong> <span id="totalAmount">0.00</span></p>
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="amountPaid" class="form-label"><i class="fas fa-money-bill-wave"></i> المبلغ المدفوع</label>
-                                    <input type="number" class="form-control" id="amountPaid" step="0.01" min="0" value="0" oninput="togglePaymentAccountField('paymentAccountGroup', this.value)">
-                                </div>
-                                <div class="col-md-6 mb-3" id="paymentAccountGroup" style="display:none;">
-                                    <label for="paymentAccount" class="form-label"><i class="fas fa-university"></i> حساب الدفع</label>
-                                    <select class="form-select" id="paymentAccount">
-                                        <option value="">اختر حسابًا...</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
-                    <button type="button" class="btn btn-primary" onclick="addInvoice()">حفظ الفاتورة</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- نافذة تعديل فاتورة -->
-    <div class="modal fade" id="editInvoiceModal" tabindex="-1" aria-labelledby="editInvoiceModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="editInvoiceModalLabel"><i class="fas fa-edit"></i> تعديل فاتورة</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="editInvoiceForm">
-                        <input type="hidden" id="editInvoiceId">
-                        <input type="hidden" id="editInvoiceOriginalAmountPaid">
-                        <div class="mb-3">
-                            <label for="editInvoiceCustomer" class="form-label"><i class="fas fa-user"></i> الزبون</label>
-                            <select class="form-select" id="editInvoiceCustomer" required>
-                                <option value="">اختر زبونًا</option>
-                            </select>
-                        </div>
-                         <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="editCustomerPhoneDisplay" class="form-label"><i class="fas fa-phone"></i> رقم الهاتف</label>
-                                <input type="text" class="form-control" id="editCustomerPhoneDisplay" readonly>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="editCustomerAddressDisplay" class="form-label"><i class="fas fa-map-marker-alt"></i> العنوان</label>
-                                <input type="text" class="form-control" id="editCustomerAddressDisplay" readonly>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="editProductSearch" class="form-label"><i class="fas fa-search"></i> البحث عن منتج</label>
-                            <input type="text" class="form-control" id="editProductSearch" placeholder="ابحث بالاسم أو المعرف">
-                            <div id="editProductSuggestions" class="mt-2 list-group" style="max-height: 150px; overflow-y: auto;"></div>
-                        </div>
-                        <h5><i class="fas fa-boxes"></i> المنتجات</h5>
-                        <div class="table-container">
-                            <table class="product-table table">
-                                <thead>
-                                    <tr>
-                                        <th>اسم المنتج</th>
-                                        <th>سعر البيع</th>
-                                        <th>الكمية</th>
-                                        <th>الملاحظة</th>
-                                        <th>الإجمالي</th>
-                                        <th>الإجراءات</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="editInvoiceProducts"></tbody>
-                            </table>
-                        </div>
-                        <div class="mt-3">
-                            <p><strong><i class="fas fa-calendar-alt"></i> التاريخ:</strong> <span id="editInvoiceDate"></span></p>
-                            <p><strong><i class="fas fa-hashtag"></i> عدد المواد:</strong> <span id="editTotalItems">0</span></p>
-                            <p><strong><i class="fas fa-coins"></i> المجموع الكلي:</strong> <span id="editTotalAmount">0.00</span></p>
-                             <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="editAmountPaid" class="form-label"><i class="fas fa-money-bill-wave"></i> المبلغ المدفوع</label>
-                                    <input type="number" class="form-control" id="editAmountPaid" step="0.01" min="0" value="0" oninput="togglePaymentAccountField('editPaymentAccountGroup', this.value)">
-                                </div>
-                                 <div class="col-md-6 mb-3" id="editPaymentAccountGroup" style="display:none;">
-                                    <label for="editPaymentAccount" class="form-label"><i class="fas fa-university"></i> حساب الدفع (للمبلغ المدفوع الجديد فقط)</label>
-                                    <select class="form-select" id="editPaymentAccount">
-                                        <option value="">اختر حسابًا...</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
-                    <button type="button" class="btn btn-primary" onclick="updateInvoice()">حفظ التعديلات</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- نافذة إضافة دفعة -->
-    <div class="modal fade" id="addPaymentModal" tabindex="-1" aria-labelledby="addPaymentModalLabel" aria-hidden="true">
+    <!-- نافذة إضافة منتج -->
+    <div class="modal fade" id="addProductModal" tabindex="-1" aria-labelledby="addProductModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="addPaymentModalLabel"><i class="fas fa-hand-holding-usd"></i> إضافة دفعة للفاتورة</h5>
+                    <h5 class="modal-title" id="addProductModalLabel"><i class="fas fa-plus"></i> إضافة منتج جديد</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="addPaymentForm">
-                        <input type="hidden" id="paymentInvoiceId">
-                        <p><strong>الفاتورة رقم:</strong> <span id="paymentInvoiceIdDisplay"></span></p>
-                        <p><strong>المبلغ المتبقي:</strong> <span id="paymentInvoiceRemaining"></span></p>
+                    <form id="addProductForm">
                         <div class="mb-3">
-                            <label for="paymentAmount" class="form-label"><i class="fas fa-dollar-sign"></i> مبلغ الدفعة</label>
-                            <input type="number" class="form-control" id="paymentAmount" step="0.01" min="0.01" required>
+                            <label for="productName" class="form-label"><i class="fas fa-box"></i> اسم المنتج</label>
+                            <input type="text" class="form-control" id="productName" required>
                         </div>
                         <div class="mb-3">
-                            <label for="paymentAccountForNewPayment" class="form-label"><i class="fas fa-university"></i> حساب الدفع</label>
-                            <select class="form-select" id="paymentAccountForNewPayment" required>
-                                <option value="">اختر حسابًا...</option>
-                            </select>
+                            <label for="purchasePrice" class="form-label"><i class="fas fa-money-bill-wave"></i> سعر الشراء</label>
+                            <input type="number" class="form-control" id="purchasePrice" step="0.01" min="0" max="1000000" required>
                         </div>
-                         <div class="mb-3">
-                            <label for="paymentDate" class="form-label"><i class="fas fa-calendar"></i> تاريخ الدفعة</label>
-                            <input type="datetime-local" class="form-control" id="paymentDate" required>
+                        <div class="mb-3">
+                            <label for="salePrice" class="form-label"><i class="fas fa-dollar-sign"></i> سعر البيع</label>
+                            <input type="number" class="form-control" id="salePrice" step="0.01" min="0" max="1000000" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="quantity" class="form-label"><i class="fas fa-boxes-stacked"></i> الكمية</label>
+                            <input type="number" class="form-control" id="quantity" min="0" max="100000" required>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
-                    <button type="button" class="btn btn-primary" onclick="processNewPayment()">حفظ الدفعة</button>
+                    <button type="button" class="btn" onclick="addProduct()">حفظ</button>
                 </div>
             </div>
         </div>
     </div>
 
-
-    <!-- نافذة إضافة زبون -->
-    <div class="modal fade" id="addCustomerModal" tabindex="-1" aria-labelledby="addCustomerModalLabel" aria-hidden="true">
+    <!-- نافذة تعديل منتج -->
+    <div class="modal fade" id="editProductModal" tabindex="-1" aria-labelledby="editProductModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="addCustomerModalLabel"><i class="fas fa-user-plus"></i> إضافة زبون</h5>
+                    <h5 class="modal-title" id="editProductModalLabel"><i class="fas fa-edit"></i> تعديل منتج</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="addCustomerForm">
+                    <form id="editProductForm">
+                        <input type="hidden" id="editProductId">
                         <div class="mb-3">
-                            <label for="customerName" class="form-label"><i class="fas fa-signature"></i> اسم الزبون (اختياري)</label>
-                            <input type="text" class="form-control" id="customerName">
+                            <label for="editProductName" class="form-label"><i class="fas fa-box"></i> اسم المنتج</label>
+                            <input type="text" class="form-control" id="editProductName" required>
                         </div>
                         <div class="mb-3">
-                            <label for="customerPhone" class="form-label"><i class="fas fa-mobile-alt"></i> رقم الهاتف (اختياري)</label>
-                            <input type="tel" class="form-control" id="customerPhone">
+                            <label for="editPurchasePrice" class="form-label"><i class="fas fa-money-bill-wave"></i> سعر الشراء</label>
+                            <input type="number" class="form-control" id="editPurchasePrice" step="0.01" min="0" max="1000000" required>
                         </div>
                         <div class="mb-3">
-                            <label for="customerAddress" class="form-label"><i class="fas fa-home"></i> العنوان (اختياري)</label>
-                            <input type="text" class="form-control" id="customerAddress">
+                            <label for="editSalePrice" class="form-label"><i class="fas fa-dollar-sign"></i> سعر البيع</label>
+                            <input type="number" class="form-control" id="editSalePrice" step="0.01" min="0" max="1000000" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editQuantity" class="form-label"><i class="fas fa-boxes-stacked"></i> الكمية</label>
+                            <input type="number" class="form-control" id="editQuantity" min="0" max="100000" required>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
-                    <button type="button" class="btn btn-primary" onclick="addCustomer()">حفظ الزبون</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- نافذة تعديل زبون -->
-    <div class="modal fade" id="editCustomerModal" tabindex="-1" aria-labelledby="editCustomerModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="editCustomerModalLabel"><i class="fas fa-user-edit"></i> تعديل زبون</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="editCustomerForm">
-                        <input type="hidden" id="editCustomerId">
-                        <div class="mb-3">
-                            <label for="editCustomerName" class="form-label"><i class="fas fa-signature"></i> اسم الزبون (اختياري)</label>
-                            <input type="text" class="form-control" id="editCustomerName">
-                        </div>
-                        <div class="mb-3">
-                            <label for="editCustomerPhone" class="form-label"><i class="fas fa-mobile-alt"></i> رقم الهاتف (اختياري)</label>
-                            <input type="tel" class="form-control" id="editCustomerPhone">
-                        </div>
-                        <div class="mb-3">
-                            <label for="editCustomerAddress" class="form-label"><i class="fas fa-home"></i> العنوان (اختياري)</label>
-                            <input type="text" class="form-control" id="editCustomerAddress">
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
-                    <button type="button" class="btn btn-primary" onclick="updateCustomer()">حفظ التعديلات</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- نافذة كشف حساب زبون -->
-    <div class="modal fade" id="customerStatementModal" tabindex="-1" aria-labelledby="customerStatementModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg"> <!-- modal-lg for wider statement -->
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="customerStatementModalLabel"><i class="fas fa-file-invoice"></i> كشف حساب زبون</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="customerStatementForm">
-                        <div class="mb-3">
-                            <label for="statementCustomer" class="form-label"><i class="fas fa-user-check"></i> الزبون</label>
-                            <select class="form-select" id="statementCustomer" required>
-                                <option value="">اختر زبونًا</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="statementType" class="form-label"><i class="fas fa-list-alt"></i> نوع الكشف</label>
-                            <select class="form-select" id="statementType" required>
-                                <option value="invoices_summary">ملخص فواتير</option>
-                                <option value="detailed_general">كشف عام مفصل</option>
-                                <!-- <option value="payments_only" disabled>كشف دفعات فقط (قيد التطوير)</option> -->
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="startDate" class="form-label"><i class="fas fa-calendar-day"></i> من تاريخ</label>
-                            <input type="date" class="form-control" id="startDate" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="endDate" class="form-label"><i class="fas fa-calendar-day"></i> إلى تاريخ</label>
-                            <input type="date" class="form-control" id="endDate" required>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
-                    <button type="button" class="btn btn-primary" onclick="generateCustomerStatement()">إنشاء الكشف</button>
+                    <button type="button" class="btn" onclick="updateProduct()">حفظ التعديلات</button>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        let db; // For InventoryDB
-        let cashBoxDB; // For CashBoxDB
-        let html5QrCodeScanner;
+        let db = null;
+        let stream = null;
+        let productsCache = null; // التخزين المؤقت للمنتجات
 
-        const INVENTORY_DB_NAME = 'InventoryDB';
-        const INVENTORY_DB_VERSION = 3; 
-        const CASHBOX_DB_NAME = 'cashBoxDB';
-        const CASHBOX_DB_VERSION = 1;
-
-
-        function formatDateForDisplay(isoString) {
-            if (!isoString) return 'N/A';
-            const date = new Date(isoString);
-            const day = String(date.getDate()).padStart(2, '0');
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const year = date.getFullYear();
-            const hours = String(date.getHours()).padStart(2, '0');
-            const minutes = String(date.getMinutes()).padStart(2, '0');
-            return `${day}-${month}-${year} ${hours}:${minutes}`;
-        }
-        
-        function formatToDateTimeLocal(date) { 
-             const YYYY = date.getFullYear();
-             const MM = ('0' + (date.getMonth() + 1)).slice(-2);
-             const DD = ('0' + date.getDate()).slice(-2);
-             const hh = ('0' + date.getHours()).slice(-2);
-             const mm = ('0' + date.getMinutes()).slice(-2);
-             return `${YYYY}-${MM}-${DD}T${hh}:${mm}`;
+        // إنشاء صوت نجاح داخلي
+        function playSuccessSound() {
+            try {
+                const context = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = context.createOscillator();
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(800, context.currentTime);
+                oscillator.connect(context.destination);
+                oscillator.start();
+                setTimeout(() => oscillator.stop(), 200);
+            } catch (e) {
+                console.warn("فشل تشغيل صوت النجاح:", e);
+            }
         }
 
-
-        function initInventoryDB() {
+        // إعداد IndexedDB مع فهرسة
+        function initDB() {
             return new Promise((resolve, reject) => {
-                const request = indexedDB.open(INVENTORY_DB_NAME, INVENTORY_DB_VERSION);
+                const request = indexedDB.open('InventoryDB', 2); // Version 2 for potential schema changes
                 request.onupgradeneeded = (event) => {
                     db = event.target.result;
                     if (!db.objectStoreNames.contains('products')) {
-                        db.createObjectStore('products', { keyPath: 'id' });
+                        const productStore = db.createObjectStore('products', { keyPath: 'id' });
+                        productStore.createIndex('name', 'name', { unique: false }); // Name index can be useful
                     }
-                    if (!db.objectStoreNames.contains('invoices')) {
-                        const invoiceStore = db.createObjectStore('invoices', { keyPath: 'id' });
-                        invoiceStore.createIndex('customerId', 'customerId', { unique: false });
-                        invoiceStore.createIndex('date', 'date', {unique: false});
-                    }
-                    if (!db.objectStoreNames.contains('customers')) {
-                        const customerStore = db.createObjectStore('customers', { keyPath: 'id' });
-                        customerStore.createIndex('phone', 'phone', { unique: false });
-                    }
-                    if (!db.objectStoreNames.contains('cashBoxAccounts')) {
-                         db.createObjectStore('cashBoxAccounts', { keyPath: 'name' });
-                    }
+                    // Example for future stores:
+                    // if (!db.objectStoreNames.contains('invoices')) {
+                    //     db.createObjectStore('invoices', { keyPath: 'id', autoIncrement: true });
+                    // }
                 };
                 request.onsuccess = (event) => {
                     db = event.target.result;
                     resolve(db);
                 };
                 request.onerror = (event) => {
-                    console.error("InventoryDB error: " + event.target.errorCode);
+                    console.error("خطأ في تهيئة قاعدة البيانات:", event.target.error);
                     reject(event.target.error);
                 };
             });
         }
 
-        function openCashBoxDB() {
-            return new Promise((resolve, reject) => {
-                const request = indexedDB.open(CASHBOX_DB_NAME, CASHBOX_DB_VERSION);
-                request.onupgradeneeded = (event) => { 
-                    let cdb = event.target.result;
-                    if (!cdb.objectStoreNames.contains('accounts')) {
-                        cdb.createObjectStore('accounts', { keyPath: 'name' });
-                    }
-                    if (!cdb.objectStoreNames.contains('transactions')) {
-                        const transactionStore = cdb.createObjectStore('transactions', { keyPath: 'id', autoIncrement: true });
-                        transactionStore.createIndex('datetime', 'datetime', { unique: false });
-                        transactionStore.createIndex('account', 'account', { unique: false });
-                        transactionStore.createIndex('type', 'type', { unique: false });
-                        transactionStore.createIndex('date', 'date', { unique: false });
-                         // Add an index for description to search for invoice IDs
-                        transactionStore.createIndex('description', 'description', { unique: false });
-                    }
-                };
-                request.onsuccess = (event) => {
-                    cashBoxDB = event.target.result;
-                    resolve(cashBoxDB);
-                };
-                request.onerror = (event) => {
-                    console.error("CashBoxDB error: " + event.target.errorCode);
-                    reject(event.target.error);
-                };
-            });
-        }
-        
-        async function ensureInventoryDBInitialized() {
+        // التحقق من تهيئة قاعدة البيانات
+        async function ensureDBInitialized() {
             if (!db) {
-                await initInventoryDB();
+                try {
+                    await initDB();
+                } catch (error) {
+                    console.error('فشل في تهيئة قاعدة البيانات:', error);
+                    throw new Error('فشل في تهيئة قاعدة البيانات: ' + error.message);
+                }
             }
-             if (!db) { throw new Error('InventoryDB not ready after initialization attempt.');}
-        }
-         async function ensureCashBoxDBInitialized() {
-            if (!cashBoxDB) {
-                await openCashBoxDB();
+            if (!db) { // Double check
+                throw new Error('قاعدة البيانات غير جاهزة بعد محاولة التهيئة.');
             }
-             if (!cashBoxDB) { throw new Error('CashBoxDB not ready after initialization attempt.');}
         }
 
-
-        async function generateUniqueId(storeName, targetDb = db) { 
-            await (targetDb === db ? ensureInventoryDBInitialized() : ensureCashBoxDBInitialized());
+        // إنشاء معرف عشوائي مكون من 5 أرقام
+        async function generateUniqueId() {
+            await ensureDBInitialized();
             let id;
             let isUnique = false;
-            const existingIds = await getAllIdsFromDb(storeName, targetDb); 
+            const existingIds = await getAllProductIds();
             while (!isUnique) {
                 id = Math.floor(10000 + Math.random() * 90000).toString();
                 isUnique = !existingIds.includes(id);
             }
             return id;
         }
-        
-        function getAllIdsFromDb(storeName, targetDb) {
-             return new Promise(async (resolve, reject) => {
-                try {
-                    const transaction = targetDb.transaction([storeName], 'readonly');
-                    const store = transaction.objectStore(storeName);
-                    const request = store.getAllKeys(); 
-                    request.onsuccess = () => resolve(request.result);
-                    request.onerror = (event) => reject(event.target.error);
-                } catch (error) {
-                    reject(error);
-                }
-            });
-        }
 
-
-        function getAllRecordsFromDb(storeName, targetDb = db) {
+        // جلب جميع معرفات المنتجات
+        function getAllProductIds() {
             return new Promise(async (resolve, reject) => {
                 try {
-                    const transaction = targetDb.transaction([storeName], 'readonly');
-                    const store = transaction.objectStore(storeName);
-                    const request = store.getAll();
-                    request.onsuccess = () => resolve(request.result || []);
-                    request.onerror = (event) => reject(event.target.error);
-                } catch (error) {
-                    reject(error);
-                }
-            });
-        }
-        
-        function getRecordFromDb(storeName, key, targetDb = db) {
-            return new Promise(async (resolve, reject) => {
-                try {
-                    const transaction = targetDb.transaction([storeName], 'readonly');
-                    const store = transaction.objectStore(storeName);
-                    const request = store.get(key);
-                    request.onsuccess = () => resolve(request.result);
-                    request.onerror = (event) => reject(event.target.error);
-                } catch (error) {
-                    reject(error);
-                }
-            });
-        }
-        
-        function addRecordToDb(storeName, record, targetDb = db) {
-            return new Promise(async (resolve, reject) => {
-                try {
-                    const transaction = targetDb.transaction([storeName], 'readwrite');
-                    const store = transaction.objectStore(storeName);
-                    const request = store.add(record);
-                    request.onsuccess = () => resolve(request.result);
-                    request.onerror = (event) => reject(event.target.error);
-                } catch (error) {
-                    reject(error);
-                }
-            });
-        }
-
-        function updateRecordInDb(storeName, record, targetDb = db) {
-            return new Promise(async (resolve, reject) => {
-                try {
-                    const transaction = targetDb.transaction([storeName], 'readwrite');
-                    const store = transaction.objectStore(storeName);
-                    const request = store.put(record);
-                    request.onsuccess = () => resolve(request.result);
-                    request.onerror = (event) => reject(event.target.error);
-                } catch (error) {
-                    reject(error);
-                }
-            });
-        }
-        
-        function deleteRecordFromDb(storeName, key, targetDb = db) {
-             return new Promise(async (resolve, reject) => {
-                try {
-                    const transaction = targetDb.transaction([storeName], 'readwrite');
-                    const store = transaction.objectStore(storeName);
-                    const request = store.delete(key);
-                    request.onsuccess = () => resolve();
-                    request.onerror = (event) => reject(event.target.error);
-                } catch (error) {
-                    reject(error);
-                }
-            });
-        }
-
-
-        async function syncCashBoxAccounts() {
-            try {
-                await ensureCashBoxDBInitialized();
-                const accountsFromCashBox = await getAllRecordsFromDb('accounts', cashBoxDB);
-                
-                await ensureInventoryDBInitialized();
-                const tx = db.transaction(['cashBoxAccounts'], 'readwrite');
-                const store = tx.objectStore('cashBoxAccounts');
-                
-                await new Promise((res, rej) => {
-                    const clearReq = store.clear();
-                    clearReq.onsuccess = res;
-                    clearReq.onerror = rej;
-                });
-
-                for (const acc of accountsFromCashBox) {
-                    store.put(acc); 
-                }
-                
-                return new Promise((resolve, reject) => {
-                    tx.oncomplete = () => {
-                        populatePaymentAccountDropdowns(); 
-                        resolve();
-                    };
-                    tx.onerror = (event) => { reject(event.target.error); };
-                });
-
-            } catch (error) {
-                console.error("Failed to sync cash box accounts:", error);
-                Swal.fire("خطأ", "فشل مزامنة حسابات الصندوق.", "error");
-            }
-        }
-
-        async function populatePaymentAccountDropdowns() {
-            try {
-                await ensureInventoryDBInitialized(); 
-                const localCashBoxAccounts = await getAllRecordsFromDb('cashBoxAccounts', db); 
-                
-                const selectsToPopulate = ['paymentAccount', 'editPaymentAccount', 'paymentAccountForNewPayment'];
-                selectsToPopulate.forEach(selectId => {
-                    const selectElement = document.getElementById(selectId);
-                    if (selectElement) {
-                        const currentValue = selectElement.value;
-                        selectElement.innerHTML = '<option value="">اختر حسابًا...</option>';
-                        localCashBoxAccounts.forEach(acc => {
-                            const option = document.createElement('option');
-                            option.value = acc.name;
-                            option.textContent = acc.name;
-                            selectElement.appendChild(option);
-                        });
-                        if (currentValue) selectElement.value = currentValue; 
-                    }
-                });
-            } catch (error) {
-                console.error("Error populating payment account dropdowns:", error);
-            }
-        }
-
-        function togglePaymentAccountField(accountGroupId, amountPaidValue) { // Pass group ID
-            const accountGroupElement = document.getElementById(accountGroupId);
-            const accountSelectElement = accountGroupElement.querySelector('select'); // Find select within group
-            
-            const amountPaid = parseFloat(amountPaidValue);
-            if (amountPaid > 0) {
-                accountGroupElement.style.display = 'block';
-                if(accountSelectElement) accountSelectElement.required = true;
-            } else {
-                accountGroupElement.style.display = 'none';
-                if(accountSelectElement) {
-                    accountSelectElement.required = false;
-                    accountSelectElement.value = ''; 
-                }
-            }
-        }
-
-
-        async function getAllProducts() {
-            return await getAllRecordsFromDb('products');
-        }
-        
-        async function checkProductExists(productId) {
-            const product = await getRecordFromDb('products', productId);
-            return !!product;
-        }
-
-        async function getAllInvoices() {
-            return await getAllRecordsFromDb('invoices');
-        }
-
-        async function getAllCustomers() {
-            return await getAllRecordsFromDb('customers');
-        }
-
-
-        async function updateDashboard() {
-            const invoices = await getAllInvoices();
-            const paid = invoices.filter(i => parseFloat(i.amountPaid) >= parseFloat(i.totalAmount) && parseFloat(i.totalAmount) > 0).length;
-            const partial = invoices.filter(i => parseFloat(i.amountPaid) > 0 && parseFloat(i.amountPaid) < parseFloat(i.totalAmount)).length;
-            const unpaid = invoices.filter(i => parseFloat(i.amountPaid) === 0 && parseFloat(i.totalAmount) > 0).length;
-
-            document.getElementById('paidInvoices').innerText = paid;
-            document.getElementById('partialInvoices').innerText = partial;
-            document.getElementById('unpaidInvoices').innerText = unpaid;
-        }
-        
-        async function updateInvoicesTable() {
-            const invoices = await getAllInvoices();
-            const customers = await getAllCustomers();
-            const tableBody = document.getElementById('invoicesTable');
-            tableBody.innerHTML = '';
-
-            invoices.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-            invoices.forEach((invoice, index) => {
-                const customer = customers.find(c => c.id === invoice.customerId);
-                const totalAmount = parseFloat(invoice.totalAmount);
-                const amountPaid = parseFloat(invoice.amountPaid);
-                let statusClass, statusText, canAddPayment = false;
-
-                if (totalAmount === 0 && amountPaid === 0) {
-                    statusClass = ''; statusText = 'لا يوجد مبلغ';
-                } else if (amountPaid >= totalAmount) {
-                    statusClass = 'status-paid'; statusText = 'مدفوع';
-                } else if (amountPaid > 0) {
-                    statusClass = 'status-partial'; statusText = 'مدفوع جزئيًا'; canAddPayment = true;
-                } else { 
-                    statusClass = 'status-unpaid'; statusText = 'لم يتم الدفع'; canAddPayment = true;
-                }
-
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${index + 1}</td>
-                    <td>${invoice.id}</td>
-                    <td>${customer?.name || 'زبون محذوف/غير معروف'}</td>
-                    <td>${customer?.phone || '-'}</td>
-                    <td>${totalAmount.toFixed(2)}</td>
-                    <td class="${statusClass}">${statusText}</td>
-                    <td>
-                        <i class="fas fa-print action-btn print" onclick="printInvoice('${invoice.id}')" title="طباعة"></i>
-                        <i class="fas fa-edit action-btn edit" onclick="editInvoice('${invoice.id}')" title="تعديل"></i>
-                        ${canAddPayment && totalAmount > 0 ? `<i class="fas fa-plus-circle action-btn add-payment" onclick="openAddPaymentModal('${invoice.id}', ${totalAmount - amountPaid})" title="إضافة دفعة"></i>` : ''}
-                    </td>
-                `;
-                tableBody.appendChild(row);
-            });
-            updateDashboard(); 
-        }
-        
-        async function filterInvoicesTable() {
-            const searchInput = document.getElementById('invoiceSearchInput').value.toLowerCase();
-            const statusFilter = document.getElementById('statusFilter').value;
-            const invoices = await getAllInvoices();
-            const customers = await getAllCustomers();
-            const tableBody = document.getElementById('invoicesTable');
-            
-            const filteredInvoices = invoices.filter(invoice => {
-                const customer = customers.find(c => c.id === invoice.customerId);
-                const customerName = customer?.name?.toLowerCase() || '';
-                const matchesSearch = customerName.includes(searchInput) || invoice.id.includes(searchInput);
-                
-                if (!matchesSearch) return false;
-
-                const totalAmount = parseFloat(invoice.totalAmount);
-                const amountPaid = parseFloat(invoice.amountPaid);
-
-                if (statusFilter === 'all') return true;
-                if (statusFilter === 'paid') return amountPaid >= totalAmount && totalAmount > 0;
-                if (statusFilter === 'partial') return amountPaid > 0 && amountPaid < totalAmount;
-                if (statusFilter === 'unpaid') return amountPaid === 0 && totalAmount > 0;
-                
-                return true; 
-            });
-
-            tableBody.innerHTML = ''; 
-            filteredInvoices.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-            filteredInvoices.forEach((invoice, index) => {
-                const customer = customers.find(c => c.id === invoice.customerId);
-                const totalAmount = parseFloat(invoice.totalAmount);
-                const amountPaid = parseFloat(invoice.amountPaid);
-                let statusClass, statusText, canAddPayment = false;
-
-                 if (totalAmount === 0 && amountPaid === 0) {
-                    statusClass = ''; statusText = 'لا يوجد مبلغ';
-                } else if (amountPaid >= totalAmount) {
-                    statusClass = 'status-paid'; statusText = 'مدفوع';
-                } else if (amountPaid > 0) {
-                    statusClass = 'status-partial'; statusText = 'مدفوع جزئيًا'; canAddPayment = true;
-                } else {
-                    statusClass = 'status-unpaid'; statusText = 'لم يتم الدفع'; canAddPayment = true;
-                }
-
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${index + 1}</td>
-                    <td>${invoice.id}</td>
-                    <td>${customer?.name || 'زبون محذوف/غير معروف'}</td>
-                    <td>${customer?.phone || '-'}</td>
-                    <td>${totalAmount.toFixed(2)}</td>
-                    <td class="${statusClass}">${statusText}</td>
-                    <td>
-                        <i class="fas fa-print action-btn print" onclick="printInvoice('${invoice.id}')" title="طباعة"></i>
-                        <i class="fas fa-edit action-btn edit" onclick="editInvoice('${invoice.id}')" title="تعديل"></i>
-                        ${canAddPayment && totalAmount > 0 ? `<i class="fas fa-plus-circle action-btn add-payment" onclick="openAddPaymentModal('${invoice.id}', ${totalAmount - amountPaid})" title="إضافة دفعة"></i>` : ''}
-                    </td>
-                `;
-                tableBody.appendChild(row);
-            });
-        }
-
-        async function updateCustomersTable() {
-            const customers = await getAllCustomers();
-            const invoices = await getAllInvoices();
-            const tableBody = document.getElementById('customersTable');
-            tableBody.innerHTML = '';
-
-            customers.forEach((customer, index) => {
-                let customerBalance = 0;
-                invoices.filter(inv => inv.customerId === customer.id).forEach(inv => {
-                    customerBalance += (parseFloat(inv.totalAmount) - parseFloat(inv.amountPaid));
-                });
-
-                let balanceClass = customerBalance > 0 ? 'balance-positive' : 'balance-neutral-negative';
-                if (customerBalance === 0) balanceClass = 'balance-neutral-negative';
-
-
-                const row = document.createElement('tr');
-                const displayName = customer.name || 'زبون بدون اسم';
-                row.innerHTML = `
-                    <td>${index + 1}</td>
-                    <td>${displayName}</td>
-                    <td>${customer.phone || '-'}</td>
-                    <td>${customer.address || '-'}</td>
-                    <td class="${balanceClass}">${customerBalance.toFixed(2)}</td>
-                    <td>
-                        <i class="fas fa-edit action-btn edit" onclick="editCustomer('${customer.id}')" title="تعديل"></i>
-                        <i class="fas fa-trash action-btn delete" onclick="deleteCustomer('${customer.id}')" title="حذف"></i>
-                    </td>
-                `;
-                tableBody.appendChild(row);
-            });
-        }
-
-        async function filterCustomersTable() {
-            const searchInput = document.getElementById('customerSearchInput').value.toLowerCase();
-            const customers = await getAllCustomers();
-            const invoices = await getAllInvoices(); 
-            const tableBody = document.getElementById('customersTable');
-            tableBody.innerHTML = '';
-
-            const filteredCustomers = customers.filter(customer => {
-                const nameMatch = customer.name?.toLowerCase().includes(searchInput) || false;
-                const phoneMatch = customer.phone?.includes(searchInput) || false;
-                return nameMatch || phoneMatch;
-            });
-
-            filteredCustomers.forEach((customer, index) => {
-                let customerBalance = 0;
-                invoices.filter(inv => inv.customerId === customer.id).forEach(inv => {
-                    customerBalance += (parseFloat(inv.totalAmount) - parseFloat(inv.amountPaid));
-                });
-                let balanceClass = customerBalance > 0 ? 'balance-positive' : (customerBalance < 0 ? 'balance-neutral-negative' : 'balance-neutral-negative');
-
-                const row = document.createElement('tr');
-                 const displayName = customer.name || 'زبون بدون اسم';
-                row.innerHTML = `
-                    <td>${index + 1}</td>
-                    <td>${displayName}</td>
-                    <td>${customer.phone || '-'}</td>
-                    <td>${customer.address || '-'}</td>
-                     <td class="${balanceClass}">${customerBalance.toFixed(2)}</td>
-                    <td>
-                        <i class="fas fa-edit action-btn edit" onclick="editCustomer('${customer.id}')" title="تعديل"></i>
-                        <i class="fas fa-trash action-btn delete" onclick="deleteCustomer('${customer.id}')" title="حذف"></i>
-                    </td>
-                `;
-                tableBody.appendChild(row);
-            });
-        }
-
-
-        async function populateCustomerSelect(selectElementId) {
-            const customers = await getAllCustomers();
-            const select = document.getElementById(selectElementId);
-            const currentValue = select.value;
-            select.innerHTML = '<option value="">اختر زبونًا...</option>'; 
-            customers.sort((a,b) => (a.name || "zzz").localeCompare(b.name || "zzz")); 
-            customers.forEach(customer => {
-                const option = document.createElement('option');
-                option.value = customer.id;
-                option.textContent = customer.name || `زبون (${customer.phone || 'معرف: ' + customer.id.slice(0,5)})`;
-                select.appendChild(option);
-            });
-            if (currentValue) {
-                 select.value = currentValue;
-            }
-        }
-
-        async function updateCustomerInfo(selectElementId, phoneElementId, addressElementId) {
-            const customerId = document.getElementById(selectElementId).value;
-            const phoneInput = document.getElementById(phoneElementId);
-            const addressInput = document.getElementById(addressElementId);
-
-            if (customerId) {
-                const customer = await getRecordFromDb('customers', customerId);
-                phoneInput.value = customer?.phone || '';
-                addressInput.value = customer?.address || '';
-            } else {
-                phoneInput.value = '';
-                addressInput.value = '';
-            }
-        }
-        
-        async function setupProductSearch(searchElementId, suggestionsElementId, productsTableId, isEditModal = false) {
-            const searchInput = document.getElementById(searchElementId);
-            const suggestionsDiv = document.getElementById(suggestionsElementId);
-            
-            searchInput.addEventListener('input', async (e) => {
-                const query = e.target.value.toLowerCase().trim();
-                suggestionsDiv.innerHTML = ''; 
-                if (query.length < 1) return; 
-
-                const allProducts = await getAllProducts();
-                const availableProducts = allProducts.filter(p => p.quantity > 0); 
-                
-                const filteredProducts = availableProducts.filter(p => 
-                    p.name.toLowerCase().includes(query) || 
-                    p.id.includes(query)
-                ).slice(0, 10); 
-
-                if (filteredProducts.length > 0) {
-                    filteredProducts.forEach(product => {
-                        const div = document.createElement('div');
-                        div.className = 'list-group-item list-group-item-action';
-                        const salePriceFormatted = parseFloat(product.salePrice || 0).toFixed(2);
-                        let costPriceFormatted = 'غ/م';
-                        if (typeof product.costPrice === 'number' || (product.costPrice && !isNaN(parseFloat(product.costPrice)))) {
-                            costPriceFormatted = parseFloat(product.costPrice).toFixed(2);
-                        }
-                        
-                        div.innerHTML = `
-                            <strong>${product.name}</strong> (المعرف: ${product.id}) <br>
-                            <small>
-                                سعر البيع: ${salePriceFormatted} | 
-                                سعر الشراء: ${costPriceFormatted} | 
-                                الكمية المتوفرة: ${product.quantity}
-                            </small>
-                        `;
-                        div.onclick = () => {
-                            addProductToInvoice(product, productsTableId);
-                            searchInput.value = ''; 
-                            suggestionsDiv.innerHTML = ''; 
-                        };
-                        suggestionsDiv.appendChild(div);
-                    });
-                } else {
-                    suggestionsDiv.innerHTML = '<div class="list-group-item">لا توجد منتجات مطابقة أو غير متوفرة.</div>';
-                }
-            });
-        }
-
-
-        function addProductToInvoice(product, productsTableId) {
-            const tableBody = document.getElementById(productsTableId);
-            const existingRow = Array.from(tableBody.rows).find(row => row.dataset.productId === product.id);
-
-            if (existingRow) {
-                const quantityInput = existingRow.querySelector('.quantity');
-                const currentQuantity = parseInt(quantityInput.value);
-                if (currentQuantity < product.quantity) { 
-                    quantityInput.value = currentQuantity + 1;
-                } else {
-                    Swal.fire('تنبيه', `الكمية المطلوبة للمنتج "${product.name}" تتجاوز المخزون المتاح (${product.quantity}).`, 'warning');
-                    return;
-                }
-            } else {
-                if (product.quantity < 1) { 
-                     Swal.fire('تنبيه', `المنتج "${product.name}" غير متوفر في المخزون.`, 'warning');
-                    return;
-                }
-                const row = tableBody.insertRow();
-                row.dataset.productId = product.id; 
-                
-                row.innerHTML = `
-                    <td>${product.name}</td>
-                    <td><input type="number" class="form-control form-control-sm sale-price" value="${parseFloat(product.salePrice || 0).toFixed(2)}" step="0.01" min="0.01"></td>
-                    <td><input type="number" class="form-control form-control-sm quantity" value="1" min="1" max="${product.quantity}"></td>
-                    <td><input type="text" class="form-control form-control-sm note" placeholder="ملاحظة (اختياري)"></td>
-                    <td class="total">${parseFloat(product.salePrice || 0).toFixed(2)}</td>
-                    <td><button type="button" class="btn btn-sm btn-danger" onclick="removeProductFromInvoice(this.closest('tr'), '${productsTableId}')"><i class="fas fa-trash-alt"></i></button></td>
-                `;
-                row.querySelector('.sale-price').addEventListener('input', () => updateInvoiceTotals(productsTableId));
-                row.querySelector('.quantity').addEventListener('input', (e) => {
-                    const requestedQuantity = parseInt(e.target.value);
-                    const maxQuantityForThisProduct = parseInt(e.target.max);
-
-                    if (requestedQuantity > maxQuantityForThisProduct) {
-                        e.target.value = maxQuantityForThisProduct; 
-                        Swal.fire('تنبيه', `الكمية المطلوبة للمنتج "${product.name}" تتجاوز المخزون المتاح (${maxQuantityForThisProduct}). تم التعديل للحد الأقصى.`, 'warning');
-                    }
-                    updateInvoiceTotals(productsTableId);
-                });
-            }
-            updateInvoiceTotals(productsTableId);
-        }
-
-
-        function removeProductFromInvoice(rowElement, productsTableId) {
-            rowElement.remove();
-            updateInvoiceTotals(productsTableId);
-        }
-
-        function updateInvoiceTotals(productsTableId) {
-            const tableBody = document.getElementById(productsTableId);
-            const rows = tableBody.querySelectorAll('tr');
-            let totalAmount = 0;
-            let totalItemsCount = 0; 
-
-            rows.forEach(row => {
-                const salePriceInput = row.querySelector('.sale-price');
-                const quantityInput = row.querySelector('.quantity');
-                
-                const salePrice = parseFloat(salePriceInput.value) || 0;
-                const quantity = parseInt(quantityInput.value) || 0;
-                
-                const itemTotal = salePrice * quantity;
-                row.querySelector('.total').textContent = itemTotal.toFixed(2);
-                totalAmount += itemTotal;
-                totalItemsCount++; 
-            });
-
-            const isEditModal = productsTableId === 'editInvoiceProducts';
-            document.getElementById(isEditModal ? 'editTotalItems' : 'totalItems').textContent = totalItemsCount; 
-            document.getElementById(isEditModal ? 'editTotalAmount' : 'totalAmount').textContent = totalAmount.toFixed(2);
-            
-            const amountPaidInputId = isEditModal ? 'editAmountPaid' : 'amountPaid';
-            const amountPaidInput = document.getElementById(amountPaidInputId);
-            if (amountPaidInput) {
-                amountPaidInput.max = totalAmount.toFixed(2);
-            }
-        }
-
-        async function addInvoice() {
-            const customerId = document.getElementById('invoiceCustomer').value;
-            const amountPaidValue = document.getElementById('amountPaid').value;
-            const paymentAccount = document.getElementById('paymentAccount').value;
-            const productsTable = document.getElementById('invoiceProducts');
-            const rows = productsTable.querySelectorAll('tr');
-
-            if (!customerId) { Swal.fire('خطأ', 'الرجاء اختيار زبون!', 'error'); return; }
-            if (rows.length === 0) { Swal.fire('خطأ', 'الرجاء إضافة منتج واحد على الأقل!', 'error'); return; }
-            
-            const amountPaid = parseFloat(amountPaidValue);
-            if (isNaN(amountPaid) || amountPaid < 0) { Swal.fire('خطأ', 'المبلغ المدفوع غير صحيح!', 'error'); return; }
-            if (amountPaid > 0 && !paymentAccount) { Swal.fire('خطأ', 'الرجاء اختيار حساب الدفع للمبلغ المدفوع!', 'error'); return; }
-
-            const productsInInvoice = [];
-            let totalAmount = 0;
-            let stockUpdatePromises = [];
-
-            for (const row of rows) {
-                const productId = row.dataset.productId;
-                const name = row.cells[0].textContent;
-                const salePrice = parseFloat(row.querySelector('.sale-price').value);
-                const quantitySold = parseInt(row.querySelector('.quantity').value);
-                const note = row.querySelector('.note').value;
-                const itemTotal = salePrice * quantitySold;
-
-                if (isNaN(salePrice) || salePrice <=0 || isNaN(quantitySold) || quantitySold <=0) {
-                    Swal.fire('خطأ', `بيانات غير صالحة للمنتج "${name}".`, 'error'); return;
-                }
-                productsInInvoice.push({ productId, name, salePrice, quantity: quantitySold, note, total: itemTotal });
-                totalAmount += itemTotal;
-                stockUpdatePromises.push(updateProductStock(productId, quantitySold));
-            }
-             if (amountPaid > totalAmount) { Swal.fire('خطأ', 'المبلغ المدفوع لا يمكن أن يكون أكبر من المجموع الكلي!', 'error'); return; }
-
-            try {
-                await Promise.all(stockUpdatePromises); 
-            } catch (error) {
-                Swal.fire('خطأ في تحديث المخزون', error.message, 'error'); return;
-            }
-
-            const id = await generateUniqueId('invoices');
-            const currentDate = new Date();
-            const invoice = {
-                id, customerId, products: productsInInvoice,
-                totalAmount: totalAmount.toFixed(2),
-                amountPaid: amountPaid.toFixed(2),
-                date: currentDate.toISOString()
-            };
-
-            await addRecordToDb('invoices', invoice);
-
-            if (amountPaid > 0 && paymentAccount) {
-                const cashBoxTransaction = {
-                    // id will be auto-generated by cashBoxDB if it's set to autoIncrement
-                    type: 'in',
-                    datetime: currentDate.toISOString().slice(0, 19).replace('T', ' '), 
-                    date: currentDate.toISOString().slice(0,10), 
-                    amount: amountPaid.toFixed(2),
-                    description: `دفعة للفاتورة رقم ${id}`,
-                    account: paymentAccount,
-                    invoiceId: id, // Store invoiceId for better linking if needed later
-                    customerId: customerId // Store customerId for easier payment tracking per customer
-                };
-                await addRecordToDb('transactions', cashBoxTransaction, cashBoxDB);
-            }
-
-            await updateInvoicesTable();
-            await updateCustomersTable(); 
-            bootstrap.Modal.getInstance(document.getElementById('addInvoiceModal')).hide();
-            document.getElementById('addInvoiceForm').reset();
-            document.getElementById('invoiceProducts').innerHTML = ''; 
-            document.getElementById('totalItems').textContent = '0';
-            document.getElementById('totalAmount').textContent = '0.00';
-            document.getElementById('customerPhoneDisplay').value = '';
-            document.getElementById('customerAddressDisplay').value = '';
-            document.getElementById('invoiceDate').textContent = formatDateForDisplay(new Date().toISOString());
-            togglePaymentAccountField('paymentAccountGroup', '0'); 
-            await populateCustomerSelect('invoiceCustomer'); 
-            Swal.fire('نجاح', 'تم إضافة الفاتورة وتحديث المخزون والصندوق بنجاح!', 'success');
-        }
-        
-        function updateProductStock(productId, quantitySold) { 
-            return new Promise(async (resolve, reject) => {
-                try {
-                    await ensureInventoryDBInitialized();
-                    const transaction = db.transaction(['products'], 'readwrite');
+                    await ensureDBInitialized();
+                    const transaction = db.transaction(['products'], 'readonly');
                     const store = transaction.objectStore('products');
-                    const getRequest = store.get(productId);
+                    const request = store.getAllKeys();
+                    request.onsuccess = () => resolve(request.result);
+                    request.onerror = (event) => {
+                        console.error("خطأ في جلب معرفات المنتجات:", event.target.error);
+                        reject(event.target.error);
+                    };
+                } catch (error) {
+                    reject(error);
+                }
+            });
+        }
 
-                    getRequest.onsuccess = () => {
-                        const product = getRequest.result;
-                        if (!product) { reject(new Error(`المنتج ${productId} غير موجود.`)); return; }
-                        if (product.quantity < quantitySold) {
-                            reject(new Error(`مخزون "${product.name}" (${product.quantity}) غير كاف للكمية المطلوبة (${quantitySold}).`));
+        // جلب جميع المنتجات من IndexedDB مع التخزين المؤقت
+        async function getAllProducts() {
+            if (productsCache) {
+                return productsCache;
+            }
+            return new Promise(async (resolve, reject) => {
+                try {
+                    await ensureDBInitialized();
+                    const transaction = db.transaction(['products'], 'readonly');
+                    const store = transaction.objectStore('products');
+                    const request = store.getAll();
+                    request.onsuccess = () => {
+                        productsCache = request.result;
+                        resolve(productsCache);
+                    };
+                    request.onerror = (event) => {
+                        console.error("خطأ في جلب جميع المنتجات:", event.target.error);
+                        reject(event.target.error);
+                    };
+                } catch (error) {
+                    reject(error);
+                }
+            });
+        }
+
+        // تحديث التخزين المؤقت
+        function invalidateCache() {
+            productsCache = null;
+        }
+
+        // تحديث لوحة المعلومات
+        async function updateDashboard() {
+            try {
+                await ensureDBInitialized();
+                const products = await getAllProducts();
+                const totalPurchasePrice = products.reduce((sum, p) => sum + (parseFloat(p.purchasePrice) * parseInt(p.quantity)), 0);
+                const totalSalePrice = products.reduce((sum, p) => sum + (parseFloat(p.salePrice) * parseInt(p.quantity)), 0);
+                const totalProducts = products.length;
+
+                document.getElementById('totalPurchasePrice').innerText = totalPurchasePrice.toFixed(2);
+                document.getElementById('totalSalePrice').innerText = totalSalePrice.toFixed(2);
+                document.getElementById('totalProducts').innerText = totalProducts;
+            } catch (error) {
+                console.error("خطأ في تحديث لوحة المعلومات:", error);
+                Swal.fire({
+                    title: 'خطأ',
+                    text: 'فشل في تحديث لوحة المعلومات: ' + error.message,
+                    icon: 'error',
+                    confirmButtonColor: '#3F2A56'
+                });
+            }
+        }
+
+        // تحديث جدول المنتجات
+        async function updateProductsTable() {
+            try {
+                await ensureDBInitialized();
+                const products = await getAllProducts();
+                const tableBody = document.getElementById('productsTable');
+                tableBody.innerHTML = ''; // Clear existing rows
+
+                products.forEach((product, index) => {
+                    const quantity = parseInt(product.quantity);
+                    const quantityClass = quantity < 2 ? 'low-stock' : '';
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${index + 1}</td>
+                        <td>${product.id}</td>
+                        <td>${product.name}</td>
+                        <td>${parseFloat(product.purchasePrice).toFixed(2)}</td>
+                        <td>${parseFloat(product.salePrice).toFixed(2)}</td>
+                        <td class="${quantityClass}">${quantity}</td>
+                        <td>
+                            <i class="fas fa-edit action-btn edit" onclick="editProduct('${product.id}');event.stopPropagation();" title="تعديل"></i>
+                            <i class="fas fa-trash action-btn delete" onclick="deleteProduct('${product.id}');event.stopPropagation();" title="حذف"></i>
+                        </td>
+                    `;
+                    row.addEventListener('click', () => showProductDetails(product));
+                    tableBody.appendChild(row);
+                });
+                filterTable(); // Apply filters after updating
+                updateDashboard(); // Update dashboard as well
+            } catch (error) {
+                console.error("خطأ في تحديث جدول المنتجات:", error);
+                Swal.fire({
+                    title: 'خطأ',
+                    text: 'فشل في تحديث جدول المنتجات: ' + error.message,
+                    icon: 'error',
+                    confirmButtonColor: '#3F2A56'
+                });
+            }
+        }
+
+        // عرض تفاصيل المنتج
+        function showProductDetails(product) {
+            Swal.fire({
+                title: 'تفاصيل المنتج',
+                html: `
+                    <div style="text-align: right; font-family: 'Cairo', sans-serif; color: #3F2A56;">
+                        <p><strong><i class="fas fa-barcode"></i> معرف المنتج:</strong> ${product.id}</p>
+                        <p><strong><i class="fas fa-box"></i> اسم المنتج:</strong> ${product.name}</p>
+                        <p><strong><i class="fas fa-money-bill-wave"></i> سعر الشراء:</strong> ${parseFloat(product.purchasePrice).toFixed(2)}</p>
+                        <p><strong><i class="fas fa-dollar-sign"></i> سعر البيع:</strong> ${parseFloat(product.salePrice).toFixed(2)}</p>
+                        <p><strong><i class="fas fa-boxes-stacked"></i> الكمية:</strong> ${parseInt(product.quantity)}</p>
+                    </div>
+                `,
+                icon: 'info',
+                confirmButtonText: 'إغلاق',
+                confirmButtonColor: '#3F2A56',
+                customClass: { popup: 'swal2-rtl' }
+            });
+        }
+
+        // تصفية الجدول
+        async function filterTable() {
+            try {
+                await ensureDBInitialized();
+                const searchInput = document.getElementById('searchInput').value.toLowerCase();
+                const stockFilter = document.getElementById('stockFilter').value;
+                const tableBody = document.getElementById('productsTable');
+                const rows = tableBody.getElementsByTagName('tr');
+
+                let displayedIndex = 1;
+                for (let i = 0; i < rows.length; i++) {
+                    const cells = rows[i].getElementsByTagName('td');
+                    const productId = cells[1].textContent.toLowerCase();
+                    const productName = cells[2].textContent.toLowerCase();
+                    const quantity = parseInt(cells[5].textContent);
+
+                    const matchesSearch = productName.includes(searchInput) || productId.includes(searchInput);
+                    
+                    let matchesStockFilter = false;
+                    if (stockFilter === 'all') {
+                        matchesStockFilter = true;
+                    } else if (stockFilter === 'empty') {
+                        matchesStockFilter = quantity === 0;
+                    } else if (stockFilter === 'low') {
+                        matchesStockFilter = quantity > 0 && quantity < 2;
+                    }
+
+                    if (matchesSearch && matchesStockFilter) {
+                        rows[i].style.display = '';
+                        cells[0].textContent = displayedIndex++; // Update sequential number
+                    } else {
+                        rows[i].style.display = 'none';
+                    }
+                }
+                // No need to call updateDashboard here as it's called by updateProductsTable
+            } catch (error) {
+                console.error("خطأ في تصفية الجدول:", error);
+                Swal.fire({
+                    title: 'خطأ',
+                    text: 'فشل في تصفية الجدول: ' + error.message,
+                    icon: 'error',
+                    confirmButtonColor: '#3F2A56'
+                });
+            }
+        }
+
+        // إضافة منتج
+        async function addProduct() {
+            try {
+                await ensureDBInitialized();
+                const name = document.getElementById('productName').value.trim();
+                const purchasePrice = parseFloat(document.getElementById('purchasePrice').value);
+                const salePrice = parseFloat(document.getElementById('salePrice').value);
+                const quantity = parseInt(document.getElementById('quantity').value);
+
+                if (!name || isNaN(purchasePrice) || isNaN(salePrice) || isNaN(quantity)) {
+                    Swal.fire({ title: 'خطأ في الإدخال', text: 'الرجاء ملء جميع الحقول المطلوبة بشكل صحيح!', icon: 'error', confirmButtonColor: '#3F2A56' });
+                    return;
+                }
+                if (purchasePrice < 0 || salePrice < 0 || quantity < 0) {
+                    Swal.fire({ title: 'خطأ في الإدخال', text: 'القيم العددية لا يمكن أن تكون سالبة.', icon: 'error', confirmButtonColor: '#3F2A56' });
+                    return;
+                }
+                 if (purchasePrice > 1000000 || salePrice > 1000000 || quantity > 100000) {
+                    Swal.fire({ title: 'خطأ في الإدخال', text: 'القيم المدخلة كبيرة جدًا! الحد الأقصى للسعر 1,000,000 وللكمية 100,000.', icon: 'error', confirmButtonColor: '#3F2A56'});
+                    return;
+                }
+
+                const products = await getAllProducts();
+                if (products.some(p => p.name.toLowerCase() === name.toLowerCase())) {
+                    Swal.fire({ title: 'خطأ في الإدخال', text: 'اسم المنتج موجود مسبقًا! الرجاء اختيار اسم آخر.', icon: 'error', confirmButtonColor: '#3F2A56' });
+                    return;
+                }
+
+                const id = await generateUniqueId();
+                const product = { id, name, purchasePrice: purchasePrice.toFixed(2), salePrice: salePrice.toFixed(2), quantity };
+
+                const transaction = db.transaction(['products'], 'readwrite');
+                const store = transaction.objectStore('products');
+                const request = store.add(product);
+
+                request.onsuccess = async () => {
+                    invalidateCache();
+                    await updateProductsTable();
+                    bootstrap.Modal.getInstance(document.getElementById('addProductModal')).hide();
+                    document.getElementById('addProductForm').reset();
+                    playSuccessSound();
+                    Swal.fire({ title: 'نجاح', text: `تم إضافة المنتج "${name}" بنجاح!`, icon: 'success', confirmButtonColor: '#3F2A56' });
+                };
+                request.onerror = (event) => {
+                    console.error("خطأ في إضافة المنتج:", event.target.error);
+                    Swal.fire({ title: 'خطأ', text: 'فشل في إضافة المنتج!', icon: 'error', confirmButtonColor: '#3F2A56' });
+                };
+            } catch (error) {
+                console.error("خطأ عام في إضافة المنتج:", error);
+                Swal.fire({ title: 'خطأ', text: 'فشل في إضافة المنتج: ' + error.message, icon: 'error', confirmButtonColor: '#3F2A56' });
+            }
+        }
+
+        // تعديل منتج
+        async function editProduct(id) {
+            try {
+                await ensureDBInitialized();
+                const transaction = db.transaction(['products'], 'readonly');
+                const store = transaction.objectStore('products');
+                const request = store.get(id);
+
+                request.onsuccess = () => {
+                    const product = request.result;
+                    if (!product) {
+                        Swal.fire({ title: 'خطأ', text: 'المنتج غير موجود!', icon: 'error', confirmButtonColor: '#3F2A56' });
+                        return;
+                    }
+                    document.getElementById('editProductId').value = product.id;
+                    document.getElementById('editProductName').value = product.name;
+                    document.getElementById('editPurchasePrice').value = product.purchasePrice;
+                    document.getElementById('editSalePrice').value = product.salePrice;
+                    document.getElementById('editQuantity').value = product.quantity;
+                    new bootstrap.Modal(document.getElementById('editProductModal')).show();
+                };
+                request.onerror = (event) => {
+                    console.error("خطأ في جلب بيانات المنتج للتعديل:", event.target.error);
+                    Swal.fire({ title: 'خطأ', text: 'فشل في جلب بيانات المنتج!', icon: 'error', confirmButtonColor: '#3F2A56' });
+                };
+            } catch (error) {
+                console.error("خطأ عام في تعديل المنتج:", error);
+                Swal.fire({ title: 'خطأ', text: 'فشل في بدء تعديل المنتج: ' + error.message, icon: 'error', confirmButtonColor: '#3F2A56' });
+            }
+        }
+
+        // تحديث منتج
+        async function updateProduct() {
+            try {
+                await ensureDBInitialized();
+                const id = document.getElementById('editProductId').value;
+                const name = document.getElementById('editProductName').value.trim();
+                const purchasePrice = parseFloat(document.getElementById('editPurchasePrice').value);
+                const salePrice = parseFloat(document.getElementById('editSalePrice').value);
+                const quantity = parseInt(document.getElementById('editQuantity').value);
+
+                if (!name || isNaN(purchasePrice) || isNaN(salePrice) || isNaN(quantity)) {
+                    Swal.fire({ title: 'خطأ في الإدخال', text: 'الرجاء ملء جميع الحقول المطلوبة بشكل صحيح!', icon: 'error', confirmButtonColor: '#3F2A56' });
+                    return;
+                }
+                if (purchasePrice < 0 || salePrice < 0 || quantity < 0) {
+                    Swal.fire({ title: 'خطأ في الإدخال', text: 'القيم العددية لا يمكن أن تكون سالبة.', icon: 'error', confirmButtonColor: '#3F2A56' });
+                    return;
+                }
+                 if (purchasePrice > 1000000 || salePrice > 1000000 || quantity > 100000) {
+                    Swal.fire({ title: 'خطأ في الإدخال', text: 'القيم المدخلة كبيرة جدًا! الحد الأقصى للسعر 1,000,000 وللكمية 100,000.', icon: 'error', confirmButtonColor: '#3F2A56'});
+                    return;
+                }
+
+                const products = await getAllProducts();
+                const existingProductWithSameName = products.find(p => p.name.toLowerCase() === name.toLowerCase() && p.id !== id);
+                if (existingProductWithSameName) {
+                    Swal.fire({ title: 'خطأ في الإدخال', text: 'اسم المنتج موجود مسبقًا لمنتج آخر! الرجاء اختيار اسم مختلف.', icon: 'error', confirmButtonColor: '#3F2A56' });
+                    return;
+                }
+
+                const product = { id, name, purchasePrice: purchasePrice.toFixed(2), salePrice: salePrice.toFixed(2), quantity };
+                const transaction = db.transaction(['products'], 'readwrite');
+                const store = transaction.objectStore('products');
+                const request = store.put(product);
+
+                request.onsuccess = async () => {
+                    invalidateCache();
+                    await updateProductsTable();
+                    bootstrap.Modal.getInstance(document.getElementById('editProductModal')).hide();
+                    playSuccessSound();
+                    Swal.fire({ title: 'نجاح', text: `تم تعديل المنتج "${name}" بنجاح!`, icon: 'success', confirmButtonColor: '#3F2A56' });
+                };
+                request.onerror = (event) => {
+                    console.error("خطأ في تحديث المنتج:", event.target.error);
+                    Swal.fire({ title: 'خطأ', text: 'فشل في تعديل المنتج!', icon: 'error', confirmButtonColor: '#3F2A56' });
+                };
+            } catch (error) {
+                console.error("خطأ عام في تحديث المنتج:", error);
+                Swal.fire({ title: 'خطأ', text: 'فشل في تحديث المنتج: ' + error.message, icon: 'error', confirmButtonColor: '#3F2A56' });
+            }
+        }
+
+        // حذف منتج
+        async function deleteProduct(id) {
+            try {
+                await ensureDBInitialized();
+                const transaction = db.transaction(['products'], 'readonly');
+                const store = transaction.objectStore('products');
+                const request = store.get(id);
+
+                request.onsuccess = async () => {
+                    const product = request.result;
+                    if (!product) {
+                        Swal.fire({ title: 'خطأ', text: 'المنتج غير موجود!', icon: 'error', confirmButtonColor: '#3F2A56' });
+                        return;
+                    }
+                    const result = await Swal.fire({
+                        title: 'تأكيد الحذف',
+                        text: `هل أنت متأكد من حذف المنتج "${product.name}"؟ لا يمكن التراجع عن هذا الإجراء.`,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'نعم، احذف',
+                        cancelButtonText: 'إلغاء',
+                        confirmButtonColor: '#dc3545',
+                        cancelButtonColor: '#6c757d'
+                    });
+
+                    if (result.isConfirmed) {
+                        const deleteTransaction = db.transaction(['products'], 'readwrite');
+                        const deleteStore = deleteTransaction.objectStore('products');
+                        const deleteRequest = deleteStore.delete(id);
+
+                        deleteRequest.onsuccess = async () => {
+                            invalidateCache();
+                            await updateProductsTable();
+                            playSuccessSound();
+                            Swal.fire({ title: 'نجاح', text: `تم حذف المنتج "${product.name}" بنجاح!`, icon: 'success', confirmButtonColor: '#3F2A56' });
+                        };
+                        deleteRequest.onerror = (event) => {
+                            console.error("خطأ في حذف المنتج:", event.target.error);
+                            Swal.fire({ title: 'خطأ', text: 'فشل في حذف المنتج!', icon: 'error', confirmButtonColor: '#3F2A56' });
+                        };
+                    }
+                };
+                request.onerror = (event) => {
+                    console.error("خطأ في جلب المنتج للحذف:", event.target.error);
+                    Swal.fire({ title: 'خطأ', text: 'فشل في جلب بيانات المنتج للحذف!', icon: 'error', confirmButtonColor: '#3F2A56' });
+                };
+            } catch (error) {
+                console.error("خطأ عام في حذف المنتج:", error);
+                Swal.fire({ title: 'خطأ', text: 'فشل في حذف المنتج: ' + error.message, icon: 'error', confirmButtonColor: '#3F2A56' });
+            }
+        }
+
+        // تصدير إلى JSON
+        async function exportToJSON() {
+            try {
+                await ensureDBInitialized();
+                const products = await getAllProducts();
+                if (products.length === 0) {
+                    Swal.fire({ title: 'لا توجد بيانات', text: 'لا توجد منتجات لتصديرها.', icon: 'info', confirmButtonColor: '#3F2A56' });
+                    return;
+                }
+                const dataStr = JSON.stringify(products, null, 2);
+                const blob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'inventory_products.json';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                playSuccessSound();
+                Swal.fire({ title: 'نجاح', text: 'تم تصدير البيانات إلى ملف JSON بنجاح!', icon: 'success', confirmButtonColor: '#3F2A56' });
+            } catch (error) {
+                console.error("خطأ في تصدير JSON:", error);
+                Swال.fire({ title: 'خطأ', text: 'فشل في تصدير البيانات إلى JSON: ' + error.message, icon: 'error', confirmButtonColor: '#3F2A56' });
+            }
+        }
+
+        // تصدير إلى CSV
+        async function exportToCSV() {
+            try {
+                await ensureDBInitialized();
+                const products = await getAllProducts();
+                if (products.length === 0) {
+                    Swal.fire({ title: 'لا توجد بيانات', text: 'لا توجد منتجات لتصديرها.', icon: 'info', confirmButtonColor: '#3F2A56' });
+                    return;
+                }
+                const headers = 'معرف المنتج,اسم المنتج,سعر الشراء,سعر البيع,الكمية';
+                const rows = products.map(p => `${p.id},"${p.name.replace(/"/g, '""')}",${p.purchasePrice},${p.salePrice},${p.quantity}`); // Handle commas in name
+                const csv = [headers, ...rows].join('\n');
+                const bom = '\uFEFF'; // BOM for Excel UTF-8 support
+                const blob = new Blob([bom + csv], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'inventory_products.csv';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                playSuccessSound();
+                Swal.fire({ title: 'نجاح', text: 'تم تصدير البيانات إلى ملف CSV بنجاح!', icon: 'success', confirmButtonColor: '#3F2A56' });
+            } catch (error) {
+                console.error("خطأ في تصدير CSV:", error);
+                Swal.fire({ title: 'خطأ', text: 'فشل في تصدير البيانات إلى CSV: ' + error.message, icon: 'error', confirmButtonColor: '#3F2A56' });
+            }
+        }
+        
+        function isValidProduct(product) {
+            return product &&
+                   typeof product.id === 'string' && product.id.trim() !== '' &&
+                   typeof product.name === 'string' && product.name.trim() !== '' &&
+                   !isNaN(parseFloat(product.purchasePrice)) && parseFloat(product.purchasePrice) >= 0 && parseFloat(product.purchasePrice) <= 1000000 &&
+                   !isNaN(parseFloat(product.salePrice)) && parseFloat(product.salePrice) >= 0 && parseFloat(product.salePrice) <= 1000000 &&
+                   !isNaN(parseInt(product.quantity)) && parseInt(product.quantity) >= 0 && parseInt(product.quantity) <= 100000;
+        }
+
+        // استيراد ملف
+        async function importFile(event) {
+            try {
+                await ensureDBInitialized();
+                const file = event.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = async function(e) {
+                    let importedProducts = [];
+                    try {
+                        if (file.name.endsWith('.json')) {
+                            importedProducts = JSON.parse(e.target.result);
+                        } else if (file.name.endsWith('.csv')) {
+                            const data = e.target.result;
+                            const rows = data.split('\n').filter(row => row.trim());
+                            if (rows.length > 1) { // Header + data
+                                const headers = rows[0].split(',').map(h => h.trim().toLowerCase());
+                                const idIndex = headers.indexOf('معرف المنتج');
+                                const nameIndex = headers.indexOf('اسم المنتج');
+                                const purchaseIndex = headers.indexOf('سعر الشراء');
+                                const saleIndex = headers.indexOf('سعر البيع');
+                                const quantityIndex = headers.indexOf('الكمية');
+
+                                if ([idIndex, nameIndex, purchaseIndex, saleIndex, quantityIndex].some(i => i === -1)) {
+                                    throw new Error("تنسيق ملف CSV غير صحيح أو缺少 بعض الأعمدة المطلوبة.");
+                                }
+
+                                importedProducts = rows.slice(1).map(row => {
+                                    // Basic CSV parsing, can be improved for quoted fields
+                                    const values = row.split(',');
+                                    return {
+                                        id: values[idIndex]?.trim(),
+                                        name: values[nameIndex]?.trim(),
+                                        purchasePrice: parseFloat(values[purchaseIndex]?.trim()).toFixed(2),
+                                        salePrice: parseFloat(values[saleIndex]?.trim()).toFixed(2),
+                                        quantity: parseInt(values[quantityIndex]?.trim())
+                                    };
+                                });
+                            }
+                        } else {
+                             Swal.fire({ title: 'خطأ', text: 'صيغة الملف غير مدعومة. الرجاء تحميل ملف JSON أو CSV.', icon: 'error', confirmButtonColor: '#3F2A56' });
+                             return;
+                        }
+                    } catch (parseError) {
+                        console.error("خطأ في تحليل الملف:", parseError);
+                        Swal.fire({ title: 'خطأ في الملف', text: 'فشل في قراءة أو تحليل الملف. تأكد من أن الملف بالتنسيق الصحيح.\n' + parseError.message, icon: 'error', confirmButtonColor: '#3F2A56' });
+                        return;
+                    }
+
+                    if (!Array.isArray(importedProducts) || importedProducts.length === 0) {
+                        Swal.fire({ title: 'لا توجد بيانات', text: 'الملف لا يحتوي على منتجات صالحة للاستيراد.', icon: 'info', confirmButtonColor: '#3F2A56' });
+                        return;
+                    }
+                    
+                    const validProducts = [];
+                    const invalidProductExamples = [];
+                    for (const p of importedProducts) {
+                        if (isValidProduct(p)) {
+                            validProducts.push(p);
+                        } else {
+                            if(invalidProductExamples.length < 5) invalidProductExamples.push(JSON.stringify(p));
+                        }
+                    }
+
+                    if (invalidProductExamples.length > 0) {
+                        Swal.fire({
+                            title: 'بيانات غير صالحة',
+                            html: `تم العثور على ${invalidProductExamples.length} منتجًا غير صالح في الملف. <br>أمثلة: <pre>${invalidProductExamples.join('\n')}</pre>الرجاء التحقق من تنسيق الملف والقيم.`,
+                            icon: 'warning',
+                            confirmButtonColor: '#3F2A56'
+                        });
+                        // Decide if you want to proceed with only valid ones or stop
+                        if(validProducts.length === 0) return; // Stop if no valid products
+                    }
+                    
+                    if (validProducts.length === 0) {
+                         Swal.fire({ title: 'لا توجد بيانات صالحة', text: 'لم يتم العثور على منتجات صالحة للاستيراد في الملف.', icon: 'info', confirmButtonColor: '#3F2A56' });
+                         return;
+                    }
+
+
+                    await processImportedData(validProducts);
+
+                };
+                reader.onerror = () => {
+                     Swal.fire({ title: 'خطأ', text: 'فشل في قراءة الملف!', icon: 'error', confirmButtonColor: '#3F2A56' });
+                };
+                reader.readAsText(file);
+                document.getElementById('importFile').value = ''; // Reset file input
+            } catch (error) {
+                console.error("خطأ في استيراد الملف:", error);
+                Swal.fire({ title: 'خطأ', text: 'فشل في استيراد الملف: ' + error.message, icon: 'error', confirmButtonColor: '#3F2A56' });
+            }
+        }
+
+        // إنشاء رمز QR
+        async function generateQRCode() {
+            try {
+                await ensureDBInitialized();
+                const products = await getAllProducts();
+                 if (products.length === 0) {
+                    Swal.fire({ title: 'لا توجد بيانات', text: 'لا توجد منتجات لإنشاء رمز QR.', icon: 'info', confirmButtonColor: '#3F2A56' });
+                    return;
+                }
+                const dataString = JSON.stringify(products);
+                const qrCanvas = document.getElementById('qrCanvas'); // Hidden canvas
+                
+                QRCode.toCanvas(qrCanvas, dataString, { width: 300, margin: 2, errorCorrectionLevel: 'L' }, (error) => {
+                    if (error) {
+                        console.error("خطأ في إنشاء QR Code:", error);
+                        Swal.fire({ title: 'خطأ', text: 'فشل في إنشاء رمز QR!', icon: 'error', confirmButtonColor: '#3F2A56' });
+                        return;
+                    }
+                    Swal.fire({
+                        title: 'رمز QR جاهز',
+                        html: `
+                            <canvas id="tempQRCanvas" style="border:1px solid #ccc;"></canvas>
+                            <p style="margin-top:10px;">امسح هذا الرمز من جهاز آخر لنقل البيانات.</p>
+                            <div class="scanner-buttons" style="margin-top:15px;">
+                                <button class="btn" onclick="exportQRCodeImage()">تصدير كصورة</button>
+                            </div>
+                        `,
+                        showCancelButton: false,
+                        confirmButtonText: 'إغلاق',
+                        confirmButtonColor: '#3F2A56',
+                        customClass: { popup: 'swal2-rtl' },
+                        width: 'auto', // Adjust width automatically
+                        didOpen: () => {
+                            const tempCanvas = document.getElementById('tempQRCanvas');
+                            if (tempCanvas) {
+                                tempCanvas.width = qrCanvas.width;
+                                tempCanvas.height = qrCanvas.height;
+                                tempCanvas.getContext('2d').drawImage(qrCanvas, 0, 0);
+                            }
+                        }
+                    });
+                });
+            } catch (error) {
+                console.error("خطأ عام في إنشاء QR Code:", error);
+                Swal.fire({ title: 'خطأ', text: 'فشل في إنشاء رمز QR: ' + error.message, icon: 'error', confirmButtonColor: '#3F2A56' });
+            }
+        }
+
+        // تصدير رمز QR كصورة (يتم استدعاؤها من SweetAlert)
+        function exportQRCodeImage() {
+            const qrCanvas = document.getElementById('qrCanvas'); // Use the original hidden canvas
+            if (!qrCanvas) {
+                Swal.fire({ title: 'خطأ', text: 'لم يتم العثور على لوحة QR للتصدير!', icon: 'error', confirmButtonColor: '#3F2A56' });
+                return;
+            }
+            try {
+                const dataURL = qrCanvas.toDataURL('image/png');
+                const a = document.createElement('a');
+                a.href = dataURL;
+                a.download = 'inventory_qrcode.png';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                playSuccessSound();
+                // Don't close Swal here, user might want to keep it open
+            } catch (e) {
+                console.error("خطأ في تصدير صورة QR:", e);
+                Swal.fire({ title: 'خطأ', text: 'فشل في تصدير صورة رمز QR!', icon: 'error', confirmButtonColor: '#3F2A56' });
+            }
+        }
+
+
+        // التحقق من دعم الكاميرا
+        function checkCameraSupport() {
+            return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+        }
+
+        // بدء مسح رمز QR
+        async function startQRScanner() {
+            try {
+                if (!checkCameraSupport()) {
+                    Swal.fire({ title: 'الكاميرا غير مدعومة', text: 'الكاميرا غير مدعومة في هذا المتصفح أو الجهاز.', icon: 'error', confirmButtonColor: '#3F2A56' });
+                    return;
+                }
+                await ensureDBInitialized();
+
+                Swal.fire({
+                    title: 'مسح رمز QR',
+                    html: `
+                        <div id="scannerContainer">
+                            <video id="scannerVideo" autoplay playsinline></video>
+                            <div class="scanner-buttons">
+                                <button class="btn" onclick="stopQRScannerAndCloseSwal()">إيقاف المسح</button>
+                                <button class="btn" onclick="document.getElementById('qrImageInput').click()">استيراد من صورة</button>
+                            </div>
+                        </div>
+                    `,
+                    showConfirmButton: false,
+                    showCancelButton: true, // Show a general cancel button
+                    cancelButtonText: 'إغلاق',
+                    cancelButtonColor: '#6c757d',
+                    customClass: { popup: 'swal2-rtl' },
+                    width: 'auto',
+                    didOpen: async () => {
+                        const video = document.getElementById('scannerVideo');
+                        if (!video) return;
+                        try {
+                            stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+                            video.srcObject = stream;
+                            await video.play(); // Wait for play to start
+
+                            const canvasElement = document.createElement('canvas');
+                            const canvas = canvasElement.getContext('2d');
+                            let scanInterval;
+
+                            function tick() {
+                                if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                                    canvasElement.height = video.videoHeight;
+                                    canvasElement.width = video.videoWidth;
+                                    canvas.drawImage(video, 0, 0, canvasElement.width, canvasElement.height);
+                                    const imageData = canvas.getImageData(0, 0, canvasElement.width, canvasElement.height);
+                                    const code = jsQR(imageData.data, imageData.width, imageData.height, {
+                                        inversionAttempts: 'dontInvert',
+                                    });
+                                    if (code) {
+                                        clearInterval(scanInterval); // Stop scanning
+                                        stopQRScanner(); // Stop camera
+                                        Swal.close(); // Close the scanning modal
+                                        try {
+                                            const newProducts = JSON.parse(code.data);
+                                             if (!Array.isArray(newProducts)) throw new Error("بيانات QR ليست مصفوفة.");
+                                            processImportedData(newProducts.filter(isValidProduct)); // Process only valid products
+                                        } catch (e) {
+                                            console.error("خطأ في تحليل بيانات QR:", e);
+                                            Swal.fire({ title: 'خطأ', text: 'البيانات في رمز QR غير صالحة أو ليست بتنسيق JSON متوقع!\n' + e.message, icon: 'error', confirmButtonColor: '#3F2A56' });
+                                        }
+                                        return; // Exit tick
+                                    }
+                                }
+                                if (Swal.isVisible()) { // Continue scanning only if modal is open
+                                   scanInterval = requestAnimationFrame(tick);
+                                } else {
+                                    stopQRScanner(); // Ensure camera stops if modal is closed externally
+                                }
+                            }
+                            scanInterval = requestAnimationFrame(tick);
+
+                        } catch (err) {
+                            console.error("خطأ في الوصول للكاميرا:", err);
+                            stopQRScanner();
+                            Swal.fire({ title: 'خطأ الكاميرا', text: 'فشل في الوصول إلى الكاميرا. تأكد من منح الأذونات.\n' + err.message, icon: 'error', confirmButtonColor: '#3F2A56' });
+                        }
+                    },
+                    willClose: () => {
+                        stopQRScanner();
+                    }
+                });
+            } catch (error) {
+                console.error("خطأ في بدء مسح QR:", error);
+                Swal.fire({ title: 'خطأ', text: 'فشل في بدء مسح رمز QR: ' + error.message, icon: 'error', confirmButtonColor: '#3F2A56' });
+            }
+        }
+        
+        function stopQRScannerAndCloseSwal() {
+            stopQRScanner();
+            Swal.close();
+        }
+
+        // إيقاف مسح رمز QR
+        function stopQRScanner() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
+            const video = document.getElementById('scannerVideo');
+            if (video) {
+                video.pause();
+                video.srcObject = null;
+            }
+        }
+
+        // استيراد رمز QR من صورة
+        async function importQRFromImage(event) {
+            try {
+                await ensureDBInitialized();
+                const file = event.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const context = canvas.getContext('2d');
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                        context.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                        const code = jsQR(imageData.data, imageData.width, imageData.height, {
+                            inversionAttempts: 'dontInvert'
+                        });
+
+                        if (code) {
+                            stopQRScanner(); // Stop camera if it was running
+                            Swal.close(); // Close any open Swal (like the scanner)
+                            try {
+                                const newProducts = JSON.parse(code.data);
+                                if (!Array.isArray(newProducts)) throw new Error("بيانات QR ليست مصفوفة.");
+                                processImportedData(newProducts.filter(isValidProduct));
+                            } catch (parseErr) {
+                                console.error("خطأ في تحليل QR من الصورة:", parseErr);
+                                Swal.fire({ title: 'خطأ', text: 'البيانات في رمز QR من الصورة غير صالحة!\n' + parseErr.message, icon: 'error', confirmButtonColor: '#3F2A56' });
+                            }
+                        } else {
+                            Swal.fire({ title: 'خطأ', text: 'لم يتم العثور على رمز QR في الصورة!', icon: 'error', confirmButtonColor: '#3F2A56' });
+                        }
+                    };
+                    img.onerror = () => {
+                        Swal.fire({ title: 'خطأ', text: 'فشل في تحميل الصورة!', icon: 'error', confirmButtonColor: '#3F2A56' });
+                    };
+                    img.src = e.target.result;
+                };
+                reader.onerror = () => {
+                     Swal.fire({ title: 'خطأ', text: 'فشل في قراءة ملف الصورة!', icon: 'error', confirmButtonColor: '#3F2A56' });
+                };
+                reader.readAsDataURL(file);
+                document.getElementById('qrImageInput').value = ''; // Reset file input
+            } catch (error) {
+                console.error("خطأ في استيراد QR من الصورة:", error);
+                Swal.fire({ title: 'خطأ', text: 'فشل في استيراد رمز QR من الصورة: ' + error.message, icon: 'error', confirmButtonColor: '#3F2A56' });
+            }
+        }
+
+        // معالجة البيانات المستوردة (من ملف أو QR)
+        async function processImportedData(newProducts) {
+            if (!Array.isArray(newProducts) || newProducts.length === 0) {
+                Swal.fire({ title: 'لا توجد بيانات صالحة', text: 'لم يتم العثور على منتجات صالحة للمعالجة.', icon: 'info', confirmButtonColor: '#3F2A56' });
+                return;
+            }
+
+            try {
+                await ensureDBInitialized();
+                const existingIds = await getAllProductIds();
+                const duplicateProducts = newProducts.filter(p => existingIds.includes(p.id));
+                let productsToImport = newProducts;
+
+                if (duplicateProducts.length > 0) {
+                    let warningMessage = `تم العثور على ${duplicateProducts.length} منتجًا بمعرفات موجودة مسبقًا.<br>أمثلة للمعرفات المكررة: <br>`;
+                    duplicateProducts.slice(0, 5).forEach(p => warningMessage += `- المعرف: ${p.id} (الاسم: ${p.name})<br>`);
+                    warningMessage += '<br>هل تريد المتابعة واستبدال المنتجات الموجودة بهذه المعرفات؟';
+
+                    const result = await Swal.fire({
+                        title: 'تحذير: معرفات مكررة',
+                        html: warningMessage,
+                        icon: 'warning',
+                        showDenyButton: true,
+                        showCancelButton: true,
+                        confirmButtonText: 'نعم، استبدل الكل',
+                        denyButtonText: `لا، استورد غير المكرر فقط`,
+                        cancelButtonText: 'إلغاء الاستيراد',
+                        confirmButtonColor: '#3F2A56',
+                        denyButtonColor: '#ffc107',
+                        cancelButtonColor: '#dc3545',
+                        customClass: { popup: 'swal2-rtl' }
+                    });
+
+                    if (result.isConfirmed) {
+                        // Proceed with all newProducts, existing ones will be overwritten by put
+                    } else if (result.isDenied) {
+                        productsToImport = newProducts.filter(p => !existingIds.includes(p.id));
+                        if (productsToImport.length === 0) {
+                            Swal.fire({ title: 'تم الإلغاء جزئيًا', text: 'لا توجد منتجات جديدة غير مكررة للاستيراد.', icon: 'info', confirmButtonColor: '#3F2A56' });
                             return;
                         }
-                        product.quantity -= quantitySold;
-                        const updateRequest = store.put(product);
-                        updateRequest.onsuccess = () => resolve();
-                        updateRequest.onerror = (e) => reject(new Error(`فشل تحديث مخزون ${product.name}: ${e.target.error}`));
-                    };
-                    getRequest.onerror = (e) => reject(new Error(`فشل جلب المنتج ${productId}: ${e.target.error}`));
-                } catch (dbError) { reject(dbError); }
-            });
-        }
-
-
-        async function editInvoice(invoiceId) {
-            try {
-                const invoice = await getRecordFromDb('invoices', invoiceId);
-                if (!invoice) { Swal.fire('خطأ', 'الفاتورة غير موجودة!', 'error'); return; }
-                
-                document.getElementById('editInvoiceModal').dataset.originalProducts = JSON.stringify(invoice.products);
-                document.getElementById('editInvoiceId').value = invoice.id;
-                document.getElementById('editInvoiceOriginalAmountPaid').value = invoice.amountPaid; 
-                
-                const customerSelect = document.getElementById('editInvoiceCustomer');
-                await populateCustomerSelect('editInvoiceCustomer'); 
-                customerSelect.value = invoice.customerId;
-                await updateCustomerInfo('editInvoiceCustomer', 'editCustomerPhoneDisplay', 'editCustomerAddressDisplay');
-
-                document.getElementById('editInvoiceDate').textContent = formatDateForDisplay(invoice.date);
-                document.getElementById('editAmountPaid').value = parseFloat(invoice.amountPaid).toFixed(2);
-                togglePaymentAccountField('editPaymentAccountGroup', invoice.amountPaid); 
-
-                const tableBody = document.getElementById('editInvoiceProducts');
-                tableBody.innerHTML = ''; 
-                const allProductsFromDB = await getAllProducts(); 
-
-                invoice.products.forEach(pInInvoice => {
-                    const productDetailsFromDB = allProductsFromDB.find(pDB => pDB.id === pInInvoice.productId);
-                    const currentStockInDB = productDetailsFromDB ? productDetailsFromDB.quantity : 0;
-                    const maxQuantityForInput = currentStockInDB + pInInvoice.quantity;
-
-                    const row = tableBody.insertRow();
-                    row.dataset.productId = pInInvoice.productId;
-                    row.dataset.originalQuantityInInvoice = pInInvoice.quantity; 
-                    row.dataset.maxEditableQuantity = maxQuantityForInput;
-
-                    row.innerHTML = `
-                        <td>${pInInvoice.name}</td>
-                        <td><input type="number" class="form-control form-control-sm sale-price" value="${parseFloat(pInInvoice.salePrice).toFixed(2)}" step="0.01" min="0.01"></td>
-                        <td><input type="number" class="form-control form-control-sm quantity" value="${pInInvoice.quantity}" min="1" max="${maxQuantityForInput}"></td>
-                        <td><input type="text" class="form-control form-control-sm note" value="${pInInvoice.note || ''}" placeholder="ملاحظة"></td>
-                        <td class="total">${parseFloat(pInInvoice.total).toFixed(2)}</td>
-                        <td><button type="button" class="btn btn-sm btn-danger" onclick="removeProductFromInvoice(this.closest('tr'), 'editInvoiceProducts')"><i class="fas fa-trash-alt"></i></button></td>
-                    `;
-                    row.querySelector('.sale-price').addEventListener('input', () => updateInvoiceTotals('editInvoiceProducts'));
-                    row.querySelector('.quantity').addEventListener('input', (e) => {
-                         const requestedQuantity = parseInt(e.target.value);
-                         const maxAllowed = parseInt(e.target.max); 
-                         if (requestedQuantity > maxAllowed) {
-                            e.target.value = maxAllowed;
-                            Swal.fire('تنبيه', `الكمية المطلوبة للمنتج "${pInInvoice.name}" تتجاوز المخزون المتاح.`, 'warning');
-                        }
-                        updateInvoiceTotals('editInvoiceProducts');
-                    });
-                });
-
-                updateInvoiceTotals('editInvoiceProducts');
-                new bootstrap.Modal(document.getElementById('editInvoiceModal')).show();
-            } catch (dbError) { Swal.fire('خطأ قاعدة البيانات', `فشل: ${dbError.message}`, 'error');}
-        }
-
-        async function updateInvoice() {
-            const id = document.getElementById('editInvoiceId').value;
-            const customerId = document.getElementById('editInvoiceCustomer').value;
-            const newAmountPaidValue = document.getElementById('editAmountPaid').value;
-            const paymentAccountForEdit = document.getElementById('editPaymentAccount').value; 
-            const productsTable = document.getElementById('editInvoiceProducts');
-            const rows = productsTable.querySelectorAll('tr');
-            
-            const originalProductsJSON = document.getElementById('editInvoiceModal').dataset.originalProducts;
-            const originalProductsInInvoice = JSON.parse(originalProductsJSON || "[]");
-            const originalAmountPaid = parseFloat(document.getElementById('editInvoiceOriginalAmountPaid').value);
-
-            if (!customerId) { Swal.fire('خطأ', 'الرجاء اختيار زبون!', 'error'); return; }
-            if (rows.length === 0) { Swal.fire('خطأ', 'الفاتورة يجب أن تحتوي على منتج واحد على الأقل!', 'error'); return; }
-            
-            const newAmountPaid = parseFloat(newAmountPaidValue);
-            if (isNaN(newAmountPaid) || newAmountPaid < 0) { Swal.fire('خطأ', 'المبلغ المدفوع الجديد غير صحيح!', 'error'); return; }
-
-            const paymentDifference = newAmountPaid - originalAmountPaid;
-            if (paymentDifference > 0 && !paymentAccountForEdit) {
-                 Swal.fire('خطأ', 'الرجاء اختيار حساب الدفع للزيادة في المبلغ المدفوع!', 'error'); return;
-            }
-            
-
-            const updatedProductsInInvoice = [];
-            let newTotalAmount = 0;
-            let stockAdjustmentPromises = []; 
-
-            for (const row of rows) {
-                const productId = row.dataset.productId;
-                const name = row.cells[0].textContent;
-                const salePrice = parseFloat(row.querySelector('.sale-price').value);
-                const newQuantitySold = parseInt(row.querySelector('.quantity').value);
-                const note = row.querySelector('.note').value;
-                const itemTotal = salePrice * newQuantitySold;
-
-                if (isNaN(salePrice) || salePrice <=0 || isNaN(newQuantitySold) || newQuantitySold <=0) {
-                    Swal.fire('خطأ', `بيانات غير صالحة للمنتج "${name}".`, 'error'); return;
+                    } else { // Cancelled
+                        Swal.fire({ title: 'تم الإلغاء', text: 'تم إلغاء عملية الاستيراد.', icon: 'info', confirmButtonColor: '#3F2A56' });
+                        return;
+                    }
                 }
-                updatedProductsInInvoice.push({ productId, name, salePrice, quantity: newQuantitySold, note, total: itemTotal });
-                newTotalAmount += itemTotal;
 
-                const originalProductInfo = originalProductsInInvoice.find(p => p.productId === productId);
-                const originalQuantitySoldInThisInvoice = originalProductInfo ? originalProductInfo.quantity : 0;
-                const quantityChangeForStock = originalQuantitySoldInThisInvoice - newQuantitySold; 
-                if (quantityChangeForStock !== 0) {
-                    const productExists = await checkProductExists(productId);
-                    if (productExists) { stockAdjustmentPromises.push(adjustProductStock(productId, quantityChangeForStock));}
-                }
-            }
-            
-            originalProductsInInvoice.forEach(async origP => { 
-                if (!updatedProductsInInvoice.some(updP => updP.productId === origP.productId)) {
-                    const productExists = await checkProductExists(origP.productId);
-                     if (productExists) { stockAdjustmentPromises.push(adjustProductStock(origP.productId, origP.quantity)); }
-                }
-            });
+                const transaction = db.transaction(['products'], 'readwrite');
+                const store = transaction.objectStore('products');
+                let successCount = 0;
+                let errorCount = 0;
 
-            if (newAmountPaid > newTotalAmount) { Swal.fire('خطأ', 'المبلغ المدفوع لا يمكن أن يكون أكبر من المجموع الكلي!', 'error'); return; }
-
-            try {
-                if (stockAdjustmentPromises.length > 0) { await Promise.all(stockAdjustmentPromises); }
-            } catch (error) { Swal.fire('خطأ في تحديث المخزون', error.message, 'error'); return; }
-            
-            const originalInvoice = await getRecordFromDb('invoices', id); 
-            const invoiceDateISO = originalInvoice ? originalInvoice.date : new Date().toISOString();
-
-            const invoice = {
-                id, customerId, products: updatedProductsInInvoice,
-                totalAmount: newTotalAmount.toFixed(2),
-                amountPaid: newAmountPaid.toFixed(2),
-                date: invoiceDateISO
-            };
-
-            await updateRecordInDb('invoices', invoice);
-
-            if (paymentDifference > 0 && paymentAccountForEdit) {
-                const currentDate = new Date();
-                const cashBoxTransaction = {
-                    type: 'in',
-                    datetime: currentDate.toISOString().slice(0, 19).replace('T', ' '),
-                    date: currentDate.toISOString().slice(0,10),
-                    amount: paymentDifference.toFixed(2), 
-                    description: `دفعة إضافية للفاتورة رقم ${id}`,
-                    account: paymentAccountForEdit,
-                    invoiceId: id, 
-                    customerId: customerId
-                };
-                await addRecordToDb('transactions', cashBoxTransaction, cashBoxDB);
-            }
-            
-
-            await updateInvoicesTable();
-            await updateCustomersTable();
-            bootstrap.Modal.getInstance(document.getElementById('editInvoiceModal')).hide();
-            Swal.fire('نجاح', 'تم تعديل الفاتورة وتحديث البيانات بنجاح!', 'success');
-        }
-
-
-        function adjustProductStock(productId, quantityChange) { 
-            return new Promise(async (resolve, reject) => {
-                try {
-                    await ensureInventoryDBInitialized();
-                    const transaction = db.transaction(['products'], 'readwrite');
-                    const store = transaction.objectStore('products');
-                    const getRequest = store.get(productId);
-
-                    getRequest.onsuccess = () => {
-                        const product = getRequest.result;
-                        if (!product) { console.warn(`المنتج ${productId} غير موجود لتعديل المخزون.`); resolve(); return; }
+                for (const product of productsToImport) {
+                    // Final validation before putting, though `isValidProduct` should catch most
+                    if (isValidProduct(product)) {
+                         // Ensure prices are formatted to two decimal places if they are numbers
+                        if (typeof product.purchasePrice === 'number') product.purchasePrice = product.purchasePrice.toFixed(2);
+                        if (typeof product.salePrice === 'number') product.salePrice = product.salePrice.toFixed(2);
                         
-                        const newStock = product.quantity + quantityChange;
-                        if (newStock < 0) { 
-                             reject(new Error(`لا يمكن أن يكون مخزون "${product.name}" سالبًا.`)); return;
-                        }
-                        product.quantity = newStock;
-                        const updateRequest = store.put(product);
-                        updateRequest.onsuccess = () => resolve();
-                        updateRequest.onerror = (e) => reject(new Error(`فشل تعديل مخزون ${product.name}: ${e.target.error}`));
-                    };
-                    getRequest.onerror = (e) => reject(new Error(`فشل جلب المنتج ${productId}: ${e.target.error}`));
-                } catch (dbError) { reject(dbError); }
-            });
-        }
-
-        async function openAddPaymentModal(invoiceId, remainingAmount) {
-            document.getElementById('paymentInvoiceId').value = invoiceId;
-            document.getElementById('paymentInvoiceIdDisplay').textContent = invoiceId;
-            document.getElementById('paymentInvoiceRemaining').textContent = parseFloat(remainingAmount).toFixed(2);
-            document.getElementById('paymentAmount').value = '';
-            document.getElementById('paymentAmount').max = parseFloat(remainingAmount).toFixed(2);
-            document.getElementById('paymentDate').value = formatToDateTimeLocal(new Date());
-            await populatePaymentAccountDropdowns(); 
-            new bootstrap.Modal(document.getElementById('addPaymentModal')).show();
-        }
-
-        async function processNewPayment() {
-            const invoiceId = document.getElementById('paymentInvoiceId').value;
-            const paymentAmountValue = document.getElementById('paymentAmount').value;
-            const paymentAccount = document.getElementById('paymentAccountForNewPayment').value;
-            const paymentDateValue = document.getElementById('paymentDate').value;
-
-
-            if (!invoiceId || !paymentAmountValue || !paymentAccount || !paymentDateValue) {
-                Swal.fire('خطأ', 'الرجاء ملء جميع حقول الدفعة!', 'error'); return;
-            }
-            const paymentAmount = parseFloat(paymentAmountValue);
-            if (isNaN(paymentAmount) || paymentAmount <= 0) {
-                Swal.fire('خطأ', 'مبلغ الدفعة غير صحيح!', 'error'); return;
-            }
-            
-            const invoice = await getRecordFromDb('invoices', invoiceId);
-            if (!invoice) { Swal.fire('خطأ', 'الفاتورة الأصلية غير موجودة!', 'error'); return; }
-
-            const currentTotalPaid = parseFloat(invoice.amountPaid);
-            const invoiceTotal = parseFloat(invoice.totalAmount);
-            const remaining = invoiceTotal - currentTotalPaid;
-
-            if (paymentAmount > remaining) {
-                Swal.fire('خطأ', `مبلغ الدفعة (${paymentAmount.toFixed(2)}) أكبر من المبلغ المتبقي (${remaining.toFixed(2)})!`, 'error'); return;
-            }
-
-            invoice.amountPaid = (currentTotalPaid + paymentAmount).toFixed(2);
-            
-            
-            await updateRecordInDb('invoices', invoice);
-            
-            const paymentDate = new Date(paymentDateValue);
-            const cashBoxTransaction = {
-                type: 'in',
-                datetime: paymentDate.toISOString().slice(0, 19).replace('T', ' '),
-                date: paymentDate.toISOString().slice(0,10),
-                amount: paymentAmount.toFixed(2),
-                description: `دفعة للفاتورة رقم ${invoiceId}`,
-                account: paymentAccount,
-                invoiceId: invoiceId, 
-                customerId: invoice.customerId 
-            };
-            await addRecordToDb('transactions', cashBoxTransaction, cashBoxDB);
-
-            await updateInvoicesTable();
-            await updateCustomersTable(); 
-            bootstrap.Modal.getInstance(document.getElementById('addPaymentModal')).hide();
-            document.getElementById('addPaymentForm').reset();
-            Swal.fire('نجاح', 'تمت إضافة الدفعة وتحديث الصندوق بنجاح!', 'success');
-        }
-
-
-        async function addCustomer() {
-            const name = document.getElementById('customerName').value.trim();
-            const phone = document.getElementById('customerPhone').value.trim();
-            const address = document.getElementById('customerAddress').value.trim();
-            
-            if (!name && !phone && !address) { Swal.fire('خطأ', 'يجب إدخال معلومة واحدة على الأقل.', 'error'); return; }
-            if (phone) { 
-                const customers = await getAllCustomers();
-                if (customers.some(c => c.phone === phone && phone !== '')) {
-                    Swal.fire('خطأ', 'رقم الهاتف هذا مُسجل لزبون آخر!', 'error'); return;
+                        const request = store.put(product); // Use put for add or update
+                        request.onsuccess = () => successCount++;
+                        request.onerror = () => errorCount++;
+                    } else {
+                        errorCount++; // Count as error if it's somehow invalid here
+                    }
                 }
-            }
-            const id = await generateUniqueId('customers');
-            const customer = { id, name: name || null, phone: phone || null, address: address || null };
-            await addRecordToDb('customers', customer);
-            await updateCustomersTable();
-            await populateCustomerSelect('invoiceCustomer');
-            await populateCustomerSelect('editInvoiceCustomer');
-            await populateCustomerSelect('statementCustomer');
-            bootstrap.Modal.getInstance(document.getElementById('addCustomerModal')).hide();
-            document.getElementById('addCustomerForm').reset();
-            Swal.fire('نجاح', 'تم إضافة الزبون بنجاح!', 'success');
-        }
 
-        async function editCustomer(customerId) {
-            const customer = await getRecordFromDb('customers', customerId);
-            if (!customer) { Swal.fire('خطأ', 'الزبون غير موجود!', 'error'); return; }
-            document.getElementById('editCustomerId').value = customer.id;
-            document.getElementById('editCustomerName').value = customer.name || '';
-            document.getElementById('editCustomerPhone').value = customer.phone || '';
-            document.getElementById('editCustomerAddress').value = customer.address || '';
-            new bootstrap.Modal(document.getElementById('editCustomerModal')).show();
-        }
-
-        async function updateCustomer() {
-            const id = document.getElementById('editCustomerId').value;
-            const name = document.getElementById('editCustomerName').value.trim();
-            const phone = document.getElementById('editCustomerPhone').value.trim();
-            const address = document.getElementById('editCustomerAddress').value.trim();
-
-             if (!name && !phone && !address) { Swal.fire('خطأ', 'يجب إدخال معلومة واحدة على الأقل.', 'error'); return; }
-            if (phone) { 
-                const customers = await getAllCustomers();
-                if (customers.some(c => c.id !== id && c.phone === phone && phone !== '')) { 
-                    Swal.fire('خطأ', 'رقم الهاتف هذا مُسجل لزبون آخر!', 'error'); return;
-                }
-            }
-            const customer = { id, name: name || null, phone: phone || null, address: address || null };
-            await updateRecordInDb('customers', customer);
-            await updateCustomersTable();
-            await updateInvoicesTable(); 
-            await populateCustomerSelect('invoiceCustomer');
-            await populateCustomerSelect('editInvoiceCustomer');
-            await populateCustomerSelect('statementCustomer');
-            bootstrap.Modal.getInstance(document.getElementById('editCustomerModal')).hide();
-            Swal.fire('نجاح', 'تم تعديل بيانات الزبون بنجاح!', 'success');
-        }
-
-        async function deleteCustomer(customerId) {
-            const invoices = await getAllInvoices();
-            if (invoices.some(i => i.customerId === customerId)) {
-                Swal.fire('لا يمكن الحذف', 'الزبون مرتبط بفواتير. لا يمكن حذفه.', 'error'); return;
-            }
-            const result = await Swal.fire({
-                title: 'تأكيد الحذف', text: 'هل أنت متأكد من حذف هذا الزبون؟', icon: 'warning',
-                showCancelButton: true, confirmButtonText: 'نعم، احذف', cancelButtonText: 'إلغاء',
-                confirmButtonColor: '#dc3545'
-            });
-            if (result.isConfirmed) {
-                await deleteRecordFromDb('customers', customerId);
-                await updateCustomersTable();
-                await populateCustomerSelect('invoiceCustomer');
-                await populateCustomerSelect('editInvoiceCustomer');
-                await populateCustomerSelect('statementCustomer');
-                Swal.fire('نجاح', 'تم حذف الزبون بنجاح!', 'success');
-            }
-        }
-        
-        async function printInvoice(invoiceId) {
-            const invoice = await getRecordFromDb('invoices', invoiceId);
-            if (!invoice) { Swal.fire('خطأ', 'الفاتورة غير موجودة.', 'error'); return; }
-            const customer = await getRecordFromDb('customers', invoice.customerId);
-            
-            const printWindow = window.open('', '_blank', 'height=800,width=600');
-            if (!printWindow) { Swal.fire('خطأ', 'فشل فتح نافذة الطباعة.', 'error'); return; }
-            printWindow.document.write(`
-                <!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><title>فاتورة رقم: ${invoice.id}</title>
-                <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
-                <style>
-                    @page { size: A5 landscape; margin: 5mm; } body { font-family: 'Cairo', sans-serif; direction: rtl; margin: 5mm; font-size: 10pt; background-color: #fff; color: #000;}
-                    .container { width: 100%; margin: 0 auto; } .header-print { text-align: center; margin-bottom: 10px; border-bottom: 1px solid #ccc; padding-bottom: 5px;}
-                    .header-print img { max-height: 40px; margin-bottom: 3px; } .header-print h1 { font-size: 1.1rem; color: #3F2A56; margin:0; }
-                    .invoice-info-grid { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;}
-                    .invoice-details-text { flex-basis: 70%;} .invoice-details, .customer-details { font-size: 0.85rem;}
-                    .invoice-details p, .customer-details p { margin: 2px 0; } .qr-code-container { flex-basis: auto; min-width: 75px; text-align: center; padding-left: 5px; } 
-                    #invoiceQrCodeElement { display: inline-block; } #invoiceQrCodeElement canvas, #invoiceQrCodeElement img { border: 1px solid #eee; }
-                    .products-table { width: 100%; border-collapse: collapse; margin-bottom: 8px; }
-                    .products-table th, .products-table td { padding: 4px; border: 1px solid #ccc; text-align: center; font-size: 0.8rem;}
-                    .products-table th { background-color: #f2f2f2; color: #333; font-weight:600; }
-                    .totals-section { margin-top: 10px; padding-top: 8px; border-top: 1px solid #ccc; text-align:left; font-size: 0.85rem;}
-                    .totals-section p { margin: 3px 0; font-weight: 600; } .footer-print { text-align: center; font-size: 0.75rem; margin-top: 15px; color: #777; }
-                    @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
-                </style></head><body><div class="container">
-                    <div class="header-print">
-                        <img src="logo.png" alt="شعار" onerror="this.style.display='none';"><h1>طيبة المدينة تلكوم</h1>
-                        <p style="font-size:0.7rem;">الهاتف 27101138 - 41101138</p><p style="font-size:0.7rem;">انواذيبوا - سوق موريتل</p>
-                    </div><div class="invoice-info-grid"><div class="invoice-details-text"><div class="invoice-details">
-                    <p><strong>رقم الفاتورة:</strong> ${invoice.id}</p><p><strong>التاريخ:</strong> ${formatDateForDisplay(invoice.date)}</p></div>
-                    <div class="customer-details"><p><strong>الزبون:</strong> ${customer?.name || 'زبون نقدي'}</p>
-                    ${customer?.phone ? `<p><strong>الهاتف:</strong> ${customer.phone}</p>` : ''}
-                    ${customer?.address ? `<p><strong>العنوان:</strong> ${customer.address}</p>` : ''}</div></div>
-                    <div class="qr-code-container"><div id="invoiceQrCodeElement"></div></div></div>
-                    <table class="products-table"><thead><tr><th>م</th><th>البيان (اسم المنتج)</th><th>س. الوحدة</th><th>الكمية</th><th>الإجمالي</th></tr></thead><tbody>
-                    ${invoice.products.map((p, index) => `<tr><td>${index + 1}</td><td style="text-align:right;">${p.name} ${p.note ? `(${p.note})` : ''}</td><td>${parseFloat(p.salePrice).toFixed(2)}</td><td>${p.quantity}</td><td>${parseFloat(p.total).toFixed(2)}</td></tr>`).join('')}
-                    </tbody></table><div class="totals-section"><p>المجموع الكلي: ${parseFloat(invoice.totalAmount).toFixed(2)}</p>
-                    <p>المبلغ المدفوع: ${parseFloat(invoice.amountPaid).toFixed(2)}</p>
-                    <p>المتبقي: ${(parseFloat(invoice.totalAmount) - parseFloat(invoice.amountPaid)).toFixed(2)}</p></div>
-                    <div class="footer-print"><p>شكراً لتعاملكم معنا!</p></div></div>
-                    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"><\/script>
-                    <script>
-                        window.onload = function() {
-                            var qrElement = document.getElementById('invoiceQrCodeElement');
-                            if (qrElement && typeof QRCode !== 'undefined') { new QRCode(qrElement, {text: "${invoice.id}", width: 65, height: 65, colorDark : "#000000", colorLight : "#ffffff", correctLevel : QRCode.CorrectLevel.H}); }
-                             // setTimeout(function(){ window.print(); /* window.close(); */ }, 500); // Auto print removed for preview
-                        };
-                    <\/script></body></html>`);
-            printWindow.document.close(); 
-            printWindow.focus(); 
-        }
-
-        async function generateCustomerStatement() {
-            const customerId = document.getElementById('statementCustomer').value;
-            const statementTypeValue = document.getElementById('statementType').value;
-            const startDateValue = document.getElementById('startDate').value;
-            const endDateValue = document.getElementById('endDate').value;
-
-            if (!customerId || !startDateValue || !endDateValue || !statementTypeValue) {
-                Swal.fire('خطأ', 'الرجاء اختيار الزبون، نوع الكشف، وتحديد نطاق التاريخ!', 'error'); return;
-            }
-            
-            const startDate = new Date(startDateValue);
-            startDate.setHours(0,0,0,0); // Start of day
-            const endDate = new Date(endDateValue);
-            endDate.setHours(23, 59, 59, 999); 
-            if (startDate > endDate) { Swal.fire('خطأ', 'تاريخ البداية يجب أن يكون قبل أو نفس تاريخ النهاية!', 'error'); return; }
-
-            const customer = await getRecordFromDb('customers', customerId);
-            const printWindow = window.open('', '_blank', 'height=800,width=600');
-            if (!printWindow) { Swal.fire('خطأ', 'فشل فتح نافذة الطباعة.', 'error'); return; }
-
-            let statementHTML = `
-                <!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8">
-                <title>كشف حساب: ${customer?.name || 'غير معروف'}</title>
-                <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
-                <style>
-                    @page { size: A4; margin: 10mm; } body { font-family: 'Cairo', sans-serif; direction: rtl; margin: 10mm; font-size:10pt; background-color: #fff; color: #000;}
-                    .container { width: 100%; margin: 0 auto; } .header-print { text-align: center; margin-bottom: 20px; border-bottom: 1px solid #ccc; padding-bottom:10px;}
-                    .header-print img { max-height: 60px; margin-bottom: 5px;} .header-print h1 { font-size: 1.4rem; color: #3F2A56; margin:0; }
-                    .info { margin-bottom: 15px; font-size:0.95rem; } .info p { margin: 4px 0; }
-                    .statement-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-                    .statement-table th, .statement-table td { padding: 8px; border: 1px solid #ccc; text-align: center; font-size:0.9rem; }
-                    .statement-table th { background-color: #f2f2f2; color: #333; font-weight:600; }
-                    .status-paid { color: #198754 !important; } .status-partial { color: #ffc107 !important; } .status-unpaid { color: #dc3545 !important; }
-                    .text-debit { color: #dc3545 !important; } .text-credit { color: #198754 !important; }
-                    .summary { margin-top: 20px; padding-top:10px; border-top: 1px solid #ccc; text-align:left; font-size:1rem;}
-                    .summary p {margin: 5px 0; font-weight:600;}
-                    @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
-                </style></head><body><div class="container">
-                <div class="header-print">
-                    <img src="logo.png" alt="شعار" onerror="this.style.display='none';"><h1>طيبة المدينة تلكوم</h1>
-                    <p style="font-size:0.7rem;">الهاتف 27101138 - 41101138</p><p style="font-size:0.7rem;">انواذيبوا - سوق موريتل</p>
-                    <h2>كشف حساب زبون</h2></div>
-                <div class="info">
-                    <p><strong>الزبون:</strong> ${customer?.name || 'زبون غير محدد'}</p>
-                    ${customer?.phone ? `<p><strong>الهاتف:</strong> ${customer.phone}</p>` : ''}
-                    <p><strong>من تاريخ:</strong> ${startDate.toLocaleDateString('fr-CA')}</p>
-                    <p><strong>إلى تاريخ:</strong> ${endDate.toLocaleDateString('fr-CA')}</p>
-                </div>`;
-
-            if (statementTypeValue === "invoices_summary") {
-                const invoices = (await getAllInvoices()).filter(i => {
-                    const invoiceDate = new Date(i.date);
-                    return i.customerId === customerId && invoiceDate >= startDate && invoiceDate <= endDate;
-                }).sort((a, b) => new Date(a.date) - new Date(b.date));
-
-                statementHTML += `
-                    <table class="statement-table"><thead><tr>
-                        <th>رقم الفاتورة</th><th>التاريخ</th><th>إجمالي الفاتورة</th><th>المدفوع</th><th>المتبقي</th><th>الحالة</th>
-                    </tr></thead><tbody>`;
-                if (invoices.length > 0) {
-                    invoices.forEach(i => {
-                        const total = parseFloat(i.totalAmount), paid = parseFloat(i.amountPaid), rem = total - paid;
-                        let statusTxt = '', statusCls = '';
-                        if (total === 0 && paid === 0) { statusTxt = 'لا يوجد مبلغ'; }
-                        else if (paid >= total) { statusTxt = 'مدفوع'; statusCls = 'status-paid'; }
-                        else if (paid > 0) { statusTxt = 'مدفوع جزئيًا'; statusCls = 'status-partial'; }
-                        else { statusTxt = 'لم يتم الدفع'; statusCls = 'status-unpaid'; }
-                        statementHTML += `<tr><td>${i.id}</td><td>${formatDateForDisplay(i.date)}</td><td>${total.toFixed(2)}</td><td>${paid.toFixed(2)}</td><td>${rem.toFixed(2)}</td><td class="${statusCls}">${statusTxt}</td></tr>`;
+                transaction.oncomplete = async () => {
+                    invalidateCache();
+                    await updateProductsTable();
+                    playSuccessSound();
+                    Swal.fire({
+                        title: 'نجاح الاستيراد',
+                        text: `تم استيراد ${successCount} منتجًا بنجاح. فشل استيراد ${errorCount} منتجًا.`,
+                        icon: 'success',
+                        confirmButtonColor: '#3F2A56'
                     });
-                    const sumTotal = invoices.reduce((s, i) => s + parseFloat(i.totalAmount), 0);
-                    const sumPaid = invoices.reduce((s, i) => s + parseFloat(i.amountPaid), 0);
-                    statementHTML += `</tbody></table><div class="summary">
-                        <p>إجمالي قيمة الفواتير: ${sumTotal.toFixed(2)}</p>
-                        <p>إجمالي المدفوعات (من الفواتير): ${sumPaid.toFixed(2)}</p>
-                        <p>إجمالي المتبقي (من الفواتير): ${(sumTotal - sumPaid).toFixed(2)}</p></div>`;
-                } else {
-                    statementHTML += `<tr><td colspan="6">لا توجد فواتير لهذا الزبون في الفترة المحددة.</td></tr></tbody></table>`;
-                }
-            } else if (statementTypeValue === "detailed_general") {
-                const allInvoices = await getAllInvoices();
-                const customerInvoices = allInvoices.filter(i => {
-                    const invoiceDate = new Date(i.date);
-                    return i.customerId === customerId && invoiceDate >= startDate && invoiceDate <= endDate;
-                });
-
-                // Fetch cash box transactions related to this customer's invoices within the date range
-                // This is a simplified link via description. A dedicated invoiceId field in cashbox transactions would be better.
-                const cashBoxTransactions = await getAllRecordsFromDb('transactions', cashBoxDB);
-                const customerPayments = cashBoxTransactions.filter(t => {
-                    const transactionDate = new Date(t.datetime); // Assuming datetime is ISO string or parsable
-                    const isPaymentForThisCustomerInvoice = t.description.includes("فاتورة رقم") && 
-                                                            customerInvoices.some(inv => t.description.includes(inv.id));
-                    // Or if customerId was stored directly in cashBoxTransaction
-                    const isDirectCustomerPayment = t.customerId === customerId; 
-
-                    return t.type === 'in' && 
-                           (isPaymentForThisCustomerInvoice || isDirectCustomerPayment) && 
-                           transactionDate >= startDate && transactionDate <= endDate;
-                });
-                
-                let combinedEntries = [];
-                customerInvoices.forEach(inv => {
-                    combinedEntries.push({
-                        date: new Date(inv.date),
-                        type: 'فاتورة',
-                        reference: inv.id,
-                        debit: parseFloat(inv.totalAmount),
-                        credit: 0,
-                        balance: 0 // Will calculate running balance
-                    });
-                });
-                customerPayments.forEach(pmt => {
-                     combinedEntries.push({
-                        date: new Date(pmt.datetime),
-                        type: 'دفعة',
-                        reference: pmt.description, // Or pmt.invoiceId if available
-                        debit: 0,
-                        credit: parseFloat(pmt.amount),
-                        balance: 0
-                    });
-                });
-
-                combinedEntries.sort((a,b) => a.date - b.date);
-
-                let runningBalance = 0;
-                combinedEntries.forEach(entry => {
-                    runningBalance += (entry.debit - entry.credit);
-                    entry.balance = runningBalance;
-                });
-                
-                statementHTML += `
-                    <table class="statement-table"><thead><tr>
-                        <th>التاريخ</th><th>النوع</th><th>المرجع/البيان</th><th>مدين</th><th>دائن</th><th>الرصيد</th>
-                    </tr></thead><tbody>`;
-                if (combinedEntries.length > 0) {
-                    combinedEntries.forEach(entry => {
-                        statementHTML += `<tr>
-                            <td>${formatDateForDisplay(entry.date.toISOString())}</td>
-                            <td>${entry.type}</td>
-                            <td>${entry.reference}</td>
-                            <td class="text-debit">${entry.debit > 0 ? entry.debit.toFixed(2) : '-'}</td>
-                            <td class="text-credit">${entry.credit > 0 ? entry.credit.toFixed(2) : '-'}</td>
-                            <td>${entry.balance.toFixed(2)}</td>
-                        </tr>`;
-                    });
-                    statementHTML += `</tbody></table><div class="summary">
-                        <p>الرصيد النهائي: ${runningBalance.toFixed(2)}</p></div>`;
-                } else {
-                     statementHTML += `<tr><td colspan="6">لا توجد معاملات لهذا الزبون في الفترة المحددة.</td></tr></tbody></table>`;
-                }
-            }
-            
-            statementHTML += `</div></body></html>`;
-            printWindow.document.write(statementHTML);
-            printWindow.document.close();
-            printWindow.focus(); 
-            bootstrap.Modal.getInstance(document.getElementById('customerStatementModal')).hide();
-            document.getElementById('customerStatementForm').reset();
-             // Reset statement dates to today
-            const todayForStatement = new Date().toISOString().split('T')[0];
-            document.getElementById('startDate').value = todayForStatement;
-            document.getElementById('endDate').value = todayForStatement;
-        }
-
-        function startQrScanner() {
-            const qrReaderContainer = document.getElementById('qr-reader-container');
-            if (html5QrCodeScanner && typeof html5QrCodeScanner.getState === 'function' && html5QrCodeScanner.getState() === 2 /* SCANNING STATE */) {
-                stopQrScanner(); 
-            }
-            qrReaderContainer.style.display = 'block';
-            if (typeof Html5Qrcode === "undefined") { Swal.fire('خطأ', 'مكتبة QR غير محملة.', 'error'); qrReaderContainer.style.display = 'none'; return; }
-
-            html5QrCodeScanner = new Html5Qrcode("qr-reader"); 
-            const qrSuccess = (decodedText, decodedResult) => {
-                document.getElementById('invoiceSearchInput').value = decodedText;
-                filterInvoicesTable();
-                stopQrScanner(); 
-                Swal.fire('نجاح!', `تم العثور على الفاتورة: ${decodedText}`, 'success');
-            };
-            const config = { fps: 10, qrbox: {width: 250, height: 250}, aspectRatio: 1.0 }; 
-            html5QrCodeScanner.start({ facingMode: "environment" }, config, qrSuccess, (err) => {})
-            .catch((err) => { Swal.fire('خطأ', 'لم يتمكن من تشغيل ماسح QR.', 'error'); stopQrScanner(); });
-        }
-
-        function stopQrScanner() {
-            const qrReaderContainer = document.getElementById('qr-reader-container');
-            if (html5QrCodeScanner) {
-                html5QrCodeScanner.stop().then(ignore => { if (html5QrCodeScanner?.clear) html5QrCodeScanner.clear(); })
-                .catch(err => console.error("فشل إيقاف الماسح.", err))
-                .finally(() => { qrReaderContainer.style.display = 'none'; });
-            } else { qrReaderContainer.style.display = 'none'; }
-        }
-
-
-        document.addEventListener('DOMContentLoaded', async () => {
-            try {
-                await initInventoryDB();
-                await openCashBoxDB(); 
-                await syncCashBoxAccounts(); 
-
-                await Promise.all([
-                    updateInvoicesTable(), 
-                    updateCustomersTable(),
-                    populateCustomerSelect('invoiceCustomer'),
-                    populateCustomerSelect('editInvoiceCustomer'),
-                    populateCustomerSelect('statementCustomer'),
-                    // populatePaymentAccountDropdowns() // Already called in syncCashBoxAccounts
-                ]);
-                
-                setupProductSearch('productSearch', 'productSuggestions', 'invoiceProducts');
-                setupProductSearch('editProductSearch', 'editProductSuggestions', 'editInvoiceProducts', true);
-                
-                document.getElementById('invoiceDate').textContent = formatDateForDisplay(new Date().toISOString());
-                togglePaymentAccountField('paymentAccountGroup', '0'); 
-                togglePaymentAccountField('editPaymentAccountGroup', '0'); 
-                
-                document.getElementById('invoiceCustomer').addEventListener('change', (e) => updateCustomerInfo('invoiceCustomer', 'customerPhoneDisplay', 'customerAddressDisplay'));
-                document.getElementById('editInvoiceCustomer').addEventListener('change', (e) => updateCustomerInfo('editInvoiceCustomer', 'editCustomerPhoneDisplay', 'editCustomerAddressDisplay'));
-
-                document.getElementById('scanQrBtn').addEventListener('click', startQrScanner);
-                document.getElementById('closeScannerBtn').addEventListener('click', stopQrScanner);
-
-                const todayForStatement = new Date().toISOString().split('T')[0];
-                document.getElementById('startDate').value = todayForStatement;
-                document.getElementById('endDate').value = todayForStatement;
-
+                };
+                transaction.onerror = (event) => {
+                    console.error("خطأ في معاملة الاستيراد:", event.target.error);
+                    Swal.fire({ title: 'خطأ', text: 'فشل في إكمال عملية الاستيراد!', icon: 'error', confirmButtonColor: '#3F2A56' });
+                };
 
             } catch (error) {
-                console.error("Initialization failed:", error);
-                Swal.fire('فشل التهيئة', `حدث خطأ أثناء تحميل الصفحة: ${error.message}`, 'error');
+                console.error("خطأ في معالجة البيانات المستوردة:", error);
+                Swal.fire({ title: 'خطأ', text: 'فشل في معالجة البيانات المستوردة: ' + error.message, icon: 'error', confirmButtonColor: '#3F2A56' });
+            }
+        }
+
+        // طباعة الجدول
+        async function printTable() {
+            try {
+                await ensureDBInitialized();
+                const products = await getAllProducts();
+                if (products.length === 0) {
+                    Swal.fire({ title: 'لا توجد بيانات', text: 'لا توجد منتجات للطباعة!', icon: 'info', confirmButtonColor: '#3F2A56' });
+                    return;
+                }
+
+                const printWindow = window.open('', '_blank', 'height=600,width=800');
+                if (!printWindow) {
+                    Swal.fire({ title: 'خطأ', text: 'فشل في فتح نافذة الطباعة. الرجاء التحقق من إعدادات مانع النوافذ المنبثقة في المتصفح.', icon: 'error', confirmButtonColor: '#3F2A56' });
+                    return;
+                }
+
+                printWindow.document.write(`
+                    <!DOCTYPE html>
+                    <html lang="ar" dir="rtl">
+                    <head>
+                        <meta charset="UTF-8">
+                        <title>طباعة تقرير المنتجات</title>
+                        <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+                        <style>
+                            body { font-family: 'Cairo', sans-serif; margin: 20px; direction: rtl; text-align: right; }
+                            h1 { text-align: center; color: #3F2A56; margin-bottom: 20px; }
+                            table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 0.9em; }
+                            th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
+                            th { background-color: #3F2A56; color: white; font-weight: 600;}
+                            tr:nth-child(even) { background-color: #f9f9f9; }
+                            .low-stock { color: #dc3545; font-weight: bold; background-color: rgba(220, 53, 69, 0.05); }
+                            .print-button { display: block; margin: 20px auto; padding: 10px 20px; background-color: #3F2A56; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 1em; }
+                            @media print {
+                                .print-button { display: none; }
+                                body { margin: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; } /* Ensure background colors print */
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <h1>تقرير المنتجات - طيبة المدينة تلكوم</h1>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>معرف المنتج</th>
+                                    <th>اسم المنتج</th>
+                                    <th>سعر الشراء</th>
+                                    <th>سعر البيع</th>
+                                    <th>الكمية</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${products.map((product, index) => `
+                                    <tr>
+                                        <td>${index + 1}</td>
+                                        <td>${product.id}</td>
+                                        <td>${product.name}</td>
+                                        <td>${parseFloat(product.purchasePrice).toFixed(2)}</td>
+                                        <td>${parseFloat(product.salePrice).toFixed(2)}</td>
+                                        <td class="${parseInt(product.quantity) < 2 ? 'low-stock' : ''}">${parseInt(product.quantity)}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                        <button class="print-button" onclick="window.print()">طباعة التقرير</button>
+                    </body>
+                    </html>
+                `);
+                printWindow.document.close(); // Necessary for some browsers
+                printWindow.focus(); // Focus on the new window
+
+                // Attempt to close after print dialog is handled (might not always work due to browser restrictions)
+                const afterPrintHandler = () => {
+                    printWindow.close();
+                    printWindow.removeEventListener('afterprint', afterPrintHandler);
+                };
+                printWindow.addEventListener('afterprint', afterPrintHandler);
+
+                playSuccessSound();
+            } catch (error) {
+                console.error("خطأ في إعداد الطباعة:", error);
+                Swal.fire({ title: 'خطأ', text: 'فشل في إعداد الطباعة: ' + error.message, icon: 'error', confirmButtonColor: '#3F2A56' });
+            }
+        }
+
+        // تهيئة الصفحة عند التحميل
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                await initDB(); // Ensure DB is initialized first
+                await updateProductsTable(); // This will also call updateDashboard and filterTable
+            } catch (error) {
+                console.error("خطأ فادح في تهيئة الصفحة:", error);
+                Swal.fire({
+                    title: 'خطأ في التهيئة',
+                    text: 'فشل في تهيئة الصفحة بشكل كامل. قد لا تعمل بعض الميزات.\n' + error.message,
+                    icon: 'error',
+                    confirmButtonColor: '#3F2A56'
+                });
             }
         });
     </script>
