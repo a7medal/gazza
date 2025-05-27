@@ -13,6 +13,7 @@
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
     <style>
+        /* نفس أنماط CSS المقدمة بدون تغييرات، لأنها تعمل بشكل جيد */
         * {
             margin: 0;
             padding: 0;
@@ -264,19 +265,19 @@
         .search-container input, .search-container select {
             width: 100%;
             max-width: 200px;
-            padding: 10px 15px; /* Adjusted padding */
-            border-radius: 25px;  /* Consistent radius */
-            border: 1px solid #ddd; /* Added border for better visibility */
-            background: #f8f9fa;    /* Lighter background for inputs */
+            padding: 12px 20px;
+            border-radius: 30px;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
             color: #3F2A56;
-            font-size: 0.9rem;      /* Adjusted font size */
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); /* Inner shadow */
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            font-size: 1rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: box-shadow 0.3s ease;
         }
         .search-container input:focus, .search-container select:focus {
             outline: none;
-            border-color: #3F2A56;
-            box-shadow: 0 0 0 0.2rem rgba(63, 42, 86, 0.25); /* Focus shadow */
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
         }
         .search-container input::placeholder {
             color: #3F2A56;
@@ -289,59 +290,138 @@
             box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
             padding: 15px;
         }
-        /* Modal Styles - largely unchanged but ensured consistency */
-        .modal-content {
-            border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); border: none;
-            background: linear-gradient(145deg, #ffffff, #f7f9fc); animation: slideIn 0.3s ease-out;
+        table {
+            width: 100%;
+            border-collapse: collapse;
         }
-        @keyframes slideIn { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        th, td {
+            padding: 14px;
+            text-align: center;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        th {
+            background: linear-gradient(90deg, #3F2A56, #5a3f73);
+            color: white;
+            font-weight: 700;
+        }
+        td {
+            color: #3F2A56;
+        }
+        tr {
+            cursor: pointer;
+        }
+        tr:hover {
+            background-color: #f7f9fc;
+        }
+        .action-btn {
+            cursor: pointer;
+            margin: 0 6px;
+            font-size: 1.3rem;
+            transition: color 0.3s ease;
+        }
+        .action-btn.edit:hover {
+            color: #007bff;
+        }
+        .action-btn.delete:hover {
+            color: #dc3545;
+        }
+        .modal-content {
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            border: none;
+            background: linear-gradient(145deg, #ffffff, #f7f9fc);
+            animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
         .modal-header {
-            background: linear-gradient(90deg, #3F2A56, #5a3f73); color: white; border-top-left-radius: 20px;
-            border-top-right-radius: 20px; padding: 20px; position: relative; overflow: hidden;
+            background: linear-gradient(90deg, #3F2A56, #5a3f73);
+            color: white;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
         }
         .modal-header::before {
-            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1), transparent); z-index: -1;
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1), transparent);
+            z-index: -1;
         }
-        .modal-title { font-size: 1.5rem; font-weight: 700; margin: 0; display: flex; align-items: center; gap: 10px; }
-        .modal-body { padding: 30px; background: #fff; border-radius: 0; }
-        .modal-body .form-label { font-weight: 600; color: #3F2A56; display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .modal-body {
+            padding: 30px;
+            background: #fff;
+            border-radius: 0;
+        }
+        .modal-body .form-label {
+            font-weight: 600;
+            color: #3F2A56;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
         .modal-body .form-control, .modal-body .form-select {
-            border-radius: 15px; border: 1px solid #ddd; padding: 12px; font-size: 1rem;
-            transition: border-color 0.3s ease, box-shadow 0.3s ease; background: #f7f9fc;
+            border-radius: 15px;
+            border: 1px solid #ddd;
+            padding: 12px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            background: #f7f9fc;
         }
         .modal-body .form-control:focus, .modal-body .form-select:focus {
-            border-color: #3F2A56; box-shadow: 0 0 8px rgba(63,42,86,0.4); background: #fff;
+            border-color: #3F2A56;
+            box-shadow: 0 0 8px rgba(63, 42, 86, 0.4);
+            background: #fff;
         }
         .modal-footer {
-            padding: 20px; background: linear-gradient(145deg, #f8f9fa, #e9ecef); border-bottom-left-radius: 20px;
-            border-bottom-right-radius: 20px; justify-content: center; gap: 15px;
+            padding: 20px;
+            background: linear-gradient(145deg, #f8f9fa, #e9ecef);
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+            justify-content: center;
+            gap: 15px;
         }
         .modal-footer .btn {
-            background: linear-gradient(90deg, #3F2A56, #5a3f73); color: white; border-radius: 30px;
-            padding: 12px 30px; font-size: 1rem; font-weight: 600;
+            background: linear-gradient(90deg, #3F2A56, #5a3f73);
+            color: white;
+            border-radius: 30px;
+            padding: 12px 30px;
+            font-size: 1rem;
+            font-weight: 600;
             transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
         .modal-footer .btn:hover {
-            background: linear-gradient(90deg, #5a3f73, #3F2A56); transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+            background: linear-gradient(90deg, #5a3f73, #3F2A56);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
         }
-        .modal-footer .btn-secondary { background: linear-gradient(90deg, #6c757d, #5a6268); box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-        .modal-footer .btn-secondary:hover { background: linear-gradient(90deg, #5a6268, #495057); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.3); }
-        
-        .swal2-popup { font-family: 'Cairo', sans-serif !important; border-radius: 15px !important; }
-        .swal2-title { color: #3F2A56 !important; font-weight: 700 !important; }
-        .swal2-html-container { text-align: right !important; color: #3F2A56 !important; }
-        .swal2-confirm { background: linear-gradient(90deg, #3F2A56, #5a3f73) !important; border-radius: 20px !important; box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important; }
-        .swal2-cancel { background: linear-gradient(90deg, #6c757d, #5a6268) !important; border-radius: 20px !important; box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important; }
-        #qrCanvas { display: none; }
-        #scannerContainer { text-align: center; margin: 20px 0; }
-        #scannerVideo { max-width: 100%; border-radius: 10px; border: 2px solid #3F2A56; }
-        .scanner-buttons { display: flex; justify-content: center; gap: 10px; margin-top: 10px; }
-        .swal2-actions { justify-content: center !important; gap: 10px; }
-
-         @media (max-width: 768px) {
+        .modal-footer .btn-secondary {
+            background: linear-gradient(90deg, #6c757d, #5a6268);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        .modal-footer .btn-secondary:hover {
+            background: linear-gradient(90deg, #5a6268, #495057);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        @media (max-width: 768px) {
             .header { padding: 25px 15px; border-radius: 15px; }
             .header img { height: 70px; }
             .header h2 { font-size: 1.7rem; }
@@ -352,9 +432,35 @@
             .modal-title { font-size: 1.3rem; }
             .modal-body { padding: 20px; }
             .modal-body .form-control, .modal-body .form-select { font-size: 0.9rem; }
-            .search-container { flex-direction: column; align-items: stretch; } /* Stack filters on small screens */
-            .search-container .filter-group { max-width: none; width:100%;} /* Full width for filter groups */
+            .search-container .filter-group { width: 100%; max-width: 100%; }
         }
+        .swal2-popup {
+            font-family: 'Cairo', sans-serif !important;
+            border-radius: 15px !important;
+        }
+        .swal2-title {
+            color: #3F2A56 !important;
+            font-weight: 700 !important;
+        }
+        .swal2-html-container {
+            text-align: right !important;
+            color: #3F2A56 !important;
+        }
+        .swal2-confirm {
+            background: linear-gradient(90deg, #3F2A56, #5a3f73) !important;
+            border-radius: 20px !important;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+        }
+        .swal2-cancel {
+            background: linear-gradient(90deg, #6c757d, #5a6268) !important;
+            border-radius: 20px !important;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+        }
+        #qrCanvas { display: none; }
+        #scannerContainer { text-align: center; margin: 20px 0; }
+        #scannerVideo { max-width: 100%; border-radius: 10px; border: 2px solid #3F2A56; }
+        .scanner-buttons { display: flex; justify-content: center; gap: 10px; margin-top: 10px; }
+        .swal2-actions { justify-content: center !important; gap: 10px; }
     </style>
 </head>
 <body>
@@ -384,12 +490,12 @@
         </div>
         <div class="actions">
             <button class="btn" data-bs-toggle="modal" data-bs-target="#addProductModal"><i class="fas fa-plus"></i> إضافة منتج</button>
-            <button class="btn" onclick="exportToJSON()"><i class="fas fa-file-code"></i> تصدير JSON</button>
-            <button class="btn" onclick="exportToCSV()"><i class="fas fa-file-csv"></i> تصدير CSV</button>
+            <button class="btn" onclick="exportToJSON()"><i class="fas fa-file-code"></i> تصدير إلى JSON</button>
+            <button class="btn" onclick="exportToCSV()"><i class="fas fa-file-csv"></i> تصدير إلى CSV</button>
             <input type="file" id="importFile" accept=".json,.csv" style="display: none;" onchange="importFile(event)">
             <button class="btn" onclick="document.getElementById('importFile').click()"><i class="fas fa-file-import"></i> استيراد ملف</button>
-            <button class="btn" onclick="generateQRCodeForAllProducts()"><i class="fas fa-qrcode"></i> QR لجميع المنتجات</button>
-            <button class="btn" onclick="startQRScanner()"><i class="fas fa-camera"></i> استقبال QR</button>
+            <button class="btn" onclick="generateQRCode()"><i class="fas fa-qrcode"></i> إنشاء QR Code</button>
+            <button class="btn" onclick="startQRScanner()"><i class="fas fa-camera"></i> استقبال QR Code</button>
             <button class="btn" onclick="printTable()"><i class="fas fa-print"></i> طباعة</button>
         </div>
         <div class="products-section">
@@ -403,7 +509,7 @@
                     <label for="stockFilter">حالة المخزون</label>
                     <select id="stockFilter" onchange="filterTable()">
                         <option value="all">الكل</option>
-                        <option value="empty">فارغة (0)</option>
+                        <option value="empty">فارغة</option>
                         <option value="low">على وشك النفاذ (أقل من 2)</option>
                     </select>
                 </div>
@@ -503,14 +609,11 @@
     </div>
 
     <script>
-        let db = null; // سيتم تهيئة هذا المتغير
+        let db = null;
         let stream = null;
-        let productsCache = null;
+        let productsCache = null; // التخزين المؤقت للمنتجات
 
-        const INVENTORY_DB_NAME = 'InventoryDB';
-        const INVENTORY_DB_VERSION = 2; // تم تحديث الإصدار لضمان onupgradeneeded إذا لزم الأمر
-
-
+        // إنشاء صوت نجاح داخلي
         function playSuccessSound() {
             try {
                 const context = new (window.AudioContext || window.webkitAudioContext)();
@@ -525,37 +628,33 @@
             }
         }
 
+        // إعداد IndexedDB مع فهرسة
         function initDB() {
             return new Promise((resolve, reject) => {
-                const request = indexedDB.open(INVENTORY_DB_NAME, INVENTORY_DB_VERSION);
+                const request = indexedDB.open('InventoryDB', 2); // Version 2 for potential schema changes
                 request.onupgradeneeded = (event) => {
                     db = event.target.result;
                     if (!db.objectStoreNames.contains('products')) {
                         const productStore = db.createObjectStore('products', { keyPath: 'id' });
-                        productStore.createIndex('name', 'name', { unique: false });
-                        // لا تقم بإنشاء مخازن invoices, customers, cashBoxAccounts هنا
-                        // فهذه الصفحة مخصصة للمنتجات فقط
-                    } else {
-                         // إذا كان المخزن موجودًا بالفعل، تحقق من وجود الفهرس
-                        const productStore = event.target.transaction.objectStore('products');
-                        if (!productStore.indexNames.contains('name')) {
-                            productStore.createIndex('name', 'name', { unique: false });
-                        }
+                        productStore.createIndex('name', 'name', { unique: false }); // Name index can be useful
                     }
+                    // Example for future stores:
+                    // if (!db.objectStoreNames.contains('invoices')) {
+                    //     db.createObjectStore('invoices', { keyPath: 'id', autoIncrement: true });
+                    // }
                 };
                 request.onsuccess = (event) => {
                     db = event.target.result;
-                    console.log("قاعدة بيانات المنتجات InventoryDB تم فتحها بنجاح.");
                     resolve(db);
                 };
                 request.onerror = (event) => {
-                    console.error("خطأ في تهيئة قاعدة البيانات InventoryDB:", event.target.error);
-                    Swal.fire('خطأ فادح', `فشل تهيئة قاعدة بيانات المنتجات: ${event.target.error}`, 'error');
+                    console.error("خطأ في تهيئة قاعدة البيانات:", event.target.error);
                     reject(event.target.error);
                 };
             });
         }
 
+        // التحقق من تهيئة قاعدة البيانات
         async function ensureDBInitialized() {
             if (!db) {
                 try {
@@ -565,11 +664,12 @@
                     throw new Error('فشل في تهيئة قاعدة البيانات: ' + error.message);
                 }
             }
-            if (!db) { 
+            if (!db) { // Double check
                 throw new Error('قاعدة البيانات غير جاهزة بعد محاولة التهيئة.');
             }
         }
 
+        // إنشاء معرف عشوائي مكون من 5 أرقام
         async function generateUniqueId() {
             await ensureDBInitialized();
             let id;
@@ -582,6 +682,7 @@
             return id;
         }
 
+        // جلب جميع معرفات المنتجات
         function getAllProductIds() {
             return new Promise(async (resolve, reject) => {
                 try {
@@ -600,6 +701,7 @@
             });
         }
 
+        // جلب جميع المنتجات من IndexedDB مع التخزين المؤقت
         async function getAllProducts() {
             if (productsCache) {
                 return productsCache;
@@ -611,7 +713,7 @@
                     const store = transaction.objectStore('products');
                     const request = store.getAll();
                     request.onsuccess = () => {
-                        productsCache = request.result || []; // Ensure it's an array
+                        productsCache = request.result;
                         resolve(productsCache);
                     };
                     request.onerror = (event) => {
@@ -624,10 +726,12 @@
             });
         }
 
+        // تحديث التخزين المؤقت
         function invalidateCache() {
             productsCache = null;
         }
 
+        // تحديث لوحة المعلومات
         async function updateDashboard() {
             try {
                 await ensureDBInitialized();
@@ -641,15 +745,22 @@
                 document.getElementById('totalProducts').innerText = totalProducts;
             } catch (error) {
                 console.error("خطأ في تحديث لوحة المعلومات:", error);
+                Swal.fire({
+                    title: 'خطأ',
+                    text: 'فشل في تحديث لوحة المعلومات: ' + error.message,
+                    icon: 'error',
+                    confirmButtonColor: '#3F2A56'
+                });
             }
         }
 
+        // تحديث جدول المنتجات
         async function updateProductsTable() {
             try {
                 await ensureDBInitialized();
                 const products = await getAllProducts();
                 const tableBody = document.getElementById('productsTable');
-                tableBody.innerHTML = ''; 
+                tableBody.innerHTML = ''; // Clear existing rows
 
                 products.forEach((product, index) => {
                     const quantity = parseInt(product.quantity);
@@ -670,13 +781,20 @@
                     row.addEventListener('click', () => showProductDetails(product));
                     tableBody.appendChild(row);
                 });
-                filterTable(); 
-                updateDashboard(); 
+                filterTable(); // Apply filters after updating
+                updateDashboard(); // Update dashboard as well
             } catch (error) {
                 console.error("خطأ في تحديث جدول المنتجات:", error);
+                Swal.fire({
+                    title: 'خطأ',
+                    text: 'فشل في تحديث جدول المنتجات: ' + error.message,
+                    icon: 'error',
+                    confirmButtonColor: '#3F2A56'
+                });
             }
         }
 
+        // عرض تفاصيل المنتج
         function showProductDetails(product) {
             Swal.fire({
                 title: 'تفاصيل المنتج',
@@ -696,9 +814,10 @@
             });
         }
 
+        // تصفية الجدول
         async function filterTable() {
             try {
-                // await ensureDBInitialized(); // Not needed if updateProductsTable already called it
+                await ensureDBInitialized();
                 const searchInput = document.getElementById('searchInput').value.toLowerCase();
                 const stockFilter = document.getElementById('stockFilter').value;
                 const tableBody = document.getElementById('productsTable');
@@ -707,8 +826,6 @@
                 let displayedIndex = 1;
                 for (let i = 0; i < rows.length; i++) {
                     const cells = rows[i].getElementsByTagName('td');
-                    if (cells.length < 6) continue; // Skip invalid rows
-
                     const productId = cells[1].textContent.toLowerCase();
                     const productName = cells[2].textContent.toLowerCase();
                     const quantity = parseInt(cells[5].textContent);
@@ -726,16 +843,24 @@
 
                     if (matchesSearch && matchesStockFilter) {
                         rows[i].style.display = '';
-                        cells[0].textContent = displayedIndex++; 
+                        cells[0].textContent = displayedIndex++; // Update sequential number
                     } else {
                         rows[i].style.display = 'none';
                     }
                 }
+                // No need to call updateDashboard here as it's called by updateProductsTable
             } catch (error) {
                 console.error("خطأ في تصفية الجدول:", error);
+                Swal.fire({
+                    title: 'خطأ',
+                    text: 'فشل في تصفية الجدول: ' + error.message,
+                    icon: 'error',
+                    confirmButtonColor: '#3F2A56'
+                });
             }
         }
 
+        // إضافة منتج
         async function addProduct() {
             try {
                 await ensureDBInitialized();
@@ -784,9 +909,11 @@
                 };
             } catch (error) {
                 console.error("خطأ عام في إضافة المنتج:", error);
+                Swal.fire({ title: 'خطأ', text: 'فشل في إضافة المنتج: ' + error.message, icon: 'error', confirmButtonColor: '#3F2A56' });
             }
         }
 
+        // تعديل منتج
         async function editProduct(id) {
             try {
                 await ensureDBInitialized();
@@ -809,12 +936,15 @@
                 };
                 request.onerror = (event) => {
                     console.error("خطأ في جلب بيانات المنتج للتعديل:", event.target.error);
+                    Swal.fire({ title: 'خطأ', text: 'فشل في جلب بيانات المنتج!', icon: 'error', confirmButtonColor: '#3F2A56' });
                 };
             } catch (error) {
                 console.error("خطأ عام في تعديل المنتج:", error);
+                Swal.fire({ title: 'خطأ', text: 'فشل في بدء تعديل المنتج: ' + error.message, icon: 'error', confirmButtonColor: '#3F2A56' });
             }
         }
 
+        // تحديث منتج
         async function updateProduct() {
             try {
                 await ensureDBInitialized();
@@ -858,12 +988,15 @@
                 };
                 request.onerror = (event) => {
                     console.error("خطأ في تحديث المنتج:", event.target.error);
+                    Swal.fire({ title: 'خطأ', text: 'فشل في تعديل المنتج!', icon: 'error', confirmButtonColor: '#3F2A56' });
                 };
             } catch (error) {
                 console.error("خطأ عام في تحديث المنتج:", error);
+                Swal.fire({ title: 'خطأ', text: 'فشل في تحديث المنتج: ' + error.message, icon: 'error', confirmButtonColor: '#3F2A56' });
             }
         }
 
+        // حذف منتج
         async function deleteProduct(id) {
             try {
                 await ensureDBInitialized();
@@ -901,17 +1034,21 @@
                         };
                         deleteRequest.onerror = (event) => {
                             console.error("خطأ في حذف المنتج:", event.target.error);
+                            Swal.fire({ title: 'خطأ', text: 'فشل في حذف المنتج!', icon: 'error', confirmButtonColor: '#3F2A56' });
                         };
                     }
                 };
                 request.onerror = (event) => {
                     console.error("خطأ في جلب المنتج للحذف:", event.target.error);
+                    Swal.fire({ title: 'خطأ', text: 'فشل في جلب بيانات المنتج للحذف!', icon: 'error', confirmButtonColor: '#3F2A56' });
                 };
             } catch (error) {
                 console.error("خطأ عام في حذف المنتج:", error);
+                Swal.fire({ title: 'خطأ', text: 'فشل في حذف المنتج: ' + error.message, icon: 'error', confirmButtonColor: '#3F2A56' });
             }
         }
 
+        // تصدير إلى JSON
         async function exportToJSON() {
             try {
                 await ensureDBInitialized();
@@ -934,9 +1071,11 @@
                 Swal.fire({ title: 'نجاح', text: 'تم تصدير البيانات إلى ملف JSON بنجاح!', icon: 'success', confirmButtonColor: '#3F2A56' });
             } catch (error) {
                 console.error("خطأ في تصدير JSON:", error);
+                Swال.fire({ title: 'خطأ', text: 'فشل في تصدير البيانات إلى JSON: ' + error.message, icon: 'error', confirmButtonColor: '#3F2A56' });
             }
         }
 
+        // تصدير إلى CSV
         async function exportToCSV() {
             try {
                 await ensureDBInitialized();
@@ -946,9 +1085,9 @@
                     return;
                 }
                 const headers = 'معرف المنتج,اسم المنتج,سعر الشراء,سعر البيع,الكمية';
-                const rows = products.map(p => `${p.id},"${p.name.replace(/"/g, '""')}",${p.purchasePrice},${p.salePrice},${p.quantity}`);
+                const rows = products.map(p => `${p.id},"${p.name.replace(/"/g, '""')}",${p.purchasePrice},${p.salePrice},${p.quantity}`); // Handle commas in name
                 const csv = [headers, ...rows].join('\n');
-                const bom = '\uFEFF'; 
+                const bom = '\uFEFF'; // BOM for Excel UTF-8 support
                 const blob = new Blob([bom + csv], { type: 'text/csv;charset=utf-8;' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
@@ -962,6 +1101,7 @@
                 Swal.fire({ title: 'نجاح', text: 'تم تصدير البيانات إلى ملف CSV بنجاح!', icon: 'success', confirmButtonColor: '#3F2A56' });
             } catch (error) {
                 console.error("خطأ في تصدير CSV:", error);
+                Swal.fire({ title: 'خطأ', text: 'فشل في تصدير البيانات إلى CSV: ' + error.message, icon: 'error', confirmButtonColor: '#3F2A56' });
             }
         }
         
@@ -974,6 +1114,7 @@
                    !isNaN(parseInt(product.quantity)) && parseInt(product.quantity) >= 0 && parseInt(product.quantity) <= 100000;
         }
 
+        // استيراد ملف
         async function importFile(event) {
             try {
                 await ensureDBInitialized();
@@ -989,8 +1130,8 @@
                         } else if (file.name.endsWith('.csv')) {
                             const data = e.target.result;
                             const rows = data.split('\n').filter(row => row.trim());
-                            if (rows.length > 1) { 
-                                const headers = rows[0].split(',').map(h => h.trim().toLowerCase().replace(/"/g, '')); // Remove quotes from headers
+                            if (rows.length > 1) { // Header + data
+                                const headers = rows[0].split(',').map(h => h.trim().toLowerCase());
                                 const idIndex = headers.indexOf('معرف المنتج');
                                 const nameIndex = headers.indexOf('اسم المنتج');
                                 const purchaseIndex = headers.indexOf('سعر الشراء');
@@ -998,17 +1139,18 @@
                                 const quantityIndex = headers.indexOf('الكمية');
 
                                 if ([idIndex, nameIndex, purchaseIndex, saleIndex, quantityIndex].some(i => i === -1)) {
-                                    throw new Error("تنسيق ملف CSV غير صحيح أو缺少 بعض الأعمدة المطلوبة: " + headers.join(' | '));
+                                    throw new Error("تنسيق ملف CSV غير صحيح أو缺少 بعض الأعمدة المطلوبة.");
                                 }
 
                                 importedProducts = rows.slice(1).map(row => {
+                                    // Basic CSV parsing, can be improved for quoted fields
                                     const values = row.split(',');
                                     return {
-                                        id: values[idIndex]?.trim().replace(/"/g, ''),
-                                        name: values[nameIndex]?.trim().replace(/"/g, ''),
-                                        purchasePrice: parseFloat(values[purchaseIndex]?.trim().replace(/"/g, '')).toFixed(2),
-                                        salePrice: parseFloat(values[saleIndex]?.trim().replace(/"/g, '')).toFixed(2),
-                                        quantity: parseInt(values[quantityIndex]?.trim().replace(/"/g, ''))
+                                        id: values[idIndex]?.trim(),
+                                        name: values[nameIndex]?.trim(),
+                                        purchasePrice: parseFloat(values[purchaseIndex]?.trim()).toFixed(2),
+                                        salePrice: parseFloat(values[saleIndex]?.trim()).toFixed(2),
+                                        quantity: parseInt(values[quantityIndex]?.trim())
                                     };
                                 });
                             }
@@ -1044,26 +1186,32 @@
                             icon: 'warning',
                             confirmButtonColor: '#3F2A56'
                         });
-                        if(validProducts.length === 0) return; 
+                        // Decide if you want to proceed with only valid ones or stop
+                        if(validProducts.length === 0) return; // Stop if no valid products
                     }
                     
                     if (validProducts.length === 0) {
                          Swal.fire({ title: 'لا توجد بيانات صالحة', text: 'لم يتم العثور على منتجات صالحة للاستيراد في الملف.', icon: 'info', confirmButtonColor: '#3F2A56' });
                          return;
                     }
+
+
                     await processImportedData(validProducts);
+
                 };
                 reader.onerror = () => {
                      Swal.fire({ title: 'خطأ', text: 'فشل في قراءة الملف!', icon: 'error', confirmButtonColor: '#3F2A56' });
                 };
                 reader.readAsText(file);
-                document.getElementById('importFile').value = ''; 
+                document.getElementById('importFile').value = ''; // Reset file input
             } catch (error) {
                 console.error("خطأ في استيراد الملف:", error);
+                Swal.fire({ title: 'خطأ', text: 'فشل في استيراد الملف: ' + error.message, icon: 'error', confirmButtonColor: '#3F2A56' });
             }
         }
 
-        async function generateQRCodeForAllProducts() { // Renamed for clarity
+        // إنشاء رمز QR
+        async function generateQRCode() {
             try {
                 await ensureDBInitialized();
                 const products = await getAllProducts();
@@ -1072,7 +1220,7 @@
                     return;
                 }
                 const dataString = JSON.stringify(products);
-                const qrCanvas = document.getElementById('qrCanvas'); 
+                const qrCanvas = document.getElementById('qrCanvas'); // Hidden canvas
                 
                 QRCode.toCanvas(qrCanvas, dataString, { width: 300, margin: 2, errorCorrectionLevel: 'L' }, (error) => {
                     if (error) {
@@ -1081,7 +1229,7 @@
                         return;
                     }
                     Swal.fire({
-                        title: 'رمز QR جاهز (لجميع المنتجات)',
+                        title: 'رمز QR جاهز',
                         html: `
                             <canvas id="tempQRCanvas" style="border:1px solid #ccc;"></canvas>
                             <p style="margin-top:10px;">امسح هذا الرمز من جهاز آخر لنقل البيانات.</p>
@@ -1093,7 +1241,7 @@
                         confirmButtonText: 'إغلاق',
                         confirmButtonColor: '#3F2A56',
                         customClass: { popup: 'swal2-rtl' },
-                        width: 'auto', 
+                        width: 'auto', // Adjust width automatically
                         didOpen: () => {
                             const tempCanvas = document.getElementById('tempQRCanvas');
                             if (tempCanvas) {
@@ -1106,11 +1254,13 @@
                 });
             } catch (error) {
                 console.error("خطأ عام في إنشاء QR Code:", error);
+                Swal.fire({ title: 'خطأ', text: 'فشل في إنشاء رمز QR: ' + error.message, icon: 'error', confirmButtonColor: '#3F2A56' });
             }
         }
 
-        function exportQRCodeImage() { 
-            const qrCanvas = document.getElementById('qrCanvas'); 
+        // تصدير رمز QR كصورة (يتم استدعاؤها من SweetAlert)
+        function exportQRCodeImage() {
+            const qrCanvas = document.getElementById('qrCanvas'); // Use the original hidden canvas
             if (!qrCanvas) {
                 Swal.fire({ title: 'خطأ', text: 'لم يتم العثور على لوحة QR للتصدير!', icon: 'error', confirmButtonColor: '#3F2A56' });
                 return;
@@ -1124,16 +1274,20 @@
                 a.click();
                 document.body.removeChild(a);
                 playSuccessSound();
+                // Don't close Swal here, user might want to keep it open
             } catch (e) {
                 console.error("خطأ في تصدير صورة QR:", e);
+                Swal.fire({ title: 'خطأ', text: 'فشل في تصدير صورة رمز QR!', icon: 'error', confirmButtonColor: '#3F2A56' });
             }
         }
 
 
+        // التحقق من دعم الكاميرا
         function checkCameraSupport() {
             return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
         }
 
+        // بدء مسح رمز QR
         async function startQRScanner() {
             try {
                 if (!checkCameraSupport()) {
@@ -1154,7 +1308,7 @@
                         </div>
                     `,
                     showConfirmButton: false,
-                    showCancelButton: true, 
+                    showCancelButton: true, // Show a general cancel button
                     cancelButtonText: 'إغلاق',
                     cancelButtonColor: '#6c757d',
                     customClass: { popup: 'swal2-rtl' },
@@ -1165,7 +1319,7 @@
                         try {
                             stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
                             video.srcObject = stream;
-                            await video.play(); 
+                            await video.play(); // Wait for play to start
 
                             const canvasElement = document.createElement('canvas');
                             const canvas = canvasElement.getContext('2d');
@@ -1181,24 +1335,24 @@
                                         inversionAttempts: 'dontInvert',
                                     });
                                     if (code) {
-                                        clearInterval(scanInterval); 
-                                        stopQRScanner(); 
-                                        Swal.close(); 
+                                        clearInterval(scanInterval); // Stop scanning
+                                        stopQRScanner(); // Stop camera
+                                        Swal.close(); // Close the scanning modal
                                         try {
                                             const newProducts = JSON.parse(code.data);
                                              if (!Array.isArray(newProducts)) throw new Error("بيانات QR ليست مصفوفة.");
-                                            processImportedData(newProducts.filter(isValidProduct)); 
+                                            processImportedData(newProducts.filter(isValidProduct)); // Process only valid products
                                         } catch (e) {
                                             console.error("خطأ في تحليل بيانات QR:", e);
                                             Swal.fire({ title: 'خطأ', text: 'البيانات في رمز QR غير صالحة أو ليست بتنسيق JSON متوقع!\n' + e.message, icon: 'error', confirmButtonColor: '#3F2A56' });
                                         }
-                                        return; 
+                                        return; // Exit tick
                                     }
                                 }
-                                if (Swal.isVisible()) { 
+                                if (Swal.isVisible()) { // Continue scanning only if modal is open
                                    scanInterval = requestAnimationFrame(tick);
                                 } else {
-                                    stopQRScanner(); 
+                                    stopQRScanner(); // Ensure camera stops if modal is closed externally
                                 }
                             }
                             scanInterval = requestAnimationFrame(tick);
@@ -1215,6 +1369,7 @@
                 });
             } catch (error) {
                 console.error("خطأ في بدء مسح QR:", error);
+                Swal.fire({ title: 'خطأ', text: 'فشل في بدء مسح رمز QR: ' + error.message, icon: 'error', confirmButtonColor: '#3F2A56' });
             }
         }
         
@@ -1223,6 +1378,7 @@
             Swal.close();
         }
 
+        // إيقاف مسح رمز QR
         function stopQRScanner() {
             if (stream) {
                 stream.getTracks().forEach(track => track.stop());
@@ -1235,6 +1391,7 @@
             }
         }
 
+        // استيراد رمز QR من صورة
         async function importQRFromImage(event) {
             try {
                 await ensureDBInitialized();
@@ -1256,8 +1413,8 @@
                         });
 
                         if (code) {
-                            stopQRScanner(); 
-                            Swal.close(); 
+                            stopQRScanner(); // Stop camera if it was running
+                            Swal.close(); // Close any open Swal (like the scanner)
                             try {
                                 const newProducts = JSON.parse(code.data);
                                 if (!Array.isArray(newProducts)) throw new Error("بيانات QR ليست مصفوفة.");
@@ -1279,12 +1436,14 @@
                      Swal.fire({ title: 'خطأ', text: 'فشل في قراءة ملف الصورة!', icon: 'error', confirmButtonColor: '#3F2A56' });
                 };
                 reader.readAsDataURL(file);
-                document.getElementById('qrImageInput').value = ''; 
+                document.getElementById('qrImageInput').value = ''; // Reset file input
             } catch (error) {
                 console.error("خطأ في استيراد QR من الصورة:", error);
+                Swal.fire({ title: 'خطأ', text: 'فشل في استيراد رمز QR من الصورة: ' + error.message, icon: 'error', confirmButtonColor: '#3F2A56' });
             }
         }
 
+        // معالجة البيانات المستوردة (من ملف أو QR)
         async function processImportedData(newProducts) {
             if (!Array.isArray(newProducts) || newProducts.length === 0) {
                 Swal.fire({ title: 'لا توجد بيانات صالحة', text: 'لم يتم العثور على منتجات صالحة للمعالجة.', icon: 'info', confirmButtonColor: '#3F2A56' });
@@ -1325,7 +1484,7 @@
                             Swal.fire({ title: 'تم الإلغاء جزئيًا', text: 'لا توجد منتجات جديدة غير مكررة للاستيراد.', icon: 'info', confirmButtonColor: '#3F2A56' });
                             return;
                         }
-                    } else { 
+                    } else { // Cancelled
                         Swal.fire({ title: 'تم الإلغاء', text: 'تم إلغاء عملية الاستيراد.', icon: 'info', confirmButtonColor: '#3F2A56' });
                         return;
                     }
@@ -1337,15 +1496,17 @@
                 let errorCount = 0;
 
                 for (const product of productsToImport) {
+                    // Final validation before putting, though `isValidProduct` should catch most
                     if (isValidProduct(product)) {
+                         // Ensure prices are formatted to two decimal places if they are numbers
                         if (typeof product.purchasePrice === 'number') product.purchasePrice = product.purchasePrice.toFixed(2);
                         if (typeof product.salePrice === 'number') product.salePrice = product.salePrice.toFixed(2);
                         
-                        const request = store.put(product); 
+                        const request = store.put(product); // Use put for add or update
                         request.onsuccess = () => successCount++;
                         request.onerror = () => errorCount++;
                     } else {
-                        errorCount++; 
+                        errorCount++; // Count as error if it's somehow invalid here
                     }
                 }
 
@@ -1362,13 +1523,16 @@
                 };
                 transaction.onerror = (event) => {
                     console.error("خطأ في معاملة الاستيراد:", event.target.error);
+                    Swal.fire({ title: 'خطأ', text: 'فشل في إكمال عملية الاستيراد!', icon: 'error', confirmButtonColor: '#3F2A56' });
                 };
 
             } catch (error) {
                 console.error("خطأ في معالجة البيانات المستوردة:", error);
+                Swal.fire({ title: 'خطأ', text: 'فشل في معالجة البيانات المستوردة: ' + error.message, icon: 'error', confirmButtonColor: '#3F2A56' });
             }
         }
 
+        // طباعة الجدول
         async function printTable() {
             try {
                 await ensureDBInitialized();
@@ -1392,22 +1556,21 @@
                         <title>طباعة تقرير المنتجات</title>
                         <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
                         <style>
-                            body { font-family: 'Cairo', sans-serif; margin: 20px; direction: rtl; text-align: right; background-color: #fff; color: #000;}
+                            body { font-family: 'Cairo', sans-serif; margin: 20px; direction: rtl; text-align: right; }
                             h1 { text-align: center; color: #3F2A56; margin-bottom: 20px; }
                             table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 0.9em; }
-                            th, td { border: 1px solid #ccc; padding: 10px; text-align: center; }
+                            th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
                             th { background-color: #3F2A56; color: white; font-weight: 600;}
                             tr:nth-child(even) { background-color: #f9f9f9; }
-                            .low-stock { color: #dc3545; font-weight: bold; background-color: rgba(220, 53, 69, 0.05) !important; } /* Ensure background prints */
-                            .print-header-img { max-height: 70px; display: block; margin: 0 auto 10px auto;}
+                            .low-stock { color: #dc3545; font-weight: bold; background-color: rgba(220, 53, 69, 0.05); }
+                            .print-button { display: block; margin: 20px auto; padding: 10px 20px; background-color: #3F2A56; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 1em; }
                             @media print {
-                                body { margin: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-                                .low-stock { background-color: rgba(220, 53, 69, 0.05) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact;}
+                                .print-button { display: none; }
+                                body { margin: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; } /* Ensure background colors print */
                             }
                         </style>
                     </head>
                     <body>
-                        <img src="logo.png" alt="شعار" class="print-header-img" onerror="this.style.display='none';">
                         <h1>تقرير المنتجات - طيبة المدينة تلكوم</h1>
                         <table>
                             <thead>
@@ -1433,24 +1596,32 @@
                                 `).join('')}
                             </tbody>
                         </table>
+                        <button class="print-button" onclick="window.print()">طباعة التقرير</button>
                     </body>
                     </html>
                 `);
-                printWindow.document.close(); 
-                printWindow.onload = function() {
-                    printWindow.focus(); 
-                    // printWindow.print(); // تم التعليق للسماح بالمعاينة
-                }
+                printWindow.document.close(); // Necessary for some browsers
+                printWindow.focus(); // Focus on the new window
+
+                // Attempt to close after print dialog is handled (might not always work due to browser restrictions)
+                const afterPrintHandler = () => {
+                    printWindow.close();
+                    printWindow.removeEventListener('afterprint', afterPrintHandler);
+                };
+                printWindow.addEventListener('afterprint', afterPrintHandler);
+
                 playSuccessSound();
             } catch (error) {
                 console.error("خطأ في إعداد الطباعة:", error);
+                Swal.fire({ title: 'خطأ', text: 'فشل في إعداد الطباعة: ' + error.message, icon: 'error', confirmButtonColor: '#3F2A56' });
             }
         }
 
+        // تهيئة الصفحة عند التحميل
         document.addEventListener('DOMContentLoaded', async () => {
             try {
-                await initDB(); 
-                await updateProductsTable(); 
+                await initDB(); // Ensure DB is initialized first
+                await updateProductsTable(); // This will also call updateDashboard and filterTable
             } catch (error) {
                 console.error("خطأ فادح في تهيئة الصفحة:", error);
                 Swal.fire({
