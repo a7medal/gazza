@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إدارة المنتجات</title>
+    <title>ضبط الصندوق</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -45,251 +45,101 @@
             transition: transform 0.2s ease, background 0.3s ease, box-shadow 0.3s ease;
             position: absolute;
             top: 20px;
-            left: 20px;
+            left: 20px; /* وضع الزر في الزاوية العلوية اليسرى */
         }
-        .home-btn i {
-            font-size: 1.2rem;
-        }
+        .home-btn i { font-size: 1.2rem; }
         .home-btn:hover {
             background: linear-gradient(90deg, #5a3f73, #3F2A56);
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
         }
-        .home-btn:focus {
-            outline: 2px solid #3F2A56;
-            outline-offset: 2px;
-        }
+        .home-btn:focus { outline: 2px solid #3F2A56; outline-offset: 2px; }
         @media (max-width: 768px) {
-            .home-btn {
-                padding: 8px 16px;
-                font-size: 0.9rem;
-                top: 15px;
-                left: 15px;
-            }
-            .home-btn i {
-                font-size: 1rem;
-            }
+            .home-btn { padding: 8px 16px; font-size: 0.9rem; top: 15px; left: 15px; }
+            .home-btn i { font-size: 1rem; }
         }
         .header {
             background: linear-gradient(135deg, #3F2A56, #5a3f73);
-            color: white;
-            padding: 40px 20px;
-            border-radius: 25px;
-            text-align: center;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-            margin-bottom: 30px;
-            position: relative;
-            z-index: 1;
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            overflow: hidden;
+            color: white; padding: 40px 20px; border-radius: 25px; text-align: center;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2); margin-bottom: 30px; position: relative;
+            z-index: 1; border: 2px solid rgba(255, 255, 255, 0.1); overflow: hidden;
         }
         .header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle, rgba(255, 255, 255, 0.1), transparent);
-            z-index: -1;
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1), transparent); z-index: -1;
         }
         .header img {
-            height: 90px;
-            margin-bottom: 15px;
-            filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.3));
-            transition: transform 0.3s ease;
-            clip-path: polygon(10% 0%, 100% 0%, 90% 100%, 0% 100%);
+            height: 90px; margin-bottom: 15px; filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.3));
+            transition: transform 0.3s ease; clip-path: polygon(10% 0%, 100% 0%, 90% 100%, 0% 100%);
         }
-        .header img:hover {
-            transform: scale(1.05);
-        }
-        .header h2 {
-            font-size: 2.2rem;
-            margin-bottom: 10px;
-            font-weight: 700;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
-        }
-        .header h4 {
-            font-size: 1.4rem;
-            opacity: 0.9;
-            font-weight: 400;
-            letter-spacing: 1px;
-        }
-        .dashboard {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin: 20px 0;
-        }
+        .header img:hover { transform: scale(1.05); }
+        .header h2 { font-size: 2.2rem; margin-bottom: 10px; font-weight: 700; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); }
+        .header h4 { font-size: 1.4rem; opacity: 0.9; font-weight: 400; letter-spacing: 1px; }
+        .dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 20px 0; }
         .card {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: #3F2A56;
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            position: relative;
-            overflow: hidden;
+            background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #3F2A56; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            text-align: center; transition: transform 0.3s ease, box-shadow 0.3s ease; position: relative; overflow: hidden;
         }
         .card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(145deg, rgba(63, 42, 86, 0.2), rgba(90, 63, 115, 0.2));
-            z-index: -1;
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(145deg, rgba(63, 42, 86, 0.2), rgba(90, 63, 115, 0.2)); z-index: -1;
         }
-        .card:hover {
-            transform: translateY(-10px) scale(1.02);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
-        }
-        .card i {
-            font-size: 2.8rem;
-            margin-bottom: 15px;
-            color: #3F2A56;
-            transition: transform 0.3s ease;
-        }
-        .card:hover i {
-            transform: scale(1.2);
-        }
-        .card h5 {
-            font-size: 1.3rem;
-            margin-bottom: 10px;
-            font-weight: 600;
-            color: #3F2A56;
-        }
-        .card h3 {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: #3F2A56;
-        }
-        .products-section {
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            margin: 20px 0;
-        }
-        .products-section h3 {
-            font-size: 1.7rem;
-            font-weight: 700;
-            color: #3F2A56;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-        .products-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        .products-table th, .products-table td {
-            padding: 12px;
-            text-align: center;
-            border-bottom: 1px solid #e0e0e0;
-        }
-        .products-table th {
-            background: linear-gradient(90deg, #3F2A56, #5a3f73);
-            color: white;
-            font-weight: 700;
-        }
-        .products-table td {
-            color: #3F2A56;
-        }
-        .products-table tr {
-            cursor: pointer;
-        }
-        .products-table tr:hover {
-            background-color: #f7f9fc;
-        }
-        .low-stock {
-            color: #dc3545 !important;
-            font-weight: 700;
-            background-color: rgba(220, 53, 69, 0.1);
-        }
-        .actions {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            margin: 25px 0;
-            justify-content: center;
-        }
+        .card:hover { transform: translateY(-10px) scale(1.02); box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2); }
+        .card i { font-size: 2.8rem; margin-bottom: 15px; color: #3F2A56; transition: transform 0.3s ease; }
+        .card:hover i { transform: scale(1.2); }
+        .card h5 { font-size: 1.3rem; margin-bottom: 10px; font-weight: 600; color: #3F2A56; }
+        .card h3 { font-size: 1.8rem; font-weight: 700; color: #3F2A56; }
+        .accounts-section { background: white; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); padding: 20px; margin: 20px 0; }
+        .accounts-section h3 { font-size: 1.7rem; font-weight: 700; color: #3F2A56; margin-bottom: 15px; text-align: center; }
+        .accounts-table { width: 100%; border-collapse: collapse; }
+        .accounts-table th, .accounts-table td { padding: 12px; text-align: center; border-bottom: 1px solid #e0e0e0; }
+        .accounts-table th { background: linear-gradient(90deg, #3F2A56, #5a3f73); color: white; font-weight: 700; }
+        .accounts-table td { color: #3F2A56; }
+        .accounts-table tr { cursor: pointer; }
+        .accounts-table tr:hover { background-color: #f7f9fc; }
+        .actions { display: flex; flex-wrap: wrap; gap: 12px; margin: 25px 0; justify-content: center; }
         .btn {
-            background: linear-gradient(90deg, #3F2A56, #5a3f73);
-            color: white;
-            padding: 12px 24px;
-            border-radius: 30px;
-            border: none;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: transform 0.2s ease, background 0.3s ease, box-shadow 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            background: linear-gradient(90deg, #3F2A56, #5a3f73); color: white; padding: 12px 24px; border-radius: 30px;
+            border: none; font-size: 1rem; cursor: pointer; transition: transform 0.2s ease, background 0.3s ease, box-shadow 0.3s ease;
+            display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
-        .btn:hover {
-            background: linear-gradient(90deg, #5a3f73, #3F2A56);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-        }
-        .btn:focus {
-            outline: 2px solid #3F2A56;
-            outline-offset: 2px;
-        }
-        .btn i {
-            font-size: 1.3rem;
-        }
-        .search-container {
+        .btn:hover { background: linear-gradient(90deg, #5a3f73, #3F2A56); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.3); }
+        .btn:focus { outline: 2px solid #3F2A56; outline-offset: 2px; }
+        .btn i { font-size: 1.3rem; }
+        .filter-controls {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
             margin-bottom: 20px;
             display: flex;
-            justify-content: center;
-            gap: 15px;
             flex-wrap: wrap;
+            gap: 15px;
+            align-items: flex-end;
         }
-        .search-container .filter-group {
-            display: flex;
-            flex-direction: column;
-            max-width: 200px;
-        }
-        .search-container label {
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: #3F2A56;
-            margin-bottom: 5px;
-        }
-        .search-container input, .search-container select {
-            width: 100%;
-            max-width: 200px;
-            padding: 10px 15px; /* Adjusted padding */
-            border-radius: 25px;  /* Consistent radius */
-            border: 1px solid #ddd; /* Added border for better visibility */
-            background: #f8f9fa;    /* Lighter background for inputs */
-            color: #3F2A56;
-            font-size: 0.9rem;      /* Adjusted font size */
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); /* Inner shadow */
+        .filter-group { display: flex; flex-direction: column; }
+        .filter-controls label { font-size: 0.9rem; font-weight: 600; color: #3F2A56; margin-bottom: 5px; }
+        .filter-controls input, .filter-controls select {
+            padding: 10px 15px; border-radius: 25px; border: 1px solid #ddd;
+            background: #f8f9fa; color: #3F2A56; font-size: 0.9rem;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
             transition: border-color 0.3s ease, box-shadow 0.3s ease;
         }
-        .search-container input:focus, .search-container select:focus {
-            outline: none;
-            border-color: #3F2A56;
-            box-shadow: 0 0 0 0.2rem rgba(63, 42, 86, 0.25); /* Focus shadow */
+        .filter-controls input:focus, .filter-controls select:focus {
+            outline: none; border-color: #3F2A56; box-shadow: 0 0 0 0.2rem rgba(63, 42, 86, 0.25);
         }
-        .search-container input::placeholder {
-            color: #3F2A56;
-            opacity: 0.7;
-        }
-        .table-container {
-            overflow-x: auto;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
-            padding: 15px;
-        }
-        /* Modal Styles - largely unchanged but ensured consistency */
+        #dateRangePicker { display: none; gap: 10px; align-items: flex-end;}
+        .table-container { overflow-x: auto; background: white; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); padding: 15px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 14px; text-align: center; border-bottom: 1px solid #e0e0e0; }
+        th { background: linear-gradient(90deg, #3F2A56, #5a3f73); color: white; font-weight: 700; }
+        td { color: #3F2A56; }
+        tr { cursor: pointer; }
+        tr:hover { background-color: #f7f9fc; }
+        .action-btn { cursor: pointer; margin: 0 6px; font-size: 1.3rem; transition: color 0.3s ease; }
+        .action-btn.edit:hover { color: #007bff; }
+        .action-btn.delete:hover { color: #dc3545; }
         .modal-content {
             border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); border: none;
             background: linear-gradient(145deg, #ffffff, #f7f9fc); animation: slideIn 0.3s ease-out;
@@ -329,19 +179,7 @@
         }
         .modal-footer .btn-secondary { background: linear-gradient(90deg, #6c757d, #5a6268); box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
         .modal-footer .btn-secondary:hover { background: linear-gradient(90deg, #5a6268, #495057); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.3); }
-        
-        .swal2-popup { font-family: 'Cairo', sans-serif !important; border-radius: 15px !important; }
-        .swal2-title { color: #3F2A56 !important; font-weight: 700 !important; }
-        .swal2-html-container { text-align: right !important; color: #3F2A56 !important; }
-        .swal2-confirm { background: linear-gradient(90deg, #3F2A56, #5a3f73) !important; border-radius: 20px !important; box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important; }
-        .swal2-cancel { background: linear-gradient(90deg, #6c757d, #5a6268) !important; border-radius: 20px !important; box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important; }
-        #qrCanvas { display: none; }
-        #scannerContainer { text-align: center; margin: 20px 0; }
-        #scannerVideo { max-width: 100%; border-radius: 10px; border: 2px solid #3F2A56; }
-        .scanner-buttons { display: flex; justify-content: center; gap: 10px; margin-top: 10px; }
-        .swal2-actions { justify-content: center !important; gap: 10px; }
-
-         @media (max-width: 768px) {
+        @media (max-width: 768px) {
             .header { padding: 25px 15px; border-radius: 15px; }
             .header img { height: 70px; }
             .header h2 { font-size: 1.7rem; }
@@ -352,1115 +190,1519 @@
             .modal-title { font-size: 1.3rem; }
             .modal-body { padding: 20px; }
             .modal-body .form-control, .modal-body .form-select { font-size: 0.9rem; }
-            .search-container { flex-direction: column; align-items: stretch; } /* Stack filters on small screens */
-            .search-container .filter-group { max-width: none; width:100%;} /* Full width for filter groups */
+            .filter-controls { flex-direction: column; }
+            .filter-group { width: 100%; }
+            #dateRangePicker { flex-direction: column; width: 100%;}
+            #dateRangePicker .filter-group { width: 100%; }
         }
+        .swal2-popup { font-family: 'Cairo', sans-serif !important; border-radius: 15px !important; }
+        .swal2-title { color: #3F2A56 !important; font-weight: 700 !important; }
+        .swal2-html-container { text-align: right !important; color: #3F2A56 !important; }
+        .swal2-confirm { background: linear-gradient(90deg, #3F2A56, #5a3f73) !important; border-radius: 20px !important; box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important; }
+        .swal2-cancel { background: linear-gradient(90deg, #6c757d, #5a6268) !important; border-radius: 20px !important; box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important; }
+        #qrCanvas { display: none; }
+        #scannerContainer { text-align: center; margin: 20px 0; }
+        #scannerVideo { max-width: 100%; border-radius: 10px; border: 2px solid #3F2A56; }
+        .scanner-buttons { display: flex; justify-content: center; gap: 10px; margin-top: 10px; }
+        .swal2-actions { justify-content: center !important; gap: 10px; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <img src="logo.png" alt="شعار طيبة المدينة تلكوم" onerror="this.src='https://via.placeholder.com/90?text=Logo'; this.style.clipPath='none';">
+            <img src="logo.png" alt="شعار طيبة المدينة تلكوم" onerror="this.style.display='none'">
             <h2>طيبة المدينة تلكوم</h2>
-            <h4>إدارة المنتجات</h4>
+            <h4>ضبط الصندوق</h4>
             <a href="home.html" class="home-btn"><i class="fas fa-home"></i> للرئيسية</a>
         </div>
+
         <div class="dashboard">
             <div class="card">
-                <i class="fas fa-dollar-sign"></i>
-                <h5>إجمالي سعر الشراء</h5>
-                <h3 id="totalPurchasePrice">0.00</h3>
+                <i class="fas fa-wallet"></i>
+                <h5>الرصيد (للفترة المحددة)</h5>
+                <h3 id="balance">0.00</h3>
             </div>
             <div class="card">
-                <i class="fas fa-dollar-sign"></i>
-                <h5>إجمالي سعر البيع</h5>
-                <h3 id="totalSalePrice">0.00</h3>
+                <i class="fas fa-arrow-up"></i>
+                <h5>الداخل (للفترة المحددة)</h5>
+                <h3 id="totalIn">0.00</h3>
             </div>
             <div class="card">
-                <i class="fas fa-boxes"></i>
-                <h5>عدد المنتجات</h5>
-                <h3 id="totalProducts">0</h3>
+                <i class="fas fa-arrow-down"></i>
+                <h5>الخارج (للفترة المحددة)</h5>
+                <h3 id="totalOut">0.00</h3>
             </div>
         </div>
-        <div class="actions">
-            <button class="btn" data-bs-toggle="modal" data-bs-target="#addProductModal"><i class="fas fa-plus"></i> إضافة منتج</button>
-            <button class="btn" onclick="exportToJSON()"><i class="fas fa-file-code"></i> تصدير JSON</button>
-            <button class="btn" onclick="exportToCSV()"><i class="fas fa-file-csv"></i> تصدير CSV</button>
-            <input type="file" id="importFile" accept=".json,.csv" style="display: none;" onchange="importFile(event)">
-            <button class="btn" onclick="document.getElementById('importFile').click()"><i class="fas fa-file-import"></i> استيراد ملف</button>
-            <button class="btn" onclick="generateQRCodeForAllProducts()"><i class="fas fa-qrcode"></i> QR لجميع المنتجات</button>
-            <button class="btn" onclick="startQRScanner()"><i class="fas fa-camera"></i> استقبال QR</button>
-            <button class="btn" onclick="printTable()"><i class="fas fa-print"></i> طباعة</button>
-        </div>
-        <div class="products-section">
-            <h3>المنتجات الموجودة</h3>
-            <div class="search-container">
-                <div class="filter-group">
-                    <label for="searchInput">البحث</label>
-                    <input type="text" id="searchInput" placeholder="ابحث بالاسم أو المعرف" oninput="filterTable()">
-                </div>
-                <div class="filter-group">
-                    <label for="stockFilter">حالة المخزون</label>
-                    <select id="stockFilter" onchange="filterTable()">
-                        <option value="all">الكل</option>
-                        <option value="empty">فارغة (0)</option>
-                        <option value="low">على وشك النفاذ (أقل من 2)</option>
-                    </select>
-                </div>
-            </div>
+
+        <div class="accounts-section">
+            <h3>الحسابات (أرصدة الفترة المحددة)</h3>
             <div class="table-container">
-                <table class="products-table">
+                <table class="accounts-table">
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th>معرف المنتج</th>
-                            <th>اسم المنتج</th>
-                            <th>سعر الشراء</th>
-                            <th>سعر البيع</th>
-                            <th>الكمية</th>
+                            <th>اسم الحساب</th>
+                            <th>الرصيد</th>
                             <th>الإجراءات</th>
                         </tr>
                     </thead>
-                    <tbody id="productsTable"></tbody>
+                    <tbody id="accountsTable"></tbody>
                 </table>
             </div>
+        </div>
+
+        <div class="actions">
+            <button class="btn" data-bs-toggle="modal" data-bs-target="#addTransactionModal"><i class="fas fa-plus"></i> إضافة معاملة</button>
+            <button class="btn" data-bs-toggle="modal" data-bs-target="#addAccountModal"><i class="fas fa-user-plus"></i> إضافة حساب</button>
+            <button class="btn" onclick="exportVisibleToJSON()"><i class="fas fa-file-code"></i> تصدير المعروض JSON</button>
+            <button class="btn" onclick="exportVisibleToCSV()"><i class="fas fa-file-csv"></i> تصدير المعروض CSV</button>
+            <input type="file" id="importFile" accept=".json,.csv" style="display: none;" onchange="importFile(event)">
+            <button class="btn" onclick="document.getElementById('importFile').click()"><i class="fas fa-file-import"></i> استيراد ملف</button>
+            <button class="btn" onclick="generateQRCodeForVisible()"><i class="fas fa-qrcode"></i> QR للمعروض</button>
+            <button class="btn" onclick="startQRScanner()"><i class="fas fa-camera"></i> استقبال QR</button>
+            <button class="btn" onclick="printTable()"><i class="fas fa-print"></i> طباعة المعروض</button>
+        </div>
+
+        <div class="filter-controls">
+            <div class="filter-group">
+                <label for="dateFilter">فلترة حسب التاريخ:</label>
+                <select id="dateFilter" onchange="handleDateFilterChange()">
+                    <option value="today">اليوم</option>
+                    <option value="yesterday">الأمس</option>
+                    <option value="range">تحديد نطاق</option>
+                    <option value="all">كل الأوقات</option>
+                </select>
+            </div>
+            <div id="dateRangePicker">
+                <div class="filter-group">
+                    <label for="startDate">من تاريخ:</label>
+                    <input type="date" id="startDate" onchange="filterTable()">
+                </div>
+                <div class="filter-group">
+                    <label for="endDate">إلى تاريخ:</label>
+                    <input type="date" id="endDate" onchange="filterTable()">
+                </div>
+            </div>
+            <div class="filter-group">
+                <label for="typeFilter">نوع المعاملة:</label>
+                <select id="typeFilter" onchange="filterTable()">
+                    <option value="all">الكل</option>
+                    <option value="in">داخل</option>
+                    <option value="out">خارج</option>
+                </select>
+            </div>
+             <div class="filter-group" style="flex-grow: 1;">
+                <label for="searchInput">بحث (بيان/حساب):</label>
+                <input type="search" id="searchInput" placeholder="اكتب للبحث..." oninput="filterTable()">
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>نوع المعاملة</th>
+                        <th>التاريخ والوقت</th>
+                        <th>المبلغ</th>
+                        <th>البيان</th>
+                        <th>الحساب</th>
+                        <th>الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody id="transactionsTable"></tbody>
+            </table>
         </div>
         <canvas id="qrCanvas" style="display: none;"></canvas>
         <input type="file" id="qrImageInput" accept="image/*" style="display: none;" onchange="importQRFromImage(event)">
     </div>
 
-    <!-- نافذة إضافة منتج -->
-    <div class="modal fade" id="addProductModal" tabindex="-1" aria-labelledby="addProductModalLabel" aria-hidden="true">
+    <!-- Modals (Add Transaction, Edit Transaction, Add Account, Edit Account) remain largely the same in structure -->
+    <!-- نافذة إضافة معاملة -->
+    <div class="modal fade" id="addTransactionModal" tabindex="-1" aria-labelledby="addTransactionModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="addProductModalLabel"><i class="fas fa-plus"></i> إضافة منتج جديد</h5>
+                    <h5 class="modal-title" id="addTransactionModalLabel"><i class="fas fa-plus"></i> إضافة معاملة جديدة</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="addProductForm">
+                    <form id="addTransactionForm">
                         <div class="mb-3">
-                            <label for="productName" class="form-label"><i class="fas fa-box"></i> اسم المنتج</label>
-                            <input type="text" class="form-control" id="productName" required>
+                            <label for="type" class="form-label"><i class="fas fa-exchange-alt"></i> نوع المعاملة</label>
+                            <select class="form-select" id="type" required>
+                                <option value="in">داخل</option>
+                                <option value="out">خارج</option>
+                            </select>
                         </div>
                         <div class="mb-3">
-                            <label for="purchasePrice" class="form-label"><i class="fas fa-money-bill-wave"></i> سعر الشراء</label>
-                            <input type="number" class="form-control" id="purchasePrice" step="0.01" min="0" max="1000000" required>
+                            <label for="datetime" class="form-label"><i class="fas fa-calendar"></i> التاريخ والوقت</label>
+                            <input type="datetime-local" class="form-control" id="datetime" readonly>
                         </div>
                         <div class="mb-3">
-                            <label for="salePrice" class="form-label"><i class="fas fa-dollar-sign"></i> سعر البيع</label>
-                            <input type="number" class="form-control" id="salePrice" step="0.01" min="0" max="1000000" required>
+                            <label for="amount" class="form-label"><i class="fas fa-money-bill"></i> المبلغ</label>
+                            <input type="number" class="form-control" id="amount" step="0.01" min="0" required>
                         </div>
                         <div class="mb-3">
-                            <label for="quantity" class="form-label"><i class="fas fa-boxes-stacked"></i> الكمية</label>
-                            <input type="number" class="form-control" id="quantity" min="0" max="100000" required>
+                            <label for="description" class="form-label"><i class="fas fa-comment"></i> البيان</label>
+                            <input type="text" class="form-control" id="description" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="account" class="form-label"><i class="fas fa-user"></i> الحساب</label>
+                            <select class="form-select" id="account" required>
+                                <option value="">اختر حسابًا</option>
+                            </select>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
-                    <button type="button" class="btn" onclick="addProduct()">حفظ</button>
+                    <button type="button" class="btn" onclick="addTransaction()">حفظ</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- نافذة تعديل منتج -->
-    <div class="modal fade" id="editProductModal" tabindex="-1" aria-labelledby="editProductModalLabel" aria-hidden="true">
+    <!-- نافذة تعديل معاملة -->
+    <div class="modal fade" id="editTransactionModal" tabindex="-1" aria-labelledby="editTransactionModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="editProductModalLabel"><i class="fas fa-edit"></i> تعديل منتج</h5>
+                    <h5 class="modal-title" id="editTransactionModalLabel"><i class="fas fa-edit"></i> تعديل معاملة</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="editProductForm">
-                        <input type="hidden" id="editProductId">
+                    <form id="editTransactionForm">
+                        <input type="hidden" id="editId">
                         <div class="mb-3">
-                            <label for="editProductName" class="form-label"><i class="fas fa-box"></i> اسم المنتج</label>
-                            <input type="text" class="form-control" id="editProductName" required>
+                            <label for="editType" class="form-label"><i class="fas fa-exchange-alt"></i> نوع المعاملة</label>
+                            <select class="form-select" id="editType" required>
+                                <option value="in">داخل</option>
+                                <option value="out">خارج</option>
+                            </select>
                         </div>
                         <div class="mb-3">
-                            <label for="editPurchasePrice" class="form-label"><i class="fas fa-money-bill-wave"></i> سعر الشراء</label>
-                            <input type="number" class="form-control" id="editPurchasePrice" step="0.01" min="0" max="1000000" required>
+                            <label for="editDatetime" class="form-label"><i class="fas fa-calendar"></i> التاريخ والوقت</label>
+                            <input type="datetime-local" class="form-control" id="editDatetime" readonly>
                         </div>
                         <div class="mb-3">
-                            <label for="editSalePrice" class="form-label"><i class="fas fa-dollar-sign"></i> سعر البيع</label>
-                            <input type="number" class="form-control" id="editSalePrice" step="0.01" min="0" max="1000000" required>
+                            <label for="editAmount" class="form-label"><i class="fas fa-money-bill"></i> المبلغ</label>
+                            <input type="number" class="form-control" id="editAmount" step="0.01" min="0" required>
                         </div>
                         <div class="mb-3">
-                            <label for="editQuantity" class="form-label"><i class="fas fa-boxes-stacked"></i> الكمية</label>
-                            <input type="number" class="form-control" id="editQuantity" min="0" max="100000" required>
+                            <label for="editDescription" class="form-label"><i class="fas fa-comment"></i> البيان</label>
+                            <input type="text" class="form-control" id="editDescription" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editAccount" class="form-label"><i class="fas fa-user"></i> الحساب</label>
+                            <select class="form-select" id="editAccount" required>
+                                <option value="">اختر حسابًا</option>
+                            </select>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
-                    <button type="button" class="btn" onclick="updateProduct()">حفظ التعديلات</button>
+                    <button type="button" class="btn" onclick="updateTransaction()">حفظ</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة إضافة حساب -->
+    <div class="modal fade" id="addAccountModal" tabindex="-1" aria-labelledby="addAccountModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addAccountModalLabel"><i class="fas fa-user-plus"></i> إضافة حساب جديد</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addAccountForm">
+                        <div class="mb-3">
+                            <label for="accountName" class="form-label"><i class="fas fa-user"></i> اسم الحساب</label>
+                            <input type="text" class="form-control" id="accountName" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="button" class="btn" onclick="addAccount()">حفظ</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة تعديل حساب -->
+    <div class="modal fade" id="editAccountModal" tabindex="-1" aria-labelledby="editAccountModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editAccountModalLabel"><i class="fas fa-user-edit"></i> تعديل حساب</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editAccountForm">
+                        <input type="hidden" id="editAccountOldName">
+                        <div class="mb-3">
+                            <label for="editAccountName" class="form-label"><i class="fas fa-user"></i> اسم الحساب الجديد</label>
+                            <input type="text" class="form-control" id="editAccountName" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="button" class="btn" onclick="updateAccount()">حفظ</button>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        let db = null; // سيتم تهيئة هذا المتغير
+        const DB_NAME = 'cashBoxDB';
+        const DB_VERSION = 1;
+        const TRANSACTIONS_STORE_NAME = 'transactions';
+        const ACCOUNTS_STORE_NAME = 'accounts';
+        let db;
+
+        // This array will hold the transactions currently displayed in the table (after filtering)
+        let displayedTransactions = [];
+        let allAccounts = []; // This will hold all account names from DB for dropdowns etc.
+
         let stream = null;
-        let productsCache = null;
+        const successSound = new Audio('https://www.soundjay.com/buttons/beep-01a.mp3'); // For import success
 
-        const INVENTORY_DB_NAME = 'InventoryDB';
-        const INVENTORY_DB_VERSION = 2; // تم تحديث الإصدار لضمان onupgradeneeded إذا لزم الأمر
-
-
-        function playSuccessSound() {
-            try {
-                const context = new (window.AudioContext || window.webkitAudioContext)();
-                const oscillator = context.createOscillator();
-                oscillator.type = 'sine';
-                oscillator.frequency.setValueAtTime(800, context.currentTime);
-                oscillator.connect(context.destination);
-                oscillator.start();
-                setTimeout(() => oscillator.stop(), 200);
-            } catch (e) {
-                console.warn("فشل تشغيل صوت النجاح:", e);
-            }
-        }
-
-        function initDB() {
+        // --- IndexedDB Helper Functions ---
+        function openDB() {
             return new Promise((resolve, reject) => {
-                const request = indexedDB.open(INVENTORY_DB_NAME, INVENTORY_DB_VERSION);
-                request.onupgradeneeded = (event) => {
-                    db = event.target.result;
-                    if (!db.objectStoreNames.contains('products')) {
-                        const productStore = db.createObjectStore('products', { keyPath: 'id' });
-                        productStore.createIndex('name', 'name', { unique: false });
-                        // لا تقم بإنشاء مخازن invoices, customers, cashBoxAccounts هنا
-                        // فهذه الصفحة مخصصة للمنتجات فقط
-                    } else {
-                         // إذا كان المخزن موجودًا بالفعل، تحقق من وجود الفهرس
-                        const productStore = event.target.transaction.objectStore('products');
-                        if (!productStore.indexNames.contains('name')) {
-                            productStore.createIndex('name', 'name', { unique: false });
-                        }
-                    }
-                };
+                const request = indexedDB.open(DB_NAME, DB_VERSION);
+                request.onerror = (event) => reject("Database error: " + event.target.errorCode);
                 request.onsuccess = (event) => {
                     db = event.target.result;
-                    console.log("قاعدة بيانات المنتجات InventoryDB تم فتحها بنجاح.");
                     resolve(db);
                 };
-                request.onerror = (event) => {
-                    console.error("خطأ في تهيئة قاعدة البيانات InventoryDB:", event.target.error);
-                    Swal.fire('خطأ فادح', `فشل تهيئة قاعدة بيانات المنتجات: ${event.target.error}`, 'error');
-                    reject(event.target.error);
+                request.onupgradeneeded = (event) => {
+                    db = event.target.result;
+                    if (!db.objectStoreNames.contains(TRANSACTIONS_STORE_NAME)) {
+                        const transactionStore = db.createObjectStore(TRANSACTIONS_STORE_NAME, { keyPath: 'id', autoIncrement: true });
+                        transactionStore.createIndex('datetime', 'datetime', { unique: false });
+                        transactionStore.createIndex('account', 'account', { unique: false });
+                        transactionStore.createIndex('type', 'type', { unique: false });
+                         transactionStore.createIndex('date', 'date', { unique: false }); // For YYYY-MM-DD queries
+                    }
+                    if (!db.objectStoreNames.contains(ACCOUNTS_STORE_NAME)) {
+                        const accountStore = db.createObjectStore(ACCOUNTS_STORE_NAME, { keyPath: 'name' });
+                        // No initial accounts, user adds them
+                    }
                 };
             });
         }
 
-        async function ensureDBInitialized() {
-            if (!db) {
-                try {
-                    await initDB();
-                } catch (error) {
-                    console.error('فشل في تهيئة قاعدة البيانات:', error);
-                    throw new Error('فشل في تهيئة قاعدة البيانات: ' + error.message);
-                }
-            }
-            if (!db) { 
-                throw new Error('قاعدة البيانات غير جاهزة بعد محاولة التهيئة.');
-            }
+        function addRecord(storeName, record) {
+            return new Promise((resolve, reject) => {
+                if (!db) { reject("Database not open"); return; }
+                const transaction = db.transaction([storeName], 'readwrite');
+                const store = transaction.objectStore(storeName);
+                const request = store.add(record);
+                request.onsuccess = () => resolve(request.result); // Returns the key of the new record
+                request.onerror = (event) => reject("Error adding record: " + event.target.error);
+            });
         }
-
-        async function generateUniqueId() {
-            await ensureDBInitialized();
-            let id;
-            let isUnique = false;
-            const existingIds = await getAllProductIds();
-            while (!isUnique) {
-                id = Math.floor(10000 + Math.random() * 90000).toString();
-                isUnique = !existingIds.includes(id);
-            }
-            return id;
-        }
-
-        function getAllProductIds() {
-            return new Promise(async (resolve, reject) => {
-                try {
-                    await ensureDBInitialized();
-                    const transaction = db.transaction(['products'], 'readonly');
-                    const store = transaction.objectStore('products');
-                    const request = store.getAllKeys();
-                    request.onsuccess = () => resolve(request.result);
-                    request.onerror = (event) => {
-                        console.error("خطأ في جلب معرفات المنتجات:", event.target.error);
-                        reject(event.target.error);
-                    };
-                } catch (error) {
-                    reject(error);
-                }
+        
+        function getRecord(storeName, key) {
+            return new Promise((resolve, reject) => {
+                if (!db) { reject("Database not open"); return; }
+                const transaction = db.transaction([storeName], 'readonly');
+                const store = transaction.objectStore(storeName);
+                const request = store.get(key);
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = (event) => reject("Error getting record: " + event.target.error);
             });
         }
 
-        async function getAllProducts() {
-            if (productsCache) {
-                return productsCache;
-            }
-            return new Promise(async (resolve, reject) => {
-                try {
-                    await ensureDBInitialized();
-                    const transaction = db.transaction(['products'], 'readonly');
-                    const store = transaction.objectStore('products');
-                    const request = store.getAll();
-                    request.onsuccess = () => {
-                        productsCache = request.result || []; // Ensure it's an array
-                        resolve(productsCache);
-                    };
-                    request.onerror = (event) => {
-                        console.error("خطأ في جلب جميع المنتجات:", event.target.error);
-                        reject(event.target.error);
-                    };
-                } catch (error) {
-                    reject(error);
+        function getAllRecords(storeName) {
+            return new Promise((resolve, reject) => {
+                if (!db) { reject("Database not open"); return; }
+                const transaction = db.transaction([storeName], 'readonly');
+                const store = transaction.objectStore(storeName);
+                const request = store.getAll();
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = (event) => reject("Error getting all records: " + event.target.error);
+            });
+        }
+
+        function updateRecord(storeName, record) {
+            return new Promise((resolve, reject) => {
+                if (!db) { reject("Database not open"); return; }
+                const transaction = db.transaction([storeName], 'readwrite');
+                const store = transaction.objectStore(storeName);
+                const request = store.put(record);
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = (event) => reject("Error updating record: " + event.target.error);
+            });
+        }
+
+        function deleteRecord(storeName, key) {
+            return new Promise((resolve, reject) => {
+                if (!db) { reject("Database not open"); return; }
+                const transaction = db.transaction([storeName], 'readwrite');
+                const store = transaction.objectStore(storeName);
+                const request = store.delete(key);
+                request.onsuccess = () => resolve();
+                request.onerror = (event) => reject("Error deleting record: " + event.target.error);
+            });
+        }
+
+        // Specific function to get transactions based on filters
+        function getFilteredTransactionsDB(startDateStr, endDateStr, typeFilterVal, searchTerm) {
+            return new Promise((resolve, reject) => {
+                if (!db) { reject("Database not open"); return; }
+                const transaction = db.transaction([TRANSACTIONS_STORE_NAME], 'readonly');
+                const store = transaction.objectStore(TRANSACTIONS_STORE_NAME);
+                const index = store.index('date'); // Use the 'date' index
+                
+                let keyRange;
+                if (startDateStr && endDateStr) {
+                    keyRange = IDBKeyRange.bound(startDateStr, endDateStr);
+                } else if (startDateStr) {
+                    keyRange = IDBKeyRange.lowerBound(startDateStr);
+                } else if (endDateStr) {
+                    keyRange = IDBKeyRange.upperBound(endDateStr);
+                } else {
+                    keyRange = null; // Get all if no date range
                 }
+
+                const request = keyRange ? index.getAll(keyRange) : store.getAll();
+                let results = [];
+
+                request.onsuccess = () => {
+                    results = request.result;
+                    // Further filter by type and search term in JavaScript
+                    if (typeFilterVal !== 'all') {
+                        results = results.filter(t => t.type === typeFilterVal);
+                    }
+                    if (searchTerm) {
+                        const lowerSearchTerm = searchTerm.toLowerCase();
+                        results = results.filter(t => 
+                            t.description.toLowerCase().includes(lowerSearchTerm) ||
+                            t.account.toLowerCase().includes(lowerSearchTerm)
+                        );
+                    }
+                    // Sort by full datetime descending
+                    results.sort((a, b) => new Date(b.datetime) - new Date(a.datetime));
+                    resolve(results);
+                };
+                request.onerror = (event) => reject("Error fetching filtered transactions: " + event.target.error);
             });
         }
+        // --- End IndexedDB Helper Functions ---
 
-        function invalidateCache() {
-            productsCache = null;
+
+        function formatToISODate(date) { // YYYY-MM-DD
+            return date.getFullYear() + '-' +
+                   ('0' + (date.getMonth() + 1)).slice(-2) + '-' +
+                   ('0' + date.getDate()).slice(-2);
         }
 
-        async function updateDashboard() {
-            try {
-                await ensureDBInitialized();
-                const products = await getAllProducts();
-                const totalPurchasePrice = products.reduce((sum, p) => sum + (parseFloat(p.purchasePrice) * parseInt(p.quantity)), 0);
-                const totalSalePrice = products.reduce((sum, p) => sum + (parseFloat(p.salePrice) * parseInt(p.quantity)), 0);
-                const totalProducts = products.length;
-
-                document.getElementById('totalPurchasePrice').innerText = totalPurchasePrice.toFixed(2);
-                document.getElementById('totalSalePrice').innerText = totalSalePrice.toFixed(2);
-                document.getElementById('totalProducts').innerText = totalProducts;
-            } catch (error) {
-                console.error("خطأ في تحديث لوحة المعلومات:", error);
+        function formatToDateTimeLocal(date) { // For datetime-local input
+             const YYYY = date.getFullYear();
+             const MM = ('0' + (date.getMonth() + 1)).slice(-2);
+             const DD = ('0' + date.getDate()).slice(-2);
+             const hh = ('0' + date.getHours()).slice(-2);
+             const mm = ('0' + date.getMinutes()).slice(-2);
+             return `${YYYY}-${MM}-${DD}T${hh}:${mm}`;
+        }
+        
+        function setCurrentDateTimeForPicker() {
+            const now = new Date();
+            const formattedDateTime = formatToDateTimeLocal(now);
+            if(document.getElementById('datetime')) document.getElementById('datetime').value = formattedDateTime;
+            // For edit modal, it will be set when opening the modal
+        }
+        
+        function handleDateFilterChange() {
+            const dateFilter = document.getElementById('dateFilter').value;
+            const dateRangePicker = document.getElementById('dateRangePicker');
+            if (dateFilter === 'range') {
+                dateRangePicker.style.display = 'flex';
+            } else {
+                dateRangePicker.style.display = 'none';
             }
-        }
-
-        async function updateProductsTable() {
-            try {
-                await ensureDBInitialized();
-                const products = await getAllProducts();
-                const tableBody = document.getElementById('productsTable');
-                tableBody.innerHTML = ''; 
-
-                products.forEach((product, index) => {
-                    const quantity = parseInt(product.quantity);
-                    const quantityClass = quantity < 2 ? 'low-stock' : '';
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${index + 1}</td>
-                        <td>${product.id}</td>
-                        <td>${product.name}</td>
-                        <td>${parseFloat(product.purchasePrice).toFixed(2)}</td>
-                        <td>${parseFloat(product.salePrice).toFixed(2)}</td>
-                        <td class="${quantityClass}">${quantity}</td>
-                        <td>
-                            <i class="fas fa-edit action-btn edit" onclick="editProduct('${product.id}');event.stopPropagation();" title="تعديل"></i>
-                            <i class="fas fa-trash action-btn delete" onclick="deleteProduct('${product.id}');event.stopPropagation();" title="حذف"></i>
-                        </td>
-                    `;
-                    row.addEventListener('click', () => showProductDetails(product));
-                    tableBody.appendChild(row);
-                });
-                filterTable(); 
-                updateDashboard(); 
-            } catch (error) {
-                console.error("خطأ في تحديث جدول المنتجات:", error);
-            }
-        }
-
-        function showProductDetails(product) {
-            Swal.fire({
-                title: 'تفاصيل المنتج',
-                html: `
-                    <div style="text-align: right; font-family: 'Cairo', sans-serif; color: #3F2A56;">
-                        <p><strong><i class="fas fa-barcode"></i> معرف المنتج:</strong> ${product.id}</p>
-                        <p><strong><i class="fas fa-box"></i> اسم المنتج:</strong> ${product.name}</p>
-                        <p><strong><i class="fas fa-money-bill-wave"></i> سعر الشراء:</strong> ${parseFloat(product.purchasePrice).toFixed(2)}</p>
-                        <p><strong><i class="fas fa-dollar-sign"></i> سعر البيع:</strong> ${parseFloat(product.salePrice).toFixed(2)}</p>
-                        <p><strong><i class="fas fa-boxes-stacked"></i> الكمية:</strong> ${parseInt(product.quantity)}</p>
-                    </div>
-                `,
-                icon: 'info',
-                confirmButtonText: 'إغلاق',
-                confirmButtonColor: '#3F2A56',
-                customClass: { popup: 'swal2-rtl' }
-            });
+            filterTable();
         }
 
         async function filterTable() {
-            try {
-                // await ensureDBInitialized(); // Not needed if updateProductsTable already called it
-                const searchInput = document.getElementById('searchInput').value.toLowerCase();
-                const stockFilter = document.getElementById('stockFilter').value;
-                const tableBody = document.getElementById('productsTable');
-                const rows = tableBody.getElementsByTagName('tr');
+            const dateFilter = document.getElementById('dateFilter').value;
+            let startDateStr = '';
+            let endDateStr = '';
 
-                let displayedIndex = 1;
-                for (let i = 0; i < rows.length; i++) {
-                    const cells = rows[i].getElementsByTagName('td');
-                    if (cells.length < 6) continue; // Skip invalid rows
+            const today = new Date();
+            const yesterday = new Date(today);
+            yesterday.setDate(today.getDate() - 1);
 
-                    const productId = cells[1].textContent.toLowerCase();
-                    const productName = cells[2].textContent.toLowerCase();
-                    const quantity = parseInt(cells[5].textContent);
-
-                    const matchesSearch = productName.includes(searchInput) || productId.includes(searchInput);
-                    
-                    let matchesStockFilter = false;
-                    if (stockFilter === 'all') {
-                        matchesStockFilter = true;
-                    } else if (stockFilter === 'empty') {
-                        matchesStockFilter = quantity === 0;
-                    } else if (stockFilter === 'low') {
-                        matchesStockFilter = quantity > 0 && quantity < 2;
-                    }
-
-                    if (matchesSearch && matchesStockFilter) {
-                        rows[i].style.display = '';
-                        cells[0].textContent = displayedIndex++; 
-                    } else {
-                        rows[i].style.display = 'none';
-                    }
+            if (dateFilter === 'today') {
+                startDateStr = formatToISODate(today);
+                endDateStr = formatToISODate(today);
+            } else if (dateFilter === 'yesterday') {
+                startDateStr = formatToISODate(yesterday);
+                endDateStr = formatToISODate(yesterday);
+            } else if (dateFilter === 'range') {
+                startDateStr = document.getElementById('startDate').value;
+                endDateStr = document.getElementById('endDate').value;
+                 if (startDateStr && endDateStr && startDateStr > endDateStr) {
+                    Swal.fire('خطأ', 'تاريخ البداية لا يمكن أن يكون بعد تاريخ النهاية', 'error');
+                    return;
                 }
-            } catch (error) {
-                console.error("خطأ في تصفية الجدول:", error);
+            } else { // 'all'
+                startDateStr = ''; // No specific start
+                endDateStr = '';   // No specific end
             }
-        }
 
-        async function addProduct() {
+
+            const typeFilterVal = document.getElementById('typeFilter').value;
+            const searchTerm = document.getElementById('searchInput').value.trim();
+
             try {
-                await ensureDBInitialized();
-                const name = document.getElementById('productName').value.trim();
-                const purchasePrice = parseFloat(document.getElementById('purchasePrice').value);
-                const salePrice = parseFloat(document.getElementById('salePrice').value);
-                const quantity = parseInt(document.getElementById('quantity').value);
-
-                if (!name || isNaN(purchasePrice) || isNaN(salePrice) || isNaN(quantity)) {
-                    Swal.fire({ title: 'خطأ في الإدخال', text: 'الرجاء ملء جميع الحقول المطلوبة بشكل صحيح!', icon: 'error', confirmButtonColor: '#3F2A56' });
-                    return;
-                }
-                if (purchasePrice < 0 || salePrice < 0 || quantity < 0) {
-                    Swal.fire({ title: 'خطأ في الإدخال', text: 'القيم العددية لا يمكن أن تكون سالبة.', icon: 'error', confirmButtonColor: '#3F2A56' });
-                    return;
-                }
-                 if (purchasePrice > 1000000 || salePrice > 1000000 || quantity > 100000) {
-                    Swal.fire({ title: 'خطأ في الإدخال', text: 'القيم المدخلة كبيرة جدًا! الحد الأقصى للسعر 1,000,000 وللكمية 100,000.', icon: 'error', confirmButtonColor: '#3F2A56'});
-                    return;
-                }
-
-                const products = await getAllProducts();
-                if (products.some(p => p.name.toLowerCase() === name.toLowerCase())) {
-                    Swal.fire({ title: 'خطأ في الإدخال', text: 'اسم المنتج موجود مسبقًا! الرجاء اختيار اسم آخر.', icon: 'error', confirmButtonColor: '#3F2A56' });
-                    return;
-                }
-
-                const id = await generateUniqueId();
-                const product = { id, name, purchasePrice: purchasePrice.toFixed(2), salePrice: salePrice.toFixed(2), quantity };
-
-                const transaction = db.transaction(['products'], 'readwrite');
-                const store = transaction.objectStore('products');
-                const request = store.add(product);
-
-                request.onsuccess = async () => {
-                    invalidateCache();
-                    await updateProductsTable();
-                    bootstrap.Modal.getInstance(document.getElementById('addProductModal')).hide();
-                    document.getElementById('addProductForm').reset();
-                    playSuccessSound();
-                    Swal.fire({ title: 'نجاح', text: `تم إضافة المنتج "${name}" بنجاح!`, icon: 'success', confirmButtonColor: '#3F2A56' });
-                };
-                request.onerror = (event) => {
-                    console.error("خطأ في إضافة المنتج:", event.target.error);
-                    Swal.fire({ title: 'خطأ', text: 'فشل في إضافة المنتج!', icon: 'error', confirmButtonColor: '#3F2A56' });
-                };
+                displayedTransactions = await getFilteredTransactionsDB(startDateStr, endDateStr, typeFilterVal, searchTerm);
+                renderTransactionsTable(displayedTransactions);
+                updateDashboard(displayedTransactions);
+                await updateAccountsTable(displayedTransactions); // Pass filtered transactions
             } catch (error) {
-                console.error("خطأ عام في إضافة المنتج:", error);
-            }
-        }
-
-        async function editProduct(id) {
-            try {
-                await ensureDBInitialized();
-                const transaction = db.transaction(['products'], 'readonly');
-                const store = transaction.objectStore('products');
-                const request = store.get(id);
-
-                request.onsuccess = () => {
-                    const product = request.result;
-                    if (!product) {
-                        Swal.fire({ title: 'خطأ', text: 'المنتج غير موجود!', icon: 'error', confirmButtonColor: '#3F2A56' });
-                        return;
-                    }
-                    document.getElementById('editProductId').value = product.id;
-                    document.getElementById('editProductName').value = product.name;
-                    document.getElementById('editPurchasePrice').value = product.purchasePrice;
-                    document.getElementById('editSalePrice').value = product.salePrice;
-                    document.getElementById('editQuantity').value = product.quantity;
-                    new bootstrap.Modal(document.getElementById('editProductModal')).show();
-                };
-                request.onerror = (event) => {
-                    console.error("خطأ في جلب بيانات المنتج للتعديل:", event.target.error);
-                };
-            } catch (error) {
-                console.error("خطأ عام في تعديل المنتج:", error);
-            }
-        }
-
-        async function updateProduct() {
-            try {
-                await ensureDBInitialized();
-                const id = document.getElementById('editProductId').value;
-                const name = document.getElementById('editProductName').value.trim();
-                const purchasePrice = parseFloat(document.getElementById('editPurchasePrice').value);
-                const salePrice = parseFloat(document.getElementById('editSalePrice').value);
-                const quantity = parseInt(document.getElementById('editQuantity').value);
-
-                if (!name || isNaN(purchasePrice) || isNaN(salePrice) || isNaN(quantity)) {
-                    Swal.fire({ title: 'خطأ في الإدخال', text: 'الرجاء ملء جميع الحقول المطلوبة بشكل صحيح!', icon: 'error', confirmButtonColor: '#3F2A56' });
-                    return;
-                }
-                if (purchasePrice < 0 || salePrice < 0 || quantity < 0) {
-                    Swal.fire({ title: 'خطأ في الإدخال', text: 'القيم العددية لا يمكن أن تكون سالبة.', icon: 'error', confirmButtonColor: '#3F2A56' });
-                    return;
-                }
-                 if (purchasePrice > 1000000 || salePrice > 1000000 || quantity > 100000) {
-                    Swal.fire({ title: 'خطأ في الإدخال', text: 'القيم المدخلة كبيرة جدًا! الحد الأقصى للسعر 1,000,000 وللكمية 100,000.', icon: 'error', confirmButtonColor: '#3F2A56'});
-                    return;
-                }
-
-                const products = await getAllProducts();
-                const existingProductWithSameName = products.find(p => p.name.toLowerCase() === name.toLowerCase() && p.id !== id);
-                if (existingProductWithSameName) {
-                    Swal.fire({ title: 'خطأ في الإدخال', text: 'اسم المنتج موجود مسبقًا لمنتج آخر! الرجاء اختيار اسم مختلف.', icon: 'error', confirmButtonColor: '#3F2A56' });
-                    return;
-                }
-
-                const product = { id, name, purchasePrice: purchasePrice.toFixed(2), salePrice: salePrice.toFixed(2), quantity };
-                const transaction = db.transaction(['products'], 'readwrite');
-                const store = transaction.objectStore('products');
-                const request = store.put(product);
-
-                request.onsuccess = async () => {
-                    invalidateCache();
-                    await updateProductsTable();
-                    bootstrap.Modal.getInstance(document.getElementById('editProductModal')).hide();
-                    playSuccessSound();
-                    Swal.fire({ title: 'نجاح', text: `تم تعديل المنتج "${name}" بنجاح!`, icon: 'success', confirmButtonColor: '#3F2A56' });
-                };
-                request.onerror = (event) => {
-                    console.error("خطأ في تحديث المنتج:", event.target.error);
-                };
-            } catch (error) {
-                console.error("خطأ عام في تحديث المنتج:", error);
-            }
-        }
-
-        async function deleteProduct(id) {
-            try {
-                await ensureDBInitialized();
-                const transaction = db.transaction(['products'], 'readonly');
-                const store = transaction.objectStore('products');
-                const request = store.get(id);
-
-                request.onsuccess = async () => {
-                    const product = request.result;
-                    if (!product) {
-                        Swal.fire({ title: 'خطأ', text: 'المنتج غير موجود!', icon: 'error', confirmButtonColor: '#3F2A56' });
-                        return;
-                    }
-                    const result = await Swal.fire({
-                        title: 'تأكيد الحذف',
-                        text: `هل أنت متأكد من حذف المنتج "${product.name}"؟ لا يمكن التراجع عن هذا الإجراء.`,
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonText: 'نعم، احذف',
-                        cancelButtonText: 'إلغاء',
-                        confirmButtonColor: '#dc3545',
-                        cancelButtonColor: '#6c757d'
-                    });
-
-                    if (result.isConfirmed) {
-                        const deleteTransaction = db.transaction(['products'], 'readwrite');
-                        const deleteStore = deleteTransaction.objectStore('products');
-                        const deleteRequest = deleteStore.delete(id);
-
-                        deleteRequest.onsuccess = async () => {
-                            invalidateCache();
-                            await updateProductsTable();
-                            playSuccessSound();
-                            Swal.fire({ title: 'نجاح', text: `تم حذف المنتج "${product.name}" بنجاح!`, icon: 'success', confirmButtonColor: '#3F2A56' });
-                        };
-                        deleteRequest.onerror = (event) => {
-                            console.error("خطأ في حذف المنتج:", event.target.error);
-                        };
-                    }
-                };
-                request.onerror = (event) => {
-                    console.error("خطأ في جلب المنتج للحذف:", event.target.error);
-                };
-            } catch (error) {
-                console.error("خطأ عام في حذف المنتج:", error);
-            }
-        }
-
-        async function exportToJSON() {
-            try {
-                await ensureDBInitialized();
-                const products = await getAllProducts();
-                if (products.length === 0) {
-                    Swal.fire({ title: 'لا توجد بيانات', text: 'لا توجد منتجات لتصديرها.', icon: 'info', confirmButtonColor: '#3F2A56' });
-                    return;
-                }
-                const dataStr = JSON.stringify(products, null, 2);
-                const blob = new Blob([dataStr], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'inventory_products.json';
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-                playSuccessSound();
-                Swal.fire({ title: 'نجاح', text: 'تم تصدير البيانات إلى ملف JSON بنجاح!', icon: 'success', confirmButtonColor: '#3F2A56' });
-            } catch (error) {
-                console.error("خطأ في تصدير JSON:", error);
-            }
-        }
-
-        async function exportToCSV() {
-            try {
-                await ensureDBInitialized();
-                const products = await getAllProducts();
-                if (products.length === 0) {
-                    Swal.fire({ title: 'لا توجد بيانات', text: 'لا توجد منتجات لتصديرها.', icon: 'info', confirmButtonColor: '#3F2A56' });
-                    return;
-                }
-                const headers = 'معرف المنتج,اسم المنتج,سعر الشراء,سعر البيع,الكمية';
-                const rows = products.map(p => `${p.id},"${p.name.replace(/"/g, '""')}",${p.purchasePrice},${p.salePrice},${p.quantity}`);
-                const csv = [headers, ...rows].join('\n');
-                const bom = '\uFEFF'; 
-                const blob = new Blob([bom + csv], { type: 'text/csv;charset=utf-8;' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'inventory_products.csv';
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-                playSuccessSound();
-                Swal.fire({ title: 'نجاح', text: 'تم تصدير البيانات إلى ملف CSV بنجاح!', icon: 'success', confirmButtonColor: '#3F2A56' });
-            } catch (error) {
-                console.error("خطأ في تصدير CSV:", error);
+                console.error("Error filtering table:", error);
+                Swal.fire('خطأ', 'حدث خطأ أثناء جلب البيانات.', 'error');
             }
         }
         
-        function isValidProduct(product) {
-            return product &&
-                   typeof product.id === 'string' && product.id.trim() !== '' &&
-                   typeof product.name === 'string' && product.name.trim() !== '' &&
-                   !isNaN(parseFloat(product.purchasePrice)) && parseFloat(product.purchasePrice) >= 0 && parseFloat(product.purchasePrice) <= 1000000 &&
-                   !isNaN(parseFloat(product.salePrice)) && parseFloat(product.salePrice) >= 0 && parseFloat(product.salePrice) <= 1000000 &&
-                   !isNaN(parseInt(product.quantity)) && parseInt(product.quantity) >= 0 && parseInt(product.quantity) <= 100000;
+        function renderTransactionsTable(transactionsToRender) {
+            const tableBody = document.getElementById('transactionsTable');
+            tableBody.innerHTML = '';
+            transactionsToRender.forEach((transaction, index) => {
+                const row = document.createElement('tr');
+                row.setAttribute('data-id', transaction.id); // Use DB id
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${transaction.type === 'in' ? 'داخل' : 'خارج'}</td>
+                    <td>${transaction.datetime}</td>
+                    <td>${parseFloat(transaction.amount).toFixed(2)}</td>
+                    <td>${transaction.description}</td>
+                    <td>${transaction.account}</td>
+                    <td>
+                        <i class="fas fa-edit action-btn edit" onclick="editTransaction(${transaction.id});event.stopPropagation();"></i>
+                        <i class="fas fa-trash action-btn delete" onclick="deleteTransaction(${transaction.id});event.stopPropagation();"></i>
+                    </td>
+                `;
+                row.addEventListener('click', () => showTransactionDetails(transaction.id));
+                tableBody.appendChild(row);
+            });
         }
 
-        async function importFile(event) {
-            try {
-                await ensureDBInitialized();
-                const file = event.target.files[0];
-                if (!file) return;
+        function updateDashboard(transactionsForDashboard) {
+            const totalIn = transactionsForDashboard
+                .filter(t => t.type === 'in')
+                .reduce((sum, t) => sum + parseFloat(t.amount), 0);
+            const totalOut = transactionsForDashboard
+                .filter(t => t.type === 'out')
+                .reduce((sum, t) => sum + parseFloat(t.amount), 0);
+            const balance = totalIn - totalOut;
 
-                const reader = new FileReader();
-                reader.onload = async function(e) {
-                    let importedProducts = [];
-                    try {
-                        if (file.name.endsWith('.json')) {
-                            importedProducts = JSON.parse(e.target.result);
-                        } else if (file.name.endsWith('.csv')) {
-                            const data = e.target.result;
-                            const rows = data.split('\n').filter(row => row.trim());
-                            if (rows.length > 1) { 
-                                const headers = rows[0].split(',').map(h => h.trim().toLowerCase().replace(/"/g, '')); // Remove quotes from headers
-                                const idIndex = headers.indexOf('معرف المنتج');
-                                const nameIndex = headers.indexOf('اسم المنتج');
-                                const purchaseIndex = headers.indexOf('سعر الشراء');
-                                const saleIndex = headers.indexOf('سعر البيع');
-                                const quantityIndex = headers.indexOf('الكمية');
+            document.getElementById('balance').innerText = balance.toFixed(2);
+            document.getElementById('totalIn').innerText = totalIn.toFixed(2);
+            document.getElementById('totalOut').innerText = totalOut.toFixed(2);
+        }
 
-                                if ([idIndex, nameIndex, purchaseIndex, saleIndex, quantityIndex].some(i => i === -1)) {
-                                    throw new Error("تنسيق ملف CSV غير صحيح أو缺少 بعض الأعمدة المطلوبة: " + headers.join(' | '));
-                                }
-
-                                importedProducts = rows.slice(1).map(row => {
-                                    const values = row.split(',');
-                                    return {
-                                        id: values[idIndex]?.trim().replace(/"/g, ''),
-                                        name: values[nameIndex]?.trim().replace(/"/g, ''),
-                                        purchasePrice: parseFloat(values[purchaseIndex]?.trim().replace(/"/g, '')).toFixed(2),
-                                        salePrice: parseFloat(values[saleIndex]?.trim().replace(/"/g, '')).toFixed(2),
-                                        quantity: parseInt(values[quantityIndex]?.trim().replace(/"/g, ''))
-                                    };
-                                });
-                            }
-                        } else {
-                             Swal.fire({ title: 'خطأ', text: 'صيغة الملف غير مدعومة. الرجاء تحميل ملف JSON أو CSV.', icon: 'error', confirmButtonColor: '#3F2A56' });
-                             return;
-                        }
-                    } catch (parseError) {
-                        console.error("خطأ في تحليل الملف:", parseError);
-                        Swal.fire({ title: 'خطأ في الملف', text: 'فشل في قراءة أو تحليل الملف. تأكد من أن الملف بالتنسيق الصحيح.\n' + parseError.message, icon: 'error', confirmButtonColor: '#3F2A56' });
-                        return;
-                    }
-
-                    if (!Array.isArray(importedProducts) || importedProducts.length === 0) {
-                        Swal.fire({ title: 'لا توجد بيانات', text: 'الملف لا يحتوي على منتجات صالحة للاستيراد.', icon: 'info', confirmButtonColor: '#3F2A56' });
-                        return;
-                    }
-                    
-                    const validProducts = [];
-                    const invalidProductExamples = [];
-                    for (const p of importedProducts) {
-                        if (isValidProduct(p)) {
-                            validProducts.push(p);
-                        } else {
-                            if(invalidProductExamples.length < 5) invalidProductExamples.push(JSON.stringify(p));
-                        }
-                    }
-
-                    if (invalidProductExamples.length > 0) {
-                        Swal.fire({
-                            title: 'بيانات غير صالحة',
-                            html: `تم العثور على ${invalidProductExamples.length} منتجًا غير صالح في الملف. <br>أمثلة: <pre>${invalidProductExamples.join('\n')}</pre>الرجاء التحقق من تنسيق الملف والقيم.`,
-                            icon: 'warning',
-                            confirmButtonColor: '#3F2A56'
-                        });
-                        if(validProducts.length === 0) return; 
-                    }
-                    
-                    if (validProducts.length === 0) {
-                         Swal.fire({ title: 'لا توجد بيانات صالحة', text: 'لم يتم العثور على منتجات صالحة للاستيراد في الملف.', icon: 'info', confirmButtonColor: '#3F2A56' });
-                         return;
-                    }
-                    await processImportedData(validProducts);
-                };
-                reader.onerror = () => {
-                     Swal.fire({ title: 'خطأ', text: 'فشل في قراءة الملف!', icon: 'error', confirmButtonColor: '#3F2A56' });
-                };
-                reader.readAsText(file);
-                document.getElementById('importFile').value = ''; 
-            } catch (error) {
-                console.error("خطأ في استيراد الملف:", error);
+        async function updateAccountsTable(transactionsForBalance) {
+            const tableBody = document.getElementById('accountsTable');
+            tableBody.innerHTML = '';
+            // allAccounts should be populated from DB initially
+            if (!allAccounts || allAccounts.length === 0) {
+                allAccounts = await getAllRecords(ACCOUNTS_STORE_NAME);
             }
+
+            allAccounts.forEach((acc, index) => { // acc is an object {name: "AccountName"}
+                const balance = getAccountBalance(acc.name, transactionsForBalance);
+                const row = document.createElement('tr');
+                row.setAttribute('data-account', acc.name);
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${acc.name}</td>
+                    <td>${balance.toFixed(2)}</td>
+                    <td>
+                        <i class="fas fa-edit action-btn edit" onclick="openEditAccountModal('${acc.name}');event.stopPropagation();"></i>
+                        <i class="fas fa-trash action-btn delete" onclick="deleteAccount('${acc.name}');event.stopPropagation();"></i>
+                    </td>
+                `;
+                row.addEventListener('click', (e) => {
+                    if (!e.target.classList.contains('action-btn')) {
+                        showAccountTransactions(acc.name, transactionsForBalance);
+                    }
+                });
+                tableBody.appendChild(row);
+            });
+            populateAccountDropdowns(); // Ensure dropdowns are also up-to-date
+        }
+        
+        // Calculates balance for an account based on a GIVEN set of transactions
+        function getAccountBalance(accountName, transactionsArray) {
+            return transactionsArray.reduce((balance, t) => {
+                if (t.account !== accountName) return balance;
+                return balance + (t.type === 'in' ? parseFloat(t.amount) : -parseFloat(t.amount));
+            }, 0);
         }
 
-        async function generateQRCodeForAllProducts() { // Renamed for clarity
+        // Calculates ALL-TIME balance for an account (used for deletion check)
+        async function getAllTimeAccountBalance(accountName) {
+            const allTransactionsForAccount = await getFilteredTransactionsDB(null, null, 'all', accountName);
+            // Further filter, because searchTerm in getFilteredTransactionsDB is OR on desc/account
+            const specificAccountTransactions = allTransactionsForAccount.filter(t => t.account === accountName);
+            return specificAccountTransactions.reduce((balance, t) => {
+                return balance + (t.type === 'in' ? parseFloat(t.amount) : -parseFloat(t.amount));
+            }, 0);
+        }
+
+        async function populateAccountDropdowns() {
+            allAccounts = await getAllRecords(ACCOUNTS_STORE_NAME);
+            const accountSelect = document.getElementById('account');
+            const editAccountSelect = document.getElementById('editAccount');
+            
+            const currentAccountVal = accountSelect.value;
+            const currentEditAccountVal = editAccountSelect.value;
+
+            accountSelect.innerHTML = '<option value="">اختر حسابًا</option>';
+            editAccountSelect.innerHTML = '<option value="">اختر حسابًا</option>';
+            
+            allAccounts.forEach(acc => {
+                const option = document.createElement('option');
+                option.value = acc.name;
+                option.text = acc.name;
+                accountSelect.appendChild(option.cloneNode(true));
+                editAccountSelect.appendChild(option);
+            });
+            accountSelect.value = currentAccountVal;
+            editAccountSelect.value = currentEditAccountVal;
+        }
+
+
+        async function showTransactionDetails(transactionId) {
             try {
-                await ensureDBInitialized();
-                const products = await getAllProducts();
-                 if (products.length === 0) {
-                    Swal.fire({ title: 'لا توجد بيانات', text: 'لا توجد منتجات لإنشاء رمز QR.', icon: 'info', confirmButtonColor: '#3F2A56' });
+                const transaction = await getRecord(TRANSACTIONS_STORE_NAME, transactionId);
+                if (!transaction) {
+                    Swal.fire('خطأ', 'المعاملة غير موجودة', 'error');
                     return;
                 }
-                const dataString = JSON.stringify(products);
-                const qrCanvas = document.getElementById('qrCanvas'); 
-                
-                QRCode.toCanvas(qrCanvas, dataString, { width: 300, margin: 2, errorCorrectionLevel: 'L' }, (error) => {
-                    if (error) {
-                        console.error("خطأ في إنشاء QR Code:", error);
-                        Swal.fire({ title: 'خطأ', text: 'فشل في إنشاء رمز QR!', icon: 'error', confirmButtonColor: '#3F2A56' });
-                        return;
-                    }
-                    Swal.fire({
-                        title: 'رمز QR جاهز (لجميع المنتجات)',
-                        html: `
-                            <canvas id="tempQRCanvas" style="border:1px solid #ccc;"></canvas>
-                            <p style="margin-top:10px;">امسح هذا الرمز من جهاز آخر لنقل البيانات.</p>
-                            <div class="scanner-buttons" style="margin-top:15px;">
-                                <button class="btn" onclick="exportQRCodeImage()">تصدير كصورة</button>
-                            </div>
-                        `,
-                        showCancelButton: false,
-                        confirmButtonText: 'إغلاق',
-                        confirmButtonColor: '#3F2A56',
-                        customClass: { popup: 'swal2-rtl' },
-                        width: 'auto', 
-                        didOpen: () => {
-                            const tempCanvas = document.getElementById('tempQRCanvas');
-                            if (tempCanvas) {
-                                tempCanvas.width = qrCanvas.width;
-                                tempCanvas.height = qrCanvas.height;
-                                tempCanvas.getContext('2d').drawImage(qrCanvas, 0, 0);
-                            }
-                        }
-                    });
+                Swal.fire({
+                    title: 'تفاصيل المعاملة',
+                    html: `
+                        <div style="text-align: right; font-family: 'Cairo', sans-serif; color: #3F2A56;">
+                            <p><strong>نوع المعاملة:</strong> ${transaction.type === 'in' ? 'داخل' : 'خارج'}</p>
+                            <p><strong>التاريخ والوقت:</strong> ${transaction.datetime}</p>
+                            <p><strong>المبلغ:</strong> ${parseFloat(transaction.amount).toFixed(2)}</p>
+                            <p><strong>البيان:</strong> ${transaction.description}</p>
+                            <p><strong>الحساب:</strong> ${transaction.account}</p>
+                        </div>
+                    `,
+                    icon: 'info',
+                    confirmButtonText: 'إغلاق',
+                    confirmButtonColor: '#3F2A56',
+                    customClass: { popup: 'swal2-rtl' }
                 });
             } catch (error) {
-                console.error("خطأ عام في إنشاء QR Code:", error);
+                console.error("Error showing transaction details:", error);
+                Swal.fire('خطأ', 'حدث خطأ أثناء عرض التفاصيل.', 'error');
             }
         }
 
-        function exportQRCodeImage() { 
-            const qrCanvas = document.getElementById('qrCanvas'); 
-            if (!qrCanvas) {
-                Swal.fire({ title: 'خطأ', text: 'لم يتم العثور على لوحة QR للتصدير!', icon: 'error', confirmButtonColor: '#3F2A56' });
+        function showAccountTransactions(accountName, transactionsToDisplay) {
+            // Filter the provided transactions for the specific account
+            const accountTransactions = transactionsToDisplay.filter(t => t.account === accountName)
+                                       .sort((a, b) => new Date(b.datetime) - new Date(a.datetime));
+
+            let tableHTML = `
+                <table style="width: 100%; border-collapse: collapse; font-family: 'Cairo', sans-serif; direction: rtl;">
+                    <thead>
+                        <tr style="background: linear-gradient(90deg, #3F2A56, #5a3f73); color: white;">
+                            <th style="padding: 10px; border: 1px solid #ddd;">#</th>
+                            <th style="padding: 10px; border: 1px solid #ddd;">نوع المعاملة</th>
+                            <th style="padding: 10px; border: 1px solid #ddd;">التاريخ والوقت</th>
+                            <th style="padding: 10px; border: 1px solid #ddd;">المبلغ</th>
+                            <th style="padding: 10px; border: 1px solid #ddd;">البيان</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            if (accountTransactions.length === 0) {
+                tableHTML += `
+                    <tr>
+                        <td colspan="5" style="padding: 10px; border: 1px solid #ddd; text-align: center;">لا توجد معاملات لهذا الحساب في الفترة المحددة</td>
+                    </tr>
+                `;
+            } else {
+                accountTransactions.forEach((transaction, index) => {
+                    tableHTML += `
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #ddd;">${index + 1}</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">${transaction.type === 'in' ? 'داخل' : 'خارج'}</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">${transaction.datetime}</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">${parseFloat(transaction.amount).toFixed(2)}</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">${transaction.description}</td>
+                        </tr>
+                    `;
+                });
+            }
+            tableHTML += `</tbody></table>`;
+            Swal.fire({
+                title: `معاملات الحساب: ${accountName} (للفترة المحددة)`,
+                html: tableHTML,
+                icon: 'info',
+                confirmButtonText: 'إغلاق',
+                confirmButtonColor: '#3F2A56',
+                customClass: { popup: 'swal2-rtl' },
+                width: '800px'
+            });
+        }
+        
+        async function addAccount() {
+            const accountName = document.getElementById('accountName').value.trim();
+            if (!accountName) {
+                Swal.fire('خطأ', 'الرجاء إدخال اسم الحساب.', 'error');
                 return;
             }
             try {
-                const dataURL = qrCanvas.toDataURL('image/png');
-                const a = document.createElement('a');
-                a.href = dataURL;
-                a.download = 'inventory_qrcode.png';
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                playSuccessSound();
-            } catch (e) {
-                console.error("خطأ في تصدير صورة QR:", e);
+                const existingAccount = await getRecord(ACCOUNTS_STORE_NAME, accountName);
+                if (existingAccount) {
+                    Swal.fire('خطأ', 'اسم الحساب موجود بالفعل.', 'error');
+                    return;
+                }
+                await addRecord(ACCOUNTS_STORE_NAME, { name: accountName });
+                allAccounts = await getAllRecords(ACCOUNTS_STORE_NAME); // Refresh local cache
+                await populateAccountDropdowns();
+                await updateAccountsTable(displayedTransactions); // Re-render accounts table with current period balances
+                
+                bootstrap.Modal.getInstance(document.getElementById('addAccountModal')).hide();
+                document.getElementById('addAccountForm').reset();
+                Swal.fire('نجاح', `تم إضافة حساب "${accountName}" بنجاح.`, 'success');
+            } catch (error) {
+                console.error("Error adding account:", error);
+                Swal.fire('خطأ', 'حدث خطأ أثناء إضافة الحساب.', 'error');
             }
         }
 
-
-        function checkCameraSupport() {
-            return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+        function openEditAccountModal(accountName) {
+            document.getElementById('editAccountOldName').value = accountName;
+            document.getElementById('editAccountName').value = accountName;
+            new bootstrap.Modal(document.getElementById('editAccountModal')).show();
         }
 
-        async function startQRScanner() {
+        async function updateAccount() {
+            const oldName = document.getElementById('editAccountOldName').value;
+            const newName = document.getElementById('editAccountName').value.trim();
+
+            if (!newName) {
+                Swal.fire('خطأ', 'الرجاء إدخال اسم الحساب الجديد.', 'error');
+                return;
+            }
+            if (oldName === newName) {
+                 bootstrap.Modal.getInstance(document.getElementById('editAccountModal')).hide();
+                 return; // No change
+            }
+
             try {
-                if (!checkCameraSupport()) {
-                    Swal.fire({ title: 'الكاميرا غير مدعومة', text: 'الكاميرا غير مدعومة في هذا المتصفح أو الجهاز.', icon: 'error', confirmButtonColor: '#3F2A56' });
+                const existingNewName = await getRecord(ACCOUNTS_STORE_NAME, newName);
+                if (existingNewName) {
+                    Swal.fire('خطأ', `اسم الحساب "${newName}" موجود بالفعل.`, 'error');
                     return;
                 }
-                await ensureDBInitialized();
 
-                Swal.fire({
-                    title: 'مسح رمز QR',
-                    html: `
-                        <div id="scannerContainer">
-                            <video id="scannerVideo" autoplay playsinline></video>
-                            <div class="scanner-buttons">
-                                <button class="btn" onclick="stopQRScannerAndCloseSwal()">إيقاف المسح</button>
-                                <button class="btn" onclick="document.getElementById('qrImageInput').click()">استيراد من صورة</button>
-                            </div>
-                        </div>
-                    `,
-                    showConfirmButton: false,
-                    showCancelButton: true, 
-                    cancelButtonText: 'إغلاق',
-                    cancelButtonColor: '#6c757d',
-                    customClass: { popup: 'swal2-rtl' },
-                    width: 'auto',
-                    didOpen: async () => {
-                        const video = document.getElementById('scannerVideo');
-                        if (!video) return;
-                        try {
-                            stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-                            video.srcObject = stream;
-                            await video.play(); 
+                // Update account name in ACCOUNTS_STORE
+                await deleteRecord(ACCOUNTS_STORE_NAME, oldName);
+                await addRecord(ACCOUNTS_STORE_NAME, { name: newName });
 
-                            const canvasElement = document.createElement('canvas');
-                            const canvas = canvasElement.getContext('2d');
-                            let scanInterval;
+                // Update account name in all associated transactions
+                const tx = db.transaction(TRANSACTIONS_STORE_NAME, 'readwrite');
+                const store = tx.objectStore(TRANSACTIONS_STORE_NAME);
+                const accountIndex = store.index('account');
+                const request = accountIndex.openCursor(IDBKeyRange.only(oldName));
 
-                            function tick() {
-                                if (video.readyState === video.HAVE_ENOUGH_DATA) {
-                                    canvasElement.height = video.videoHeight;
-                                    canvasElement.width = video.videoWidth;
-                                    canvas.drawImage(video, 0, 0, canvasElement.width, canvasElement.height);
-                                    const imageData = canvas.getImageData(0, 0, canvasElement.width, canvasElement.height);
-                                    const code = jsQR(imageData.data, imageData.width, imageData.height, {
-                                        inversionAttempts: 'dontInvert',
-                                    });
-                                    if (code) {
-                                        clearInterval(scanInterval); 
-                                        stopQRScanner(); 
-                                        Swal.close(); 
-                                        try {
-                                            const newProducts = JSON.parse(code.data);
-                                             if (!Array.isArray(newProducts)) throw new Error("بيانات QR ليست مصفوفة.");
-                                            processImportedData(newProducts.filter(isValidProduct)); 
-                                        } catch (e) {
-                                            console.error("خطأ في تحليل بيانات QR:", e);
-                                            Swal.fire({ title: 'خطأ', text: 'البيانات في رمز QR غير صالحة أو ليست بتنسيق JSON متوقع!\n' + e.message, icon: 'error', confirmButtonColor: '#3F2A56' });
-                                        }
-                                        return; 
-                                    }
-                                }
-                                if (Swal.isVisible()) { 
-                                   scanInterval = requestAnimationFrame(tick);
-                                } else {
-                                    stopQRScanner(); 
-                                }
-                            }
-                            scanInterval = requestAnimationFrame(tick);
-
-                        } catch (err) {
-                            console.error("خطأ في الوصول للكاميرا:", err);
-                            stopQRScanner();
-                            Swal.fire({ title: 'خطأ الكاميرا', text: 'فشل في الوصول إلى الكاميرا. تأكد من منح الأذونات.\n' + err.message, icon: 'error', confirmButtonColor: '#3F2A56' });
-                        }
-                    },
-                    willClose: () => {
-                        stopQRScanner();
+                request.onsuccess = (event) => {
+                    const cursor = event.target.result;
+                    if (cursor) {
+                        const transaction = cursor.value;
+                        transaction.account = newName;
+                        cursor.update(transaction);
+                        cursor.continue();
+                    } else {
+                        // All updates done
+                        finishAccountUpdate();
                     }
-                });
+                };
+                request.onerror = (event) => {
+                     console.error("Error updating transactions for account rename:", event.target.error);
+                     Swal.fire('خطأ', 'فشل تحديث المعاملات المرتبطة بالحساب.', 'error');
+                }
             } catch (error) {
-                console.error("خطأ في بدء مسح QR:", error);
+                console.error("Error updating account:", error);
+                Swal.fire('خطأ', 'حدث خطأ أثناء تعديل الحساب.', 'error');
+            }
+            
+            async function finishAccountUpdate() {
+                allAccounts = await getAllRecords(ACCOUNTS_STORE_NAME); // Refresh cache
+                await populateAccountDropdowns();
+                await filterTable(); // This will re-render everything with new names
+                bootstrap.Modal.getInstance(document.getElementById('editAccountModal')).hide();
+                Swal.fire('نجاح', `تم تعديل اسم الحساب من "${oldName}" إلى "${newName}".`, 'success');
+            }
+        }
+
+        async function deleteAccount(accountName) {
+            try {
+                // Check ALL-TIME balance. An account can only be deleted if its all-time balance is zero.
+                const balance = await getAllTimeAccountBalance(accountName);
+                if (balance !== 0) {
+                    Swal.fire('خطأ', `لا يمكن حذف الحساب "${accountName}" لأن رصيده الكلي (${balance.toFixed(2)}) ليس صفرًا.`, 'error');
+                    return;
+                }
+
+                const result = await Swal.fire({
+                    title: 'تأكيد الحذف',
+                    text: `هل أنت متأكد من حذف حساب "${accountName}"؟ لا يمكن التراجع عن هذا.`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'حذف',
+                    cancelButtonText: 'إلغاء'
+                });
+
+                if (result.isConfirmed) {
+                    await deleteRecord(ACCOUNTS_STORE_NAME, accountName);
+                    allAccounts = await getAllRecords(ACCOUNTS_STORE_NAME); // Refresh cache
+                    await populateAccountDropdowns();
+                    await updateAccountsTable(displayedTransactions); // Re-render accounts table
+                    Swal.fire('نجاح', `تم حذف حساب "${accountName}".`, 'success');
+                }
+            } catch (error) {
+                console.error("Error deleting account:", error);
+                Swal.fire('خطأ', 'حدث خطأ أثناء حذف الحساب.', 'error');
             }
         }
         
-        function stopQRScannerAndCloseSwal() {
-            stopQRScanner();
-            Swal.close();
+        async function addTransaction() {
+            const type = document.getElementById('type').value;
+            const datetimeFull = document.getElementById('datetime').value; // YYYY-MM-DDTHH:mm
+            const amount = document.getElementById('amount').value;
+            const description = document.getElementById('description').value.trim();
+            const account = document.getElementById('account').value;
+
+            if (!type || !datetimeFull || !amount || !description || !account) {
+                Swal.fire('خطأ', 'الرجاء ملء جميع الحقول.', 'error');
+                return;
+            }
+             if (parseFloat(amount) <= 0) {
+                Swal.fire('خطأ', 'المبلغ يجب أن يكون أكبر من صفر.', 'error');
+                return;
+            }
+
+            const datetime = datetimeFull.replace('T', ' '); // YYYY-MM-DD HH:mm
+            const dateOnly = datetimeFull.split('T')[0]; // YYYY-MM-DD for indexing
+
+            // Check balance for 'out' transactions against ALL-TIME balance
+            if (type === 'out') {
+                const allTimeBalance = await getAllTimeAccountBalance(account);
+                if (parseFloat(amount) > allTimeBalance) {
+                    Swal.fire('رصيد غير كافٍ', `الرصيد الكلي للحساب "${account}" هو ${allTimeBalance.toFixed(2)}. لا يمكن سحب ${amount}.`, 'error');
+                    return;
+                }
+            }
+            
+            const newTransaction = { type, datetime, date: dateOnly, amount: parseFloat(amount).toFixed(2), description, account };
+
+            try {
+                await addRecord(TRANSACTIONS_STORE_NAME, newTransaction);
+                await filterTable(); // Refresh the view
+                bootstrap.Modal.getInstance(document.getElementById('addTransactionModal')).hide();
+                document.getElementById('addTransactionForm').reset();
+                setCurrentDateTimeForPicker(); // Reset datetime picker for next entry
+                Swal.fire('نجاح', 'تمت إضافة المعاملة بنجاح!', 'success');
+            } catch (error) {
+                console.error("Error adding transaction:", error);
+                Swal.fire('خطأ', 'حدث خطأ أثناء إضافة المعاملة.', 'error');
+            }
         }
 
-        function stopQRScanner() {
+        async function editTransaction(transactionId) {
+            try {
+                const transaction = await getRecord(TRANSACTIONS_STORE_NAME, transactionId);
+                if (!transaction) {
+                    Swal.fire('خطأ', 'المعاملة غير موجودة.', 'error');
+                    return;
+                }
+                document.getElementById('editId').value = transaction.id;
+                document.getElementById('editType').value = transaction.type;
+                document.getElementById('editDatetime').value = transaction.datetime.replace(' ', 'T');
+                document.getElementById('editAmount').value = transaction.amount;
+                document.getElementById('editDescription').value = transaction.description;
+                document.getElementById('editAccount').value = transaction.account; // Ensure dropdown is populated before this
+                
+                new bootstrap.Modal(document.getElementById('editTransactionModal')).show();
+            } catch (error) {
+                console.error("Error fetching transaction for edit:", error);
+                Swal.fire('خطأ', 'حدث خطأ أثناء جلب المعاملة للتعديل.', 'error');
+            }
+        }
+
+        async function updateTransaction() {
+            const id = parseInt(document.getElementById('editId').value);
+            const type = document.getElementById('editType').value;
+            const datetimeFull = document.getElementById('editDatetime').value;
+            const amount = document.getElementById('editAmount').value;
+            const description = document.getElementById('editDescription').value.trim();
+            const account = document.getElementById('editAccount').value;
+
+            if (!type || !datetimeFull || !amount || !description || !account) {
+                Swal.fire('خطأ', 'الرجاء ملء جميع الحقول.', 'error');
+                return;
+            }
+            if (parseFloat(amount) <= 0) {
+                Swal.fire('خطأ', 'المبلغ يجب أن يكون أكبر من صفر.', 'error');
+                return;
+            }
+
+            const datetime = datetimeFull.replace('T', ' ');
+            const dateOnly = datetimeFull.split('T')[0];
+
+            // Balance check for 'out' transactions needs careful handling.
+            // It should consider all transactions EXCEPT the one being edited, then add the new amount.
+            if (type === 'out') {
+                const allDbTransactions = await getFilteredTransactionsDB(null, null, 'all', null); // Fetch all
+                let tempBalance = 0;
+                allDbTransactions.forEach(t => {
+                    if (t.account === account && t.id !== id) { // Exclude the current transaction being edited
+                        tempBalance += (t.type === 'in' ? parseFloat(t.amount) : -parseFloat(t.amount));
+                    }
+                });
+                // Now, if the edited transaction itself was 'in' and is changing to 'out', or if it was 'out'
+                // its old value is already excluded. We just need to check if the new 'out' amount is valid.
+                // The `tempBalance` is the balance *without* this transaction.
+                if (parseFloat(amount) > tempBalance) {
+                     Swal.fire('رصيد غير كافٍ', `الرصيد الكلي للحساب "${account}" (بدون هذه المعاملة) هو ${tempBalance.toFixed(2)}. لا يمكن تعديل السحب إلى ${amount}.`, 'error');
+                    return;
+                }
+            }
+
+            const updatedTransaction = { id, type, datetime, date: dateOnly, amount: parseFloat(amount).toFixed(2), description, account };
+
+            try {
+                await updateRecord(TRANSACTIONS_STORE_NAME, updatedTransaction);
+                await filterTable();
+                bootstrap.Modal.getInstance(document.getElementById('editTransactionModal')).hide();
+                Swal.fire('نجاح', 'تم تعديل المعاملة بنجاح!', 'success');
+            } catch (error) {
+                console.error("Error updating transaction:", error);
+                Swal.fire('خطأ', 'حدث خطأ أثناء تعديل المعاملة.', 'error');
+            }
+        }
+
+        async function deleteTransaction(transactionId) {
+            const result = await Swal.fire({
+                title: 'تأكيد الحذف',
+                text: 'هل أنت متأكد من حذف هذه المعاملة؟',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'حذف',
+                cancelButtonText: 'إلغاء'
+            });
+            if (result.isConfirmed) {
+                try {
+                    // Before deleting, check if this deletion would cause a negative ALL-TIME balance for the account
+                    const transactionToDelete = await getRecord(TRANSACTIONS_STORE_NAME, transactionId);
+                    if (transactionToDelete.type === 'in') { // If we delete an 'in' transaction
+                        const allTimeBalance = await getAllTimeAccountBalance(transactionToDelete.account);
+                        const balanceAfterDeletingThisIn = allTimeBalance - parseFloat(transactionToDelete.amount);
+                        if (balanceAfterDeletingThisIn < 0) {
+                            Swal.fire('خطأ في الحذف', `حذف هذه المعاملة سيجعل الرصيد الكلي للحساب "${transactionToDelete.account}" سالبًا (${balanceAfterDeletingThisIn.toFixed(2)}). لا يمكن الحذف.`, 'error');
+                            return;
+                        }
+                    }
+
+                    await deleteRecord(TRANSACTIONS_STORE_NAME, transactionId);
+                    await filterTable();
+                    Swal.fire('نجاح', 'تم حذف المعاملة بنجاح!', 'success');
+                } catch (error) {
+                    console.error("Error deleting transaction:", error);
+                    Swal.fire('خطأ', 'حدث خطأ أثناء حذف المعاملة.', 'error');
+                }
+            }
+        }
+        
+        // --- Export / Import / QR Functions (Modified to use displayedTransactions) ---
+        function exportVisibleToJSON() {
+            // displayedTransactions is already sorted by date by filterTable
+            const dataStr = JSON.stringify(displayedTransactions, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'cashbox_visible_transactions.json';
+            a.click();
+            URL.revokeObjectURL(url);
+            Swal.fire('نجاح', 'تم تصدير البيانات المعروضة إلى JSON!', 'success');
+        }
+
+        function exportVisibleToCSV() {
+            const headers = ['نوع المعاملة,التاريخ والوقت,المبلغ,البيان,الحساب'];
+            const rows = displayedTransactions.map(t => 
+                `${t.type === 'in' ? 'داخل' : 'خارج'},"${t.datetime}","${t.amount}","${t.description}","${t.account}"`
+            );
+            const csv = [headers.join(','), ...rows].join('\n');
+            const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' }); // Added BOM for Excel
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'cashbox_visible_transactions.csv';
+            a.click();
+            URL.revokeObjectURL(url);
+            Swal.fire('نجاح', 'تم تصدير البيانات المعروضة إلى CSV!', 'success');
+        }
+        
+        async function importFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+
+            reader.onload = async function(e) {
+                let newTransactionsRaw = [];
+                let importedAccounts = new Set(); // To collect accounts from imported file
+
+                try {
+                    if (file.name.endsWith('.json')) {
+                        newTransactionsRaw = JSON.parse(e.target.result);
+                    } else if (file.name.endsWith('.csv')) {
+                        const data = e.target.result;
+                        const rows = data.split('\n').slice(1).filter(row => row.trim());
+                        newTransactionsRaw = rows.map(row => {
+                            // More robust CSV parsing, handling potential commas in description
+                            const values = [];
+                            let currentVal = '';
+                            let inQuotes = false;
+                            for (let char of row) {
+                                if (char === '"') {
+                                    inQuotes = !inQuotes;
+                                } else if (char === ',' && !inQuotes) {
+                                    values.push(currentVal.trim());
+                                    currentVal = '';
+                                } else {
+                                    currentVal += char;
+                                }
+                            }
+                            values.push(currentVal.trim()); // last value
+                            
+                            if (values.length < 5) return null; // Skip malformed rows
+                            
+                            return {
+                                type: values[0] === 'داخل' ? 'in' : 'out',
+                                datetime: values[1],
+                                amount: parseFloat(values[2]).toFixed(2),
+                                description: values[3],
+                                account: values[4]
+                            };
+                        }).filter(Boolean); // Remove nulls from malformed rows
+                    } else {
+                        throw new Error('صيغة ملف غير مدعومة. استخدم JSON أو CSV.');
+                    }
+
+                    if (!Array.isArray(newTransactionsRaw)) throw new Error("بيانات الملف غير صالحة.");
+
+                    // Validate and prepare transactions for DB
+                    const transactionsToImport = [];
+                    for (const t of newTransactionsRaw) {
+                        if (!t.type || !t.datetime || isNaN(parseFloat(t.amount)) || parseFloat(t.amount) <= 0 || !t.description || !t.account) {
+                            console.warn("Skipping invalid transaction during import:", t);
+                            continue; // Skip invalid transactions
+                        }
+                        const dateOnly = t.datetime.split(' ')[0].split('T')[0]; // Ensure YYYY-MM-DD
+                        transactionsToImport.push({
+                            type: t.type,
+                            datetime: t.datetime.replace('T', ' '),
+                            date: dateOnly,
+                            amount: parseFloat(t.amount).toFixed(2),
+                            description: t.description,
+                            account: t.account
+                        });
+                        importedAccounts.add(t.account);
+                    }
+                    
+                    if (transactionsToImport.length === 0) {
+                         Swal.fire('لا توجد بيانات', 'لم يتم العثور على معاملات صالحة في الملف.', 'info');
+                         return;
+                    }
+
+                    // Add new accounts from the imported file
+                    for (const accName of importedAccounts) {
+                        const existing = await getRecord(ACCOUNTS_STORE_NAME, accName);
+                        if (!existing) {
+                            await addRecord(ACCOUNTS_STORE_NAME, { name: accName });
+                        }
+                    }
+                    allAccounts = await getAllRecords(ACCOUNTS_STORE_NAME); // Refresh accounts cache
+                    await populateAccountDropdowns();
+
+
+                    // Balance check before bulk import
+                    const allCurrentDBTransactions = await getFilteredTransactionsDB(null, null, 'all', null);
+                    const tempAllTransactions = [...allCurrentDBTransactions, ...transactionsToImport];
+                    
+                    const negativeBalancesInfo = [];
+                    for (const accName of importedAccounts) { // Check only for accounts involved in import
+                        let balance = 0;
+                        tempAllTransactions.forEach(tx => {
+                            if (tx.account === accName) {
+                                balance += (tx.type === 'in' ? parseFloat(tx.amount) : -parseFloat(tx.amount));
+                            }
+                        });
+                        if (balance < 0) {
+                            negativeBalancesInfo.push(`الحساب: ${accName}, الرصيد سيصبح: ${balance.toFixed(2)}`);
+                        }
+                    }
+
+                    if (negativeBalancesInfo.length > 0) {
+                        const proceed = await Swal.fire({
+                            title: 'تحذير: أرصدة سالبة محتملة',
+                            html: `استيراد هذه البيانات قد يؤدي إلى أرصدة سالبة لبعض الحسابات:<br>${negativeBalancesInfo.join('<br>')}<br>هل تريد المتابعة؟`,
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonText: 'متابعة الاستيراد',
+                            cancelButtonText: 'إلغاء'
+                        });
+                        if (!proceed.isConfirmed) {
+                            Swal.fire('تم الإلغاء', 'لم يتم استيراد البيانات.', 'info');
+                            return;
+                        }
+                    }
+
+                    // Bulk add transactions
+                    const txStore = db.transaction(TRANSACTIONS_STORE_NAME, 'readwrite');
+                    const store = txStore.objectStore(TRANSACTIONS_STORE_NAME);
+                    for (const trans of transactionsToImport) {
+                        store.add(trans); // No need to await inside loop for performance
+                    }
+
+                    txStore.oncomplete = async () => {
+                        successSound.play();
+                        await filterTable(); // Refresh view
+                        Swal.fire('نجاح', `تم استيراد ${transactionsToImport.length} معاملة بنجاح!`, 'success');
+                    };
+                    txStore.onerror = (event) => {
+                        console.error("Error bulk adding transactions:", event.target.error);
+                        Swal.fire('خطأ', 'حدث خطأ أثناء حفظ المعاملات المستوردة.', 'error');
+                    };
+
+                } catch (error) {
+                    console.error("Error importing file:", error);
+                    Swal.fire('خطأ في الاستيراد', error.message || 'فشل استيراد الملف. تحقق من التنسيق.', 'error');
+                } finally {
+                    event.target.value = null; // Reset file input
+                }
+            };
+            reader.readAsText(file);
+        }
+
+
+        function generateQRCodeForVisible() { // Generates QR for currently displayed transactions
+            const allDbAccounts = allAccounts.map(a => a.name); // Get just names
+            const data = {
+                transactions: displayedTransactions.map(t => ({ // Send only essential data, no id from DB
+                    type: t.type, 
+                    datetime: t.datetime, 
+                    amount: t.amount, 
+                    description: t.description, 
+                    account: t.account 
+                })),
+                accounts: allDbAccounts // Send all account names currently in DB
+            };
+            const dataString = JSON.stringify(data);
+            const qrCanvas = document.getElementById('qrCanvas');
+            QRCode.toCanvas(qrCanvas, dataString, { width: 300, margin: 2 }, (error) => {
+                if (error) {
+                    Swal.fire('خطأ', 'فشل إنشاء QR Code.', 'error');
+                    return;
+                }
+                Swal.fire({
+                    title: 'QR Code جاهز (للمعاملات المعروضة)',
+                    html: `<canvas id="tempQRCanvas"></canvas><p>امسح هذا الرمز لنقل البيانات المعروضة.</p>
+                           <div class="scanner-buttons"><button class="btn" onclick="exportQRCodeImage()">تصدير كصورة</button></div>`,
+                    didOpen: () => {
+                        const tempCanvas = document.getElementById('tempQRCanvas');
+                        tempCanvas.width = qrCanvas.width;
+                        tempCanvas.height = qrCanvas.height;
+                        tempCanvas.getContext('2d').drawImage(qrCanvas, 0, 0);
+                    }
+                });
+            });
+        }
+
+        function exportQRCodeImage() { // Helper for QR export button in Swal
+            const tempCanvas = document.getElementById('tempQRCanvas');
+             if (!tempCanvas) { // Fallback to main if temp not found
+                const qrCanvas = document.getElementById('qrCanvas');
+                if (!qrCanvas) { Swal.fire('خطأ', 'لم يتم العثور على لوحة QR.', 'error'); return; }
+                 const dataURL = qrCanvas.toDataURL('image/png');
+                 const a = document.createElement('a');
+                 a.href = dataURL;
+                 a.download = 'cashbox_qr_code.png';
+                 a.click();
+                 Swal.fire('نجاح', 'تم تصدير صورة QR بنجاح!', 'success');
+                 return;
+            }
+            const dataURL = tempCanvas.toDataURL('image/png');
+            const a = document.createElement('a');
+            a.href = dataURL;
+            a.download = 'cashbox_qr_code.png';
+            a.click();
+            Swal.fire('نجاح', 'تم تصدير صورة QR بنجاح!', 'success');
+        }
+
+        async function processQRData(data) { // Data is parsed JSON from QR
+            if (!data || !Array.isArray(data.transactions) || !Array.isArray(data.accounts)) {
+                Swal.fire('خطأ', 'بيانات QR غير صالحة أو غير مكتملة.', 'error');
+                return;
+            }
+
+            const transactionsFromQR = data.transactions;
+            const accountsFromQR = data.accounts; // Array of account names
+
+            // Add new accounts from QR
+            for (const accName of accountsFromQR) {
+                const existing = await getRecord(ACCOUNTS_STORE_NAME, accName);
+                if (!existing) {
+                    await addRecord(ACCOUNTS_STORE_NAME, { name: accName });
+                }
+            }
+            allAccounts = await getAllRecords(ACCOUNTS_STORE_NAME); // Refresh accounts cache
+            await populateAccountDropdowns();
+
+            // Prepare transactions for DB
+            const transactionsToImport = [];
+             for (const t of transactionsFromQR) {
+                if (!t.type || !t.datetime || isNaN(parseFloat(t.amount)) || parseFloat(t.amount) <= 0 || !t.description || !t.account) {
+                    console.warn("Skipping invalid transaction from QR:", t);
+                    continue;
+                }
+                const dateOnly = t.datetime.split(' ')[0].split('T')[0];
+                transactionsToImport.push({
+                    type: t.type,
+                    datetime: t.datetime.replace('T', ' '),
+                    date: dateOnly,
+                    amount: parseFloat(t.amount).toFixed(2),
+                    description: t.description,
+                    account: t.account
+                });
+            }
+
+            if (transactionsToImport.length === 0) {
+                 Swal.fire('لا توجد بيانات', 'لم يتم العثور على معاملات صالحة في رمز QR.', 'info');
+                 return;
+            }
+
+            // Balance check (similar to file import)
+            const allCurrentDBTransactions = await getFilteredTransactionsDB(null, null, 'all', null);
+            const tempAllTransactions = [...allCurrentDBTransactions, ...transactionsToImport];
+            const negativeBalancesInfo = [];
+            const involvedAccounts = new Set(transactionsToImport.map(t => t.account));
+
+            for (const accName of involvedAccounts) {
+                let balance = 0;
+                tempAllTransactions.forEach(tx => {
+                    if (tx.account === accName) {
+                        balance += (tx.type === 'in' ? parseFloat(tx.amount) : -parseFloat(tx.amount));
+                    }
+                });
+                if (balance < 0) {
+                    negativeBalancesInfo.push(`الحساب: ${accName}, الرصيد سيصبح: ${balance.toFixed(2)}`);
+                }
+            }
+
+            if (negativeBalancesInfo.length > 0) {
+                const proceed = await Swal.fire({
+                    title: 'تحذير: أرصدة سالبة محتملة',
+                    html: `استيراد هذه البيانات قد يؤدي إلى أرصدة سالبة لبعض الحسابات:<br>${negativeBalancesInfo.join('<br>')}<br>هل تريد المتابعة؟`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'متابعة الاستيراد',
+                    cancelButtonText: 'إلغاء'
+                });
+                if (!proceed.isConfirmed) {
+                    Swal.fire('تم الإلغاء', 'لم يتم استيراد البيانات.', 'info');
+                    return;
+                }
+            }
+
+            // Bulk add transactions
+            const txStore = db.transaction(TRANSACTIONS_STORE_NAME, 'readwrite');
+            const store = txStore.objectStore(TRANSACTIONS_STORE_NAME);
+            for (const trans of transactionsToImport) {
+                store.add(trans);
+            }
+
+            txStore.oncomplete = async () => {
+                successSound.play();
+                await filterTable();
+                Swal.fire('نجاح', `تم استيراد ${transactionsToImport.length} معاملة من QR بنجاح!`, 'success');
+            };
+            txStore.onerror = (event) => {
+                console.error("Error bulk adding transactions from QR:", event.target.error);
+                Swal.fire('خطأ', 'حدث خطأ أثناء حفظ المعاملات المستوردة من QR.', 'error');
+            };
+        }
+        
+        // --- QR Scanner Functions (largely unchanged, but call new processQRData) ---
+        function startQRScanner() { /* ... same as before ... */ 
+            Swal.fire({
+                title: 'مسح رمز QR',
+                html: `
+                    <div id="scannerContainer">
+                        <video id="scannerVideo" autoplay playsinline style="max-width: 100%; border-radius: 10px; border: 2px solid #3F2A56;"></video>
+                        <div class="scanner-buttons">
+                            <button class="btn" onclick="stopQRScannerFromSwal()">إيقاف المسح</button>
+                            <button class="btn" onclick="document.getElementById('qrImageInput').click()">استيراد من صورة</button>
+                        </div>
+                    </div>
+                `,
+                showConfirmButton: false,
+                showCancelButton: true,
+                cancelButtonText: 'إغلاق',
+                customClass: { popup: 'swal2-rtl' },
+                width: '600px',
+                didOpen: async () => {
+                    try {
+                        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+                        const video = document.getElementById('scannerVideo');
+                        video.srcObject = stream;
+                        video.onloadedmetadata = () => video.play(); // Ensure video plays
+
+                        const canvas = document.createElement('canvas');
+                        const context = canvas.getContext('2d', { willReadFrequently: true });
+
+                        function scan() {
+                            if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                                canvas.width = video.videoWidth;
+                                canvas.height = video.videoHeight;
+                                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                                const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                                const code = jsQR(imageData.data, imageData.width, imageData.height, {
+                                    inversionAttempts: 'dontInvert'
+                                });
+
+                                if (code) {
+                                    stopQRScanner();
+                                    Swal.close();
+                                    try {
+                                        const data = JSON.parse(code.data);
+                                        processQRData(data); // Use new processing function
+                                    } catch (e) {
+                                        Swal.fire('خطأ', 'البيانات في رمز QR غير صالحة!', 'error');
+                                    }
+                                    return;
+                                }
+                            }
+                           if (stream) requestAnimationFrame(scan); // Continue scanning only if stream active
+                        }
+                        requestAnimationFrame(scan);
+                    } catch (error) {
+                         console.error("QR Scanner Error:", error);
+                        Swal.fire('خطأ', 'فشل الوصول للكاميرا. تأكد من الأذونات.', 'error');
+                    }
+                },
+                willClose: () => {
+                    stopQRScanner();
+                }
+            });
+        }
+        function stopQRScanner() { /* ... same as before ... */ 
             if (stream) {
                 stream.getTracks().forEach(track => track.stop());
                 stream = null;
             }
             const video = document.getElementById('scannerVideo');
             if (video) {
-                video.pause();
                 video.srcObject = null;
+                video.pause();
             }
         }
+        function stopQRScannerFromSwal(){ // To be called from button inside Swal
+            stopQRScanner();
+            Swal.close();
+        }
+        function importQRFromImage(event) { /* ... same as before, calls processQRData ... */ 
+            const file = event.target.files[0];
+            if (!file) return;
 
-        async function importQRFromImage(event) {
-            try {
-                await ensureDBInitialized();
-                const file = event.target.files[0];
-                if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    const context = canvas.getContext('2d', { willReadFrequently: true });
+                    context.drawImage(img, 0, 0, img.width, img.height);
+                    const imageData = context.getImageData(0, 0, img.width, img.height);
+                    const code = jsQR(imageData.data, imageData.width, imageData.height, {
+                        inversionAttempts: 'dontInvert'
+                    });
 
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const img = new Image();
-                    img.onload = () => {
-                        const canvas = document.createElement('canvas');
-                        const context = canvas.getContext('2d');
-                        canvas.width = img.width;
-                        canvas.height = img.height;
-                        context.drawImage(img, 0, 0, canvas.width, canvas.height);
-                        const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-                        const code = jsQR(imageData.data, imageData.width, imageData.height, {
-                            inversionAttempts: 'dontInvert'
-                        });
-
-                        if (code) {
-                            stopQRScanner(); 
-                            Swal.close(); 
-                            try {
-                                const newProducts = JSON.parse(code.data);
-                                if (!Array.isArray(newProducts)) throw new Error("بيانات QR ليست مصفوفة.");
-                                processImportedData(newProducts.filter(isValidProduct));
-                            } catch (parseErr) {
-                                console.error("خطأ في تحليل QR من الصورة:", parseErr);
-                                Swal.fire({ title: 'خطأ', text: 'البيانات في رمز QR من الصورة غير صالحة!\n' + parseErr.message, icon: 'error', confirmButtonColor: '#3F2A56' });
-                            }
-                        } else {
-                            Swal.fire({ title: 'خطأ', text: 'لم يتم العثور على رمز QR في الصورة!', icon: 'error', confirmButtonColor: '#3F2A56' });
+                    if (code) {
+                        stopQRScanner(); 
+                        Swal.close(); // Close scanner Swal if open
+                        try {
+                            const data = JSON.parse(code.data);
+                            processQRData(data); // Use new processing function
+                        } catch (e) {
+                            Swal.fire('خطأ', 'بيانات QR من الصورة غير صالحة!', 'error');
                         }
-                    };
-                    img.onerror = () => {
-                        Swal.fire({ title: 'خطأ', text: 'فشل في تحميل الصورة!', icon: 'error', confirmButtonColor: '#3F2A56' });
-                    };
-                    img.src = e.target.result;
+                    } else {
+                        Swal.fire('خطأ', 'لم يتم العثور على رمز QR في الصورة!', 'error');
+                    }
                 };
-                reader.onerror = () => {
-                     Swal.fire({ title: 'خطأ', text: 'فشل في قراءة ملف الصورة!', icon: 'error', confirmButtonColor: '#3F2A56' });
-                };
-                reader.readAsDataURL(file);
-                document.getElementById('qrImageInput').value = ''; 
-            } catch (error) {
-                console.error("خطأ في استيراد QR من الصورة:", error);
-            }
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+            event.target.value = null; // Reset file input
         }
 
-        async function processImportedData(newProducts) {
-            if (!Array.isArray(newProducts) || newProducts.length === 0) {
-                Swal.fire({ title: 'لا توجد بيانات صالحة', text: 'لم يتم العثور على منتجات صالحة للمعالجة.', icon: 'info', confirmButtonColor: '#3F2A56' });
+        // --- Print Function (uses displayedTransactions) ---
+        function printTable() {
+            // Uses `displayedTransactions` which are already filtered and sorted.
+            const itemsPerPage = 20; // Adjust as needed
+
+            // Separate transactions by type for printing
+            const inTransactionsToPrint = displayedTransactions.filter(t => t.type === 'in');
+            const outTransactionsToPrint = displayedTransactions.filter(t => t.type === 'out');
+
+            const totalIn = inTransactionsToPrint.reduce((sum, t) => sum + parseFloat(t.amount), 0);
+            const totalOut = outTransactionsToPrint.reduce((sum, t) => sum + parseFloat(t.amount), 0);
+            const balance = totalIn - totalOut;
+
+            const printDate = new Date().toLocaleDateString('ar-EG-u-nu-latn', { year: 'numeric', month: 'long', day: 'numeric' });
+            
+            const printWindow = window.open('', '_blank', 'height=700,width=1000');
+            if (!printWindow) {
+                Swal.fire('خطأ', 'فشل فتح نافذة الطباعة. تحقق من إعدادات المتصفح.', 'error');
                 return;
             }
 
-            try {
-                await ensureDBInitialized();
-                const existingIds = await getAllProductIds();
-                const duplicateProducts = newProducts.filter(p => existingIds.includes(p.id));
-                let productsToImport = newProducts;
+            let content = `
+                <html><head><title>تقرير ضبط الصندوق</title>
+                <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+                <style>
+                    @page { size: A4; margin: 15mm; }
+                    body { font-family: 'Cairo', sans-serif; direction: rtl; margin: 0; color: #000; }
+                    .print-container { padding: 10mm; }
+                    .print-header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #3F2A56; padding-bottom: 10px; }
+                    .print-header img { height: 60px; vertical-align: middle; margin-left: 15px; }
+                    .print-header h1 { font-size: 1.8rem; color: #3F2A56; margin: 0; display: inline-block;}
+                    .print-info { margin-bottom: 20px; font-size: 0.9rem; }
+                    .print-info p { margin: 5px 0; }
+                    .dashboard-summary { display: flex; justify-content: space-around; margin-bottom: 20px; padding: 10px; border: 1px solid #ccc; border-radius: 5px; background: #f9f9f9;}
+                    .dashboard-summary div { text-align: center; }
+                    .dashboard-summary h4 { margin: 0 0 5px 0; font-size: 1rem; color: #3F2A56;}
+                    .dashboard-summary p { margin: 0; font-size: 1.1rem; font-weight: bold; }
+                    h2.table-title { text-align: center; font-size: 1.5rem; color: #3F2A56; margin: 25px 0 10px 0; border-bottom: 1px solid #ccc; padding-bottom: 5px;}
+                    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 0.9rem; }
+                    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+                    th { background-color: #3F2A56; color: white; font-weight: 600; }
+                    .page-break { page-break-before: always; }
+                    .footer { text-align: center; font-size: 0.8rem; margin-top: 20px; position: fixed; bottom: 10mm; width: calc(100% - 30mm); } /* Adjust width for margins */
+                    .page-number::after { content: counter(page); }
+                </style>
+                </head><body><div class="print-container">
+                    <div class="print-header">
+                        <img src="logo.png" alt="شعار" onerror="this.style.display='none'">
+                        <h1>طيبة المدينة تلكوم - تقرير ضبط الصندوق</h1>
+                    </div>
+                    <div class="print-info">
+                        <p>تاريخ الطباعة: ${printDate}</p>
+                        <p>الفترة المحددة: ${document.getElementById('dateFilter').selectedOptions[0].text} 
+                           ${document.getElementById('dateFilter').value === 'range' ? ` (${document.getElementById('startDate').value || 'البداية'} - ${document.getElementById('endDate').value || 'النهاية'})` : ''}
+                        </p>
+                    </div>
+                    <div class="dashboard-summary">
+                        <div><h4>الرصيد للفترة</h4><p>${balance.toFixed(2)}</p></div>
+                        <div><h4>الإجمالي الداخل للفترة</h4><p>${totalIn.toFixed(2)}</p></div>
+                        <div><h4>الإجمالي الخارج للفترة</h4><p>${totalOut.toFixed(2)}</p></div>
+                    </div>
+            `;
 
-                if (duplicateProducts.length > 0) {
-                    let warningMessage = `تم العثور على ${duplicateProducts.length} منتجًا بمعرفات موجودة مسبقًا.<br>أمثلة للمعرفات المكررة: <br>`;
-                    duplicateProducts.slice(0, 5).forEach(p => warningMessage += `- المعرف: ${p.id} (الاسم: ${p.name})<br>`);
-                    warningMessage += '<br>هل تريد المتابعة واستبدال المنتجات الموجودة بهذه المعرفات؟';
-
-                    const result = await Swal.fire({
-                        title: 'تحذير: معرفات مكررة',
-                        html: warningMessage,
-                        icon: 'warning',
-                        showDenyButton: true,
-                        showCancelButton: true,
-                        confirmButtonText: 'نعم، استبدل الكل',
-                        denyButtonText: `لا، استورد غير المكرر فقط`,
-                        cancelButtonText: 'إلغاء الاستيراد',
-                        confirmButtonColor: '#3F2A56',
-                        denyButtonColor: '#ffc107',
-                        cancelButtonColor: '#dc3545',
-                        customClass: { popup: 'swal2-rtl' }
-                    });
-
-                    if (result.isConfirmed) {
-                        // Proceed with all newProducts, existing ones will be overwritten by put
-                    } else if (result.isDenied) {
-                        productsToImport = newProducts.filter(p => !existingIds.includes(p.id));
-                        if (productsToImport.length === 0) {
-                            Swal.fire({ title: 'تم الإلغاء جزئيًا', text: 'لا توجد منتجات جديدة غير مكررة للاستيراد.', icon: 'info', confirmButtonColor: '#3F2A56' });
-                            return;
-                        }
-                    } else { 
-                        Swal.fire({ title: 'تم الإلغاء', text: 'تم إلغاء عملية الاستيراد.', icon: 'info', confirmButtonColor: '#3F2A56' });
-                        return;
-                    }
+            function addTableToContent(title, transactions, pageNumStart, totalPages) {
+                if (transactions.length === 0) {
+                    content += `<h2 class="table-title">${title}</h2><p style="text-align:center;">لا توجد معاملات.</p>`;
+                    return pageNumStart;
                 }
+                
+                let currentPage = pageNumStart;
+                const numPagesForThisTable = Math.ceil(transactions.length / itemsPerPage);
 
-                const transaction = db.transaction(['products'], 'readwrite');
-                const store = transaction.objectStore('products');
-                let successCount = 0;
-                let errorCount = 0;
-
-                for (const product of productsToImport) {
-                    if (isValidProduct(product)) {
-                        if (typeof product.purchasePrice === 'number') product.purchasePrice = product.purchasePrice.toFixed(2);
-                        if (typeof product.salePrice === 'number') product.salePrice = product.salePrice.toFixed(2);
-                        
-                        const request = store.put(product); 
-                        request.onsuccess = () => successCount++;
-                        request.onerror = () => errorCount++;
-                    } else {
-                        errorCount++; 
+                for (let p = 0; p < numPagesForThisTable; p++) {
+                    if (p > 0 || pageNumStart > 1 && p === 0 && title !== "المعاملات الداخلة") { // Ensure page break for new sections or continued tables
+                        content += `<div class="page-break"></div>
+                        <div class="print-header">
+                           <img src="logo.png" alt="شعار" onerror="this.style.display='none'">
+                           <h1>طيبة المدينة تلكوم - تقرير ضبط الصندوق (تابع)</h1>
+                        </div>`;
                     }
+                    content += `<h2 class="table-title">${title} ${numPagesForThisTable > 1 ? `(صفحة ${p+1} من ${numPagesForThisTable})` : ''}</h2>`;
+                    content += `<table><thead><tr><th>#</th><th>التاريخ والوقت</th><th>المبلغ</th><th>البيان</th><th>الحساب</th></tr></thead><tbody>`;
+                    const startIdx = p * itemsPerPage;
+                    const endIdx = Math.min(startIdx + itemsPerPage, transactions.length);
+                    for (let i = startIdx; i < endIdx; i++) {
+                        const t = transactions[i];
+                        content += `<tr><td>${i + 1}</td><td>${t.datetime}</td><td>${parseFloat(t.amount).toFixed(2)}</td><td>${t.description}</td><td>${t.account}</td></tr>`;
+                    }
+                    content += `</tbody></table>`;
+                    content += `<div class="footer">صفحة ${currentPage} من ${totalPages}</div>`;
+                    currentPage++;
                 }
-
-                transaction.oncomplete = async () => {
-                    invalidateCache();
-                    await updateProductsTable();
-                    playSuccessSound();
-                    Swal.fire({
-                        title: 'نجاح الاستيراد',
-                        text: `تم استيراد ${successCount} منتجًا بنجاح. فشل استيراد ${errorCount} منتجًا.`,
-                        icon: 'success',
-                        confirmButtonColor: '#3F2A56'
-                    });
-                };
-                transaction.onerror = (event) => {
-                    console.error("خطأ في معاملة الاستيراد:", event.target.error);
-                };
-
-            } catch (error) {
-                console.error("خطأ في معالجة البيانات المستوردة:", error);
+                return currentPage;
             }
+            
+            const totalInPages = Math.ceil(inTransactionsToPrint.length / itemsPerPage);
+            const totalOutPages = Math.ceil(outTransactionsToPrint.length / itemsPerPage);
+            const grandTotalPages = (totalInPages || 1) + (totalOutPages || 1) - (totalInPages > 0 && totalOutPages > 0 && (inTransactionsToPrint.length % itemsPerPage !== 0) ? 1: 0) ; // crude estimate for footer
+            
+            let currentPageNum = 1;
+            currentPageNum = addTableToContent("المعاملات الداخلة", inTransactionsToPrint, currentPageNum, grandTotalPages);
+            currentPageNum = addTableToContent("المعاملات الخارجة", outTransactionsToPrint, currentPageNum, grandTotalPages);
+
+            content += `</div></body></html>`;
+            printWindow.document.write(content);
+            printWindow.document.close();
+            printWindow.onload = () => { // Wait for content to load
+                 setTimeout(() => { // Ensure images/styles are applied
+                    printWindow.focus();
+                    // printWindow.print(); // Can be enabled for auto-print
+                }, 500);
+            };
         }
 
-        async function printTable() {
-            try {
-                await ensureDBInitialized();
-                const products = await getAllProducts();
-                if (products.length === 0) {
-                    Swal.fire({ title: 'لا توجد بيانات', text: 'لا توجد منتجات للطباعة!', icon: 'info', confirmButtonColor: '#3F2A56' });
-                    return;
-                }
 
-                const printWindow = window.open('', '_blank', 'height=600,width=800');
-                if (!printWindow) {
-                    Swal.fire({ title: 'خطأ', text: 'فشل في فتح نافذة الطباعة. الرجاء التحقق من إعدادات مانع النوافذ المنبثقة في المتصفح.', icon: 'error', confirmButtonColor: '#3F2A56' });
-                    return;
-                }
-
-                printWindow.document.write(`
-                    <!DOCTYPE html>
-                    <html lang="ar" dir="rtl">
-                    <head>
-                        <meta charset="UTF-8">
-                        <title>طباعة تقرير المنتجات</title>
-                        <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
-                        <style>
-                            body { font-family: 'Cairo', sans-serif; margin: 20px; direction: rtl; text-align: right; background-color: #fff; color: #000;}
-                            h1 { text-align: center; color: #3F2A56; margin-bottom: 20px; }
-                            table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 0.9em; }
-                            th, td { border: 1px solid #ccc; padding: 10px; text-align: center; }
-                            th { background-color: #3F2A56; color: white; font-weight: 600;}
-                            tr:nth-child(even) { background-color: #f9f9f9; }
-                            .low-stock { color: #dc3545; font-weight: bold; background-color: rgba(220, 53, 69, 0.05) !important; } /* Ensure background prints */
-                            .print-header-img { max-height: 70px; display: block; margin: 0 auto 10px auto;}
-                            @media print {
-                                body { margin: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-                                .low-stock { background-color: rgba(220, 53, 69, 0.05) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact;}
-                            }
-                        </style>
-                    </head>
-                    <body>
-                        <img src="logo.png" alt="شعار" class="print-header-img" onerror="this.style.display='none';">
-                        <h1>تقرير المنتجات - طيبة المدينة تلكوم</h1>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>معرف المنتج</th>
-                                    <th>اسم المنتج</th>
-                                    <th>سعر الشراء</th>
-                                    <th>سعر البيع</th>
-                                    <th>الكمية</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${products.map((product, index) => `
-                                    <tr>
-                                        <td>${index + 1}</td>
-                                        <td>${product.id}</td>
-                                        <td>${product.name}</td>
-                                        <td>${parseFloat(product.purchasePrice).toFixed(2)}</td>
-                                        <td>${parseFloat(product.salePrice).toFixed(2)}</td>
-                                        <td class="${parseInt(product.quantity) < 2 ? 'low-stock' : ''}">${parseInt(product.quantity)}</td>
-                                    </tr>
-                                `).join('')}
-                            </tbody>
-                        </table>
-                    </body>
-                    </html>
-                `);
-                printWindow.document.close(); 
-                printWindow.onload = function() {
-                    printWindow.focus(); 
-                    // printWindow.print(); // تم التعليق للسماح بالمعاينة
-                }
-                playSuccessSound();
-            } catch (error) {
-                console.error("خطأ في إعداد الطباعة:", error);
-            }
-        }
-
+        // --- Initial Load ---
         document.addEventListener('DOMContentLoaded', async () => {
             try {
-                await initDB(); 
-                await updateProductsTable(); 
+                await openDB();
+                setCurrentDateTimeForPicker();
+                handleDateFilterChange(); // This will also call filterTable
+                allAccounts = await getAllRecords(ACCOUNTS_STORE_NAME); // Initial fetch for all accounts
+                await populateAccountDropdowns();
+                await filterTable(); // Initial data load and display for "Today"
             } catch (error) {
-                console.error("خطأ فادح في تهيئة الصفحة:", error);
-                Swal.fire({
-                    title: 'خطأ في التهيئة',
-                    text: 'فشل في تهيئة الصفحة بشكل كامل. قد لا تعمل بعض الميزات.\n' + error.message,
-                    icon: 'error',
-                    confirmButtonColor: '#3F2A56'
-                });
+                console.error("Initialization error:", error);
+                Swal.fire('خطأ في التهيئة', 'لم يتمكن من فتح قاعدة البيانات أو تحميل البيانات الأولية.', 'error');
             }
         });
+
+        window.addEventListener('unload', () => {
+            stopQRScanner();
+            if (db) {
+                db.close();
+            }
+        });
+
     </script>
 </body>
 </html>
