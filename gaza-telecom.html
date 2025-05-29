@@ -561,7 +561,7 @@
                 <div class="modal-body">
                     <form id="payGazaPaymentForm">
                         <p><strong>تاريخ الدفعة المستهدفة:</strong> <span id="targetPaymentDateDisplay"></span></p>
-                        <p><strong>المبلغ الأصلي للدفعة:</strong> <span id="targetPaymentOriginalAmount"></span></p
+                        <p><strong>المبلغ الأصلي للدفعة:</strong> <span id="targetPaymentOriginalAmount"></span></p>
                         <p><strong>المبلغ المتبقي لهذه الدفعة:</strong> <span id="targetPaymentRemainingAmount"></span></p>
                         <hr>
                         <div class="mb-3">
@@ -596,7 +596,7 @@
         let stream = null;
 
         const DB_NAME = 'GazaTelecomDB';
-        const DB_VERSION = 3; // تم زيادة الإصدار
+        const DB_VERSION = 3; 
 
 
         const request = indexedDB.open(DB_NAME, DB_VERSION);
@@ -630,7 +630,7 @@
                 dailyPaymentsStore = event.target.transaction.objectStore('dailyPayments');
             }
             
-            if (dailyPaymentsStore.indexNames.contains('isFullyPaid')) { // حذف الفهرس القديم إذا كان الاسم القديم
+            if (dailyPaymentsStore.indexNames.contains('isFullyPaid')) { 
                 dailyPaymentsStore.deleteIndex('isFullyPaid');
             }
             if (!dailyPaymentsStore.indexNames.contains('isFullyPaidNumeric')) { 
@@ -712,6 +712,26 @@
             return new Promise((resolve, reject) => {
                 if (!db) { reject("Database not initialized"); return; }
                 const transactionStore = db.transaction(['transactions'], 'readonly').objectStore('transactions');
+                
+                // Ensure the index exists before trying to use it
+                if (!transactionStore.indexNames.contains('date_only')) {
+                    console.error("Index 'date_only' not found on 'transactions' store. Attempting to get all.");
+                    // Fallback to getAll if index is missing, though this is not ideal for performance
+                    const getAllRequest = transactionStore.getAll();
+                    getAllRequest.onsuccess = (event) => {
+                         let results = event.target.result || [];
+                         // Manual date filtering if index was missing
+                         if(startDateStr && endDateStr) {
+                            results = results.filter(t => t.date_only >= startDateStr && t.date_only <= endDateStr);
+                         } else if (startDateStr) {
+                            results = results.filter(t => t.date_only === startDateStr);
+                         }
+                         resolve(results);
+                    };
+                    getAllRequest.onerror = (event) => reject(event.target.error);
+                    return;
+                }
+
                 const dateIndex = transactionStore.index('date_only');
                 let range;
                 if(startDateStr && endDateStr) {
@@ -803,9 +823,8 @@
                 dateQueryEnd = endDateVal;
                  if (dateQueryStart > dateQueryEnd) {
                     Swal.fire('خطأ', 'تاريخ البداية لا يمكن أن يكون بعد تاريخ النهاية!', 'error');
-                    // Clear table or show error message in table? For now, just warn.
                     document.getElementById('transactionsTable').innerHTML = '<tr><td colspan="8">خطأ في تحديد التواريخ.</td></tr>';
-                    updateDashboard([]); // Clear dashboard
+                    updateDashboard([]); 
                     return;
                 }
             } else if (filterTypeVal === 'all_time') {
@@ -935,6 +954,10 @@
 
             request.onsuccess = function(event) {
                 const t = event.target.result;
+                if (!t) { // Handle case where transaction might have been deleted
+                     Swal.fire({ title: 'خطأ', text: 'المعاملة غير موجودة!', icon: 'error', confirmButtonColor: '#3F2A56' });
+                     return;
+                }
                 document.getElementById('editId').value = t.id;
                 document.getElementById('editType').value = t.type;
                 document.getElementById('editSerialNumber').value = t.serialNumber;
@@ -943,6 +966,10 @@
                 document.getElementById('editInterest').value = t.interest || '';
                 document.getElementById('editNote').value = t.note || '';
                 new bootstrap.Modal(document.getElementById('editTransactionModal')).show();
+            };
+             request.onerror = function(event) {
+                console.error('Error fetching transaction for edit:', event.target.errorCode);
+                Swal.fire({ title: 'خطأ', text: 'فشل في جلب المعاملة للتعديل!', icon: 'error', confirmButtonColor: '#3F2A56' });
             };
         }
 
@@ -1024,12 +1051,20 @@
         async function updateGazaPaymentsDashboard(currentPeriodFinalBalance) {
             let totalDue = 0;
             const todayStr = new Date().toISOString().split('T')[0];
+            
+            if (!db || !db.objectStoreNames.contains('dailyPayments')) { // Check if store exists
+                 console.warn("DailyPayments store not found. Skipping Gaza payments dashboard update.");
+                 document.getElementById('gazaPaymentsTotalDue').innerText = "غ/م"; // غير متاح
+                 document.getElementById('gazaPaymentTodaySuggestion').innerText = currentPeriodFinalBalance.toFixed(0);
+                 return;
+            }
+
 
             const tx = db.transaction(['dailyPayments'], 'readonly');
             const store = tx.objectStore('dailyPayments');
             const request = store.getAll();
 
-            request.onsuccess = async function(event) { // Make this async to await inside
+            request.onsuccess = async function(event) { 
                 const allDailyPayments = event.target.result || [];
                 allDailyPayments.forEach(dp => {
                     if (dp.isFullyPaidNumeric === 0) {
@@ -1038,10 +1073,8 @@
                 });
                 document.getElementById('gazaPaymentsTotalDue').innerText = totalDue.toFixed(0);
                 
-                // Suggestion for today's payment
                 document.getElementById('gazaPaymentTodaySuggestion').innerText = currentPeriodFinalBalance.toFixed(0);
 
-                // Ensure today's payment record exists or is updated if viewing today's data and final balance is positive
                 if (currentPeriodFinalBalance > 0 && document.getElementById('filterType').value === 'today') {
                      const existingTodayPayment = await getDailyPaymentRecord(todayStr);
                      if (!existingTodayPayment) {
@@ -1055,15 +1088,13 @@
                         const addTx = db.transaction(['dailyPayments'], 'readwrite');
                         addTx.objectStore('dailyPayments').add(newPaymentRecord);
                         addTx.oncomplete = () => console.log(`Daily payment record for ${todayStr} created.`);
+                        addTx.onerror = (e) => console.error("Error creating daily payment record:", e.target.error);
                      } else if (existingTodayPayment.originalAmount != currentPeriodFinalBalance && existingTodayPayment.isFullyPaidNumeric === 0) {
-                        // Update original amount only if it changed AND not yet paid off. Avoid changing if already paid.
-                        // Also, be careful not to reduce originalAmount if some payments were already made against a higher original.
-                        // This logic might need refinement based on exact business rules for changing originalAmount.
-                        // For now, a simple update if different and not paid:
-                        if (currentPeriodFinalBalance >= existingTodayPayment.paidAmount) { // Ensure new original isn't less than already paid
+                        if (currentPeriodFinalBalance >= existingTodayPayment.paidAmount) { 
                             existingTodayPayment.originalAmount = currentPeriodFinalBalance;
                             const updateTx = db.transaction(['dailyPayments'], 'readwrite');
                             updateTx.objectStore('dailyPayments').put(existingTodayPayment);
+                            updateTx.onerror = (e) => console.error("Error updating daily payment original amount:", e.target.error);
                         }
                      }
                 }
@@ -1074,29 +1105,37 @@
         }
         
         async function openPayGazaModal() {
+            if (!db || !db.objectStoreNames.contains('dailyPayments')) {
+                 Swal.fire('خطأ', 'ميزة دفعات غزة غير مهيأة بشكل صحيح في قاعدة البيانات.', 'error'); return;
+            }
             const todayStr = new Date().toISOString().split('T')[0];
             let targetPayment = await getDailyPaymentRecord(todayStr);
             
-            if (!targetPayment || targetPayment.isFullyPaidNumeric === 1) { // If no record for today or it's paid
+            if (!targetPayment || targetPayment.isFullyPaidNumeric === 1) { 
                 const unpaidPayments = await new Promise((resolve) => {
                     if (!db) { resolve([]); return; } 
                     const tx = db.transaction(['dailyPayments'], 'readonly');
                     const store = tx.objectStore('dailyPayments');
+                    if (!store.indexNames.contains('isFullyPaidNumeric')) {
+                        console.error("Index 'isFullyPaidNumeric' not found on 'dailyPayments' store.");
+                        resolve([]);
+                        return;
+                    }
                     const index = store.index('isFullyPaidNumeric'); 
                     const req = index.getAll(IDBKeyRange.only(0));    
                     req.onsuccess = () => resolve(req.result.sort((a,b) => new Date(a.date) - new Date(b.date)));
-                    req.onerror = () => resolve([]);
+                    req.onerror = (e) => {console.error("Error fetching unpaid gaza from index:", e.target.error); resolve([]);};
                 });
                 if (unpaidPayments.length > 0) {
-                    targetPayment = unpaidPayments[0]; // Oldest unpaid
+                    targetPayment = unpaidPayments[0]; 
                 }
             }
 
-            // Calculate current final balance based on "today" filter if no specific target yet
             let currentFinalBalanceForTodayView = 0;
-            if (document.getElementById('filterType').value === 'today') {
+            const currentFilterType = document.getElementById('filterType').value;
+            if (currentFilterType === 'today') {
                  currentFinalBalanceForTodayView = parseFloat(document.getElementById('finalBalance').innerText) || 0;
-            } else { // If not viewing today, fetch today's balance specifically
+            } else { 
                 const todayTransactions = await getTransactionsByDateRange(todayStr, todayStr);
                 let tempTotalIn = 0, tempTotalOut = 0;
                 todayTransactions.forEach(t => {
@@ -1156,7 +1195,7 @@
 
             let dailyPayment = await getDailyPaymentRecord(targetDate);
             
-            if (!dailyPayment) { // Create if not exists (e.g., first payment for today's generated due)
+            if (!dailyPayment) { 
                 const originalAmountForThisDate = parseFloat(document.getElementById('targetPaymentOriginalAmount').textContent);
                 if (isNaN(originalAmountForThisDate) || originalAmountForThisDate <= 0) {
                      Swal.fire('خطأ', 'لا يمكن تحديد المبلغ الأصلي للدفعة لهذا اليوم.', 'error'); return;
@@ -1205,7 +1244,6 @@
                     note: paymentNote || `دفعة غزة ليوم ${targetDate}`,
                     account: paymentAccount
                 };
-                // Add to the main transactions store (GazaTelecomDB.transactions)
                 const mainTx = db.transaction(['transactions'], 'readwrite');
                 const mainStore = mainTx.objectStore('transactions');
                 const addMainReq = mainStore.add(cashBoxTransaction);
@@ -1217,7 +1255,6 @@
                 };
                 addMainReq.onerror = (e) => {
                     console.error("Error adding gaza payment to main transactions:", e.target.error);
-                    // Consider a rollback or warning if this part fails
                     Swal.fire('خطأ جزئي', 'تم تحديث سجل دفعة غزة، ولكن فشل تسجيل المعاملة في الصندوق الرئيسي.', 'warning');
                 };
             };
@@ -1227,10 +1264,17 @@
         }
 
         async function showUnpaidGazaPayments() {
+             if (!db || !db.objectStoreNames.contains('dailyPayments')) {
+                 Swal.fire('خطأ', 'ميزة دفعات غزة غير مهيأة بشكل صحيح.', 'error'); return;
+            }
             const unpaidPayments = await new Promise((resolve) => {
-                if (!db) { resolve([]); return; }
                 const tx = db.transaction(['dailyPayments'], 'readonly');
                 const store = tx.objectStore('dailyPayments');
+                 if (!store.indexNames.contains('isFullyPaidNumeric')) {
+                     console.error("Index 'isFullyPaidNumeric' not found. Cannot fetch unpaid payments.");
+                     resolve([]);
+                     return;
+                 }
                 const index = store.index('isFullyPaidNumeric'); 
                 const req = index.getAll(IDBKeyRange.only(0));    
                 req.onsuccess = () => resolve(req.result.sort((a,b) => new Date(a.date) - new Date(b.date)));
@@ -1443,6 +1487,17 @@
         }
         
         function stopQRScannerAndCloseSwal() { stopQRScanner(); Swal.close(); }
+        function stopQRScanner() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
+            const video = document.getElementById('scannerVideo');
+            if (video) {
+                video.pause();
+                video.srcObject = null;
+            }
+        }
 
         function importQRFromImage(event) {
             const file = event.target.files[0]; if (!file) return;
@@ -1479,163 +1534,6 @@
             event.target.value = null;
         }
 
-
-        function showReport(period) { 
-             // For simplicity, weekly report will be based on allTimeTransactions for the last 7 days
-            const now = new Date();
-            const oneWeekAgo = new Date(now);
-            oneWeekAgo.setDate(now.getDate() - 7);
-            oneWeekAgo.setHours(0,0,0,0);
-
-            const weeklyTransactions = allTimeTransactions.filter(t => new Date(t.datetime) >= oneWeekAgo && new Date(t.datetime) <= now);
-            
-            // Calculate dashboard
-        // ... (الكود السابق يأتي هنا)
-
-        async function showReport(period) {
-            // For simplicity, weekly report will be based on allTimeTransactions for the last 7 days from today
-            const today = new Date();
-            const currentDayOfWeek = today.getDay(); // 0 (Sun) - 6 (Sat)
-            
-            // Calculate the start of the current week (assuming week starts on Saturday - adjust if different)
-            // If today is Saturday (6), subtract 0 days. If Sunday (0), subtract 1 day. If Monday (1), subtract 2 days etc.
-            // To make Saturday the start: offset = currentDayOfWeek (if Sun=0, Sat=6)
-            // Or more directly for Saturday start:
-            let daysToSubtract = currentDayOfWeek; // If Sunday is 0, Saturday is 6.
-            if (currentDayOfWeek === 0) daysToSubtract = 6; // If today is Sunday, start from previous Saturday.
-            else daysToSubtract = currentDayOfWeek; // For Sat (6) -> 0, Fri (5) -> 1, etc. to get to previous Sat.
-                                                // This logic might need adjustment based on exact "week start" definition.
-                                                // Simpler: last 7 days ending today.
-
-            const endDateReport = new Date(); // Today up to end of day
-            endDateReport.setHours(23,59,59,999);
-
-            const startDateReport = new Date();
-            startDateReport.setDate(endDateReport.getDate() - 6); // Last 7 days including today
-            startDateReport.setHours(0,0,0,0);
-
-
-            const weeklyTransactions = allTimeTransactions.filter(t => {
-                const transactionDate = new Date(t.datetime);
-                return transactionDate >= startDateReport && transactionDate <= endDateReport;
-            });
-            
-            // Calculate metrics for the report based on these weekly transactions
-            let reportTotalIn = 0, reportTotalOut = 0, reportInterestIn = 0, reportInterestOut = 0;
-            weeklyTransactions.forEach(t => {
-                const amount = parseInt(t.amount) || 0;
-                const interest = parseInt(t.interest || 0);
-                if (t.type === 'in') {
-                    reportTotalIn += amount;
-                    reportInterestIn += interest;
-                } else {
-                    reportTotalOut += amount;
-                    reportInterestOut += interest;
-                }
-            });
-
-            const reportConfirmedTotalOut = reportTotalOut + reportInterestOut;
-            const reportConfirmedTotalIn = reportTotalIn - reportInterestIn;
-            const reportFinalBalance = reportTotalOut - reportTotalIn;
-            const reportConfirmedFinalBalance = reportConfirmedTotalOut - reportConfirmedTotalIn;
-            
-            Swal.fire({
-                title: `التقرير الأسبوعي (من ${startDateReport.toLocaleDateString('ar-EG-u-nu-latn')} إلى ${endDateReport.toLocaleDateString('ar-EG-u-nu-latn')})`,
-                html: `
-                    <div style="text-align: right; font-family: 'Cairo', sans-serif;">
-                        <p><strong>مجموع الوارد:</strong> ${reportTotalIn}</p>
-                        <p><strong>فوائد الوارد:</strong> ${reportInterestIn}</p>
-                        <p class="highlight" style="font-weight:bold; color:#198754;"><strong>تأكيد حسابات الوارد:</strong> ${reportConfirmedTotalIn}</p>
-                        <hr>
-                        <p><strong>مجموع الصادر:</strong> ${reportTotalOut}</p>
-                        <p><strong>فوائد الصادر:</strong> ${reportInterestOut}</p>
-                        <p class="highlight" style="font-weight:bold; color:#dc3545;"><strong>تأكيد حسابات الصادر:</strong> ${reportConfirmedTotalOut}</p>
-                        <hr>
-                        <p><strong>الرصيد النهائي للفترة:</strong> ${reportFinalBalance}</p>
-                        <p class="highlight" style="font-weight:bold; color:#0dcaf0;"><strong>تأكيد الحسابات النهائي للفترة:</strong> ${reportConfirmedFinalBalance}</p>
-                    </div>
-                `,
-                icon: 'info',
-                confirmButtonColor: '#3F2A56',
-                confirmButtonText: 'إغلاق'
-                // No didClose to re-filter, as this report uses a fixed range, not the current table filters
-            });
-        }
-
-        function printTable() {
-            // Get the currently filtered transactions from the table for printing
-            const currentFilteredTransactionsInTable = [];
-            const tableRows = document.getElementById('transactionsTable').rows;
-            for(let i=0; i < tableRows.length; i++){
-                const cells = tableRows[i].cells;
-                 if (cells.length >= 7) { // Ensure row has enough cells
-                    currentFilteredTransactionsInTable.push({
-                        serialNumber: cells[1].textContent,
-                        type: cells[2].textContent === 'وارد' ? 'in' : 'out', // Convert back to 'in'/'out'
-                        datetime: cells[3].textContent,
-                        amount: cells[4].textContent,
-                        interest: cells[5].textContent,
-                        note: cells[6].textContent
-                    });
-                }
-            }
-
-            // Get dashboard values as currently displayed
-            const dashTotalOut = document.getElementById('totalOut').innerText;
-            const dashConfirmedTotalOut = document.getElementById('confirmedTotalOut').innerText;
-            const dashTotalIn = document.getElementById('totalIn').innerText;
-            const dashConfirmedTotalIn = document.getElementById('confirmedTotalIn').innerText;
-            const dashFinalBalance = document.getElementById('finalBalance').innerText;
-            const dashConfirmedFinalBalance = document.getElementById('confirmedFinalBalance').innerText;
-
-
-            const printWindow = window.open('', '_blank', 'height=700,width=1000');
-            if (!printWindow) {
-                Swal.fire('خطأ', 'فشل فتح نافذة الطباعة. الرجاء التحقق من إعدادات مانع النوافذ المنبثقة.', 'error');
-                return;
-            }
-            printWindow.document.write(`
-                <html><head><title>تقرير غزة تلكوم</title>
-                <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
-                <style>
-                    body { font-family: 'Cairo', sans-serif; direction: rtl; margin: 20px; background-color:#fff; color:#000;}
-                    .header-print { text-align: center; margin-bottom: 20px; }
-                    .header-print img { height: 70px; clip-path: polygon(10% 0%, 100% 0%, 90% 100%, 0% 100%); }
-                    h1 { color: #3F2A56; margin-bottom: 5px; font-size: 1.5rem; }
-                    h2.report-period {font-size: 1.1rem; color: #555; margin-top:0; margin-bottom:15px;}
-                    table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 0.9em;}
-                    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
-                    th { background-color: #3F2A56; color: white; font-weight: 600;}
-                    td { color: #333; }
-                    .dashboard-print-container { display: flex; justify-content: space-around; margin-bottom: 20px; flex-wrap: wrap; }
-                    .dashboard-print-card { border: 1px solid #eee; padding: 10px; flex-basis: calc(33.333% - 20px); margin: 5px; border-radius: 8px; text-align:center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-                    .dashboard-print-card h4 { margin-top:0; color:#3F2A56; font-size: 1.1rem; margin-bottom: 8px; }
-                    .dashboard-print-card p { margin: 4px 0; font-size: 0.9rem;}
-                    .highlight-print {font-weight:bold; color: #2c1d3e;}
-                    @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
-                </style></head><body>
-                    <div class="header-print">
-                        <img src="logo.png" alt="شعار" onerror="this.style.display='none';">
-                        <h1>غزة تلكوم</h1>
-                        <h2 class="report-period">تقرير المعاملات للفترة المحددة</h2>
-                    </div>
-                    <div class="dashboard-print-container">
-                        <div class="dashboard-print-card"><h4>الصادر</h4><p>مجموع: ${dashTotalOut}</p><p class="highlight-print">تأكيد: ${dashConfirmedTotalOut}</p></div>
-                        <div class="dashboard-print-card"><h4>الوارد</h4><p>مجموع: ${dashTotalIn}</p><p class="highlight-print">تأكيد: ${dashConfirmedTotalIn}</p></div>
-                        <div class="dashboard-print-card"><h4>النهائي</h4><p>الرصيد: ${dashFinalBalance}</p><p class="highlight-print">تأكيد: ${dashConfirmedFinalBalance}</p></div>
-                    </div>
-                    <table><thead><tr><th>#</th><th>الرقم التسلسلي</th><th>النوع</th><th>التاريخ والوقت</th><th>المبلغ</th><th>الفائدة</th><th>الملاحظة</th></tr></thead><tbody>
-                    ${currentFilteredTransactionsInTable.map((t, index) => `
-                        <tr><td>${index + 1}</td><td>${t.serialNumber}</td><td>${t.type === 'in' ? 'وارد' : 'صادر'}</td><td>${t.datetime}</td><td>${t.amount}</td><td>${t.interest || '0'}</td><td>${t.note || ''}</td></tr>
-                    `).join('')}</tbody></table>
-                </body></html>`);
-            printWindow.document.close();
-            printWindow.onload = function() { 
-                printWindow.focus(); 
-                // printWindow.print(); // معلقة للسماح بالمعاينة
-            };
-        }
-
         function setupModalKeyboardNavigation(modalId, submitFunction) {
             const modalElement = document.getElementById(modalId);
             if (!modalElement) return;
@@ -1643,63 +1541,61 @@
             const form = modalElement.querySelector('form');
             if (!form) return;
 
-            const inputs = Array.from(form.querySelectorAll('input.modal-input, select.modal-input')); // Use a common class for navigable inputs
+            // تحديد حقول الإدخال التي يمكن التنقل بينها
+            const inputs = Array.from(form.querySelectorAll('input.form-control, select.form-select')); 
 
             inputs.forEach((input, index) => {
-                input.addEventListener('keydown', (event) => {
-                    if (event.key === 'Enter') {
-                        event.preventDefault(); 
-                        if (index < inputs.length - 1) {
-                            inputs[index + 1].focus();
-                            if(inputs[index + 1].select) inputs[index + 1].select(); 
-                        } else {
-                            if (typeof submitFunction === 'function') {
-                                submitFunction();
-                            }
-                        }
-                    }
-                });
+                input.removeEventListener('keydown', handleEnterKey); // إزالة أي مستمع سابق لتجنب التكرار
+                input.addEventListener('keydown', (event) => handleEnterKey(event, inputs, index, submitFunction));
             });
+        }
+        
+        function handleEnterKey(event, inputs, currentIndex, submitFunction) {
+             if (event.key === 'Enter') {
+                event.preventDefault(); 
+                if (currentIndex < inputs.length - 1) {
+                    inputs[currentIndex + 1].focus();
+                    if(inputs[currentIndex + 1].select) inputs[currentIndex + 1].select(); 
+                } else {
+                    if (typeof submitFunction === 'function') {
+                        submitFunction();
+                    }
+                }
+            }
         }
 
 
         document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('filterType').value = 'today'; // Default filter
-            setCurrentDateTime('datetime'); // For add modal
-            updateFilterInputs(); // Initial load based on default filter
-
+            document.getElementById('filterType').value = 'today'; 
+            setCurrentDateTime('datetime'); 
+            // updateFilterInputs(); // سيتم استدعاؤها عند تغيير الفلتر أو تحميل الصفحة
+            // Initial load logic in request.onsuccess will call updateFilterInputs
+            
             // Setup keyboard navigation for modals
-            setupModalKeyboardNavigation('addTransactionModal', addTransaction);
-            // For edit modal, it's better to set up navigation when the modal is shown,
-            // as its content is populated dynamically.
-            const editModalElement = document.getElementById('editTransactionModal');
-            if (editModalElement) {
-                editModalElement.addEventListener('shown.bs.modal', () => {
-                    // We don't have a specific submit function to pass here for Enter on last field for edit,
-                    // as the save button is separate. This will just handle tabbing.
-                    // Or, you can make the last field trigger updateTransaction if desired.
-                    // For now, just basic tabbing:
-                    const editForm = document.getElementById('editTransactionForm');
-                    const editInputs = Array.from(editForm.querySelectorAll('input, select'));
-                     editInputs.forEach((input, index) => {
-                        input.addEventListener('keydown', (event) => {
-                            if (event.key === 'Enter') {
-                                event.preventDefault();
-                                if (index < editInputs.length - 1) {
-                                    editInputs[index + 1].focus();
-                                     if(editInputs[index + 1].select) editInputs[index + 1].select();
-                                } else {
-                                     // Optionally trigger updateTransaction() or just let user click save
-                                     // updateTransaction(); 
-                                }
-                            }
-                        });
-                    });
+            const addTransactionModalEl = document.getElementById('addTransactionModal');
+            if(addTransactionModalEl) {
+                addTransactionModalEl.addEventListener('shown.bs.modal', () => {
+                    setupModalKeyboardNavigation('addTransactionModal', addTransaction);
+                    document.getElementById('type').focus(); // Focus on the first field
                 });
             }
-            setupModalKeyboardNavigation('payGazaPaymentModal', processGazaPayment);
 
-            // Set default type in add modal to 'out' (صادر)
+            const editTransactionModalEl = document.getElementById('editTransactionModal');
+             if(editTransactionModalEl) {
+                editTransactionModalEl.addEventListener('shown.bs.modal', () => {
+                    setupModalKeyboardNavigation('editTransactionModal', updateTransaction); // Or null if no auto-submit
+                     document.getElementById('editType').focus();
+                });
+            }
+
+            const payGazaModalEl = document.getElementById('payGazaPaymentModal');
+            if(payGazaModalEl) {
+                payGazaModalEl.addEventListener('shown.bs.modal', () => {
+                     setupModalKeyboardNavigation('payGazaPaymentModal', processGazaPayment);
+                     document.getElementById('gazaPaymentAmount').focus();
+                });
+            }
+            
             document.getElementById('type').value = 'out';
         });
     </script>
