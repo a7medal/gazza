@@ -63,6 +63,7 @@
     outline-offset: 2px;
 }
 
+/* للشاشات الصغيرة */
 @media (max-width: 768px) {
     .home-btn {
         padding: 8px 16px;
@@ -121,7 +122,7 @@
         }
         .dashboard {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 20px;
             margin: 20px 0;
         }
@@ -130,7 +131,7 @@
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
             color: #3F2A56;
-            padding: 25px; 
+            padding: 30px;
             border-radius: 20px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             text-align: center;
@@ -145,7 +146,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(145deg, rgba(63, 42, 86, 0.15), rgba(90, 63, 115, 0.15)); 
+            background: linear-gradient(145deg, rgba(63, 42, 86, 0.2), rgba(90, 63, 115, 0.2));
             z-index: -1;
         }
         .card:hover {
@@ -153,46 +154,31 @@
             box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
         }
         .card i {
-            font-size: 2.5rem; 
-            margin-bottom: 12px;
+            font-size: 2.8rem;
+            margin-bottom: 15px;
             color: #3F2A56;
             transition: transform 0.3s ease;
         }
         .card:hover i {
-            transform: scale(1.15);
+            transform: scale(1.2);
         }
         .card h5 {
-            font-size: 1.2rem; 
-            margin-bottom: 8px;
-            font-weight: 700; 
-            border-bottom: 1px solid rgba(63, 42, 86, 0.2);
-            padding-bottom: 5px;
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            font-weight: 600;
         }
         .card p {
-            font-size: 0.95rem; 
-            margin: 8px 0;
-            font-weight: 500; 
-            line-height: 1.6;
+            font-size: 1.1rem;
+            margin: 10px 0;
+            font-weight: 600;
         }
         .card p span {
             font-weight: 700;
-            font-size: 1.1rem; 
-            color: #5a3f73; 
+            font-size: 1.2rem;
         }
-        .card .highlight { 
-            font-weight: bold;
-            font-size: 1.15rem;
-            color: #2c1d3e; 
-            margin-top: 10px;
-            padding-top: 8px;
-            border-top: 1px dashed rgba(63, 42, 86, 0.2);
-        }
-
-        .card.out i { color: #dc3545; }
         .card.in i { color: #28a745; }
-        .card.final i { color: #0dcaf0; } 
-        .card.gaza-payments i { color: #ffc107; } 
-
+        .card.out i { color: #dc3545; }
+        .card.final i { color: #3F2A56; }
         .actions {
             display: flex;
             flex-wrap: wrap;
@@ -240,7 +226,7 @@
         .search-container .filter-group {
             display: flex;
             flex-direction: column;
-            min-width: 180px; 
+            max-width: 200px;
         }
         .search-container label {
             font-size: 0.9rem;
@@ -250,19 +236,19 @@
         }
         .search-container select, .search-container input {
             width: 100%;
-            padding: 10px 15px; 
-            border-radius: 25px;
-            border: 1px solid #ddd;
-            background: #f8f9fa;
+            padding: 12px 20px;
+            border-radius: 30px;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
             color: #3F2A56;
-            font-size: 0.9rem;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            font-size: 1rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: box-shadow 0.3s ease;
         }
         .search-container select:focus, .search-container input:focus {
             outline: none;
-            border-color: #3F2A56;
-            box-shadow: 0 0 0 0.2rem rgba(63, 42, 86, 0.25);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
         }
         .table-container {
             background: white;
@@ -270,15 +256,15 @@
             box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
             padding: 15px;
             margin-bottom: 20px;
-            overflow-x: auto; 
+            overflow-x: auto; /* جعل الجدول متجاوبًا */
         }
         table {
             width: 100%;
             border-collapse: collapse;
-            min-width: 700px; 
+            min-width: 600px; /* الحد الأدنى لعرض الجدول */
         }
         th, td {
-            padding: 12px; 
+            padding: 14px;
             text-align: center;
             border-bottom: 1px solid #e0e0e0;
         }
@@ -301,28 +287,119 @@
         }
         .action-btn.edit:hover { color: #007bff; }
         .action-btn.delete:hover { color: #dc3545; }
-        
-        .modal-content { border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); border: none; background: linear-gradient(145deg, #ffffff, #f7f9fc); animation: slideIn 0.3s ease-out; }
-        @keyframes slideIn { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        .modal-header { background: linear-gradient(90deg, #3F2A56, #5a3f73); color: white; border-top-left-radius: 20px; border-top-right-radius: 20px; padding: 20px; position: relative; overflow: hidden; }
-        .modal-header::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle, rgba(255,255,255,0.1), transparent); z-index: -1; }
-        .modal-title { font-size: 1.5rem; font-weight: 700; display: flex; align-items: center; gap: 10px; }
-        .modal-body { padding: 30px; }
-        .modal-body .form-label { font-weight: 600; color: #3F2A56; display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
-        .modal-body .form-control, .modal-body .form-select { border-radius: 15px; border: 1px solid #ddd; padding: 12px; font-size: 1rem; background: #f7f9fc; transition: border-color 0.3s ease, box-shadow 0.3s ease; }
-        .modal-body .form-control:focus, .modal-body .form-select:focus { border-color: #3F2A56; box-shadow: 0 0 8px rgba(63,42,86,0.4); }
-        .modal-footer { padding: 20px; background: linear-gradient(145deg, #f8f9fa, #e9ecef); border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; justify-content: center; gap: 15px; }
-        .modal-footer .btn { border-radius: 30px; padding: 12px 30px; font-size: 1rem; font-weight: 600; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-        .modal-footer .btn-primary { background: linear-gradient(90deg, #3F2A56, #5a3f73); }
-        .modal-footer .btn-primary:hover { background: linear-gradient(90deg, #5a3f73, #3F2A56); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.3); }
-        .modal-footer .btn-secondary { background: linear-gradient(90deg, #6c757d, #5a6268); }
-        .modal-footer .btn-secondary:hover { background: linear-gradient(90deg, #5a6268, #495057); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.3); }
-        
-        .swal2-popup { font-family: 'Cairo', sans-serif !important; border-radius: 15px !important; }
-        .swal2-title { color: #3F2A56 !important; font-weight: 700 !important; }
-        .swal2-html-container { text-align: right !important; color: #3F2A56 !important; }
-        .swal2-confirm { background: linear-gradient(90deg, #3F2A56, #5a3f73) !important; border-radius: 20px !important; box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important; }
-        .swal2-cancel { background: linear-gradient(90deg, #6c757d, #5a6268) !important; border-radius: 20px !important; box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important; }
+        .modal-content {
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            border: none;
+            background: linear-gradient(145deg, #ffffff, #f7f9fc);
+            animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .modal-header {
+            background: linear-gradient(90deg, #3F2A56, #5a3f73);
+            color: white;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .modal-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1), transparent);
+            z-index: -1;
+        }
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .modal-body {
+            padding: 30px;
+        }
+        .modal-body .form-label {
+            font-weight: 600;
+            color: #3F2A56;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        .modal-body .form-control, .modal-body .form-select {
+            border-radius: 15px;
+            border: 1px solid #ddd;
+            padding: 12px;
+            font-size: 1rem;
+            background: #f7f9fc;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .modal-body .form-control:focus, .modal-body .form-select:focus {
+            border-color: #3F2A56;
+            box-shadow: 0 0 8px rgba(63, 42, 86, 0.4);
+        }
+        .modal-footer {
+            padding: 20px;
+            background: linear-gradient(145deg, #f8f9fa, #e9ecef);
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+            justify-content: center;
+            gap: 15px;
+        }
+        .modal-footer .btn {
+            border-radius: 30px;
+            padding: 12px 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        .modal-footer .btn-primary {
+            background: linear-gradient(90deg, #3F2A56, #5a3f73);
+        }
+        .modal-footer .btn-primary:hover {
+            background: linear-gradient(90deg, #5a3f73, #3F2A56);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        .modal-footer .btn-secondary {
+            background: linear-gradient(90deg, #6c757d, #5a6268);
+        }
+        .modal-footer .btn-secondary:hover {
+            background: linear-gradient(90deg, #5a6268, #495057);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        .swal2-popup {
+            font-family: 'Cairo', sans-serif !important;
+            border-radius: 15px !important;
+        }
+        .swal2-title {
+            color: #3F2A56 !important;
+            font-weight: 700 !important;
+        }
+        .swal2-html-container {
+            text-align: right !important;
+            color: #3F2A56 !important;
+        }
+        .swal2-confirm {
+            background: linear-gradient(90deg, #3F2A56, #5a3f73) !important;
+            border-radius: 20px !important;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+        }
+        .swal2-cancel {
+            background: linear-gradient(90deg, #6c757d, #5a6268) !important;
+            border-radius: 20px !important;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+        }
         #qrCanvas { display: none; }
         #scannerContainer { text-align: center; margin: 20px 0; }
         #scannerVideo { max-width: 100%; border-radius: 10px; border: 2px solid #3F2A56; }
@@ -337,9 +414,9 @@
             .card h5 { font-size: 1.2rem; }
             .card p { font-size: 1rem; }
             .btn { padding: 10px 18px; font-size: 0.9rem; }
-            .search-container { padding: 15px; flex-direction: column; }
+            .search-container { padding: 15px; }
             .search-container .filter-group { width: 100%; max-width: 100%; }
-            th, td { padding: 10px; font-size: 0.85rem; } 
+            th, td { padding: 8px; font-size: 0.8rem; } /* تحسين الجدول على الشاشات الصغيرة */
             .modal-title { font-size: 1.3rem; }
             .modal-body { padding: 20px; }
         }
@@ -348,43 +425,32 @@
 <body>
     <div class="container">
         <div class="header">
-            <img src="logo.png" alt="شعار غزة تلكوم" onerror="this.style.display='none';">
+            <img src="logo.png" alt="شعار غزة تلكوم">
             <h2>غزة تلكوم</h2>
             <h4>إدارة المعاملات المالية</h4>
-            <a href="home.html" class="home-btn"><i class="fas fa-home"></i> للرئيسية</a>
+<a href="home.html" class="home-btn"><i class="fas fa-home"></i>  للرئيسية</a>
         </div>
         <div class="dashboard">
             <div class="card out">
                 <i class="fas fa-arrow-down"></i>
                 <h5>الصادر</h5>
                 <p>مجموع الصادر: <span id="totalOut">0</span></p>
+                <p>عدد الصادر: <span id="countOut">0</span></p>
                 <p>فوائد الصادر: <span id="interestOut">0</span></p>
-                <p class="highlight">تأكيد حسابات الصادر: <span id="confirmedTotalOut">0</span></p>
-                <p>عدد معاملات الصادر: <span id="countOut">0</span></p>
             </div>
             <div class="card in">
                 <i class="fas fa-arrow-up"></i>
                 <h5>الوارد</h5>
                 <p>مجموع الوارد: <span id="totalIn">0</span></p>
+                <p>عدد الوارد: <span id="countIn">0</span></p>
                 <p>فوائد الوارد: <span id="interestIn">0</span></p>
-                <p class="highlight">تأكيد حسابات الوارد: <span id="confirmedTotalIn">0</span></p>
-                <p>عدد معاملات الوارد: <span id="countIn">0</span></p>
             </div>
             <div class="card final">
                 <i class="fas fa-wallet"></i>
-                <h5>النهائي (للفترة)</h5>
-                <p>الرصيد النهائي: <span id="finalBalance">0</span></p>
-                <p>مجموع الفوائد الكلي: <span id="totalInterest">0</span></p>
-                <p class="highlight">تأكيد الحسابات النهائي: <span id="confirmedFinalBalance">0</span></p>
-                <p>النهائي × 10: <span id="finalBalanceTimes10">0</span></p>
-            </div>
-             <div class="card gaza-payments">
-                <i class="fas fa-landmark"></i>
-                <h5>دفعات غزة</h5>
-                <p class="highlight">الرصيد المتبقي الكلي: <span id="gazaPaymentsTotalDue">0</span></p>
-                <p>دفعة اليوم المقترحة: <span id="gazaPaymentTodaySuggestion">0</span></p>
-                <button class="btn btn-sm mt-2" onclick="openPayGazaModal()"><i class="fas fa-money-check-alt"></i> دفع دفعة</button>
-                <button class="btn btn-sm btn-info mt-2" onclick="showUnpaidGazaPayments()"><i class="fas fa-list-ul"></i> عرض الدفعات غير المسددة</button>
+                <h5>النهائي</h5>
+                <p>النهائي: <span id="finalBalance">0</span></p>
+                <p>النهائي 2: <span id="finalBalance2">0</span></p>
+                <p>مجموع الفوائد: <span id="totalInterest">0</span></p>
             </div>
         </div>
         <div class="actions">
@@ -404,13 +470,12 @@
                 <input type="text" id="searchInput" placeholder="ابحث في المعاملات..." oninput="filterTable()">
             </div>
             <div class="filter-group">
-                <label for="filterType">فلترة حسب التاريخ</label>
+                <label for="filterType">نوع التصفية</label>
                 <select id="filterType" onchange="updateFilterInputs()">
                     <option value="today">اليوم</option>
                     <option value="yesterday">الأمس</option>
                     <option value="specific">تاريخ محدد</option>
                     <option value="range">بين تاريخين</option>
-                     <option value="all_time">كل الأوقات</option>
                 </select>
             </div>
             <div class="filter-group" id="specificDateGroup" style="display: none;">
@@ -451,7 +516,7 @@
                 <tbody id="transactionsTable"></tbody>
             </table>
         </div>
-        <canvas id="qrCanvas" style="display:none;"></canvas> <!-- Added display:none -->
+        <canvas id="qrCanvas"></canvas>
         <input type="file" id="qrImageInput" accept="image/*" style="display: none;" onchange="importQRFromImage(event)">
     </div>
 
@@ -466,31 +531,31 @@
                 <div class="modal-body">
                     <form id="addTransactionForm">
                         <div class="mb-3">
+                            <label for="serialNumber" class="form-label"><i class="fas fa-barcode"></i> الرقم التسلسلي</label>
+                            <input type="text" class="form-control" id="serialNumber" required>
+                        </div>
+                        <div class="mb-3">
                             <label for="type" class="form-label"><i class="fas fa-exchange-alt"></i> نوع المعاملة</label>
-                            <select class="form-select modal-input" id="type" required>
-                                <option value="out">صادر</option> 
+                            <select class="form-select" id="type" required>
                                 <option value="in">وارد</option>
+                                <option value="out">صادر</option>
                             </select>
                         </div>
                         <div class="mb-3">
-                            <label for="serialNumber" class="form-label"><i class="fas fa-barcode"></i> الرقم التسلسلي</label>
-                            <input type="text" class="form-control modal-input" id="serialNumber" required>
-                        </div>
-                        <div class="mb-3">
                             <label for="datetime" class="form-label"><i class="fas fa-calendar"></i> التاريخ والوقت</label>
-                            <input type="datetime-local" class="form-control modal-input" id="datetime" required>
+                            <input type="datetime-local" class="form-control" id="datetime" required>
                         </div>
                         <div class="mb-3">
                             <label for="amount" class="form-label"><i class="fas fa-money-bill"></i> المبلغ</label>
-                            <input type="number" class="form-control modal-input" id="amount" step="1" min="0" required>
+                            <input type="number" class="form-control" id="amount" step="1" min="0" required>
                         </div>
                         <div class="mb-3">
                             <label for="interest" class="form-label"><i class="fas fa-percentage"></i> الفائدة</label>
-                            <input type="number" class="form-control modal-input" id="interest" step="1" min="0">
+                            <input type="number" class="form-control" id="interest" step="1" min="0">
                         </div>
                         <div class="mb-3">
                             <label for="note" class="form-label"><i class="fas fa-comment"></i> ملاحظة</label>
-                            <input type="text" class="form-control modal-input" id="note">
+                            <input type="text" class="form-control" id="note">
                         </div>
                     </form>
                 </div>
@@ -514,31 +579,31 @@
                     <form id="editTransactionForm">
                         <input type="hidden" id="editId">
                         <div class="mb-3">
+                            <label for="editSerialNumber" class="form-label"><i class="fas fa-barcode"></i> الرقم التسلسلي</label>
+                            <input type="text" class="form-control" id="editSerialNumber" required>
+                        </div>
+                        <div class="mb-3">
                             <label for="editType" class="form-label"><i class="fas fa-exchange-alt"></i> نوع المعاملة</label>
-                            <select class="form-select modal-input" id="editType" required>
-                                <option value="out">صادر</option>
+                            <select class="form-select" id="editType" required>
                                 <option value="in">وارد</option>
+                                <option value="out">صادر</option>
                             </select>
                         </div>
                         <div class="mb-3">
-                            <label for="editSerialNumber" class="form-label"><i class="fas fa-barcode"></i> الرقم التسلسلي</label>
-                            <input type="text" class="form-control modal-input" id="editSerialNumber" required>
-                        </div>
-                        <div class="mb-3">
                             <label for="editDatetime" class="form-label"><i class="fas fa-calendar"></i> التاريخ والوقت</label>
-                            <input type="datetime-local" class="form-control modal-input" id="editDatetime" required>
+                            <input type="datetime-local" class="form-control" id="editDatetime" required>
                         </div>
                         <div class="mb-3">
                             <label for="editAmount" class="form-label"><i class="fas fa-money-bill"></i> المبلغ</label>
-                            <input type="number" class="form-control modal-input" id="editAmount" step="1" min="0" required>
+                            <input type="number" class="form-control" id="editAmount" step="1" min="0" required>
                         </div>
                         <div class="mb-3">
                             <label for="editInterest" class="form-label"><i class="fas fa-percentage"></i> الفائدة</label>
-                            <input type="number" class="form-control modal-input" id="editInterest" step="1" min="0">
+                            <input type="number" class="form-control" id="editInterest" step="1" min="0">
                         </div>
                         <div class="mb-3">
                             <label for="editNote" class="form-label"><i class="fas fa-comment"></i> ملاحظة</label>
-                            <input type="text" class="form-control modal-input" id="editNote">
+                            <input type="text" class="form-control" id="editNote">
                         </div>
                     </form>
                 </div>
@@ -549,416 +614,221 @@
             </div>
         </div>
     </div>
-    
-    <!-- نافذة دفع دفعة غزة -->
-    <div class="modal fade" id="payGazaPaymentModal" tabindex="-1" aria-labelledby="payGazaPaymentModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="payGazaPaymentModalLabel"><i class="fas fa-money-check-alt"></i> دفع دفعة غزة</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="payGazaPaymentForm">
-                        <p><strong>تاريخ الدفعة المستهدفة:</strong> <span id="targetPaymentDateDisplay"></span></p>
-                        <p><strong>المبلغ الأصلي للدفعة:</strong> <span id="targetPaymentOriginalAmount"></span></p>
-                        <p><strong>المبلغ المتبقي لهذه الدفعة:</strong> <span id="targetPaymentRemainingAmount"></span></p>
-                        <hr>
-                        <div class="mb-3">
-                            <label for="gazaPaymentAmount" class="form-label"><i class="fas fa-dollar-sign"></i> مبلغ الدفع</label>
-                            <input type="number" class="form-control modal-input" id="gazaPaymentAmount" step="1" min="1" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="gazaPaymentAccount" class="form-label"><i class="fas fa-university"></i> حساب الصرف</label>
-                            <select class="form-select modal-input" id="gazaPaymentAccount" required>
-                                <option value="">اختر حساب الصرف...</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="gazaPaymentNote" class="form-label"><i class="fas fa-comment"></i> ملاحظة الدفع</label>
-                            <input type="text" class="form-control modal-input" id="gazaPaymentNote" placeholder="مثال: دفعة غزة ليوم DD-MM-YYYY">
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
-                    <button type="button" class="btn btn-primary" onclick="processGazaPayment()">تأكيد الدفع</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
 
     <script>
-        let transactions = []; 
-        let allTimeTransactions = []; 
+        let transactions = [];
         let db;
         let stream = null;
 
-        const DB_NAME = 'GazaTelecomDB';
-        const DB_VERSION = 3; 
-
-
-        const request = indexedDB.open(DB_NAME, DB_VERSION);
+        // إعداد IndexedDB
+        const request = indexedDB.open('GazaTelecomDB', 1);
 
         request.onupgradeneeded = function(event) {
             db = event.target.result;
-            let transactionStore;
-            if (!db.objectStoreNames.contains('transactions')) {
-                transactionStore = db.createObjectStore('transactions', { keyPath: 'id', autoIncrement: true });
-            } else {
-                transactionStore = event.target.transaction.objectStore('transactions');
-            }
-            
-            if (!transactionStore.indexNames.contains('serialNumber')) {
-                transactionStore.createIndex('serialNumber', 'serialNumber', { unique: false });
-            }
-            if (!transactionStore.indexNames.contains('type')) {
-                transactionStore.createIndex('type', 'type', { unique: false });
-            }
-            if (!transactionStore.indexNames.contains('datetime')) {
-                transactionStore.createIndex('datetime', 'datetime', { unique: false });
-            }
-            if (!transactionStore.indexNames.contains('date_only')) { 
-                transactionStore.createIndex('date_only', 'date_only', {unique: false});
-            }
-
-            let dailyPaymentsStore;
-            if (!db.objectStoreNames.contains('dailyPayments')) {
-                dailyPaymentsStore = db.createObjectStore('dailyPayments', { keyPath: 'date' }); 
-            } else {
-                dailyPaymentsStore = event.target.transaction.objectStore('dailyPayments');
-            }
-            
-            if (dailyPaymentsStore.indexNames.contains('isFullyPaid')) { 
-                dailyPaymentsStore.deleteIndex('isFullyPaid');
-            }
-            if (!dailyPaymentsStore.indexNames.contains('isFullyPaidNumeric')) { 
-                dailyPaymentsStore.createIndex('isFullyPaidNumeric', 'isFullyPaidNumeric', { unique: false });
-            }
-
-            if (!db.objectStoreNames.contains('accounts')) { 
-                db.createObjectStore('accounts', { keyPath: 'name' });
-            }
+            const objectStore = db.createObjectStore('transactions', { keyPath: 'id', autoIncrement: true });
+            objectStore.createIndex('serialNumber', 'serialNumber', { unique: false }); // السماح بتكرار الرقم التسلسلي
+            objectStore.createIndex('type', 'type', { unique: false });
+            objectStore.createIndex('datetime', 'datetime', { unique: false });
         };
 
         request.onsuccess = function(event) {
             db = event.target.result;
-            loadAllTimeTransactions().then(() => {
-                updateFilterInputs(); // This will call filterTable, which calls updateDashboard
-                populateGazaPaymentAccounts();
-            }).catch(error => {
-                 console.error("Failed to load all time transactions on DB success:", error);
-                 Swal.fire('خطأ', 'فشل تحميل البيانات الأولية من قاعدة البيانات.', 'error');
-            });
+            loadTransactions();
         };
 
         request.onerror = function(event) {
             console.error('Database error:', event.target.errorCode);
-            Swal.fire({ title: 'خطأ', text: 'فشل في الاتصال بقاعدة البيانات!', icon: 'error', confirmButtonColor: '#3F2A56' });
+            Swal.fire({
+                title: 'خطأ',
+                text: 'فشل في الاتصال بقاعدة البيانات!',
+                icon: 'error',
+                confirmButtonColor: '#3F2A56'
+            });
         };
-        
-        async function getCashBoxAccounts() {
-            return new Promise((resolve, reject) => {
-                if (!db) { reject("Database not initialized"); return; }
-                try {
-                    const transaction = db.transaction(['accounts'], 'readonly');
-                    const store = transaction.objectStore('accounts');
-                    const request = store.getAll();
-                    request.onsuccess = () => resolve(request.result || []);
-                    request.onerror = (event) => {
-                        console.error("Error fetching accounts:", event.target.error);
-                        reject(event.target.error);
-                    };
-                } catch(e) {
-                    console.error("Error in getCashBoxAccounts transaction:", e);
-                    reject(e);
-                }
-            });
-        }
 
-        async function populateGazaPaymentAccounts() {
-            try {
-                const accounts = await getCashBoxAccounts();
-                const selectElement = document.getElementById('gazaPaymentAccount');
-                selectElement.innerHTML = '<option value="">اختر حساب الصرف...</option>';
-                accounts.forEach(acc => {
-                    const option = document.createElement('option');
-                    option.value = acc.name;
-                    option.textContent = acc.name;
-                    selectElement.appendChild(option);
+        function loadTransactions() {
+            const transaction = db.transaction(['transactions'], 'readonly');
+            const objectStore = transaction.objectStore('transactions');
+            const request = objectStore.getAll();
+
+            request.onsuccess = function(event) {
+                transactions = event.target.result;
+                filterTable();
+            };
+
+            request.onerror = function(event) {
+                console.error('Error loading transactions:', event.target.errorCode);
+                Swal.fire({
+                    title: 'خطأ',
+                    text: 'فشل في تحميل المعاملات!',
+                    icon: 'error',
+                    confirmButtonColor: '#3F2A56'
                 });
-            } catch (error) {
-                console.error("Error populating Gaza payment accounts:", error);
-            }
+            };
         }
 
-
-        function loadAllTimeTransactions() {
-            return new Promise((resolve, reject) => {
-                if (!db) { reject("Database not initialized"); return; }
-                const transaction = db.transaction(['transactions'], 'readonly');
-                const objectStore = transaction.objectStore('transactions');
-                const request = objectStore.getAll();
-
-                request.onsuccess = function(event) {
-                    allTimeTransactions = event.target.result || [];
-                    resolve();
-                };
-                request.onerror = function(event) {
-                    console.error('Error loading all-time transactions:', event.target.errorCode);
-                    reject(event.target.error);
-                };
-            });
-        }
-        
-        function getTransactionsByDateRange(startDateStr, endDateStr) {
-            return new Promise((resolve, reject) => {
-                if (!db) { reject("Database not initialized"); return; }
-                const transactionStore = db.transaction(['transactions'], 'readonly').objectStore('transactions');
-                
-                if (!transactionStore.indexNames.contains('date_only')) {
-                    console.error("Index 'date_only' not found. Falling back to manual filter.");
-                    const getAllRequest = transactionStore.getAll();
-                    getAllRequest.onsuccess = (event) => {
-                         let results = event.target.result || [];
-                         if(startDateStr && endDateStr) {
-                            results = results.filter(t => t.date_only >= startDateStr && t.date_only <= endDateStr);
-                         } else if (startDateStr) {
-                            results = results.filter(t => t.date_only === startDateStr);
-                         }
-                         resolve(results);
-                    };
-                    getAllRequest.onerror = (event) => reject(event.target.error);
-                    return;
-                }
-
-                const dateIndex = transactionStore.index('date_only');
-                let range;
-                if(startDateStr && endDateStr) {
-                    range = IDBKeyRange.bound(startDateStr, endDateStr);
-                } else if (startDateStr) { 
-                    range = IDBKeyRange.only(startDateStr);
-                } else { 
-                    // If no dates are provided, but we are not in 'all_time' mode, this is an issue.
-                    // However, filterTable() logic should handle 'all_time' separately.
-                    // For safety, if range would be null here, it means an issue in filterTable logic.
-                    // Let's assume filterTable provides valid start/end or handles all_time.
-                    // If it must be an error condition:
-                    // reject(new Error("Date range not properly defined for indexed query."));
-                    // return;
-                    // For now, let's allow it to proceed to getAll if range becomes null (though filterTable should prevent this).
-                    range = null;
-                }
-                
-                const request = range ? dateIndex.getAll(range) : transactionStore.getAll();
-
-                request.onsuccess = function(event) {
-                    resolve(event.target.result || []);
-                };
-                request.onerror = function(event) {
-                    console.error('Error fetching transactions by date range:', event.target.errorCode);
-                    reject(event.target.error);
-                };
-            });
-        }
-
-
-        async function updateDashboard(currentPeriodTransactions) {
+        function updateDashboard(filteredTransactions) {
             let totalIn = 0, totalOut = 0, countIn = 0, countOut = 0, interestIn = 0, interestOut = 0;
 
-            currentPeriodTransactions.forEach(t => {
-                const amount = parseInt(t.amount) || 0;
-                const interest = parseInt(t.interest || 0);
+            filteredTransactions.forEach(t => {
                 if (t.type === 'in') {
-                    totalIn += amount;
+                    totalIn += parseInt(t.amount);
                     countIn++;
-                    interestIn += interest;
+                    interestIn += parseInt(t.interest || 0);
                 } else if (t.type === 'out') {
-                    totalOut += amount;
+                    totalOut += parseInt(t.amount);
                     countOut++;
-                    interestOut += interest;
+                    interestOut += parseInt(t.interest || 0);
                 }
             });
-            
-            const confirmedTotalOut = totalOut + interestOut;
-            const confirmedTotalIn = totalIn - interestIn; 
-            const finalBalance = totalOut - totalIn; 
-            const confirmedFinalBalance = confirmedTotalOut - confirmedTotalIn;
-            const totalInterest = interestIn + interestOut; 
-            const finalBalanceTimes10 = finalBalance * 10; 
+
+            const finalBalance = totalOut - totalIn;
+            const totalInterest = interestIn + interestOut;
+            const finalBalance2 = finalBalance * 10; // حساب النهائي 2 (النهائي × 10)
 
             document.getElementById('totalIn').innerText = totalIn;
             document.getElementById('countIn').innerText = countIn;
             document.getElementById('interestIn').innerText = interestIn;
-            document.getElementById('confirmedTotalIn').innerText = confirmedTotalIn;
-
             document.getElementById('totalOut').innerText = totalOut;
             document.getElementById('countOut').innerText = countOut;
             document.getElementById('interestOut').innerText = interestOut;
-            document.getElementById('confirmedTotalOut').innerText = confirmedTotalOut;
-
             document.getElementById('finalBalance').innerText = finalBalance;
             document.getElementById('totalInterest').innerText = totalInterest;
-            document.getElementById('confirmedFinalBalance').innerText = confirmedFinalBalance;
-            document.getElementById('finalBalanceTimes10').innerText = finalBalanceTimes10;
-
-            await updateGazaPaymentsDashboard(finalBalance); 
+            document.getElementById('finalBalance2').innerText = finalBalance2; // تحديث النهائي 2
         }
 
-        async function filterTable() {
-            const filterTypeVal = document.getElementById('filterType').value;
-            let specificDateVal = document.getElementById('specificDate').value;
-            let startDateVal = document.getElementById('startDate').value;
-            let endDateVal = document.getElementById('endDate').value;
-            const typeFilterVal = document.getElementById('typeFilter').value;
-            const searchInputVal = document.getElementById('searchInput').value.toLowerCase();
+        function filterTable() {
+            const filterType = document.getElementById('filterType').value;
+            const specificDate = document.getElementById('specificDate').value;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            const typeFilter = document.getElementById('typeFilter').value;
+            const searchInput = document.getElementById('searchInput').value.toLowerCase();
 
-            let dateQueryStart, dateQueryEnd;
+            const tableBody = document.getElementById('transactionsTable');
+            tableBody.innerHTML = '';
 
-            if (filterTypeVal === 'today') {
-                dateQueryStart = new Date().toISOString().split('T')[0];
-                dateQueryEnd = dateQueryStart;
-            } else if (filterTypeVal === 'yesterday') {
-                const yesterday = new Date();
-                yesterday.setDate(yesterday.getDate() - 1);
-                dateQueryStart = yesterday.toISOString().split('T')[0];
-                dateQueryEnd = dateQueryStart;
-            } else if (filterTypeVal === 'specific' && specificDateVal) {
-                dateQueryStart = specificDateVal;
-                dateQueryEnd = specificDateVal;
-            } else if (filterTypeVal === 'range' && startDateVal && endDateVal) {
-                dateQueryStart = startDateVal;
-                dateQueryEnd = endDateVal;
-                 if (dateQueryStart > dateQueryEnd) {
-                    Swal.fire('خطأ', 'تاريخ البداية لا يمكن أن يكون بعد تاريخ النهاية!', 'error');
-                    document.getElementById('transactionsTable').innerHTML = '<tr><td colspan="8">خطأ في تحديد التواريخ.</td></tr>';
-                    updateDashboard([]); 
-                    return;
-                }
-            } else if (filterTypeVal === 'all_time') {
-                 dateQueryStart = null; 
-                 dateQueryEnd = null;
-            }
+            const filteredTransactions = transactions.filter(t => {
+                const transactionDate = t.datetime.split(' ')[0];
+                let matchesDate = true;
 
-
-            try {
-                let transactionsToDisplay;
-                if (dateQueryStart === null && dateQueryEnd === null) { 
-                    transactionsToDisplay = [...allTimeTransactions]; 
-                } else if (dateQueryStart && dateQueryEnd) { // Ensure we have dates for range/specific
-                    transactionsToDisplay = await getTransactionsByDateRange(dateQueryStart, dateQueryEnd);
-                } else if (dateQueryStart) { // Only specific date or start of range without end (should not happen with UI)
-                    transactionsToDisplay = await getTransactionsByDateRange(dateQueryStart, dateQueryStart);
-                }
-                 else { // Should not be reached if UI logic for date filters is correct
-                    transactionsToDisplay = [...allTimeTransactions]; // Fallback
+                if (filterType === 'today') {
+                    const today = new Date().toISOString().split('T')[0];
+                    matchesDate = transactionDate === today;
+                } else if (filterType === 'yesterday') {
+                    const yesterday = new Date();
+                    yesterday.setDate(yesterday.getDate() - 1);
+                    matchesDate = transactionDate === yesterday.toISOString().split('T')[0];
+                } else if (filterType === 'specific' && specificDate) {
+                    matchesDate = transactionDate === specificDate;
+                } else if (filterType === 'range' && startDate && endDate) {
+                    matchesDate = transactionDate >= startDate && transactionDate <= endDate;
                 }
 
+                const matchesType = typeFilter === 'all' || t.type === typeFilter;
 
-                transactionsToDisplay = transactionsToDisplay.filter(t => {
-                    const matchesType = typeFilterVal === 'all' || t.type === typeFilterVal;
-                    const matchesSearch = (
-                        t.serialNumber.toLowerCase().includes(searchInputVal) ||
-                        (t.type === 'in' ? 'وارد' : 'صادر').includes(searchInputVal) ||
-                        t.datetime.toLowerCase().includes(searchInputVal) ||
-                        t.amount.toString().includes(searchInputVal) ||
-                        (t.interest || '0').toString().includes(searchInputVal) ||
-                        (t.note || '').toLowerCase().includes(searchInputVal)
-                    );
-                    return matchesType && matchesSearch;
-                });
-                
-                transactionsToDisplay.sort((a, b) => new Date(b.datetime) - new Date(a.datetime));
+                // البحث في جميع الحقول
+                const matchesSearch = (
+                    t.serialNumber.toLowerCase().includes(searchInput) ||
+                    (t.type === 'in' ? 'وارد' : 'صادر').includes(searchInput) ||
+                    t.datetime.toLowerCase().includes(searchInput) ||
+                    t.amount.toString().includes(searchInput) ||
+                    (t.interest || '0').toString().includes(searchInput) ||
+                    (t.note || '').toLowerCase().includes(searchInput)
+                );
 
-                const tableBody = document.getElementById('transactionsTable');
-                tableBody.innerHTML = '';
-                transactionsToDisplay.forEach((t, index) => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${index + 1}</td>
-                        <td>${t.serialNumber}</td>
-                        <td>${t.type === 'in' ? 'وارد' : 'صادر'}</td>
-                        <td>${t.datetime}</td>
-                        <td>${t.amount}</td>
-                        <td>${t.interest || '0'}</td>
-                        <td>${t.note || ''}</td>
-                        <td>
-                            <i class="fas fa-edit action-btn edit" onclick="editTransaction(${t.id})"></i>
-                            <i class="fas fa-trash action-btn delete" onclick="deleteTransaction(${t.id})"></i>
-                        </td>
-                    `;
-                    tableBody.appendChild(row);
-                });
+                return matchesDate && matchesType && matchesSearch;
+            });
 
-                updateDashboard(transactionsToDisplay); 
-            } catch (error) {
-                console.error("Error filtering table:", error);
-                Swal.fire('خطأ', 'حدث خطأ أثناء تصفية البيانات: ' + error.message, 'error');
-            }
+            filteredTransactions.forEach((t, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${t.serialNumber}</td>
+                    <td>${t.type === 'in' ? 'وارد' : 'صادر'}</td>
+                    <td>${t.datetime}</td>
+                    <td>${t.amount}</td>
+                    <td>${t.interest || '0'}</td>
+                    <td>${t.note || ''}</td>
+                    <td>
+                        <i class="fas fa-edit action-btn edit" onclick="editTransaction(${t.id})"></i>
+                        <i class="fas fa-trash action-btn delete" onclick="deleteTransaction(${t.id})"></i>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+
+            updateDashboard(filteredTransactions);
         }
 
         function updateFilterInputs() {
             const filterType = document.getElementById('filterType').value;
-            document.getElementById('specificDateGroup').style.display = filterType === 'specific' ? 'flex' : 'none';
-            document.getElementById('startDateGroup').style.display = filterType === 'range' ? 'flex' : 'none';
-            document.getElementById('endDateGroup').style.display = filterType === 'range' ? 'flex' : 'none';
-
-            if (filterType === 'today' || filterType === 'yesterday' || filterType === 'all_time') {
-                document.getElementById('specificDate').value = '';
-                document.getElementById('startDate').value = '';
-                document.getElementById('endDate').value = '';
-            }
+            document.getElementById('specificDateGroup').style.display = filterType === 'specific' ? 'block' : 'none';
+            document.getElementById('startDateGroup').style.display = filterType === 'range' ? 'block' : 'none';
+            document.getElementById('endDateGroup').style.display = filterType === 'range' ? 'block' : 'none';
             filterTable();
         }
 
         function setCurrentDateTime(inputId) {
             const now = new Date();
-            const timezoneOffset = now.getTimezoneOffset() * 60000; 
-            const localISOTime = new Date(now.getTime() - timezoneOffset).toISOString().slice(0, 16);
-            document.getElementById(inputId).value = localISOTime;
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            document.getElementById(inputId).value = `${year}-${month}-${day}T${hours}:${minutes}`;
         }
 
         function addTransaction() {
-            const type = document.getElementById('type').value; 
             const serialNumber = document.getElementById('serialNumber').value.trim();
-            const datetimeFull = document.getElementById('datetime').value; 
+            const type = document.getElementById('type').value;
+            const datetime = document.getElementById('datetime').value.replace('T', ' ');
             const amount = document.getElementById('amount').value;
             const interest = document.getElementById('interest').value;
             const note = document.getElementById('note').value.trim();
 
-            if (!serialNumber || !type || !datetimeFull || !amount) {
-                Swal.fire({ title: 'خطأ', text: 'الرجاء ملء الحقول: النوع، الرقم التسلسلي، التاريخ والوقت، والمبلغ!', icon: 'error', confirmButtonColor: '#3F2A56' });
+            if (!serialNumber || !type || !datetime || !amount) {
+                Swal.fire({
+                    title: 'خطأ',
+                    text: 'الرجاء ملء جميع الحقول المطلوبة!',
+                    icon: 'error',
+                    confirmButtonColor: '#3F2A56'
+                });
                 return;
             }
-            if (parseInt(amount) < 0 || (interest && parseInt(interest) < 0) ) {
-                 Swal.fire({ title: 'خطأ', text: 'المبلغ والفائدة لا يمكن أن يكونا سالبين.', icon: 'error', confirmButtonColor: '#3F2A56' });
-                return;
-            }
-
-            const datetime = datetimeFull.replace('T', ' '); 
-            const date_only = datetimeFull.split('T')[0]; 
 
             const transaction = db.transaction(['transactions'], 'readwrite');
             const objectStore = transaction.objectStore('transactions');
             const request = objectStore.add({
-                serialNumber, type, datetime, date_only,
+                serialNumber,
+                type,
+                datetime,
                 amount: parseInt(amount),
-                interest: interest ? parseInt(interest) : 0, 
+                interest: interest ? parseInt(interest) : '0',
                 note
             });
 
             request.onsuccess = function() {
                 document.getElementById('addTransactionForm').reset();
-                document.getElementById('type').value = 'out'; 
-                setCurrentDateTime('datetime'); 
+                setCurrentDateTime('datetime');
                 bootstrap.Modal.getInstance(document.getElementById('addTransactionModal')).hide();
-                loadAllTimeTransactions().then(() => filterTable()); 
-                Swal.fire({ title: 'نجاح', text: 'تم إضافة المعاملة بنجاح!', icon: 'success', confirmButtonColor: '#3F2A56' });
+                loadTransactions();
+                Swal.fire({
+                    title: 'نجاح',
+                    text: 'تم إضافة المعاملة بنجاح!',
+                    icon: 'success',
+                    confirmButtonColor: '#3F2A56'
+                });
             };
+
             request.onerror = function(event) {
                 console.error('Error adding transaction:', event.target.errorCode);
-                Swal.fire({ title: 'خطأ', text: 'فشل في إضافة المعاملة!', icon: 'error', confirmButtonColor: '#3F2A56' });
+                Swal.fire({
+                    title: 'خطأ',
+                    text: 'فشل في إضافة المعاملة!',
+                    icon: 'error',
+                    confirmButtonColor: '#3F2A56'
+                });
             };
         }
 
@@ -969,71 +839,80 @@
 
             request.onsuccess = function(event) {
                 const t = event.target.result;
-                if (!t) { 
-                     Swal.fire({ title: 'خطأ', text: 'المعاملة غير موجودة!', icon: 'error', confirmButtonColor: '#3F2A56' });
-                     return;
-                }
                 document.getElementById('editId').value = t.id;
-                document.getElementById('editType').value = t.type;
                 document.getElementById('editSerialNumber').value = t.serialNumber;
+                document.getElementById('editType').value = t.type;
                 document.getElementById('editDatetime').value = t.datetime.replace(' ', 'T');
                 document.getElementById('editAmount').value = t.amount;
                 document.getElementById('editInterest').value = t.interest || '';
                 document.getElementById('editNote').value = t.note || '';
                 new bootstrap.Modal(document.getElementById('editTransactionModal')).show();
             };
-             request.onerror = function(event) {
-                console.error('Error fetching transaction for edit:', event.target.errorCode);
-                Swال.fire({ title: 'خطأ', text: 'فشل في جلب المعاملة للتعديل!', icon: 'error', confirmButtonColor: '#3F2A56' });
-            };
         }
 
         function updateTransaction() {
             const id = parseInt(document.getElementById('editId').value);
-            const type = document.getElementById('editType').value;
             const serialNumber = document.getElementById('editSerialNumber').value.trim();
-            const datetimeFull = document.getElementById('editDatetime').value;
+            const type = document.getElementById('editType').value;
+            const datetime = document.getElementById('editDatetime').value.replace('T', ' ');
             const amount = document.getElementById('editAmount').value;
             const interest = document.getElementById('editInterest').value;
             const note = document.getElementById('editNote').value.trim();
 
-            if (!serialNumber || !type || !datetimeFull || !amount) {
-                Swal.fire({ title: 'خطأ', text: 'الرجاء ملء جميع الحقول المطلوبة!', icon: 'error', confirmButtonColor: '#3F2A56' });
+            if (!serialNumber || !type || !datetime || !amount) {
+                Swal.fire({
+                    title: 'خطأ',
+                    text: 'الرجاء ملء جميع الحقول المطلوبة!',
+                    icon: 'error',
+                    confirmButtonColor: '#3F2A56'
+                });
                 return;
             }
-            if (parseInt(amount) < 0 || (interest && parseInt(interest) < 0) ) {
-                 Swal.fire({ title: 'خطأ', text: 'المبلغ والفائدة لا يمكن أن يكونا سالبين.', icon: 'error', confirmButtonColor: '#3F2A56' });
-                return;
-            }
-            const datetime = datetimeFull.replace('T', ' ');
-            const date_only = datetimeFull.split('T')[0];
-
 
             const transaction = db.transaction(['transactions'], 'readwrite');
             const objectStore = transaction.objectStore('transactions');
             const request = objectStore.put({
-                id, serialNumber, type, datetime, date_only,
+                id,
+                serialNumber,
+                type,
+                datetime,
                 amount: parseInt(amount),
-                interest: interest ? parseInt(interest) : 0,
+                interest: interest ? parseInt(interest) : '0',
                 note
             });
 
             request.onsuccess = function() {
                 bootstrap.Modal.getInstance(document.getElementById('editTransactionModal')).hide();
-                loadAllTimeTransactions().then(() => filterTable());
-                Swal.fire({ title: 'نجاح', text: 'تم تعديل المعاملة بنجاح!', icon: 'success', confirmButtonColor: '#3F2A56' });
+                loadTransactions();
+                Swal.fire({
+                    title: 'نجاح',
+                    text: 'تم تعديل المعاملة بنجاح!',
+                    icon: 'success',
+                    confirmButtonColor: '#3F2A56'
+                });
             };
+
             request.onerror = function(event) {
                 console.error('Error updating transaction:', event.target.errorCode);
-                Swal.fire({ title: 'خطأ', text: 'فشل في تعديل المعاملة!', icon: 'error', confirmButtonColor: '#3F2A56' });
+                Swal.fire({
+                    title: 'خطأ',
+                    text: 'فشل في تعديل المعاملة!',
+                    icon: 'error',
+                    confirmButtonColor: '#3F2A56'
+                });
             };
         }
 
         async function deleteTransaction(id) {
             const result = await Swal.fire({
-                title: 'تأكيد الحذف', text: 'هل أنت متأكد من حذف هذه المعاملة؟', icon: 'warning',
-                showCancelButton: true, confirmButtonText: 'حذف', cancelButtonText: 'إلغاء',
-                confirmButtonColor: '#dc3545', cancelButtonColor: '#6c757d'
+                title: 'تأكيد الحذف',
+                text: 'هل أنت متأكد من حذف هذه المعاملة؟',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'حذف',
+                cancelButtonText: 'إلغاء',
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d'
             });
 
             if (result.isConfirmed) {
@@ -1042,324 +921,61 @@
                 const request = objectStore.delete(id);
 
                 request.onsuccess = function() {
-                    loadAllTimeTransactions().then(() => filterTable());
-                    Swal.fire({ title: 'نجاح', text: 'تم حذف المعاملة بنجاح!', icon: 'success', confirmButtonColor: '#3F2A56' });
+                    loadTransactions();
+                    Swal.fire({
+                        title: 'نجاح',
+                        text: 'تم حذف المعاملة بنجاح!',
+                        icon: 'success',
+                        confirmButtonColor: '#3F2A56'
+                    });
                 };
+
                 request.onerror = function(event) {
                     console.error('Error deleting transaction:', event.target.errorCode);
-                    Swal.fire({ title: 'خطأ', text: 'فشل في حذف المعاملة!', icon: 'error', confirmButtonColor: '#3F2A56' });
+                    Swal.fire({
+                        title: 'خطأ',
+                        text: 'فشل في حذف المعاملة!',
+                        icon: 'error',
+                        confirmButtonColor: '#3F2A56'
+                    });
                 };
             }
         }
-        
-        async function getDailyPaymentRecord(dateStr) { 
-            return new Promise((resolve, reject) => {
-                if (!db) { reject("Database not init"); return; }
-                 if (!db.objectStoreNames.contains('dailyPayments')) { // Check if store exists
-                    console.warn("DailyPayments store not found in getDailyPaymentRecord.");
-                    resolve(undefined); // Resolve with undefined if store doesn't exist
-                    return;
-                }
-                const tx = db.transaction(['dailyPayments'], 'readonly');
-                const store = tx.objectStore('dailyPayments');
-                const request = store.get(dateStr);
-                request.onsuccess = () => resolve(request.result); 
-                request.onerror = (event) => reject(event.target.error);
-            });
-        }
-
-        async function updateGazaPaymentsDashboard(currentPeriodFinalBalance) {
-            let totalDue = 0;
-            const todayStr = new Date().toISOString().split('T')[0];
-            
-            if (!db || !db.objectStoreNames.contains('dailyPayments')) { 
-                 console.warn("DailyPayments store not found. Skipping Gaza payments dashboard update.");
-                 document.getElementById('gazaPaymentsTotalDue').innerText = "غ/م"; 
-                 document.getElementById('gazaPaymentTodaySuggestion').innerText = currentPeriodFinalBalance.toFixed(0);
-                 return;
-            }
-
-
-            const tx = db.transaction(['dailyPayments'], 'readonly');
-            const store = tx.objectStore('dailyPayments');
-            const request = store.getAll();
-
-            request.onsuccess = async function(event) { 
-                const allDailyPayments = event.target.result || [];
-                allDailyPayments.forEach(dp => {
-                    if (dp.isFullyPaidNumeric === 0) {
-                        totalDue += (parseFloat(dp.originalAmount) - parseFloat(dp.paidAmount));
-                    }
-                });
-                document.getElementById('gazaPaymentsTotalDue').innerText = totalDue.toFixed(0);
-                
-                document.getElementById('gazaPaymentTodaySuggestion').innerText = currentPeriodFinalBalance.toFixed(0);
-
-                if (currentPeriodFinalBalance > 0 && document.getElementById('filterType').value === 'today') {
-                     const existingTodayPayment = await getDailyPaymentRecord(todayStr);
-                     if (!existingTodayPayment) {
-                        const newPaymentRecord = {
-                            date: todayStr,
-                            originalAmount: currentPeriodFinalBalance,
-                            paidAmount: 0,
-                            isFullyPaidNumeric: 0, 
-                            paymentHistory: []
-                        };
-                        const addTx = db.transaction(['dailyPayments'], 'readwrite');
-                        addTx.objectStore('dailyPayments').add(newPaymentRecord);
-                        addTx.oncomplete = () => console.log(`Daily payment record for ${todayStr} created.`);
-                        addTx.onerror = (e) => console.error("Error creating daily payment record:", e.target.error);
-                     } else if (existingTodayPayment.originalAmount != currentPeriodFinalBalance && existingTodayPayment.isFullyPaidNumeric === 0) {
-                        if (currentPeriodFinalBalance >= existingTodayPayment.paidAmount) { 
-                            existingTodayPayment.originalAmount = currentPeriodFinalBalance;
-                            const updateTx = db.transaction(['dailyPayments'], 'readwrite');
-                            updateTx.objectStore('dailyPayments').put(existingTodayPayment);
-                            updateTx.onerror = (e) => console.error("Error updating daily payment original amount:", e.target.error);
-                        }
-                     }
-                }
-            };
-            request.onerror = function(event) {
-                console.error("Error fetching daily payments for dashboard:", event.target.error);
-            };
-        }
-        
-        async function openPayGazaModal() {
-            if (!db || !db.objectStoreNames.contains('dailyPayments')) {
-                 Swal.fire('خطأ', 'ميزة دفعات غزة غير مهيأة بشكل صحيح في قاعدة البيانات.', 'error'); return;
-            }
-            const todayStr = new Date().toISOString().split('T')[0];
-            let targetPayment = await getDailyPaymentRecord(todayStr);
-            
-            if (!targetPayment || targetPayment.isFullyPaidNumeric === 1) { 
-                const unpaidPayments = await new Promise((resolve) => {
-                    if (!db) { resolve([]); return; } 
-                    const tx = db.transaction(['dailyPayments'], 'readonly');
-                    const store = tx.objectStore('dailyPayments');
-                    if (!store.indexNames.contains('isFullyPaidNumeric')) {
-                        console.error("Index 'isFullyPaidNumeric' not found on 'dailyPayments' store.");
-                        resolve([]);
-                        return;
-                    }
-                    const index = store.index('isFullyPaidNumeric'); 
-                    const req = index.getAll(IDBKeyRange.only(0));    
-                    req.onsuccess = () => resolve(req.result.sort((a,b) => new Date(a.date) - new Date(b.date)));
-                    req.onerror = (e) => {console.error("Error fetching unpaid gaza from index:", e.target.error); resolve([]);};
-                });
-                if (unpaidPayments.length > 0) {
-                    targetPayment = unpaidPayments[0]; 
-                }
-            }
-
-            let currentFinalBalanceForTodayView = 0;
-            const currentFilterType = document.getElementById('filterType').value;
-            if (currentFilterType === 'today') {
-                 currentFinalBalanceForTodayView = parseFloat(document.getElementById('finalBalance').innerText) || 0;
-            } else { 
-                const todayTransactions = await getTransactionsByDateRange(todayStr, todayStr);
-                let tempTotalIn = 0, tempTotalOut = 0;
-                todayTransactions.forEach(t => {
-                    const amount = parseInt(t.amount) || 0;
-                    if (t.type === 'in') tempTotalIn += amount;
-                    else tempTotalOut += amount;
-                });
-                currentFinalBalanceForTodayView = tempTotalOut - tempTotalIn;
-            }
-
-
-            if (!targetPayment && currentFinalBalanceForTodayView <= 0) {
-                Swal.fire('لا يوجد رصيد', 'لا توجد دفعات مستحقة حالياً أو رصيد اليوم صفر أو دائن.', 'info');
-                return;
-            }
-            
-            if (!targetPayment && currentFinalBalanceForTodayView > 0) {
-                targetPayment = {
-                    date: todayStr,
-                    originalAmount: currentFinalBalanceForTodayView,
-                    paidAmount: 0,
-                    isFullyPaidNumeric: 0, 
-                    paymentHistory: []
-                };
-            }
-
-
-            if (!targetPayment) { 
-                Swal.fire('لا يوجد رصيد', 'لا توجد دفعات مستحقة حالياً.', 'info');
-                return;
-            }
-
-
-            document.getElementById('targetPaymentDateDisplay').textContent = targetPayment.date;
-            document.getElementById('targetPaymentOriginalAmount').textContent = parseFloat(targetPayment.originalAmount).toFixed(0);
-            const remainingForThis = parseFloat(targetPayment.originalAmount) - parseFloat(targetPayment.paidAmount);
-            document.getElementById('targetPaymentRemainingAmount').textContent = remainingForThis.toFixed(0);
-            document.getElementById('gazaPaymentAmount').value = remainingForThis > 0 ? remainingForThis.toFixed(0) : '';
-            document.getElementById('gazaPaymentAmount').max = remainingForThis.toFixed(0);
-            document.getElementById('gazaPaymentNote').value = `دفعة غزة ليوم ${targetPayment.date}`;
-
-            await populateGazaPaymentAccounts();
-            new bootstrap.Modal(document.getElementById('payGazaPaymentModal')).show();
-        }
-
-        async function processGazaPayment() {
-            const targetDate = document.getElementById('targetPaymentDateDisplay').textContent;
-            const paymentAmount = parseFloat(document.getElementById('gazaPaymentAmount').value);
-            const paymentAccount = document.getElementById('gazaPaymentAccount').value;
-            const paymentNote = document.getElementById('gazaPaymentNote').value.trim();
-
-            if (isNaN(paymentAmount) || paymentAmount <= 0) {
-                Swal.fire('خطأ', 'الرجاء إدخال مبلغ دفع صحيح.', 'error'); return;
-            }
-            // لا نطلب حساب صرف لدفعات غزة، فهي تعتبر مصاريف داخلية
-            // if (!paymentAccount) {
-            //     Swal.fire('خطأ', 'الرجاء اختيار حساب الصرف.', 'error'); return;
-            // }
-
-            let dailyPayment = await getDailyPaymentRecord(targetDate);
-            
-            if (!dailyPayment) { 
-                const originalAmountForThisDate = parseFloat(document.getElementById('targetPaymentOriginalAmount').textContent);
-                if (isNaN(originalAmountForThisDate) || originalAmountForThisDate <= 0) {
-                     Swal.fire('خطأ', 'لا يمكن تحديد المبلغ الأصلي للدفعة لهذا اليوم.', 'error'); return;
-                }
-                 dailyPayment = {
-                    date: targetDate,
-                    originalAmount: originalAmountForThisDate,
-                    paidAmount: 0,
-                    isFullyPaidNumeric: 0,
-                    paymentHistory: []
-                };
-            }
-
-
-            const remainingForThis = parseFloat(dailyPayment.originalAmount) - parseFloat(dailyPayment.paidAmount);
-            if (paymentAmount > remainingForThis) {
-                Swal.fire('خطأ', `مبلغ الدفع (${paymentAmount}) أكبر من المتبقي لهذه الدفعة (${remainingForThis.toFixed(0)}).`, 'error'); return;
-            }
-
-            dailyPayment.paidAmount = parseFloat(dailyPayment.paidAmount) + paymentAmount;
-            dailyPayment.paymentHistory.push({
-                amount: paymentAmount,
-                paymentDate: new Date().toISOString(),
-                account: paymentAccount || 'N/A', // حساب الصرف ليس إلزاميًا هنا
-                note: paymentNote
-            });
-            if (dailyPayment.paidAmount >= dailyPayment.originalAmount) {
-                dailyPayment.isFullyPaidNumeric = 1; 
-            } else {
-                dailyPayment.isFullyPaidNumeric = 0; 
-            }
-
-            const dpTx = db.transaction(['dailyPayments'], 'readwrite');
-            const dpStore = dpTx.objectStore('dailyPayments');
-            dpStore.put(dailyPayment); 
-
-            dpTx.oncomplete = async () => {
-                const currentDate = new Date();
-                const cashBoxTransaction = {
-                    serialNumber: `GAZA-${targetDate}-${Date.now().toString().slice(-4)}`, 
-                    type: 'out', // دفعة غزة تعتبر معاملة صادرة من الصندوق
-                    datetime: currentDate.toISOString().slice(0, 19).replace('T', ' '),
-                    date_only: currentDate.toISOString().slice(0,10),
-                    amount: paymentAmount,
-                    interest: 0, 
-                    note: paymentNote || `دفعة غزة ليوم ${targetDate}`,
-                    account: paymentAccount || 'دفعات غزة' // يمكن استخدام حساب افتراضي إذا لم يتم اختيار حساب
-                };
-                const mainTx = db.transaction(['transactions'], 'readwrite');
-                const mainStore = mainTx.objectStore('transactions');
-                const addMainReq = mainStore.add(cashBoxTransaction);
-
-                addMainReq.onsuccess = async () => {
-                    await loadAllTimeTransactions().then(() => filterTable()); 
-                    bootstrap.Modal.getInstance(document.getElementById('payGazaPaymentModal')).hide();
-                    Swal.fire('نجاح', 'تم تسجيل دفعة غزة بنجاح.', 'success');
-                };
-                addMainReq.onerror = (e) => {
-                    console.error("Error adding gaza payment to main transactions:", e.target.error);
-                    Swal.fire('خطأ جزئي', 'تم تحديث سجل دفعة غزة، ولكن فشل تسجيل المعاملة في الصندوق الرئيسي.', 'warning');
-                };
-            };
-            dpTx.onerror = (event) => {
-                 Swal.fire('خطأ', 'فشل تحديث سجل دفعة غزة: ' + event.target.error, 'error');
-            };
-        }
-
-        async function showUnpaidGazaPayments() {
-             if (!db || !db.objectStoreNames.contains('dailyPayments')) {
-                 Swal.fire('خطأ', 'ميزة دفعات غزة غير مهيأة بشكل صحيح.', 'error'); return;
-            }
-            const unpaidPayments = await new Promise((resolve) => {
-                const tx = db.transaction(['dailyPayments'], 'readonly');
-                const store = tx.objectStore('dailyPayments');
-                 if (!store.indexNames.contains('isFullyPaidNumeric')) {
-                     console.error("Index 'isFullyPaidNumeric' not found. Cannot fetch unpaid payments.");
-                     resolve([]);
-                     return;
-                 }
-                const index = store.index('isFullyPaidNumeric'); 
-                const req = index.getAll(IDBKeyRange.only(0));    
-                req.onsuccess = () => resolve(req.result.sort((a,b) => new Date(a.date) - new Date(b.date)));
-                req.onerror = (e) => { console.error("Error fetching unpaid gaza payments:", e.target.error); resolve([]);};
-            });
-
-            if (unpaidPayments.length === 0) {
-                Swal.fire('لا توجد دفعات', 'لا توجد دفعات غزة غير مسددة حالياً.', 'info');
-                return;
-            }
-
-            let html = `<div style="max-height: 300px; overflow-y: auto; text-align: right;">
-                            <table class="table table-sm table-bordered">
-                                <thead class="table-dark" style="position: sticky; top: 0; z-index: 1;"><tr><th>التاريخ</th><th>المبلغ الأصلي</th><th>المدفوع</th><th>المتبقي</th></tr></thead>
-                                <tbody>`;
-            unpaidPayments.forEach(dp => {
-                const remaining = parseFloat(dp.originalAmount) - parseFloat(dp.paidAmount);
-                html += `<tr>
-                            <td>${dp.date}</td>
-                            <td>${parseFloat(dp.originalAmount).toFixed(0)}</td>
-                            <td>${parseFloat(dp.paidAmount).toFixed(0)}</td>
-                            <td>${remaining.toFixed(0)}</td>
-                         </tr>`;
-            });
-            html += `</tbody></table></div>`;
-
-            Swal.fire({
-                title: 'دفعات غزة غير المسددة',
-                html: html,
-                icon: 'info',
-                width: '600px',
-                confirmButtonText: 'إغلاق'
-            });
-        }
-
 
         function exportToJSON() {
-            const dataStr = JSON.stringify(allTimeTransactions, null, 2); 
+            const dataStr = JSON.stringify(transactions, null, 2);
             const blob = new Blob([dataStr], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'gaza_telecom_transactions.json';
+            a.download = 'transactions.json';
             a.click();
             URL.revokeObjectURL(url);
-            Swal.fire('نجاح', 'تم تصدير البيانات إلى JSON بنجاح!', 'success');
+            Swal.fire({
+                title: 'نجاح',
+                text: 'تم تصدير البيانات إلى JSON بنجاح!',
+                icon: 'success',
+                confirmButtonColor: '#3F2A56'
+            });
         }
 
         function exportToCSV() {
-            const headers = ['الرقم التسلسلي', 'نوع المعاملة', 'التاريخ والوقت', 'المبلغ', 'الفائدة', 'الملاحظة'];
-            const rows = allTimeTransactions.map(t => 
-                `"${t.serialNumber}","${t.type === 'in' ? 'وارد' : 'صادر'}","${t.datetime}","${t.amount}","${t.interest || '0'}","${t.note ? t.note.replace(/"/g, '""') : ''}"`
-            );
-            const csv = [headers.join(','), ...rows].join('\n');
-            const bom = '\uFEFF'; 
-            const blob = new Blob([bom + csv], { type: 'text/csv;charset=utf-8;' });
+            const headers = ['الرقم التسلسلي,نوع المعاملة,التاريخ والوقت,المبلغ,الفائدة,الملاحظة'];
+            const rows = transactions.map(t => `${t.serialNumber},${t.type === 'in' ? 'وارد' : 'صادر'},${t.datetime},${t.amount},${t.interest || '0'},${t.note || ''}`);
+            const csv = [headers, ...rows].join('\n');
+            const blob = new Blob([csv], { type: 'text/csv' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'gaza_telecom_transactions.csv';
+            a.download = 'transactions.csv';
             a.click();
             URL.revokeObjectURL(url);
-            Swal.fire('نجاح', 'تم تصدير البيانات إلى CSV بنجاح!', 'success');
+            Swal.fire({
+                title: 'نجاح',
+                text: 'تم تصدير البيانات إلى CSV بنجاح!',
+                icon: 'success',
+                confirmButtonColor: '#3F2A56'
+            });
         }
 
         function importFile(event) {
@@ -1367,240 +983,359 @@
             const reader = new FileReader();
 
             reader.onload = function(e) {
-                let newTransactionsRaw = [];
-                 try {
-                    if (file.name.endsWith('.json')) {
-                        newTransactionsRaw = JSON.parse(e.target.result);
-                    } else if (file.name.endsWith('.csv')) {
-                        const rows = e.target.result.split('\n').filter(row => row.trim());
-                        if (rows.length > 1) { 
-                            const headers = rows[0].split(',').map(h => h.trim().toLowerCase().replace(/"/g, ''));
-                            const serialIndex = headers.indexOf('الرقم التسلسلي');
-                            const typeIndex = headers.indexOf('نوع المعاملة');
-                            const datetimeIndex = headers.indexOf('التاريخ والوقت');
-                            const amountIndex = headers.indexOf('المبلغ');
-                            const interestIndex = headers.indexOf('الفائدة');
-                            const noteIndex = headers.indexOf('الملاحظة');
-
-                            if ([serialIndex, typeIndex, datetimeIndex, amountIndex].some(i => i === -1)) { 
-                                throw new Error("ملف CSV يفتقد بعض الأعمدة الأساسية.");
-                            }
-
-                            newTransactionsRaw = rows.slice(1).map(row => {
-                                const values = [];
-                                let currentVal = '';
-                                let inQuotes = false;
-                                for (let char of row) {
-                                    if (char === '"' && (currentVal === '' || currentVal.slice(-1) !== '\\')) { 
-                                        inQuotes = !inQuotes;
-                                    } else if (char === ',' && !inQuotes) {
-                                        values.push(currentVal.trim());
-                                        currentVal = '';
-                                    } else {
-                                        currentVal += char;
-                                    }
-                                }
-                                values.push(currentVal.trim()); 
-
-                                return {
-                                    serialNumber: values[serialIndex]?.replace(/"/g, ''),
-                                    type: values[typeIndex]?.replace(/"/g, '') === 'وارد' ? 'in' : 'out',
-                                    datetime: values[datetimeIndex]?.replace(/"/g, ''),
-                                    amount: parseInt(values[amountIndex]?.replace(/"/g, '')),
-                                    interest: interestIndex > -1 && values[interestIndex] ? parseInt(values[interestIndex]?.replace(/"/g, '')) : 0,
-                                    note: noteIndex > -1 ? values[noteIndex]?.replace(/"/g, '') : ''
-                                };
-                            });
-                        }
-                    } else {
-                        Swal.fire('خطأ', 'صيغة الملف غير مدعومة!', 'error'); return;
-                    }
-
-                    if (!Array.isArray(newTransactionsRaw)) throw new Error("البيانات المستوردة ليست مصفوفة.");
-
-                    const validTransactions = newTransactionsRaw.filter(t => 
-                        t.serialNumber && t.type && t.datetime && !isNaN(t.amount)
-                    ).map(t => ({...t, date_only: t.datetime.split(' ')[0]})); 
-
-                    if (validTransactions.length === 0) {
-                        Swal.fire('لا توجد بيانات', 'لم يتم العثور على معاملات صالحة في الملف.', 'info'); return;
-                    }
-
-                    const transaction = db.transaction(['transactions'], 'readwrite');
-                    const objectStore = transaction.objectStore('transactions');
-                    validTransactions.forEach(t => objectStore.add(t)); 
-
-                    transaction.oncomplete = function() {
-                        loadAllTimeTransactions().then(() => filterTable());
-                        Swal.fire('نجاح', `تم استيراد ${validTransactions.length} معاملة بنجاح!`, 'success');
-                    };
-                    transaction.onerror = (errEvent) => Swal.fire('خطأ', 'فشل استيراد بعض المعاملات: ' + errEvent.target.error, 'error');
-
-                } catch (parseError) {
-                    console.error("Error parsing imported file:", parseError);
-                    Swal.fire('خطأ في الملف', 'فشل تحليل الملف. تأكد من التنسيق الصحيح.\n' + parseError.message, 'error');
+                let newTransactions = [];
+                if (file.name.endsWith('.json')) {
+                    newTransactions = JSON.parse(e.target.result);
+                } else if (file.name.endsWith('.csv')) {
+                    const rows = e.target.result.split('\n').slice(1).filter(row => row.trim());
+                    newTransactions = rows.map(row => {
+                        const [serialNumber, type, datetime, amount, interest, note] = row.split(',');
+                        return {
+                            serialNumber,
+                            type: type === 'وارد' ? 'in' : 'out',
+                            datetime,
+                            amount: parseInt(amount),
+                            interest: interest ? parseInt(interest) : '0',
+                            note
+                        };
+                    });
                 }
+
+                const transaction = db.transaction(['transactions'], 'readwrite');
+                const objectStore = transaction.objectStore('transactions');
+
+                newTransactions.forEach(t => {
+                    objectStore.add(t);
+                });
+
+                transaction.oncomplete = function() {
+                    loadTransactions();
+                    Swal.fire({
+                        title: 'نجاح',
+                        text: 'تم استيراد البيانات بنجاح!',
+                        icon: 'success',
+                        confirmButtonColor: '#3F2A56'
+                    });
+                };
+
+                transaction.onerror = function(event) {
+                    console.error('Error importing transactions:', event.target.errorCode);
+                    Swal.fire({
+                        title: 'خطأ',
+                        text: 'فشل في استيراد البيانات!',
+                        icon: 'error',
+                        confirmButtonColor: '#3F2A56'
+                    });
+                };
             };
+
             reader.readAsText(file);
-            event.target.value = null; 
         }
 
-
-        function generateQRCode() { 
-            const dataStr = JSON.stringify(allTimeTransactions); 
+        function generateQRCode() {
+            const dataStr = JSON.stringify(transactions);
             const qrCanvas = document.getElementById('qrCanvas');
-            QRCode.toCanvas(qrCanvas, dataStr, { width: 300, errorCorrectionLevel: 'L' }, function(error) {
-                if (error) { console.error(error); Swal.fire('خطأ', 'فشل إنشاء QR!', 'error'); return; }
+            QRCode.toCanvas(qrCanvas, dataStr, { width: 300 }, function(error) {
+                if (error) {
+                    console.error(error);
+                    Swal.fire({
+                        title: 'خطأ',
+                        text: 'فشل في إنشاء رمز QR!',
+                        icon: 'error',
+                        confirmButtonColor: '#3F2A56'
+                    });
+                    return;
+                }
                 Swal.fire({
                     title: 'رمز QR جاهز',
-                    html: '<canvas id="tempQRCanvas" style="border:1px solid #ccc;"></canvas>',
+                    html: '<canvas id="tempQRCanvas"></canvas>',
                     didOpen: () => {
                         const tempCanvas = document.getElementById('tempQRCanvas');
-                        tempCanvas.width = qrCanvas.width; tempCanvas.height = qrCanvas.height;
+                        tempCanvas.width = qrCanvas.width;
+                        tempCanvas.height = qrCanvas.height;
                         tempCanvas.getContext('2d').drawImage(qrCanvas, 0, 0);
                     },
-                    confirmButtonText: 'إغلاق', confirmButtonColor: '#3F2A56'
+                    confirmButtonColor: '#3F2A56'
                 });
             });
         }
-        function startQRScanner() { 
-             Swal.fire({
+
+        function startQRScanner() {
+            Swal.fire({
                 title: 'مسح رمز QR',
-                html: `<div id="scannerContainer"><video id="scannerVideo" autoplay playsinline></video><div class="scanner-buttons"><button class="btn" onclick="stopQRScannerAndCloseSwal()">إيقاف</button><button class="btn" onclick="document.getElementById('qrImageInput').click()">من صورة</button></div></div>`,
-                showConfirmButton: false, showCancelButton: true, cancelButtonText: 'إغلاق',
+                html: `
+                    <div id="scannerContainer">
+                        <video id="scannerVideo" autoplay playsinline></video>
+                        <div class="scanner-buttons">
+                            <button class="btn" onclick="stopQRScanner()">إيقاف المسح</button>
+                            <button class="btn" onclick="document.getElementById('qrImageInput').click()">استيراد من صورة</button>
+                        </div>
+                    </div>
+                `,
+                showConfirmButton: false,
+                showCancelButton: true,
+                cancelButtonColor: '#6c757d',
                 didOpen: async () => {
                     try {
                         stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
                         const video = document.getElementById('scannerVideo');
-                        video.srcObject = stream; video.play();
+                        video.srcObject = stream;
+                        video.play();
+
                         const canvas = document.createElement('canvas');
                         const context = canvas.getContext('2d');
+
                         function scan() {
                             if (video.readyState === video.HAVE_ENOUGH_DATA) {
-                                canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+                                canvas.width = video.videoWidth;
+                                canvas.height = video.videoHeight;
                                 context.drawImage(video, 0, 0, canvas.width, canvas.height);
                                 const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
                                 const code = jsQR(imageData.data, imageData.width, imageData.height);
                                 if (code) {
-                                    stopQRScanner(); Swal.close();
+                                    stopQRScanner();
+                                    Swal.close();
                                     try {
                                         const newTransactions = JSON.parse(code.data);
-                                        if (!Array.isArray(newTransactions)) throw new Error("بيانات QR ليست مصفوفة.");
-                                        const validTransactions = newTransactions.filter(t => t.serialNumber && t.type && t.datetime && !isNaN(t.amount))
-                                                                            .map(t => ({...t, date_only: t.datetime.split(' ')[0]}));
-                                        if (validTransactions.length > 0) {
-                                            const tx = db.transaction(['transactions'], 'readwrite');
-                                            const store = tx.objectStore('transactions');
-                                            validTransactions.forEach(t => store.add(t));
-                                            tx.oncomplete = () => { loadAllTimeTransactions().then(() => filterTable()); Swal.fire('نجاح', `تم استيراد ${validTransactions.length} معاملة.`, 'success'); };
-                                            tx.onerror = (e) => Swal.fire('خطأ', 'فشل حفظ معاملات QR: ' + e.target.error, 'error');
-                                        } else { Swal.fire('لا بيانات', 'لم يتم العثور على معاملات صالحة في QR.', 'info');}
-                                    } catch (e) { Swal.fire('خطأ', 'بيانات QR غير صالحة: ' + e.message, 'error'); }
+                                        const transaction = db.transaction(['transactions'], 'readwrite');
+                                        const objectStore = transaction.objectStore('transactions');
+                                        newTransactions.forEach(t => objectStore.add(t));
+                                        transaction.oncomplete = function() {
+                                            loadTransactions();
+                                            Swal.fire({
+                                                title: 'نجاح',
+                                                text: 'تم استيراد البيانات من QR بنجاح!',
+                                                icon: 'success',
+                                                confirmButtonColor: '#3F2A56'
+                                            });
+                                        };
+                                    } catch (e) {
+                                        Swal.fire({
+                                            title: 'خطأ',
+                                            text: 'البيانات في رمز QR غير صالحة!',
+                                            icon: 'error',
+                                            confirmButtonColor: '#3F2A56'
+                                        });
+                                    }
                                     return;
                                 }
                             }
-                            if (Swal.isVisible()) requestAnimationFrame(scan); else stopQRScanner();
+                            requestAnimationFrame(scan);
                         }
                         requestAnimationFrame(scan);
-                    } catch (error) { Swal.fire('خطأ كاميرا', 'فشل الوصول للكاميرا: ' + error.message, 'error'); stopQRScanner(); }
+                    } catch (error) {
+                        Swal.fire({
+                            title: 'خطأ',
+                            text: 'فشل في الوصول إلى الكاميرا!',
+                            icon: 'error',
+                            confirmButtonColor: '#3F2A56'
+                        });
+                    }
                 },
                 willClose: () => stopQRScanner()
             });
         }
-        
-        function stopQRScannerAndCloseSwal() { stopQRScanner(); Swal.close(); }
+
         function stopQRScanner() {
             if (stream) {
                 stream.getTracks().forEach(track => track.stop());
                 stream = null;
             }
-            const video = document.getElementById('scannerVideo');
-            if (video) {
-                video.pause();
-                video.srcObject = null;
-            }
         }
 
         function importQRFromImage(event) {
-            const file = event.target.files[0]; if (!file) return;
+            const file = event.target.files[0];
             const reader = new FileReader();
             reader.onload = function(e) {
                 const img = new Image();
+                img.src = e.target.result;
                 img.onload = () => {
                     const canvas = document.createElement('canvas');
-                    canvas.width = img.width; canvas.height = img.height;
+                    canvas.width = img.width;
+                    canvas.height = img.height;
                     const context = canvas.getContext('2d');
                     context.drawImage(img, 0, 0);
                     const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
                     const code = jsQR(imageData.data, imageData.width, imageData.height);
                     if (code) {
-                        stopQRScanner(); Swal.close();
                         try {
                             const newTransactions = JSON.parse(code.data);
-                            if (!Array.isArray(newTransactions)) throw new Error("بيانات QR ليست مصفوفة.");
-                            const validTransactions = newTransactions.filter(t => t.serialNumber && t.type && t.datetime && !isNaN(t.amount))
-                                                                .map(t => ({...t, date_only: t.datetime.split(' ')[0]}));
-                            if (validTransactions.length > 0) {
-                                const tx = db.transaction(['transactions'], 'readwrite');
-                                const store = tx.objectStore('transactions');
-                                validTransactions.forEach(t => store.add(t));
-                                tx.oncomplete = () => { loadAllTimeTransactions().then(() => filterTable()); Swal.fire('نجاح', `تم استيراد ${validTransactions.length} معاملة.`, 'success'); };
-                                tx.onerror = (e) => Swal.fire('خطأ', 'فشل حفظ معاملات QR: ' + e.target.error, 'error');
-                            } else { Swal.fire('لا بيانات', 'لم يتم العثور على معاملات صالحة في QR.', 'info'); }
-                        } catch (e) { Swal.fire('خطأ', 'بيانات QR غير صالحة: ' + e.message, 'error'); }
-                    } else { Swal.fire('خطأ', 'لم يتم العثور على QR في الصورة!', 'error'); }
+                            const transaction = db.transaction(['transactions'], 'readwrite');
+                            const objectStore = transaction.objectStore('transactions');
+                            newTransactions.forEach(t => objectStore.add(t));
+                            transaction.oncomplete = function() {
+                                loadTransactions();
+                                Swal.fire({
+                                    title: 'نجاح',
+                                    text: 'تم استيراد البيانات من الصورة بنجاح!',
+                                    icon: 'success',
+                                    confirmButtonColor: '#3F2A56'
+                                });
+                            };
+                        } catch (e) {
+                            Swal.fire({
+                                title: 'خطأ',
+                                text: 'البيانات في الصورة غير صالحة!',
+                                icon: 'error',
+                                confirmButtonColor: '#3F2A56'
+                            });
+                        }
+                    } else {
+                        Swal.fire({
+                            title: 'خطأ',
+                            text: 'لم يتم العثور على رمز QR في الصورة!',
+                            icon: 'error',
+                            confirmButtonColor: '#3F2A56'
+                        });
+                    }
                 };
-                img.src = e.target.result;
             };
             reader.readAsDataURL(file);
-            event.target.value = null;
         }
 
-        function handleEnterKey(event, inputs, currentIndex, submitFunction) {
-             if (event.key === 'Enter') {
-                event.preventDefault(); 
-                if (currentIndex < inputs.length - 1) {
-                    inputs[currentIndex + 1].focus();
-                    if(inputs[currentIndex + 1].select) inputs[currentIndex + 1].select(); 
+        function showReport(period) {
+            const filteredTransactions = transactions.filter(t => {
+                const now = new Date();
+                const startDate = new Date(now.setDate(now.getDate() - now.getDay()));
+                startDate.setHours(0, 0, 0, 0);
+                return new Date(t.datetime) >= startDate;
+            });
+
+            let totalIn = 0, totalOut = 0, interestIn = 0, interestOut = 0;
+            filteredTransactions.forEach(t => {
+                if (t.type === 'in') {
+                    totalIn += parseInt(t.amount);
+                    interestIn += parseInt(t.interest || 0);
                 } else {
-                    if (typeof submitFunction === 'function') {
-                        submitFunction();
-                    }
+                    totalOut += parseInt(t.amount);
+                    interestOut += parseInt(t.interest || 0);
                 }
-            }
+            });
+
+            Swal.fire({
+                title: 'التقرير الأسبوعي',
+                html: `
+                    <div style="text-align: right; font-family: 'Cairo', sans-serif;">
+                        <p><strong>مجموع الوارد:</strong> ${totalIn}</p>
+                        <p><strong>مجموع الصادر:</strong> ${totalOut}</p>
+                        <p><strong>فوائد الوارد:</strong> ${interestIn}</p>
+                        <p><strong>فوائد الصادر:</strong> ${interestOut}</p>
+                        <p><strong>الرصيد النهائي:</strong> ${totalOut - totalIn}</p>
+                    </div>
+                `,
+                icon: 'info',
+                confirmButtonColor: '#3F2A56'
+            });
         }
 
+        function printTable() {
+            const filterType = document.getElementById('filterType').value;
+            const specificDate = document.getElementById('specificDate').value;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            const typeFilter = document.getElementById('typeFilter').value;
+
+            let filteredTransactions = transactions.filter(t => {
+                const transactionDate = t.datetime.split(' ')[0];
+                let matchesDate = true;
+
+                if (filterType === 'today') {
+                    const today = new Date().toISOString().split('T')[0];
+                    matchesDate = transactionDate === today;
+                } else if (filterType === 'yesterday') {
+                    const yesterday = new Date();
+                    yesterday.setDate(yesterday.getDate() - 1);
+                    matchesDate = transactionDate === yesterday.toISOString().split('T')[0];
+                } else if (filterType === 'specific' && specificDate) {
+                    matchesDate = transactionDate === specificDate;
+                } else if (filterType === 'range' && startDate && endDate) {
+                    matchesDate = transactionDate >= startDate && transactionDate <= endDate;
+                }
+
+                const matchesType = typeFilter === 'all' || t.type === typeFilter;
+                return matchesDate && matchesType;
+            });
+
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>تقرير غزة تلكوم</title>
+                    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+                    <style>
+                        body { font-family: 'Cairo', sans-serif; direction: rtl; margin: 20px; }
+                        .header { text-align: center; margin-bottom: 20px; }
+                        .header img { height: 70px; clip-path: polygon(10% 0%, 100% 0%, 90% 100%, 0% 100%); }
+                        h1 { color: #3F2A56; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                        th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
+                        th { background: linear-gradient(90deg, #3F2A56, #5a3f73); color: white; }
+                        td { color: #3F2A56; }
+                        .dashboard { display: flex; justify-content: space-between; margin-bottom: 20px; }
+                        .dashboard div { border: 1px solid #ddd; padding: 10px; width: 30%; text-align: center; }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <img src="logo.png" alt="شعار غزة تلكوم">
+                        <h1>غزة تلكوم - تقرير المعاملات</h1>
+                    </div>
+                    <div class="dashboard">
+                        <div>
+                            <h4>الصادر</h4>
+                            <p>مجموع الصادر: ${document.getElementById('totalOut').innerText}</p>
+                            <p>عدد الصادر: ${document.getElementById('countOut').innerText}</p>
+                            <p>فوائد الصادر: ${document.getElementById('interestOut').innerText}</p>
+                        </div>
+                        <div>
+                            <h4>الوارد</h4>
+                            <p>مجموع الوارد: ${document.getElementById('totalIn').innerText}</p>
+                            <p>عدد الوارد: ${document.getElementById('countIn').innerText}</p>
+                            <p>فوائد الوارد: ${document.getElementById('interestIn').innerText}</p>
+                        </div>
+                        <div>
+                            <h4>النهائي</h4>
+                            <p>النهائي: ${document.getElementById('finalBalance').innerText}</p>
+                            <p>مجموع الفوائد: ${document.getElementById('totalInterest').innerText}</p>
+                        </div>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>الرقم التسلسلي</th>
+                                <th>نوع المعاملة</th>
+                                <th>التاريخ والوقت</th>
+                                <th>المبلغ</th>
+                                <th>الفائدة</th>
+                                <th>الملاحظة</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${filteredTransactions.map((t, index) => `
+                                <tr>
+                                    <td>${index + 1}</td>
+                                    <td>${t.serialNumber}</td>
+                                    <td>${t.type === 'in' ? 'وارد' : 'صادر'}</td>
+                                    <td>${t.datetime}</td>
+                                    <td>${t.amount}</td>
+                                    <td>${t.interest || '0'}</td>
+                                    <td>${t.note || ''}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.print();
+        }
 
         document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('filterType').value = 'today'; 
-            setCurrentDateTime('datetime'); 
-            
-            const addTransactionModalEl = document.getElementById('addTransactionModal');
-            if(addTransactionModalEl) {
-                addTransactionModalEl.addEventListener('shown.bs.modal', () => {
-                    setupModalKeyboardNavigation('addTransactionModal', addTransaction);
-                    document.getElementById('type').focus(); 
-                });
-            }
-
-            const editTransactionModalEl = document.getElementById('editTransactionModal');
-             if(editTransactionModalEl) {
-                editTransactionModalEl.addEventListener('shown.bs.modal', () => {
-                    setupModalKeyboardNavigation('editTransactionModal', updateTransaction); 
-                     document.getElementById('editType').focus();
-                });
-            }
-
-            const payGazaModalEl = document.getElementById('payGazaPaymentModal');
-            if(payGazaModalEl) {
-                payGazaModalEl.addEventListener('shown.bs.modal', () => {
-                     setupModalKeyboardNavigation('payGazaPaymentModal', processGazaPayment);
-                     document.getElementById('gazaPaymentAmount').focus();
-                });
-            }
-            
-            document.getElementById('type').value = 'out';
-            // The initial filterTable call is now part of request.onsuccess after loadAllTimeTransactions
+            document.getElementById('filterType').value = 'today';
+            setCurrentDateTime('datetime');
+            updateFilterInputs();
         });
     </script>
 </body>
