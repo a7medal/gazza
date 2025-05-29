@@ -45,7 +45,7 @@
     transition: transform 0.2s ease, background 0.3s ease, box-shadow 0.3s ease;
     position: absolute;
     top: 20px;
-    left: 20px; 
+    left: 20px; /* وضع الزر في الزاوية العلوية اليسرى */
 }
 
 .home-btn i {
@@ -63,6 +63,7 @@
     outline-offset: 2px;
 }
 
+/* للشاشات الصغيرة */
 @media (max-width: 768px) {
     .home-btn {
         padding: 8px 16px;
@@ -177,7 +178,7 @@
         }
         .card.in i { color: #28a745; }
         .card.out i { color: #dc3545; }
-        .card.final i { color: #3F2A56; } /* Changed from #0dcaf0 for consistency */
+        .card.final i { color: #3F2A56; }
         .actions {
             display: flex;
             flex-wrap: wrap;
@@ -237,10 +238,10 @@
             width: 100%;
             padding: 10px 15px;
             border-radius: 25px;
-            border: 1px solid #ddd; /* Added border */
-            background: #f8f9fa; /* Lighter background */
+            border: 1px solid #ddd; 
+            background: #f8f9fa; 
             color: #3F2A56;
-            font-size: 0.9rem; /* Adjusted font size */
+            font-size: 0.9rem; 
             box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
             transition: border-color 0.3s ease, box-shadow 0.3s ease;
         }
@@ -408,12 +409,12 @@
             .header img { height: 70px; }
             .header h2 { font-size: 1.7rem; }
             .header h4 { font-size: 1.1rem; }
-            .dashboard { grid-template-columns: 1fr; } /* Stack cards on small screens */
+            .dashboard { grid-template-columns: 1fr; } 
             .card { padding: 20px; }
             .card h5 { font-size: 1.2rem; }
             .card p { font-size: 1rem; }
             .btn { padding: 10px 18px; font-size: 0.9rem; }
-            .search-container { padding: 15px; flex-direction:column; } /* Stack search filters */
+            .search-container { padding: 15px; flex-direction:column; } 
             .search-container .filter-group { width: 100%; max-width: 100%; }
             th, td { padding: 10px; font-size: 0.85rem; } 
             .modal-title { font-size: 1.3rem; }
@@ -617,13 +618,13 @@
     
 
     <script>
-        let transactions = []; // Cache for currently filtered transactions
-        let allTimeTransactions = []; // Cache for ALL transactions from DB
+        let transactions = []; 
+        let allTimeTransactions = []; 
         let db;
         let stream = null;
 
         const DB_NAME = 'GazaTelecomDB';
-        const DB_VERSION = 1; // البدء بإصدار 1 لقاعدة بيانات نظيفة
+        const DB_VERSION = 1; 
 
 
         const request = indexedDB.open(DB_NAME, DB_VERSION);
@@ -632,18 +633,27 @@
             db = event.target.result;
             if (!db.objectStoreNames.contains('transactions')) {
                 const objectStore = db.createObjectStore('transactions', { keyPath: 'id', autoIncrement: true });
-                objectStore.createIndex('serialNumber', 'serialNumber', { unique: false });
-                objectStore.createIndex('type', 'type', { unique: false });
-                objectStore.createIndex('datetime', 'datetime', { unique: false });
-                objectStore.createIndex('date_only', 'date_only', {unique: false}); // فهرس للتاريخ فقط
+                // لا حاجة لإنشاء الفهارس هنا إذا كان الإصدار 1 هو الإصدار الأول تمامًا
+                // إذا كنت تقوم بالترقية من إصدار سابق لم يكن به هذه الفهارس، فيجب إضافتها
+                if (!objectStore.indexNames.contains('serialNumber')) {
+                    objectStore.createIndex('serialNumber', 'serialNumber', { unique: false });
+                }
+                if (!objectStore.indexNames.contains('type')) {
+                    objectStore.createIndex('type', 'type', { unique: false });
+                }
+                if (!objectStore.indexNames.contains('datetime')) {
+                     objectStore.createIndex('datetime', 'datetime', { unique: false });
+                }
+                if (!objectStore.indexNames.contains('date_only')) {
+                    objectStore.createIndex('date_only', 'date_only', {unique: false}); 
+                }
             }
-            // لا توجد حاجة لمخزن dailyPayments أو accounts في هذا الإصدار الأساسي
         };
 
         request.onsuccess = function(event) {
             db = event.target.result;
-            loadAllTimeTransactions().then(() => { // تحميل جميع المعاملات أولاً
-                updateFilterInputs(); // ثم تطبيق الفلاتر الافتراضية (اليوم)
+            loadAllTimeTransactions().then(() => { 
+                updateFilterInputs(); 
             }).catch(error => {
                  console.error("Failed to load all time transactions on DB success:", error);
                  Swal.fire('خطأ', 'فشل تحميل البيانات الأولية من قاعدة البيانات.', 'error');
@@ -652,12 +662,16 @@
 
         request.onerror = function(event) {
             console.error('Database error:', event.target.errorCode);
-            Swal.fire({ title: 'خطأ', text: 'فشل في الاتصال بقاعدة البيانات!', icon: 'error', confirmButtonColor: '#3F2A56' });
+            Swal.fire({ title: 'خطأ', text: 'فشل في الاتصال بقاعدة البيانات! يرجى التأكد من أن المتصفح يسمح بـ IndexedDB أو حاول مسح بيانات الموقع.', icon: 'error', confirmButtonColor: '#3F2A56' });
         };
         
         function loadAllTimeTransactions() {
             return new Promise((resolve, reject) => {
-                if (!db) { reject("Database not initialized"); return; }
+                if (!db) { 
+                    console.error("DB not initialized in loadAllTimeTransactions");
+                    reject("Database not initialized"); 
+                    return; 
+                }
                 const transaction = db.transaction(['transactions'], 'readonly');
                 const objectStore = transaction.objectStore('transactions');
                 const request = objectStore.getAll();
@@ -685,7 +699,7 @@
                          let results = event.target.result || [];
                          if(startDateStr && endDateStr) {
                             results = results.filter(t => t.date_only >= startDateStr && t.date_only <= endDateStr);
-                         } else if (startDateStr) { // Specific date
+                         } else if (startDateStr) { 
                             results = results.filter(t => t.date_only === startDateStr);
                          }
                          resolve(results);
@@ -701,9 +715,8 @@
                 } else if (startDateStr) { 
                     range = IDBKeyRange.only(startDateStr);
                 } else { 
-                    // Should only happen for 'all_time' which is handled before this function call
                     console.warn("getTransactionsByDateRange called without start/end dates for non-all_time filter.");
-                    resolve([]); // Return empty if dates are not properly set for a ranged query
+                    resolve([]); 
                     return;
                 }
                 
@@ -723,8 +736,8 @@
             let totalIn = 0, totalOut = 0, countIn = 0, countOut = 0, interestIn = 0, interestOut = 0;
 
             currentPeriodTransactions.forEach(t => {
-                const amount = parseInt(t.amount) || 0; // Default to 0 if parsing fails
-                const interest = parseInt(t.interest || 0); // Default interest to 0
+                const amount = parseInt(t.amount) || 0; 
+                const interest = parseInt(t.interest || 0); 
                 if (t.type === 'in') {
                     totalIn += amount;
                     countIn++;
@@ -736,8 +749,8 @@
                 }
             });
             
-            const finalBalance = totalOut - totalIn;
-            const totalInterest = interestIn + interestOut;
+            const finalBalance = totalOut - totalIn; 
+            const totalInterest = interestIn + interestOut; 
             const finalBalance2 = finalBalance * 10; 
 
             document.getElementById('totalIn').innerText = totalIn;
@@ -796,14 +809,13 @@
                 } else if (dateQueryStart && dateQueryEnd) { 
                     transactionsToFilterLocally = await getTransactionsByDateRange(dateQueryStart, dateQueryEnd);
                 } else if (dateQueryStart) { 
-                     transactionsToFilterLocally = await getTransactionsByDateRange(dateQueryStart, dateQueryStart); // For specific date
+                     transactionsToFilterLocally = await getTransactionsByDateRange(dateQueryStart, dateQueryStart); 
                 } else { 
                     console.warn("FilterTable: Date query parameters are not fully defined, defaulting to all transactions for local filtering.");
                     transactionsToFilterLocally = [...allTimeTransactions]; 
                 }
 
-
-                transactions = transactionsToFilterLocally.filter(t => { // Store filtered results in global `transactions` for export/print
+                transactions = transactionsToFilterLocally.filter(t => { 
                     const matchesType = typeFilterVal === 'all' || t.type === typeFilterVal;
                     const matchesSearch = (
                         t.serialNumber.toLowerCase().includes(searchInputVal) ||
@@ -1000,7 +1012,6 @@
         }
         
         function exportToJSON() {
-            // تصدير المعاملات المفلترة المعروضة حاليًا
             const dataStr = JSON.stringify(transactions, null, 2); 
             const blob = new Blob([dataStr], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
@@ -1014,7 +1025,6 @@
 
         function exportToCSV() {
             const headers = ['الرقم التسلسلي', 'نوع المعاملة', 'التاريخ والوقت', 'المبلغ', 'الفائدة', 'الملاحظة'];
-            // تصدير المعاملات المفلترة المعروضة حاليًا
             const rows = transactions.map(t => 
                 `"${t.serialNumber}","${t.type === 'in' ? 'وارد' : 'صادر'}","${t.datetime}","${t.amount}","${t.interest || '0'}","${t.note ? t.note.replace(/"/g, '""') : ''}"`
             );
@@ -1251,11 +1261,8 @@
                     reportInterestOut += interest;
                 }
             });
-
-            const reportConfirmedTotalOut = reportTotalOut + reportInterestOut;
-            const reportConfirmedTotalIn = reportTotalIn - reportInterestIn;
+            
             const reportFinalBalance = reportTotalOut - reportTotalIn;
-            const reportConfirmedFinalBalance = reportConfirmedTotalOut - reportConfirmedTotalIn;
             
             Swal.fire({
                 title: `التقرير الأسبوعي (من ${startDateReport.toLocaleDateString('ar-EG-u-nu-latn')} إلى ${endDateReport.toLocaleDateString('ar-EG-u-nu-latn')})`,
@@ -1263,14 +1270,11 @@
                     <div style="text-align: right; font-family: 'Cairo', sans-serif;">
                         <p><strong>مجموع الوارد:</strong> ${reportTotalIn}</p>
                         <p><strong>فوائد الوارد:</strong> ${reportInterestIn}</p>
-                        <p class="highlight" style="font-weight:bold; color:#198754;"><strong>تأكيد حسابات الوارد:</strong> ${reportConfirmedTotalIn}</p>
                         <hr>
                         <p><strong>مجموع الصادر:</strong> ${reportTotalOut}</p>
                         <p><strong>فوائد الصادر:</strong> ${reportInterestOut}</p>
-                        <p class="highlight" style="font-weight:bold; color:#dc3545;"><strong>تأكيد حسابات الصادر:</strong> ${reportConfirmedTotalOut}</p>
                         <hr>
                         <p><strong>الرصيد النهائي للفترة:</strong> ${reportFinalBalance}</p>
-                        <p class="highlight" style="font-weight:bold; color:#0dcaf0;"><strong>تأكيد الحسابات النهائي للفترة:</strong> ${reportConfirmedFinalBalance}</p>
                     </div>
                 `,
                 icon: 'info',
@@ -1297,11 +1301,13 @@
             }
 
             const dashTotalOut = document.getElementById('totalOut').innerText;
-            const dashConfirmedTotalOut = document.getElementById('confirmedTotalOut') ? document.getElementById('confirmedTotalOut').innerText : 'N/A'; // Check existence
+            const dashCountOut = document.getElementById('countOut').innerText;
+            const dashInterestOut = document.getElementById('interestOut').innerText;
             const dashTotalIn = document.getElementById('totalIn').innerText;
-            const dashConfirmedTotalIn = document.getElementById('confirmedTotalIn') ? document.getElementById('confirmedTotalIn').innerText : 'N/A';
+            const dashCountIn = document.getElementById('countIn').innerText;
+            const dashInterestIn = document.getElementById('interestIn').innerText;
             const dashFinalBalance = document.getElementById('finalBalance').innerText;
-            const dashConfirmedFinalBalance = document.getElementById('confirmedFinalBalance') ? document.getElementById('confirmedFinalBalance').innerText : 'N/A';
+            const dashTotalInterest = document.getElementById('totalInterest').innerText;
 
 
             const printWindow = window.open('', '_blank', 'height=700,width=1000');
@@ -1320,21 +1326,20 @@
                     h2.report-period {font-size: 1.1rem; color: #555; margin-top:0; margin-bottom:15px;}
                     table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 0.9em;}
                     th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
-                    th { background-color: #3F2A56; color: white; font-weight: 600;} /* Changed background to solid color */
+                    th { background-color: #3F2A56; color: white; font-weight: 600;}
                     td { color: #333; }
                     .dashboard-print-container { display: flex; justify-content: space-around; margin-bottom: 20px; flex-wrap: wrap; }
                     .dashboard-print-card { border: 1px solid #eee; padding: 10px; flex-basis: calc(33.333% - 20px); margin: 5px; border-radius: 8px; text-align:center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
                     .dashboard-print-card h4 { margin-top:0; color:#3F2A56; font-size: 1.1rem; margin-bottom: 8px; }
                     .dashboard-print-card p { margin: 4px 0; font-size: 0.9rem;}
-                    .highlight-print {font-weight:bold; color: #2c1d3e;}
                     @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
                 </style></head><body>
                     <div class="header-print"><img src="logo.png" alt="شعار" onerror="this.style.display='none';"><h1>غزة تلكوم</h1>
                         <h2 class="report-period">تقرير المعاملات للفترة المحددة</h2></div>
                     <div class="dashboard-print-container">
-                        <div class="dashboard-print-card"><h4>الصادر</h4><p>مجموع: ${dashTotalOut}</p><p class="highlight-print">تأكيد: ${dashConfirmedTotalOut}</p></div>
-                        <div class="dashboard-print-card"><h4>الوارد</h4><p>مجموع: ${dashTotalIn}</p><p class="highlight-print">تأكيد: ${dashConfirmedTotalIn}</p></div>
-                        <div class="dashboard-print-card"><h4>النهائي</h4><p>الرصيد: ${dashFinalBalance}</p><p class="highlight-print">تأكيد: ${dashConfirmedFinalBalance}</p></div>
+                        <div class="dashboard-print-card"><h4>الصادر</h4><p>مجموع: ${dashTotalOut}</p><p>عدد: ${dashCountOut}</p><p>فوائد: ${dashInterestOut}</p></div>
+                        <div class="dashboard-print-card"><h4>الوارد</h4><p>مجموع: ${dashTotalIn}</p><p>عدد: ${dashCountIn}</p><p>فوائد: ${dashInterestIn}</p></div>
+                        <div class="dashboard-print-card"><h4>النهائي</h4><p>الرصيد: ${dashFinalBalance}</p><p>إجمالي الفوائد: ${dashTotalInterest}</p></div>
                     </div>
                     <table><thead><tr><th>#</th><th>الرقم التسلسلي</th><th>النوع</th><th>التاريخ والوقت</th><th>المبلغ</th><th>الفائدة</th><th>الملاحظة</th></tr></thead><tbody>
                     ${currentFilteredTransactionsInTable.map((t, index) => `
@@ -1344,7 +1349,7 @@
             printWindow.document.close();
             printWindow.onload = function() { 
                 printWindow.focus(); 
-                // printWindow.print(); 
+                // printWindow.print(); // معلقة للسماح بالمعاينة
             };
         }
 
@@ -1382,16 +1387,9 @@
                      document.getElementById('editType').focus();
                 });
             }
-
-            const payGazaModalEl = document.getElementById('payGazaPaymentModal');
-            if(payGazaModalEl) {
-                payGazaModalEl.addEventListener('shown.bs.modal', () => {
-                     setupModalKeyboardNavigation('payGazaPaymentModal', processGazaPayment);
-                     document.getElementById('gazaPaymentAmount').focus();
-                });
-            }
             
-            document.getElementById('type').value = 'out';
+            document.getElementById('type').value = 'out'; // الافتراضي "صادر"
+            // تم نقل استدعاء updateFilterInputs() إلى request.onsuccess لضمان تحميل البيانات أولاً
         });
     </script>
 </body>
