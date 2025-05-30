@@ -537,7 +537,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="addMessageModalLabel"><i class="fas fa-plus"></i> إضافة رسالة جديدة</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <form id="addMessageForm">
@@ -551,11 +551,11 @@
                         </div>
                         <div class="mb-3">
                             <label for="phoneNumber" class="form-label"><i class="fas fa-phone"></i> رقم الهاتف</label>
-                            <input type="text" class="form-control" id="phoneNumber" required>
+                            <input type="form-control" id="phoneNumber" required>
                         </div>
                         <div class="mb-3">
                             <label for="name" class="form-label"><i class="fas fa-user"></i> الإسم</label>
-                            <input type="text" class="form-control" id="name" required>
+                            <input type="text" class="form-control" id="name">
                         </div>
                         <div class="mb-3">
                             <label for="amount" class="form-label"><i class="fas fa-money-bill"></i> المبلغ</label>
@@ -598,7 +598,7 @@
                         </div>
                         <div class="mb-3">
                             <label for="editPhoneNumber" class="form-label"><i class="fas fa-phone"></i> رقم الهاتف</label>
-                            <input type="text" class="form-control" id="editPhoneNumber" required>
+                            <input type="text" class="form-control" id="editPhoneNumber"></input>
                         </div>
                         <div class="mb-3">
                             <label for="editName" class="form-label"><i class="fas fa-user"></i> الإسم</label>
@@ -699,6 +699,12 @@
             return new Date(dateStr).toISOString().split('T')[0];
         }
 
+        function escapeCSVValue(value) {
+            if (value == null) return '';
+            value = value.toString().replace(/"/g, '""');
+            return `"${value}"`;
+        }
+
         function filterMessageTable() {
             const searchQuery = document.getElementById('searchInput').value.toLowerCase();
             const startDate = document.getElementById('startDate').value;
@@ -748,14 +754,14 @@
                     <td>${message.note || '-'}</td>
                     <td>
                         <button class="status-btn ${message.status === 'sent' ? 'sent' : 'not-sent'}" 
-                                onclick="toggleStatus(${originalIndex});event.stopPropagation();">
+                                onclick="toggleStatus(${originalIndex}); event.stopPropagation();">
                             <i class="fas ${message.status === 'sent' ? 'fa-check-circle' : 'fa-times-circle'}"></i>
                             ${message.status === 'sent' ? 'تم الإرسال' : 'لم يتم الإرسال'}
                         </button>
                     </td>
                     <td>
-                        <i class="fas fa-edit action-btn edit" onclick="editMessage(${originalIndex});event.stopPropagation();"></i>
-                        <i class="fas fa-trash action-btn delete" onclick="deleteMessage(${originalIndex});event.stopPropagation();"></i>
+                        <i class="fas fa-edit action-btn edit" onclick="editMessage(${originalIndex}); event.stopPropagation();"></i>
+                        <i class="fas fa-trash action-btn delete" onclick="deleteMessage(${originalIndex}); event.stopPropagation();"></i>
                     </td>
                 `;
                 row.addEventListener('click', () => showMessageDetails(originalIndex));
@@ -780,8 +786,8 @@
                     <td>${payment.amount}</td>
                     <td>${payment.note || '-'}</td>
                     <td>
-                        <i class="fas fa-edit action-btn edit" onclick="editPayment(${index});event.stopPropagation();"></i>
-                        <i class="fas fa-trash action-btn delete" onclick="deletePayment(${index});event.stopPropagation();"></i>
+                        <i class="fas fa-edit action-btn edit" onclick="editPayment(${index}); event.stopPropagation();"></i>
+                        <i class="fas fa-trash action-btn delete" onclick="deletePayment(${index}); event.stopPropagation();"></i>
                     </td>
                 `;
                 row.addEventListener('click', () => showPaymentDetails(index));
@@ -793,6 +799,7 @@
             const message = messages[index];
             Swal.fire({
                 title: 'تفاصيل الرسالة',
+                icon: 'info',
                 html: `
                     <div style="text-align: right; font-family: 'Cairo', sans-serif; color: #3F2A56;">
                         <p><strong>التاريخ:</strong> <span style="font-family: 'Arial', sans-serif;">${formatDate(message.date)}</span></p>
@@ -805,13 +812,10 @@
                         <p><strong>الحالة:</strong> ${message.status === 'sent' ? 'تم الإرسال' : 'لم يتم الإرسال'}</p>
                     </div>
                 `,
-                icon: 'info',
                 confirmButtonText: 'إغلاق',
                 confirmButtonColor: '#3F2A56',
                 customClass: {
-                    popup: 'swal2-rtl',
-                    title: 'swal2-title',
-                    content: 'swal2-content'
+                    popup: 'swal2-rtl'
                 }
             });
         }
@@ -820,6 +824,7 @@
             const payment = payments[index];
             Swal.fire({
                 title: 'تفاصيل الدفعة',
+                icon: 'info',
                 html: `
                     <div style="text-align: right; font-family: 'Cairo', sans-serif; color: #3F2A56;">
                         <p><strong>التاريخ:</strong> <span style="font-family: 'Arial', sans-serif;">${formatDate(payment.date)}</span></p>
@@ -827,21 +832,18 @@
                         <p><strong>الملاحظة:</strong> ${payment.note || '-'}</p>
                     </div>
                 `,
-                icon: 'info',
                 confirmButtonText: 'إغلاق',
                 confirmButtonColor: '#3F2A56',
                 customClass: {
-                    popup: 'swal2-rtl',
-                    title: 'swal2-title',
-                    content: 'swal2-content'
+                    popup: 'swal2-rtl'
                 }
             });
         }
 
         function updateDashboard() {
-            const totalAmount = messages.reduce((sum, m) => sum + parseFloat(m.amount), 0);
-            const totalFees = messages.reduce((sum, m) => sum + parseFloat(m.fees), 0);
-            const totalPayments = payments.reduce((sum, p) => sum + parseFloat(p.amount), 0);
+            const totalAmount = messages.reduce((sum, m) => sum + parseFloat(m.amount || 0), 0);
+            const totalFees = messages.reduce((sum, m) => sum + parseFloat(m.fees || 0), 0);
+            const totalPayments = payments.reduce((sum, p) => sum + parseFloat(p.amount || 0), 0);
             const totalBalance = totalAmount + totalFees - totalPayments;
             const messageCount = messages.length;
 
@@ -861,7 +863,7 @@
             const fees = document.getElementById('fees').value;
             const note = document.getElementById('note').value;
 
-            if (date && bankilyNumber && phoneNumber && name && amount && fees) {
+            if (date && bankilyNumber && phoneNumber && name && name && amount && fees) {
                 messages.push({ bankilyNumber, phoneNumber, name, amount, fees, note, status: 'not-sent', date });
                 localStorage.setItem('messages', JSON.stringify(messages));
                 filterMessageTable();
@@ -869,8 +871,8 @@
                 document.getElementById('addMessageForm').reset();
                 Swal.fire({
                     title: 'تم الإضافة',
-                    text: 'تم إضافة الرسالة بنجاح!',
                     icon: 'success',
+                    text: 'تم إضافة الرسالة بنجاح!',
                     confirmButtonColor: '#3F2A56'
                 });
             }
@@ -889,13 +891,11 @@
                 document.getElementById('addPaymentForm').reset();
                 Swal.fire({
                     title: 'تم الإضافة',
-                    text: 'تم إضافة الدفعة بنجاح!',
                     icon: 'success',
+                    text: 'تم إضافة الدفعة بنجاح!',
                     confirmButtonColor: '#3F2A56'
                 });
             }
-        }
-
         function editMessage(index) {
             document.getElementById('editIndex').value = index;
             document.getElementById('editMessageDate').value = formatDate(messages[index].date);
@@ -923,7 +923,7 @@
                     bankilyNumber, 
                     phoneNumber, 
                     name, 
-                    amount, 
+ amount, 
                     fees, 
                     note, 
                     status: messages[index].status, 
@@ -934,8 +934,8 @@
                 bootstrap.Modal.getInstance(document.getElementById('editMessageModal')).hide();
                 Swal.fire({
                     title: 'تم التعديل',
-                    text: 'تم تعديل الرسالة بنجاح!',
                     icon: 'success',
+                    text: 'تم تعديل الرسالة بنجاح!',
                     confirmButtonColor: '#3F2A56'
                 });
             }
@@ -945,15 +945,15 @@
             document.getElementById('editPaymentIndex').value = index;
             document.getElementById('editPaymentDate').value = formatDate(payments[index].date);
             document.getElementById('editPaymentAmount').value = payments[index].amount;
-            document.getElementById('editPaymentNote').value = payments[index].note || '';
+            document.getElementById('paymentNote').value = payments[index].note || '';
             new bootstrap.Modal(document.getElementById('editPaymentModal')).show();
         }
 
         async function updatePayment() {
             const index = parseInt(document.getElementById('editPaymentIndex').value);
-            const date = document.getElementById('editPaymentDate').value;
+            const date = document.getElementById('editPaymentDate').value);
             const amount = document.getElementById('editPaymentAmount').value;
-            const note = document.getElementById('editPaymentNote').value;
+            const note = document.getElementById('editPaymentNote').value);
 
             if (date && amount) {
                 payments[index] = { date, amount, note };
@@ -962,32 +962,33 @@
                 bootstrap.Modal.getInstance(document.getElementById('editPaymentModal')).hide();
                 Swal.fire({
                     title: 'تم التعديل',
-                    text: 'تم تعديل الدفعة بنجاح!',
                     icon: 'success',
+                    text: 'تم تعديل الدفعة بنجاح!',
                     confirmButtonColor: '#3F2A56'
                 });
             }
+
         }
 
         async function deleteMessage(index) {
             const result = await Swal.fire({
                 title: 'هل أنت متأكد؟',
-                text: 'هل تريد حذف هذه الرسالة؟',
                 icon: 'warning',
+                text: 'هل تريد حذف هذه الرسالة؟',
                 showCancelButton: true,
                 confirmButtonText: 'حذف',
                 cancelButtonText: 'إلغاء',
                 confirmButtonColor: '#dc3545',
                 cancelButtonColor: '#6c757d'
             });
-            if (result.isConfirmed) {
+            if (result.isConfirmed()) {
                 messages.splice(index, 1);
                 localStorage.setItem('messages', JSON.stringify(messages));
                 filterMessageTable();
                 Swal.fire({
                     title: 'تم الحذف',
-                    text: 'تم حذف الرسالة بنجاح!',
                     icon: 'success',
+                    text: 'تم حذف الرسالة بنجاح!',
                     confirmButtonColor: '#3F2A56'
                 });
             }
@@ -996,22 +997,22 @@
         async function deletePayment(index) {
             const result = await Swal.fire({
                 title: 'هل أنت متأكد؟',
-                text: 'هل تريد حذف هذه الدفعة؟',
                 icon: 'warning',
+                text: 'هل تريد حذف هذه الدفعة؟',
                 showCancelButton: true,
                 confirmButtonText: 'حذف',
                 cancelButtonText: 'إلغاء',
                 confirmButtonColor: '#dc3545',
-                cancelButtonColor: '#6c757d'
+                cancelButtonColor: '#6c757d',
             });
-            if (result.isConfirmed) {
+            if (result.isConfirmed()) {
                 payments.splice(index, 1);
                 localStorage.setItem('accountPayments', JSON.stringify(payments));
                 filterMessageTable();
                 Swal.fire({
                     title: 'تم الحذف',
-                    text: 'تم حذف الدفعة بنجاح!',
                     icon: 'success',
+                    text: 'تم حذف الدفعة بنجاح!',
                     confirmButtonColor: '#3F2A56'
                 });
             }
@@ -1028,7 +1029,7 @@
             if (notSentCount === 0) {
                 Swal.fire({
                     title: 'لا توجد رسائل',
-                    text: 'جميع الرسائل تم إرسالها بالفعل!',
+                    icon: 'جميع الرسائل تم إرسالها بالفعل!',
                     icon: 'info',
                     confirmButtonColor: '#3F2A56'
                 });
@@ -1037,7 +1038,7 @@
 
             const result = await Swal.fire({
                 title: 'تأكيد إرسال الكل',
-                text: `هل تريد إرسال ${notSentCount} رسالة لم يتم إرسالها؟`,
+                text: `تهل تريد إرسال ${notSentCount} رسالة لم يتم إرسالها؟`,
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonText: 'إرسال',
@@ -1046,29 +1047,30 @@
                 cancelButtonColor: '#6c757d'
             });
 
-            if (result.isConfirmed) {
+            if (result.isConfirmed()) {
                 messages = messages.map(m => ({ ...m, status: 'sent' }));
                 localStorage.setItem('messages', JSON.stringify(messages));
                 filterMessageTable();
                 Swal.fire({
-                    title: 'تم الإرسال',
-                    text: 'تم إرسال جميع الرسائل بنجاح!',
+                    title: 'تم الإرسالل',
                     icon: 'success',
+                    text: 'تم إرسال جميع الرسائل بنجاح!',
                     confirmButtonColor: '#3F2A56'
                 });
             }
+
         }
 
         async function resetAllMessages() {
             const result = await Swal.fire({
                 title: 'إعادة تعيين جميع الرسائل',
+                icon: 'warning',
                 html: `
                     <div style="text-align: right; font-family: 'Cairo', sans-serif;">
                         <p>أدخل كلمة المرور لتأكيد إعادة تعيين جميع الرسائل إلى "لم يتم الإرسال":</p>
-                        <input type="text" id="resetPassword" class="form-control" style="border-radius: 15px; padding: 12px;">
-                    </div>
-                `,
-                icon: 'warning',
+                            <input type="text" id="resetPassword" class="form-control" style="border-radius: 15px; padding: 12px;">
+                        </div>
+                    </div>`,
                 showCancelButton: true,
                 confirmButtonText: 'إعادة تعيين',
                 cancelButtonText: 'إلغاء',
@@ -1077,22 +1079,22 @@
                 preConfirm: () => {
                     const password = document.getElementById('resetPassword').value;
                     if (password !== '1138') {
-                        Swal.showValidationMessage('كلم يمة المرور غير صحيحة!');
+                        Swal.showValidationMessage('كلمة المرور غير صحيحة!');
                         return false;
                     }
                     return true;
                 }
             });
 
-            if (result.isConfirmed) {
+            if (result.isConfirmed()) {
                 messages = messages.map(m => ({ ...m, status: 'not-sent' }));
                 localStorage.setItem('messages', JSON.stringify(messages));
                 filterMessageTable();
                 Swal.fire({
                     title: 'تم إعادة التعيين',
-                    text: 'تم إعادة تعيين جميع الرسائل إلى "لم يتم الإرسال" بنجاح!',
                     icon: 'success',
-                    color: '#3F2A56'
+                    text: 'تم إعادة تعيين جميع الرسائل إلى "لم يتم الإرسال" بنجاح!',
+                    confirmButtonColor: '#3F2A56'
                 });
             }
         }
@@ -1114,22 +1116,36 @@
         function exportToCSV() {
             sortByDate(messages);
             sortByDate(payments);
-            
-            const messageHeaders = ['التاريخ,رقم بنكيلي,رقم الهاتف,الإسم,المبلغ,الرسوم,الملاحظة,الحالة];
-            const messageRows = messages.map(m => `${formatDate(m.date)}`,${m.bankilyNumber},${m.phoneNumber},${m.name},${m.amount},${m.fees},${m.note || '-'},${m.status === 'sent' ? 'تم الإرسال' : 'لم يتمدور'}`);
-            const paymentHeaders = ['التاريخ,المبلغ,الملاحظة'];
-            const paymentRows = payments.map(p => `${formatDate(p.date)}`,${p.amount},${p.note || '-'});
-            
+
+            const messageHeaders = ['التاريخ', 'رقم بنكيلي', 'رقم الهاتف', 'الإسم', 'المبلغ', 'الرسوم', 'الملاحظة', 'الحالة'];
+            const messageRows = messages.map(m => [
+                formatDate(m.date),
+                m.bankilyNumber,
+                m.phoneNumber,
+                m.name,
+                m.amount,
+                m.fees,
+                m.note || '-',
+                m.status === 'sent' ? 'تم الإرسال' : 'لم يتم الإرسال'
+            ].map(escapeCSVValue).join(','));
+
+            const paymentHeaders = ['التاريخ', 'المبلغ', 'الملاحظة'];
+            const paymentRows = payments.map(p => [
+                formatDate(p.date),
+                p.amount,
+                p.note || '-'
+            ].map(escapeCSVValue).join(','));
+
             const csv = [
                 'جدول الرسائل',
-                messageHeaders,
+                messageHeaders.join(','),
                 ...messageRows,
                 '',
                 'جدول الدفعات',
-                paymentHeaders,
+                paymentHeaders.join(','),
                 ...paymentRows
-            ];
-            
+            ].join('\n');
+
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -1145,66 +1161,97 @@
             reader.onload = async function(e) {
                 let data = {};
                 if (file.name.endsWith('.json')) {
-                    data = JSON.parse(e.target.result);
+                    try {
+                        data = JSON.parse(e.target.result);
+                    } catch (error) {
+                        Swal.fire({
+                            title: 'خطأ',
+                            text: 'ملف JSON غير صالح.',
+                            icon: 'error',
+                            confirmButtonColor: '#3F2A56'
+                        });
+                        return;
+                    }
                 } else if (file.name.endsWith('.csv')) {
                     const rows = e.target.result.split('\n').filter(row => row.trim());
                     let currentTable = '';
                     data.messages = [];
                     data.payments = [];
+
+                    const parseCSVLine = (line) => {
+                        const result = [];
+                        let current = '';
+                        let inQuotes = false;
+                        for (let i = 0; i < line.length; i++) {
+                            const char = line[i];
+                            if (char === '"') {
+                                inQuotes = !inQuotes;
+                            } else if (char === ',' && !inQuotes) {
+                                result.push(current);
+                                current = '';
+                            } else {
+                                current += char;
+                            }
+                        }
+                        result.push(current);
+                        return result.map(item => item.replace(/^"|"$/g, '').replace(/""/g, '"'));
+                    };
+
                     for (const row of rows) {
                         if (row === 'جدول الرسائل') {
                             currentTable = 'messages';
                             continue;
-                        } else if (row === 'جددول الدفعات') {
+                        } else if (row === 'جدول الدفعات') {
                             currentTable = 'payments';
                             continue;
-                        } else if (row === messageHeaders[0]) {
-                            continue;
-                        } else if (row === paymentHeaders[0]) {
+                        } else if (row.includes('التاريخ,رقم بنكيلي') || row.includes('التاريخ,المبلغ')) {
                             continue;
                         }
                         if (currentTable === 'messages' && row) {
-                            const [date, bankilyNumber, phoneNumber, name, amount, fees, note, status] = row.split(',');
+                            const [date, bankilyNumber, phoneNumber, name, amount, fees, note, status] = parseCSVLine(row);
                             data.messages.push({
+                                date,
                                 bankilyNumber,
                                 phoneNumber,
                                 name,
-                                date,
-                                amount,
-                                fees,
+                                amount: parseFloat(amount) || 0,
+                                fees: parseFloat(fees) || 0,
                                 note: note === '-' ? '' : note,
                                 status: status === 'تم الإرسال' ? 'sent' : 'not-sent'
                             });
                         } else if (currentTable === 'payments' && row) {
-                            const [date, amount, paymentNote] = row.split(',');
+                            const [date, amount, note] = parseCSVLine(row);
                             data.payments.push({
                                 date,
-                                amount,
-                                note: paymentNote === '-' ? '' : note
+                                amount: parseFloat(amount) || 0,
+                                note: note === '-' ? '' : note
                             });
                         }
                     }
                 }
+
                 const validMessages = data.messages.every(m => 
                     m.bankilyNumber && m.phoneNumber && m.name && m.amount && m.fees && ['sent', 'not-sent'].includes(m.status)
                 );
                 const validPayments = data.payments.every(p => p.date && p.amount);
+
                 if (!validMessages || !validPayments) {
                     Swal.fire({
                         title: 'خطأ',
-                        text: 'البيانات الملف في غير صالحة.',
+                        text: 'البيانات في الملف غير صالحة.',
                         icon: 'error',
                         confirmButtonColor: '#3F2A56'
                     });
                     return;
                 }
+
                 messages = [...messages, ...data.messages];
                 payments = [...payments, ...data.payments];
                 localStorage.setItem('messages', JSON.stringify(messages));
                 localStorage.setItem('accountPayments', JSON.stringify(payments));
                 filterMessageTable();
                 Swal.fire({
-                    title: 'تم الإستيراد',
+                    title: 'تم الاستيراد',
                     text: 'تم استيراد البيانات بنجاح!',
                     icon: 'success',
                     confirmButtonColor: '#3F2A56'
@@ -1245,15 +1292,15 @@
                     return;
                 }
 
-                const totalAmount = filteredMessages.reduce((sum, m) => sum + parseFloat(m.amount), 0);
-                const totalFees = filteredMessages.reduce((sum, f) => sum + parseFloat(f.fees), 0);
-                const totalPayments = payments.reduce((sum, p) => sum + parseFloat(p.amount), 0);
+                const totalAmount = filteredMessages.reduce((sum, m) => sum + parseFloat(m.amount || 0), 0);
+                const totalFees = filteredMessages.reduce((sum, m) => sum + parseFloat(m.fees || 0), 0);
+                const totalPayments = payments.reduce((sum, p) => sum + parseFloat(p.amount || 0), 0);
                 const totalBalance = totalAmount + totalFees - totalPayments;
                 const messageCount = filteredMessages.length;
 
-                const printWindow = window.open('', '_blank', 'height=700',width=1000);
+                const printWindow = window.open('', '_blank');
                 if (!printWindow.document) {
-                    throw new Error('فشل في فتح نافذة الطباعة). تحقق من إعدادات المتصفح.');
+                    throw new Error('فشل في فتح نافذة الطباعة. تحقق من إعدادات المتصفح.');
                 }
 
                 const printDate = new Date().toLocaleString('en-US', { 
@@ -1342,7 +1389,7 @@
                             .dashboard-section h3 {
                                 font-size: 1.2rem; 
                                 font-weight: 700;
-                                margin: 0; 0 10px; 
+                                margin: 0 0 10px; 
                                 border-bottom: 1px solid #000; 
                                 padding-bottom: 5px; 
                             }
@@ -1404,7 +1451,6 @@
                                 margin: 20px auto; 
                                 display: block;
                             }
-                            }
                             @media print {
                                 .container { 
                                     margin: 0; 
@@ -1464,15 +1510,15 @@
                             <tr>
                                 <td>${index + 1}</td>
                                 <td style="font-family: 'Arial', sans-serif;">${formatDate(payment.date)}</td>
-                                <td>${parseFloat(payment.amount).toFixed(2)}</td>
+                                <td>${parseFloat(payment.amount || 0).toFixed(2)}</td>
                                 <td>${payment.note || '-'}</td>
                             </tr>
-                        `);
+                        `));
                     });
                     printWindow.document.write(`
                             </tbody>
                         </table>
-                    `);
+                    `));
                 }
 
                 if (filteredMessages.length > 0) {
@@ -1486,7 +1532,7 @@
                                     <th>التاريخ</th>
                                     <th>رقم بنكيلي</th>
                                     <th>رقم الهاتف</th>
-                                    <th>الإسم</th>
+                                   <th>الإسم</th>
                                     <th>المبلغ</th>
                                     <th>الرسوم</th>
                                     <th>الملاحظة</th>
@@ -1504,9 +1550,9 @@
                                 <td>${message.bankilyNumber}</td>
                                 <td>${message.phoneNumber}</td>
                                 <td>${message.name}</td>
-                                <td>${parseFloat(message.amount).toFixed(2)}</td>
-                                <td>${parseFloat(message.fees).toFixed(2)}</td>
-                                <td>${message.note || '-}</td>
+                                <td>${parseFloat(message.amount || 0).toFixed(2)}</td>
+                                <td>${parseFloat(message.fees || 0).toFixed(2)}</td>
+                                <td>${message.note || '-'}</td>
                                 <td>${message.status === 'sent' ? 'تم الإرسال' : 'لم يتم الإرسال'}</td>
                             </tr>
                         `);
@@ -1518,64 +1564,31 @@
                 }
 
                 printWindow.document.write(`
-                            <div class="footer">هذا المستند من نظام طيبة المدينة تلكوم وهو موقع موثق رقميًا</div>
+                            <div class="footer">
+                                تم إنشاء هذا التقرير بواسطة نظام طيبة المدينة تلكوم
+                            </div>
                         </div>
                     </body>
                     </html>
                 `);
+
                 printWindow.document.close();
-
-                const images = printWindow.document.getElementsByTagName('img');
-                let loadedImages = 0;
-                const totalImages = images.length;
-
-                if (totalImages === 0) {
-                    setTimeout(() => {
-                        printWindow.print();
-                        printWindow.close();
-                    }, 100);
-                } else {
-                    for (let img of images) {
-                        img.onload = () => {
-                            loadedImages++;
-                            if (loadedImages === totalImages) {
-                                setTimeout(() => {
-                                    printWindow.print();
-                                    printWindow.close();
-                                }, 100);
-                            }
-                        };
-                        img.onerror = () => {
-                            loadedImages++;
-                            if (loadedImages === totalImages) {
-                                setTimeout(() => {
-                                    printWindow.print();
-                                    printWindow.close();
-                                }, 100);
-                            }
-                        };
-                    }
-                }
+                printWindow.focus();
             } catch (error) {
-                console.error('خطأ في دالة printTable:', error);
+                console.error('خطأ أثناء الطباعة:', error);
                 Swal.fire({
                     title: 'خطأ',
-                    text: 'حدث خطأ أثناء تحضير الطباعة: ' + error.message,
+                    text: 'حدث خطأ أثناء إنشاء نافذة الطباعة. الرجاء المحاولة مرة أخرى.',
                     icon: 'error',
                     confirmButtonColor: '#3F2A56'
                 });
             }
         }
 
+        // تحميل الجداول ولوحة القيادة عند بدء التشغيل
         window.onload = function() {
             filterMessageTable();
-            document.querySelectorAll('.btn').forEach(btn => {
-                btn.removeAttribute('aria-hidden');
-                if (btn.closest('[aria-hidden="true"]')) {
-                    btn.closest('[aria-hidden]').removeAttribute('aria-hidden');
-                }
-            });
-        }
+        };
     </script>
 </body>
 </html>
