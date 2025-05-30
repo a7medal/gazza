@@ -371,6 +371,7 @@
             font-size: 1rem;
             transition: border-color 0.3s ease, box-shadow 0.3s ease;
             background: #f7f9fc;
+            font-family: 'Cairo', sans-serif;
         }
         .modal-body .form-control:focus, .modal-body .form-select:focus {
             border-color: #3F2A56;
@@ -461,11 +462,6 @@
                 <h5>مجموع الدفعات</h5>
                 <h3 id="totalPayments">0</h3>
             </div>
-            <div class="card">
-                <i class="fas fa-list-alt"></i>
-                <h5>عدد الدفعات</h5>
-                <h3 id="paymentCount">0</h3>
-            </div>
         </div>
         <div class="actions">
             <button class="btn" data-bs-toggle="modal" data-bs-target="#addMessageModal"><i class="fas fa-plus"></i> إضافة رسالة</button>
@@ -521,7 +517,7 @@
                 <thead>
                     <tr>
                         <th>#</th>
-                        <th>التاريخ والوقت</th>
+                        <th>التاريخ</th>
                         <th>رقم بنكيلي</th>
                         <th>رقم الهاتف</th>
                         <th>الإسم</th>
@@ -545,6 +541,10 @@
                 </div>
                 <div class="modal-body">
                     <form id="addMessageForm">
+                        <div class="mb-3">
+                            <label for="messageDate" class="form-label"><i class="fas fa-calendar"></i> التاريخ</label>
+                            <input type="date" class="form-control" id="messageDate" required>
+                        </div>
                         <div class="mb-3">
                             <label for="bankilyNumber" class="form-label"><i class="fas fa-id-card"></i> رقم بنكيلي</label>
                             <input type="text" class="form-control" id="bankilyNumber" required>
@@ -588,6 +588,10 @@
                 <div class="modal-body">
                     <form id="editMessageForm">
                         <input type="hidden" id="editIndex">
+                        <div class="mb-3">
+                            <label for="editMessageDate" class="form-label"><i class="fas fa-calendar"></i> التاريخ</label>
+                            <input type="date" class="form-control" id="editMessageDate" required>
+                        </div>
                         <div class="mb-3">
                             <label for="editBankilyNumber" class="form-label"><i class="fas fa-id-card"></i> رقم بنكيلي</label>
                             <input type="text" class="form-control" id="editBankilyNumber" required>
@@ -690,16 +694,9 @@
             return array.sort((a, b) => new Date(b.date) - new Date(a.date));
         }
 
-        function formatDateTime(dateTime) {
-            const date = new Date(dateTime);
-            return date.toLocaleString('ar-SA', { 
-                day: '2-digit', 
-                month: '2-digit', 
-                year: 'numeric', 
-                hour: '2-digit', 
-                minute: '2-digit',
-                hour12: true 
-            });
+        function formatDate(dateStr) {
+            // عرض التاريخ بتنسيق الأرقام الإنجليزية (مثل 2025-05-30)
+            return new Date(dateStr).toISOString().split('T')[0];
         }
 
         function filterMessageTable() {
@@ -742,7 +739,7 @@
                 row.setAttribute('data-index', originalIndex);
                 row.innerHTML = `
                     <td>${index + 1}</td>
-                    <td>${formatDateTime(message.date)}</td>
+                    <td style="font-family: 'Arial', sans-serif;">${formatDate(message.date)}</td>
                     <td>${message.bankilyNumber}</td>
                     <td>${message.phoneNumber}</td>
                     <td>${message.name}</td>
@@ -779,7 +776,7 @@
                 row.setAttribute('data-index', index);
                 row.innerHTML = `
                     <td>${index + 1}</td>
-                    <td>${payment.date}</td>
+                    <td style="font-family: 'Arial', sans-serif;">${formatDate(payment.date)}</td>
                     <td>${payment.amount}</td>
                     <td>${payment.note || '-'}</td>
                     <td>
@@ -798,7 +795,7 @@
                 title: 'تفاصيل الرسالة',
                 html: `
                     <div style="text-align: right; font-family: 'Cairo', sans-serif; color: #3F2A56;">
-                        <p><strong>التاريخ والوقت:</strong> ${formatDateTime(message.date)}</p>
+                        <p><strong>التاريخ:</strong> <span style="font-family: 'Arial', sans-serif;">${formatDate(message.date)}</span></p>
                         <p><strong>رقم بنكيلي:</strong> ${message.bankilyNumber}</p>
                         <p><strong>رقم الهاتف:</strong> ${message.phoneNumber}</p>
                         <p><strong>الإسم:</strong> ${message.name}</p>
@@ -825,7 +822,7 @@
                 title: 'تفاصيل الدفعة',
                 html: `
                     <div style="text-align: right; font-family: 'Cairo', sans-serif; color: #3F2A56;">
-                        <p><strong>التاريخ:</strong> ${payment.date}</p>
+                        <p><strong>التاريخ:</strong> <span style="font-family: 'Arial', sans-serif;">${formatDate(payment.date)}</span></p>
                         <p><strong>المبلغ:</strong> ${payment.amount}</p>
                         <p><strong>الملاحظة:</strong> ${payment.note || '-'}</p>
                     </div>
@@ -847,26 +844,24 @@
             const totalPayments = payments.reduce((sum, p) => sum + parseFloat(p.amount), 0);
             const totalBalance = totalAmount + totalFees - totalPayments;
             const messageCount = messages.length;
-            const paymentCount = payments.length;
 
             document.getElementById('totalBalance').innerText = totalBalance.toFixed(2);
             document.getElementById('totalAmount').innerText = totalAmount.toFixed(2);
             document.getElementById('totalFees').innerText = totalFees.toFixed(2);
             document.getElementById('messageCount').innerText = messageCount;
             document.getElementById('totalPayments').innerText = totalPayments.toFixed(2);
-            document.getElementById('paymentCount').innerText = paymentCount;
         }
 
         async function addMessage() {
+            const date = document.getElementById('messageDate').value;
             const bankilyNumber = document.getElementById('bankilyNumber').value;
             const phoneNumber = document.getElementById('phoneNumber').value;
             const name = document.getElementById('name').value;
             const amount = document.getElementById('amount').value;
             const fees = document.getElementById('fees').value;
             const note = document.getElementById('note').value;
-            const date = new Date().toISOString();
 
-            if (bankilyNumber && phoneNumber && name && amount && fees) {
+            if (date && bankilyNumber && phoneNumber && name && amount && fees) {
                 messages.push({ bankilyNumber, phoneNumber, name, amount, fees, note, status: 'not-sent', date });
                 localStorage.setItem('messages', JSON.stringify(messages));
                 filterMessageTable();
@@ -903,6 +898,7 @@
 
         function editMessage(index) {
             document.getElementById('editIndex').value = index;
+            document.getElementById('editMessageDate').value = formatDate(messages[index].date);
             document.getElementById('editBankilyNumber').value = messages[index].bankilyNumber;
             document.getElementById('editPhoneNumber').value = messages[index].phoneNumber;
             document.getElementById('editName').value = messages[index].name;
@@ -914,6 +910,7 @@
 
         async function updateMessage() {
             const index = parseInt(document.getElementById('editIndex').value);
+            const date = document.getElementById('editMessageDate').value;
             const bankilyNumber = document.getElementById('editBankilyNumber').value;
             const phoneNumber = document.getElementById('editPhoneNumber').value;
             const name = document.getElementById('editName').value;
@@ -921,7 +918,7 @@
             const fees = document.getElementById('editFees').value;
             const note = document.getElementById('editNote').value;
 
-            if (bankilyNumber && phoneNumber && name && amount && fees) {
+            if (date && bankilyNumber && phoneNumber && name && amount && fees) {
                 messages[index] = { 
                     bankilyNumber, 
                     phoneNumber, 
@@ -930,7 +927,7 @@
                     fees, 
                     note, 
                     status: messages[index].status, 
-                    date: messages[index].date 
+                    date 
                 };
                 localStorage.setItem('messages', JSON.stringify(messages));
                 filterMessageTable();
@@ -946,7 +943,7 @@
 
         function editPayment(index) {
             document.getElementById('editPaymentIndex').value = index;
-            document.getElementById('editPaymentDate').value = payments[index].date;
+            document.getElementById('editPaymentDate').value = formatDate(payments[index].date);
             document.getElementById('editPaymentAmount').value = payments[index].amount;
             document.getElementById('editPaymentNote').value = payments[index].note || '';
             new bootstrap.Modal(document.getElementById('editPaymentModal')).show();
@@ -1068,7 +1065,7 @@
                 html: `
                     <div style="text-align: right; font-family: 'Cairo', sans-serif;">
                         <p>أدخل كلمة المرور لتأكيد إعادة تعيين جميع الرسائل إلى "لم يتم الإرسال":</p>
-                        <input type="password" id="resetPassword" class="form-control" style="border-radius: 15px; padding: 12px;">
+                        <input type="text" id="resetPassword" class="form-control" style="border-radius: 15px; padding: 12px;">
                     </div>
                 `,
                 icon: 'warning',
@@ -1080,7 +1077,7 @@
                 preConfirm: () => {
                     const password = document.getElementById('resetPassword').value;
                     if (password !== '1138') {
-                        Swal.showValidationMessage('كلمة المرور غير صحيحة!');
+                        Swal.showValidationMessage('كلم يمة المرور غير صحيحة!');
                         return false;
                     }
                     return true;
@@ -1095,7 +1092,7 @@
                     title: 'تم إعادة التعيين',
                     text: 'تم إعادة تعيين جميع الرسائل إلى "لم يتم الإرسال" بنجاح!',
                     icon: 'success',
-                    confirmButtonColor: '#3F2A56'
+                    color: '#3F2A56'
                 });
             }
         }
@@ -1118,10 +1115,10 @@
             sortByDate(messages);
             sortByDate(payments);
             
-            const messageHeaders = ['التاريخ والوقت,رقم بنكيلي,رقم الهاتف,الإسم,المبلغ,الرسوم,الملاحظة,الحالة'];
-            const messageRows = messages.map(m => `${formatDateTime(m.date)},${m.bankilyNumber},${m.phoneNumber},${m.name},${m.amount},${m.fees},${m.note || '-'},${m.status === 'sent' ? 'تم الإرسال' : 'لم يتم الإرسال'}`);
+            const messageHeaders = ['التاريخ,رقم بنكيلي,رقم الهاتف,الإسم,المبلغ,الرسوم,الملاحظة,الحالة];
+            const messageRows = messages.map(m => `${formatDate(m.date)}`,${m.bankilyNumber},${m.phoneNumber},${m.name},${m.amount},${m.fees},${m.note || '-'},${m.status === 'sent' ? 'تم الإرسال' : 'لم يتمدور'}`);
             const paymentHeaders = ['التاريخ,المبلغ,الملاحظة'];
-            const paymentRows = payments.map(p => `${p.date},${p.amount},${p.note || '-'}`);
+            const paymentRows = payments.map(p => `${formatDate(p.date)}`,${p.amount},${p.note || '-'});
             
             const csv = [
                 'جدول الرسائل',
@@ -1131,9 +1128,9 @@
                 'جدول الدفعات',
                 paymentHeaders,
                 ...paymentRows
-            ].join('\n');
+            ];
             
-            const blob = new Blob([csv], { type: 'text/csv' });
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
@@ -1158,7 +1155,7 @@
                         if (row === 'جدول الرسائل') {
                             currentTable = 'messages';
                             continue;
-                        } else if (row === 'جدول الدفعات') {
+                        } else if (row === 'جددول الدفعات') {
                             currentTable = 'payments';
                             continue;
                         } else if (row === messageHeaders[0]) {
@@ -1172,18 +1169,18 @@
                                 bankilyNumber,
                                 phoneNumber,
                                 name,
+                                date,
                                 amount,
                                 fees,
                                 note: note === '-' ? '' : note,
-                                status: status === 'تم الإرسال' ? 'sent' : 'not-sent',
-                                date
+                                status: status === 'تم الإرسال' ? 'sent' : 'not-sent'
                             });
                         } else if (currentTable === 'payments' && row) {
-                            const [date, amount, note] = row.split(',');
+                            const [date, amount, paymentNote] = row.split(',');
                             data.payments.push({
                                 date,
                                 amount,
-                                note: note === '-' ? '' : note
+                                note: paymentNote === '-' ? '' : note
                             });
                         }
                     }
@@ -1195,7 +1192,7 @@
                 if (!validMessages || !validPayments) {
                     Swal.fire({
                         title: 'خطأ',
-                        text: 'البيانات في الملف غير صالحة.',
+                        text: 'البيانات الملف في غير صالحة.',
                         icon: 'error',
                         confirmButtonColor: '#3F2A56'
                     });
@@ -1207,7 +1204,7 @@
                 localStorage.setItem('accountPayments', JSON.stringify(payments));
                 filterMessageTable();
                 Swal.fire({
-                    title: 'تم الاستيراد',
+                    title: 'تم الإستيراد',
                     text: 'تم استيراد البيانات بنجاح!',
                     icon: 'success',
                     confirmButtonColor: '#3F2A56'
@@ -1220,15 +1217,15 @@
 
         function printTable() {
             try {
-                const itemsPerPage = 20;
+                const itemsPerPage = 15;
                 const startDate = document.getElementById('startDate').value;
                 const endDate = document.getElementById('endDate').value;
                 const statusFilter = document.getElementById('statusFilter').value;
 
                 const filteredMessages = messages.filter(message => {
                     const matchesDate = (
-                        (!startDate || new Date(message.date) >= new Date(startDate)) &&
-                        (!endDate || new Date(message.date) <= new Date(endDate))
+                        (!startDate || new Date(startDate) <= new Date(message.date)) &&
+                        (!endDate || new Date(endDate) >= new Date(message.date))
                     );
                     const matchesStatus = (
                         statusFilter === 'all' ||
@@ -1249,15 +1246,14 @@
                 }
 
                 const totalAmount = filteredMessages.reduce((sum, m) => sum + parseFloat(m.amount), 0);
-                const totalFees = filteredMessages.reduce((sum, m) => sum + parseFloat(m.fees), 0);
+                const totalFees = filteredMessages.reduce((sum, f) => sum + parseFloat(f.fees), 0);
                 const totalPayments = payments.reduce((sum, p) => sum + parseFloat(p.amount), 0);
                 const totalBalance = totalAmount + totalFees - totalPayments;
                 const messageCount = filteredMessages.length;
-                const paymentCount = payments.length;
 
-                const printWindow = window.open('', '_blank', 'height=700,width=1000');
-                if (!printWindow) {
-                    throw new Error('فشل في فتح نافذة الطباعة. تحقق من إعدادات المتصفح.');
+                const printWindow = window.open('', '_blank', 'height=700',width=1000);
+                if (!printWindow.document) {
+                    throw new Error('فشل في فتح نافذة الطباعة). تحقق من إعدادات المتصفح.');
                 }
 
                 const printDate = new Date().toLocaleString('en-US', { 
@@ -1343,15 +1339,15 @@
                                 border-radius: 5px; 
                                 background: #fff; 
                             }
-                            .dashboard-section h4 { 
+                            .dashboard-section h3 {
                                 font-size: 1.2rem; 
-                                font-weight: 700; 
-                                margin: 0 0 10px; 
+                                font-weight: 700;
+                                margin: 0; 0 10px; 
                                 border-bottom: 1px solid #000; 
                                 padding-bottom: 5px; 
                             }
                             h2 { 
-                                text-align: center; 
+                                text-align: center;
                                 font-size: 1.7rem; 
                                 font-weight: 700; 
                                 margin: 20px 0; 
@@ -1367,7 +1363,7 @@
                             .print-date { 
                                 text-align: center; 
                                 font-size: 1.1rem; 
-                                font-weight: 600; 
+                                font-weight: bold; 
                                 margin-bottom: 20px; 
                             }
                             table { 
@@ -1377,16 +1373,16 @@
                                 border: 1px solid #000; 
                             }
                             th, td { 
-                                padding: 12px; 
+                                padding: 8px; 
                                 text-align: center; 
                                 border: 1px solid #000; 
                                 font-size: 1rem; 
                             }
                             th { 
-                                background: linear-gradient(90deg, #3F2A56, #5a3f73); 
+                                background: linear-gradient(to right, #3F2A56, #5a3f73); 
                                 color: white; 
-                                font-weight: 700; 
-                                font-size: 1.1rem; 
+                                font-weight: bold; 
+                                font-size: 1rem; 
                             }
                             td { 
                                 background: #fff; 
@@ -1398,21 +1394,25 @@
                                 margin-top: 20px; 
                             }
                             .print-button { 
-                                background: linear-gradient(90deg, #3F2A56, #5a3f73); 
+                                background: linear-gradient(to right, #3F2A56, #5a3f73); 
                                 color: white; 
                                 padding: 10px 20px; 
                                 border: none; 
-                                border-radius: 20px; 
+                                border-radius: 5px; 
                                 font-size: 1rem; 
                                 cursor: pointer; 
-                                margin: 10px auto; 
-                                display: block; 
-                                text-align: center; 
+                                margin: 20px auto; 
+                                display: block;
+                            }
                             }
                             @media print {
-                                .container { margin: 0; width: 100%; }
-                                .print-button { display: none; }
-                                body { margin: 10mm; }
+                                .container { 
+                                    margin: 0; 
+                                    width: 100%; 
+                                }
+                                .print-button {
+                                    display: none;
+                                }
                             }
                         </style>
                     </head>
@@ -1432,13 +1432,12 @@
                             </div>
                             <div class="dashboard-container">
                                 <div class="dashboard-section">
-                                    <h4>الإحصائيات</h4>
+                                    <h3>الإحصائيات</h3>
                                     <p><strong>المجموع الكلي:</strong> ${totalBalance.toFixed(2)}</p>
                                     <p><strong>مجموع المبالغ:</strong> ${totalAmount.toFixed(2)}</p>
                                     <p><strong>مجموع الرسوم:</strong> ${totalFees.toFixed(2)}</p>
                                     <p><strong>عدد الرسائل:</strong> ${messageCount}</p>
                                     <p><strong>مجموع الدفعات:</strong> ${totalPayments.toFixed(2)}</p>
-                                    <p><strong>عدد الدفعات:</strong> ${paymentCount}</p>
                                 </div>
                             </div>
                             <div class="print-date">تاريخ الطباعة: ${printDate}</div>
@@ -1464,7 +1463,7 @@
                         printWindow.document.write(`
                             <tr>
                                 <td>${index + 1}</td>
-                                <td>${payment.date}</td>
+                                <td style="font-family: 'Arial', sans-serif;">${formatDate(payment.date)}</td>
                                 <td>${parseFloat(payment.amount).toFixed(2)}</td>
                                 <td>${payment.note || '-'}</td>
                             </tr>
@@ -1484,7 +1483,7 @@
                             <thead>
                                 <tr>
                                     <th>#</th>
-                                    <th>التاريخ والوقت</th>
+                                    <th>التاريخ</th>
                                     <th>رقم بنكيلي</th>
                                     <th>رقم الهاتف</th>
                                     <th>الإسم</th>
@@ -1501,13 +1500,13 @@
                         printWindow.document.write(`
                             <tr>
                                 <td>${index + 1}</td>
-                                <td>${formatDateTime(message.date)}</td>
+                                <td style="font-family: 'Arial', sans-serif;">${formatDate(message.date)}</td>
                                 <td>${message.bankilyNumber}</td>
                                 <td>${message.phoneNumber}</td>
                                 <td>${message.name}</td>
                                 <td>${parseFloat(message.amount).toFixed(2)}</td>
                                 <td>${parseFloat(message.fees).toFixed(2)}</td>
-                                <td>${message.note || '-'}</td>
+                                <td>${message.note || '-}</td>
                                 <td>${message.status === 'sent' ? 'تم الإرسال' : 'لم يتم الإرسال'}</td>
                             </tr>
                         `);
@@ -1519,7 +1518,7 @@
                 }
 
                 printWindow.document.write(`
-                            <div class="footer">هذا المستند من نظام طيبة المدينة تلكوم وهو موقع رقميًا</div>
+                            <div class="footer">هذا المستند من نظام طيبة المدينة تلكوم وهو موقع موثق رقميًا</div>
                         </div>
                     </body>
                     </html>
@@ -1568,15 +1567,15 @@
             }
         }
 
-        window.onload = () => {
+        window.onload = function() {
             filterMessageTable();
             document.querySelectorAll('.btn').forEach(btn => {
                 btn.removeAttribute('aria-hidden');
                 if (btn.closest('[aria-hidden="true"]')) {
-                    btn.closest('[aria-hidden="true"]').removeAttribute('aria-hidden');
+                    btn.closest('[aria-hidden]').removeAttribute('aria-hidden');
                 }
             });
-        };
+        }
     </script>
 </body>
 </html>
