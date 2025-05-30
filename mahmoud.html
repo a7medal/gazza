@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>حساب محمد محمود</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -11,7 +11,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        /* نفس أنماط CSS المستخدمة في صفحة حساب محفوظ */
         * {
             margin: 0;
             padding: 0;
@@ -204,16 +203,33 @@
             padding: 8px 16px;
             border-radius: 20px;
             font-size: 0.9rem;
+            font-weight: 600;
             cursor: pointer;
-            transition: background-color 0.3s ease;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border: none;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
         .status-btn.sent {
-            background-color: #28a745;
+            background: linear-gradient(90deg, #28a745, #34c759);
             color: white;
         }
         .status-btn.not-sent {
-            background-color: #dc3545;
+            background: linear-gradient(90deg, #dc3545, #e4606d);
             color: white;
+        }
+        .status-btn i {
+            font-size: 1rem;
+            transition: transform 0.3s ease;
+        }
+        .status-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        .status-btn:hover i {
+            transform: scale(1.1);
         }
         .search-container {
             margin-bottom: 20px;
@@ -260,6 +276,7 @@
             border-radius: 15px;
             box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
             padding: 15px;
+            margin-bottom: 30px;
         }
         table {
             width: 100%;
@@ -439,33 +456,59 @@
                 <h5>عدد الرسائل</h5>
                 <h3 id="messageCount">0</h3>
             </div>
+            <div class="card">
+                <i class="fas fa-hand-holding-usd"></i>
+                <h5>مجموع الدفعات</h5>
+                <h3 id="totalPayments">0</h3>
+            </div>
+            <div class="card">
+                <i class="fas fa-list-alt"></i>
+                <h5>عدد الدفعات</h5>
+                <h3 id="paymentCount">0</h3>
+            </div>
         </div>
         <div class="actions">
-            <button class="btn" data-bs-toggle="modal" data-bs-target="#addPaymentModal"><i class="fas fa-plus"></i> إضافة دفعة</button>
-            <button class="btn" onclick="sendAllPayments()"><i class="fas fa-paper-plane"></i> إرسال الكل</button>
-            <button class="btn" onclick="resetAllPayments()"><i class="fas fa-redo"></i> البدء من جديد</button>
+            <button class="btn" data-bs-toggle="modal" data-bs-target="#addMessageModal"><i class="fas fa-plus"></i> إضافة رسالة</button>
+            <button class="btn" data-bs-toggle="modal" data-bs-target="#addPaymentModal"><i class="fas fa-hand-holding-usd"></i> إضافة دفعة</button>
+            <button class="btn" onclick="sendAllMessages()"><i class="fas fa-paper-plane"></i> إرسال الكل</button>
+            <button class="btn" onclick="resetAllMessages()"><i class="fas fa-redo"></i> البدء من جديد</button>
             <button class="btn" onclick="exportToJSON()"><i class="fas fa-file-code"></i> تصدير إلى JSON</button>
             <button class="btn" onclick="exportToCSV()"><i class="fas fa-file-csv"></i> تصدير إلى CSV</button>
             <input type="file" id="importFile" accept=".json,.csv" style="display: none;" onchange="importFile(event)">
             <button class="btn" onclick="document.getElementById('importFile').click()"><i class="fas fa-file-import"></i> استيراد ملف</button>
             <button class="btn" onclick="printTable()"><i class="fas fa-print"></i> طباعة</button>
         </div>
+        <div class="table-container">
+            <h3 style="text-align: center; color: #3F2A56; margin-bottom: 20px;">جدول الدفعات</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>التاريخ</th>
+                        <th>المبلغ</th>
+                        <th>الملاحظة</th>
+                        <th>الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody id="paymentsTable"></tbody>
+            </table>
+        </div>
         <div class="search-container">
             <div class="filter-group">
-                <label for="searchInput">البحث في الجدول</label>
-                <input type="text" id="searchInput" placeholder="ابحث..." onkeyup="filterTable()">
+                <label for="searchInput">البحث في جدول الرسائل</label>
+                <input type="text" id="searchInput" placeholder="ابحث..." onkeyup="filterMessageTable()">
             </div>
             <div class="filter-group">
                 <label for="startDate">من التاريخ</label>
-                <input type="date" id="startDate" onchange="filterTable()">
+                <input type="date" id="startDate" onchange="filterMessageTable()">
             </div>
             <div class="filter-group">
                 <label for="endDate">إلى التاريخ</label>
-                <input type="date" id="endDate" onchange="filterTable()">
+                <input type="date" id="endDate" onchange="filterMessageTable()">
             </div>
             <div class="filter-group">
                 <label for="statusFilter">الحالة</label>
-                <select id="statusFilter" onchange="filterTable()">
+                <select id="statusFilter" onchange="filterMessageTable()">
                     <option value="all">الكل</option>
                     <option value="sent">تم الإرسال</option>
                     <option value="not-sent">لم يتم الإرسال</option>
@@ -473,10 +516,12 @@
             </div>
         </div>
         <div class="table-container">
+            <h3 style="text-align: center; color: #3F2A56; margin-bottom: 20px;">جدول الرسائل</h3>
             <table>
                 <thead>
                     <tr>
                         <th>#</th>
+                        <th>التاريخ والوقت</th>
                         <th>رقم بنكيلي</th>
                         <th>رقم الهاتف</th>
                         <th>الإسم</th>
@@ -487,19 +532,19 @@
                         <th>الإجراءات</th>
                     </tr>
                 </thead>
-                <tbody id="paymentsTable"></tbody>
+                <tbody id="messagesTable"></tbody>
             </table>
         </div>
     </div>
-    <div class="modal fade" id="addPaymentModal" tabindex="-1" aria-labelledby="addPaymentModalLabel" aria-hidden="true">
+    <div class="modal fade" id="addMessageModal" tabindex="-1" aria-labelledby="addMessageModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="addPaymentModalLabel"><i class="fas fa-plus"></i> إضافة دفعة جديدة</h5>
+                    <h5 class="modal-title" id="addMessageModalLabel"><i class="fas fa-plus"></i> إضافة رسالة جديدة</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="addPaymentForm">
+                    <form id="addMessageForm">
                         <div class="mb-3">
                             <label for="bankilyNumber" class="form-label"><i class="fas fa-id-card"></i> رقم بنكيلي</label>
                             <input type="text" class="form-control" id="bankilyNumber" required>
@@ -528,20 +573,20 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
-                    <button type="button" class="btn" onclick="addPayment()">حفظ</button>
+                    <button type="button" class="btn" onclick="addMessage()">حفظ</button>
                 </div>
             </div>
         </div>
     </div>
-    <div class="modal fade" id="editPaymentModal" tabindex="-1" aria-labelledby="editPaymentModalLabel" aria-hidden="true">
+    <div class="modal fade" id="editMessageModal" tabindex="-1" aria-labelledby="editMessageModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="editPaymentModalLabel"><i class="fas fa-edit"></i> تعديل دفعة</h5>
+                    <h5 class="modal-title" id="editMessageModalLabel"><i class="fas fa-edit"></i> تعديل رسالة</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="editPaymentForm">
+                    <form id="editMessageForm">
                         <input type="hidden" id="editIndex">
                         <div class="mb-3">
                             <label for="editBankilyNumber" class="form-label"><i class="fas fa-id-card"></i> رقم بنكيلي</label>
@@ -571,81 +616,207 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="button" class="btn" onclick="updateMessage()">حفظ</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="addPaymentModal" tabindex="-1" aria-labelledby="addPaymentModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addPaymentModalLabel"><i class="fas fa-hand-holding-usd"></i> إضافة دفعة جديدة</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addPaymentForm">
+                        <div class="mb-3">
+                            <label for="paymentDate" class="form-label"><i class="fas fa-calendar"></i> التاريخ</label>
+                            <input type="date" class="form-control" id="paymentDate" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="paymentAmount" class="form-label"><i class="fas fa-money-bill"></i> المبلغ</label>
+                            <input type="number" class="form-control" id="paymentAmount" step="0.01" min="0" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="paymentNote" class="form-label"><i class="fas fa-sticky-note"></i> الملاحظة</label>
+                            <input type="text" class="form-control" id="paymentNote">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="button" class="btn" onclick="addPayment()">حفظ</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="editPaymentModal" tabindex="-1" aria-labelledby="editPaymentModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editPaymentModalLabel"><i class="fas fa-edit"></i> تعديل دفعة</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editPaymentForm">
+                        <input type="hidden" id="editPaymentIndex">
+                        <div class="mb-3">
+                            <label for="editPaymentDate" class="form-label"><i class="fas fa-calendar"></i> التاريخ</label>
+                            <input type="date" class="form-control" id="editPaymentDate" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editPaymentAmount" class="form-label"><i class="fas fa-money-bill"></i> المبلغ</label>
+                            <input type="number" class="form-control" id="editPaymentAmount" step="0.01" min="0" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editPaymentNote" class="form-label"><i class="fas fa-sticky-note"></i> الملاحظة</label>
+                            <input type="text" class="form-control" id="editPaymentNote">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
                     <button type="button" class="btn" onclick="updatePayment()">حفظ</button>
                 </div>
             </div>
         </div>
     </div>
-    <audio id="successSound" src="https://www.soundjay.com/buttons/beep-01a.mp3" preload="auto"></audio>
     <script>
-        let payments = JSON.parse(localStorage.getItem('payments')) || [];
+        let messages = JSON.parse(localStorage.getItem('messages')) || [];
+        let payments = JSON.parse(localStorage.getItem('accountPayments')) || [];
 
-        function sortPaymentsByDate() {
-            payments.sort((a, b) => new Date(b.date) - new Date(a.date));
+        function sortByDate(array) {
+            return array.sort((a, b) => new Date(b.date) - new Date(a.date));
         }
 
-        function filterTable() {
+        function formatDateTime(dateTime) {
+            const date = new Date(dateTime);
+            return date.toLocaleString('ar-SA', { 
+                day: '2-digit', 
+                month: '2-digit', 
+                year: 'numeric', 
+                hour: '2-digit', 
+                minute: '2-digit',
+                hour12: true 
+            });
+        }
+
+        function filterMessageTable() {
             const searchQuery = document.getElementById('searchInput').value.toLowerCase();
             const startDate = document.getElementById('startDate').value;
             const endDate = document.getElementById('endDate').value;
             const statusFilter = document.getElementById('statusFilter').value;
 
-            const tableBody = document.getElementById('paymentsTable');
+            const tableBody = document.getElementById('messagesTable');
             tableBody.innerHTML = '';
-            sortPaymentsByDate();
+            sortByDate(messages);
 
-            const filteredPayments = payments.filter(payment => {
+            const filteredMessages = messages.filter(message => {
                 const matchesSearch = (
-                    payment.bankilyNumber.toLowerCase().includes(searchQuery) ||
-                    payment.phoneNumber.toLowerCase().includes(searchQuery) ||
-                    payment.name.toLowerCase().includes(searchQuery) ||
-                    payment.amount.toString().includes(searchQuery) ||
-                    payment.fees.toString().includes(searchQuery) ||
-                    (payment.note && payment.note.toLowerCase().includes(searchQuery))
+                    message.bankilyNumber.toLowerCase().includes(searchQuery) ||
+                    message.phoneNumber.toLowerCase().includes(searchQuery) ||
+                    message.name.toLowerCase().includes(searchQuery) ||
+                    message.amount.toString().includes(searchQuery) ||
+                    message.fees.toString().includes(searchQuery) ||
+                    (message.note && message.note.toLowerCase().includes(searchQuery))
                 );
 
                 const matchesDate = (
-                    (!startDate || new Date(payment.date) >= new Date(startDate)) &&
-                    (!endDate || new Date(payment.date) <= new Date(endDate))
+                    (!startDate || new Date(message.date) >= new Date(startDate)) &&
+                    (!endDate || new Date(message.date) <= new Date(endDate))
                 );
 
                 const matchesStatus = (
                     statusFilter === 'all' ||
-                    (statusFilter === 'sent' && payment.status === 'sent') ||
-                    (statusFilter === 'not-sent' && payment.status === 'not-sent')
+                    (statusFilter === 'sent' && message.status === 'sent') ||
+                    (statusFilter === 'not-sent' && message.status === 'not-sent')
                 );
 
                 return matchesSearch && matchesDate && matchesStatus;
             });
 
-            filteredPayments.forEach((payment, index) => {
-                const originalIndex = payments.indexOf(payment);
+            filteredMessages.forEach((message, index) => {
+                const originalIndex = messages.indexOf(message);
                 const row = document.createElement('tr');
                 row.setAttribute('data-index', originalIndex);
                 row.innerHTML = `
                     <td>${index + 1}</td>
-                    <td>${payment.bankilyNumber}</td>
-                    <td>${payment.phoneNumber}</td>
-                    <td>${payment.name}</td>
-                    <td>${payment.amount}</td>
-                    <td>${payment.fees}</td>
-                    <td>${payment.note || '-'}</td>
+                    <td>${formatDateTime(message.date)}</td>
+                    <td>${message.bankilyNumber}</td>
+                    <td>${message.phoneNumber}</td>
+                    <td>${message.name}</td>
+                    <td>${message.amount}</td>
+                    <td>${message.fees}</td>
+                    <td>${message.note || '-'}</td>
                     <td>
-                        <button class="status-btn ${payment.status === 'sent' ? 'sent' : 'not-sent'}" 
+                        <button class="status-btn ${message.status === 'sent' ? 'sent' : 'not-sent'}" 
                                 onclick="toggleStatus(${originalIndex});event.stopPropagation();">
-                            ${payment.status === 'sent' ? 'تم الإرسال' : 'لم يتم الإرسال'}
+                            <i class="fas ${message.status === 'sent' ? 'fa-check-circle' : 'fa-times-circle'}"></i>
+                            ${message.status === 'sent' ? 'تم الإرسال' : 'لم يتم الإرسال'}
                         </button>
                     </td>
                     <td>
-                        <i class="fas fa-edit action-btn edit" onclick="editPayment(${originalIndex});event.stopPropagation();"></i>
-                        <i class="fas fa-trash action-btn delete" onclick="deletePayment(${originalIndex});event.stopPropagation();"></i>
+                        <i class="fas fa-edit action-btn edit" onclick="editMessage(${originalIndex});event.stopPropagation();"></i>
+                        <i class="fas fa-trash action-btn delete" onclick="deleteMessage(${originalIndex});event.stopPropagation();"></i>
                     </td>
                 `;
-                row.addEventListener('click', () => showPaymentDetails(originalIndex));
+                row.addEventListener('click', () => showMessageDetails(originalIndex));
                 tableBody.appendChild(row);
             });
 
+            updatePaymentTable();
             updateDashboard();
+        }
+
+        function updatePaymentTable() {
+            const tableBody = document.getElementById('paymentsTable');
+            tableBody.innerHTML = '';
+            sortByDate(payments);
+
+            payments.forEach((payment, index) => {
+                const row = document.createElement('tr');
+                row.setAttribute('data-index', index);
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${payment.date}</td>
+                    <td>${payment.amount}</td>
+                    <td>${payment.note || '-'}</td>
+                    <td>
+                        <i class="fas fa-edit action-btn edit" onclick="editPayment(${index});event.stopPropagation();"></i>
+                        <i class="fas fa-trash action-btn delete" onclick="deletePayment(${index});event.stopPropagation();"></i>
+                    </td>
+                `;
+                row.addEventListener('click', () => showPaymentDetails(index));
+                tableBody.appendChild(row);
+            });
+        }
+
+        function showMessageDetails(index) {
+            const message = messages[index];
+            Swal.fire({
+                title: 'تفاصيل الرسالة',
+                html: `
+                    <div style="text-align: right; font-family: 'Cairo', sans-serif; color: #3F2A56;">
+                        <p><strong>التاريخ والوقت:</strong> ${formatDateTime(message.date)}</p>
+                        <p><strong>رقم بنكيلي:</strong> ${message.bankilyNumber}</p>
+                        <p><strong>رقم الهاتف:</strong> ${message.phoneNumber}</p>
+                        <p><strong>الإسم:</strong> ${message.name}</p>
+                        <p><strong>المبلغ:</strong> ${message.amount}</p>
+                        <p><strong>الرسوم:</strong> ${message.fees}</p>
+                        <p><strong>الملاحظة:</strong> ${message.note || '-'}</p>
+                        <p><strong>الحالة:</strong> ${message.status === 'sent' ? 'تم الإرسال' : 'لم يتم الإرسال'}</p>
+                    </div>
+                `,
+                icon: 'info',
+                confirmButtonText: 'إغلاق',
+                confirmButtonColor: '#3F2A56',
+                customClass: {
+                    popup: 'swal2-rtl',
+                    title: 'swal2-title',
+                    content: 'swal2-content'
+                }
+            });
         }
 
         function showPaymentDetails(index) {
@@ -654,13 +825,9 @@
                 title: 'تفاصيل الدفعة',
                 html: `
                     <div style="text-align: right; font-family: 'Cairo', sans-serif; color: #3F2A56;">
-                        <p><strong>رقم بنكيلي:</strong> ${payment.bankilyNumber}</p>
-                        <p><strong>رقم الهاتف:</strong> ${payment.phoneNumber}</p>
-                        <p><strong>الإسم:</strong> ${payment.name}</p>
+                        <p><strong>التاريخ:</strong> ${payment.date}</p>
                         <p><strong>المبلغ:</strong> ${payment.amount}</p>
-                        <p><strong>الرسوم:</strong> ${payment.fees}</p>
                         <p><strong>الملاحظة:</strong> ${payment.note || '-'}</p>
-                        <p><strong>الحالة:</strong> ${payment.status === 'sent' ? 'تم الإرسال' : 'لم يتم الإرسال'}</p>
                     </div>
                 `,
                 icon: 'info',
@@ -675,30 +842,54 @@
         }
 
         function updateDashboard() {
-            const totalAmount = payments.reduce((sum, p) => sum + parseFloat(p.amount), 0);
-            const totalFees = payments.reduce((sum, p) => sum + parseFloat(p.fees), 0);
-            const totalBalance = totalAmount + totalFees;
-            const messageCount = payments.length;
+            const totalAmount = messages.reduce((sum, m) => sum + parseFloat(m.amount), 0);
+            const totalFees = messages.reduce((sum, m) => sum + parseFloat(m.fees), 0);
+            const totalPayments = payments.reduce((sum, p) => sum + parseFloat(p.amount), 0);
+            const totalBalance = totalAmount + totalFees - totalPayments;
+            const messageCount = messages.length;
+            const paymentCount = payments.length;
 
             document.getElementById('totalBalance').innerText = totalBalance.toFixed(2);
             document.getElementById('totalAmount').innerText = totalAmount.toFixed(2);
             document.getElementById('totalFees').innerText = totalFees.toFixed(2);
             document.getElementById('messageCount').innerText = messageCount;
+            document.getElementById('totalPayments').innerText = totalPayments.toFixed(2);
+            document.getElementById('paymentCount').innerText = paymentCount;
         }
 
-        async function addPayment() {
+        async function addMessage() {
             const bankilyNumber = document.getElementById('bankilyNumber').value;
             const phoneNumber = document.getElementById('phoneNumber').value;
             const name = document.getElementById('name').value;
             const amount = document.getElementById('amount').value;
             const fees = document.getElementById('fees').value;
             const note = document.getElementById('note').value;
-            const date = new Date().toISOString().split('T')[0]; // التاريخ الحالي
+            const date = new Date().toISOString();
 
             if (bankilyNumber && phoneNumber && name && amount && fees) {
-                payments.push({ bankilyNumber, phoneNumber, name, amount, fees, note, status: 'not-sent', date });
-                localStorage.setItem('payments', JSON.stringify(payments));
-                filterTable();
+                messages.push({ bankilyNumber, phoneNumber, name, amount, fees, note, status: 'not-sent', date });
+                localStorage.setItem('messages', JSON.stringify(messages));
+                filterMessageTable();
+                bootstrap.Modal.getInstance(document.getElementById('addMessageModal')).hide();
+                document.getElementById('addMessageForm').reset();
+                Swal.fire({
+                    title: 'تم الإضافة',
+                    text: 'تم إضافة الرسالة بنجاح!',
+                    icon: 'success',
+                    confirmButtonColor: '#3F2A56'
+                });
+            }
+        }
+
+        async function addPayment() {
+            const date = document.getElementById('paymentDate').value;
+            const amount = document.getElementById('paymentAmount').value;
+            const note = document.getElementById('paymentNote').value;
+
+            if (date && amount) {
+                payments.push({ date, amount, note });
+                localStorage.setItem('accountPayments', JSON.stringify(payments));
+                filterMessageTable();
                 bootstrap.Modal.getInstance(document.getElementById('addPaymentModal')).hide();
                 document.getElementById('addPaymentForm').reset();
                 Swal.fire({
@@ -707,23 +898,21 @@
                     icon: 'success',
                     confirmButtonColor: '#3F2A56'
                 });
-                const successSound = document.getElementById('successSound');
-                successSound.play().catch(error => console.warn('فشل تشغيل الصوت:', error));
             }
         }
 
-        function editPayment(index) {
+        function editMessage(index) {
             document.getElementById('editIndex').value = index;
-            document.getElementById('editBankilyNumber').value = payments[index].bankilyNumber;
-            document.getElementById('editPhoneNumber').value = payments[index].phoneNumber;
-            document.getElementById('editName').value = payments[index].name;
-            document.getElementById('editAmount').value = payments[index].amount;
-            document.getElementById('editFees').value = payments[index].fees;
-            document.getElementById('editNote').value = payments[index].note || '';
-            new bootstrap.Modal(document.getElementById('editPaymentModal')).show();
+            document.getElementById('editBankilyNumber').value = messages[index].bankilyNumber;
+            document.getElementById('editPhoneNumber').value = messages[index].phoneNumber;
+            document.getElementById('editName').value = messages[index].name;
+            document.getElementById('editAmount').value = messages[index].amount;
+            document.getElementById('editFees').value = messages[index].fees;
+            document.getElementById('editNote').value = messages[index].note || '';
+            new bootstrap.Modal(document.getElementById('editMessageModal')).show();
         }
 
-        async function updatePayment() {
+        async function updateMessage() {
             const index = parseInt(document.getElementById('editIndex').value);
             const bankilyNumber = document.getElementById('editBankilyNumber').value;
             const phoneNumber = document.getElementById('editPhoneNumber').value;
@@ -733,22 +922,74 @@
             const note = document.getElementById('editNote').value;
 
             if (bankilyNumber && phoneNumber && name && amount && fees) {
-                payments[index] = { 
+                messages[index] = { 
                     bankilyNumber, 
                     phoneNumber, 
                     name, 
                     amount, 
                     fees, 
                     note, 
-                    status: payments[index].status, 
-                    date: payments[index].date 
+                    status: messages[index].status, 
+                    date: messages[index].date 
                 };
-                localStorage.setItem('payments', JSON.stringify(payments));
-                filterTable();
+                localStorage.setItem('messages', JSON.stringify(messages));
+                filterMessageTable();
+                bootstrap.Modal.getInstance(document.getElementById('editMessageModal')).hide();
+                Swal.fire({
+                    title: 'تم التعديل',
+                    text: 'تم تعديل الرسالة بنجاح!',
+                    icon: 'success',
+                    confirmButtonColor: '#3F2A56'
+                });
+            }
+        }
+
+        function editPayment(index) {
+            document.getElementById('editPaymentIndex').value = index;
+            document.getElementById('editPaymentDate').value = payments[index].date;
+            document.getElementById('editPaymentAmount').value = payments[index].amount;
+            document.getElementById('editPaymentNote').value = payments[index].note || '';
+            new bootstrap.Modal(document.getElementById('editPaymentModal')).show();
+        }
+
+        async function updatePayment() {
+            const index = parseInt(document.getElementById('editPaymentIndex').value);
+            const date = document.getElementById('editPaymentDate').value;
+            const amount = document.getElementById('editPaymentAmount').value;
+            const note = document.getElementById('editPaymentNote').value;
+
+            if (date && amount) {
+                payments[index] = { date, amount, note };
+                localStorage.setItem('accountPayments', JSON.stringify(payments));
+                filterMessageTable();
                 bootstrap.Modal.getInstance(document.getElementById('editPaymentModal')).hide();
                 Swal.fire({
                     title: 'تم التعديل',
                     text: 'تم تعديل الدفعة بنجاح!',
+                    icon: 'success',
+                    confirmButtonColor: '#3F2A56'
+                });
+            }
+        }
+
+        async function deleteMessage(index) {
+            const result = await Swal.fire({
+                title: 'هل أنت متأكد؟',
+                text: 'هل تريد حذف هذه الرسالة؟',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'حذف',
+                cancelButtonText: 'إلغاء',
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d'
+            });
+            if (result.isConfirmed) {
+                messages.splice(index, 1);
+                localStorage.setItem('messages', JSON.stringify(messages));
+                filterMessageTable();
+                Swal.fire({
+                    title: 'تم الحذف',
+                    text: 'تم حذف الرسالة بنجاح!',
                     icon: 'success',
                     confirmButtonColor: '#3F2A56'
                 });
@@ -768,8 +1009,8 @@
             });
             if (result.isConfirmed) {
                 payments.splice(index, 1);
-                localStorage.setItem('payments', JSON.stringify(payments));
-                filterTable();
+                localStorage.setItem('accountPayments', JSON.stringify(payments));
+                filterMessageTable();
                 Swal.fire({
                     title: 'تم الحذف',
                     text: 'تم حذف الدفعة بنجاح!',
@@ -780,19 +1021,17 @@
         }
 
         function toggleStatus(index) {
-            payments[index].status = payments[index].status === 'sent' ? 'not-sent' : 'sent';
-            localStorage.setItem('payments', JSON.stringify(payments));
-            filterTable();
-            const successSound = document.getElementById('successSound');
-            successSound.play().catch(error => console.warn('فشل تشغيل الصوت:', error));
+            messages[index].status = messages[index].status === 'sent' ? 'not-sent' : 'sent';
+            localStorage.setItem('messages', JSON.stringify(messages));
+            filterMessageTable();
         }
 
-        async function sendAllPayments() {
-            const notSentCount = payments.filter(p => p.status === 'not-sent').length;
+        async function sendAllMessages() {
+            const notSentCount = messages.filter(m => m.status === 'not-sent').length;
             if (notSentCount === 0) {
                 Swal.fire({
-                    title: 'لا توجد دفعات',
-                    text: 'جميع الدفعات تم إرسالها بالفعل!',
+                    title: 'لا توجد رسائل',
+                    text: 'جميع الرسائل تم إرسالها بالفعل!',
                     icon: 'info',
                     confirmButtonColor: '#3F2A56'
                 });
@@ -801,7 +1040,7 @@
 
             const result = await Swal.fire({
                 title: 'تأكيد إرسال الكل',
-                text: `هل تريد إرسال ${notSentCount} دفعة لم يتم إرسالها؟`,
+                text: `هل تريد إرسال ${notSentCount} رسالة لم يتم إرسالها؟`,
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonText: 'إرسال',
@@ -811,26 +1050,24 @@
             });
 
             if (result.isConfirmed) {
-                payments = payments.map(p => ({ ...p, status: 'sent' }));
-                localStorage.setItem('payments', JSON.stringify(payments));
-                filterTable();
+                messages = messages.map(m => ({ ...m, status: 'sent' }));
+                localStorage.setItem('messages', JSON.stringify(messages));
+                filterMessageTable();
                 Swal.fire({
                     title: 'تم الإرسال',
-                    text: 'تم إرسال جميع الدفعات بنجاح!',
+                    text: 'تم إرسال جميع الرسائل بنجاح!',
                     icon: 'success',
                     confirmButtonColor: '#3F2A56'
                 });
-                const successSound = document.getElementById('successSound');
-                successSound.play().catch(error => console.warn('فشل تشغيل الصوت:', error));
             }
         }
 
-        async function resetAllPayments() {
+        async function resetAllMessages() {
             const result = await Swal.fire({
-                title: 'إعادة تعيين جميع الدفعات',
+                title: 'إعادة تعيين جميع الرسائل',
                 html: `
                     <div style="text-align: right; font-family: 'Cairo', sans-serif;">
-                        <p>أدخل كلمة المرور لتأكيد إعادة تعيين جميع الدفعات إلى "لم يتم الإرسال":</p>
+                        <p>أدخل كلمة المرور لتأكيد إعادة تعيين جميع الرسائل إلى "لم يتم الإرسال":</p>
                         <input type="password" id="resetPassword" class="form-control" style="border-radius: 15px; padding: 12px;">
                     </div>
                 `,
@@ -851,42 +1088,56 @@
             });
 
             if (result.isConfirmed) {
-                payments = payments.map(p => ({ ...p, status: 'not-sent' }));
-                localStorage.setItem('payments', JSON.stringify(payments));
-                filterTable();
+                messages = messages.map(m => ({ ...m, status: 'not-sent' }));
+                localStorage.setItem('messages', JSON.stringify(messages));
+                filterMessageTable();
                 Swal.fire({
                     title: 'تم إعادة التعيين',
-                    text: 'تم إعادة تعيين جميع الدفعات إلى "لم يتم الإرسال" بنجاح!',
+                    text: 'تم إعادة تعيين جميع الرسائل إلى "لم يتم الإرسال" بنجاح!',
                     icon: 'success',
                     confirmButtonColor: '#3F2A56'
                 });
-                const successSound = document.getElementById('successSound');
-                successSound.play().catch(error => console.warn('فشل تشغيل الصوت:', error));
             }
         }
 
         function exportToJSON() {
-            sortPaymentsByDate();
-            const dataStr = JSON.stringify(payments, null, 2);
+            sortByDate(messages);
+            sortByDate(payments);
+            const data = { messages, payments };
+            const dataStr = JSON.stringify(data, null, 2);
             const blob = new Blob([dataStr], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'payments.json';
+            a.download = 'account_data.json';
             a.click();
             URL.revokeObjectURL(url);
         }
 
         function exportToCSV() {
-            sortPaymentsByDate();
-            const headers = ['رقم بنكيلي,رقم الهاتف,الإسم,المبلغ,الرسوم,الملاحظة,الحالة,التاريخ'];
-            const rows = payments.map(p => `${p.bankilyNumber},${p.phoneNumber},${p.name},${p.amount},${p.fees},${p.note || '-'},${p.status === 'sent' ? 'تم الإرسال' : 'لم يتم الإرسال'},${p.date}`);
-            const csv = [headers, ...rows].join('\n');
+            sortByDate(messages);
+            sortByDate(payments);
+            
+            const messageHeaders = ['التاريخ والوقت,رقم بنكيلي,رقم الهاتف,الإسم,المبلغ,الرسوم,الملاحظة,الحالة'];
+            const messageRows = messages.map(m => `${formatDateTime(m.date)},${m.bankilyNumber},${m.phoneNumber},${m.name},${m.amount},${m.fees},${m.note || '-'},${m.status === 'sent' ? 'تم الإرسال' : 'لم يتم الإرسال'}`);
+            const paymentHeaders = ['التاريخ,المبلغ,الملاحظة'];
+            const paymentRows = payments.map(p => `${p.date},${p.amount},${p.note || '-'}`);
+            
+            const csv = [
+                'جدول الرسائل',
+                messageHeaders,
+                ...messageRows,
+                '',
+                'جدول الدفعات',
+                paymentHeaders,
+                ...paymentRows
+            ].join('\n');
+            
             const blob = new Blob([csv], { type: 'text/csv' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'payments.csv';
+            a.download = 'account_data.csv';
             a.click();
             URL.revokeObjectURL(url);
         }
@@ -895,30 +1146,53 @@
             const file = event.target.files[0];
             const reader = new FileReader();
             reader.onload = async function(e) {
-                let newPayments = [];
+                let data = {};
                 if (file.name.endsWith('.json')) {
-                    newPayments = JSON.parse(e.target.result);
+                    data = JSON.parse(e.target.result);
                 } else if (file.name.endsWith('.csv')) {
-                    const data = e.target.result;
-                    const rows = data.split('\n').slice(1).filter(row => row.trim());
-                    newPayments = rows.map(row => {
-                        const [bankilyNumber, phoneNumber, name, amount, fees, note, status, date] = row.split(',');
-                        return {
-                            bankilyNumber,
-                            phoneNumber,
-                            name,
-                            amount,
-                            fees,
-                            note: note === '-' ? '' : note,
-                            status: status === 'تم الإرسال' ? 'sent' : 'not-sent',
-                            date
-                        };
-                    });
+                    const rows = e.target.result.split('\n').filter(row => row.trim());
+                    let currentTable = '';
+                    data.messages = [];
+                    data.payments = [];
+                    for (const row of rows) {
+                        if (row === 'جدول الرسائل') {
+                            currentTable = 'messages';
+                            continue;
+                        } else if (row === 'جدول الدفعات') {
+                            currentTable = 'payments';
+                            continue;
+                        } else if (row === messageHeaders[0]) {
+                            continue;
+                        } else if (row === paymentHeaders[0]) {
+                            continue;
+                        }
+                        if (currentTable === 'messages' && row) {
+                            const [date, bankilyNumber, phoneNumber, name, amount, fees, note, status] = row.split(',');
+                            data.messages.push({
+                                bankilyNumber,
+                                phoneNumber,
+                                name,
+                                amount,
+                                fees,
+                                note: note === '-' ? '' : note,
+                                status: status === 'تم الإرسال' ? 'sent' : 'not-sent',
+                                date
+                            });
+                        } else if (currentTable === 'payments' && row) {
+                            const [date, amount, note] = row.split(',');
+                            data.payments.push({
+                                date,
+                                amount,
+                                note: note === '-' ? '' : note
+                            });
+                        }
+                    }
                 }
-                const valid = newPayments.every(p => 
-                    p.bankilyNumber && p.phoneNumber && p.name && p.amount && p.fees && ['sent', 'not-sent'].includes(p.status)
+                const validMessages = data.messages.every(m => 
+                    m.bankilyNumber && m.phoneNumber && m.name && m.amount && m.fees && ['sent', 'not-sent'].includes(m.status)
                 );
-                if (!valid) {
+                const validPayments = data.payments.every(p => p.date && p.amount);
+                if (!validMessages || !validPayments) {
                     Swal.fire({
                         title: 'خطأ',
                         text: 'البيانات في الملف غير صالحة.',
@@ -927,17 +1201,17 @@
                     });
                     return;
                 }
-                payments = [...payments, ...newPayments];
-                localStorage.setItem('payments', JSON.stringify(payments));
-                filterTable();
+                messages = [...messages, ...data.messages];
+                payments = [...payments, ...data.payments];
+                localStorage.setItem('messages', JSON.stringify(messages));
+                localStorage.setItem('accountPayments', JSON.stringify(payments));
+                filterMessageTable();
                 Swal.fire({
                     title: 'تم الاستيراد',
-                    text: 'تم استيراد الملف بنجاح!',
+                    text: 'تم استيراد البيانات بنجاح!',
                     icon: 'success',
                     confirmButtonColor: '#3F2A56'
                 });
-                const successSound = document.getElementById('successSound');
-                successSound.play().catch(error => console.warn('فشل تشغيل الصوت:', error));
             };
             if (file.name.endsWith('.json') || file.name.endsWith('.csv')) {
                 reader.readAsText(file);
@@ -951,33 +1225,35 @@
                 const endDate = document.getElementById('endDate').value;
                 const statusFilter = document.getElementById('statusFilter').value;
 
-                const filteredPayments = payments.filter(payment => {
+                const filteredMessages = messages.filter(message => {
                     const matchesDate = (
-                        (!startDate || new Date(payment.date) >= new Date(startDate)) &&
-                        (!endDate || new Date(payment.date) <= new Date(endDate))
+                        (!startDate || new Date(message.date) >= new Date(startDate)) &&
+                        (!endDate || new Date(message.date) <= new Date(endDate))
                     );
                     const matchesStatus = (
                         statusFilter === 'all' ||
-                        (statusFilter === 'sent' && payment.status === 'sent') ||
-                        (statusFilter === 'not-sent' && payment.status === 'not-sent')
+                        (statusFilter === 'sent' && message.status === 'sent') ||
+                        (statusFilter === 'not-sent' && message.status === 'not-sent')
                     );
                     return matchesDate && matchesStatus;
                 });
 
-                if (filteredPayments.length === 0) {
+                if (filteredMessages.length === 0 && payments.length === 0) {
                     Swal.fire({
                         title: 'لا توجد بيانات',
-                        text: 'لا توجد دفعات للطباعة بناءً على الفلاتر الحالية.',
+                        text: 'لا توجد رسائل أو دفعات للطباعة بناءً على الفلاتر الحالية.',
                         icon: 'warning',
                         confirmButtonColor: '#3F2A56'
                     });
                     return;
                 }
 
-                const totalAmount = filteredPayments.reduce((sum, p) => sum + parseFloat(p.amount), 0);
-                const totalFees = filteredPayments.reduce((sum, p) => sum + parseFloat(p.fees), 0);
-                const totalBalance = totalAmount + totalFees;
-                const messageCount = filteredPayments.length;
+                const totalAmount = filteredMessages.reduce((sum, m) => sum + parseFloat(m.amount), 0);
+                const totalFees = filteredMessages.reduce((sum, m) => sum + parseFloat(m.fees), 0);
+                const totalPayments = payments.reduce((sum, p) => sum + parseFloat(p.amount), 0);
+                const totalBalance = totalAmount + totalFees - totalPayments;
+                const messageCount = filteredMessages.length;
+                const paymentCount = payments.length;
 
                 const printWindow = window.open('', '_blank', 'height=700,width=1000');
                 if (!printWindow) {
@@ -1161,46 +1437,88 @@
                                     <p><strong>مجموع المبالغ:</strong> ${totalAmount.toFixed(2)}</p>
                                     <p><strong>مجموع الرسوم:</strong> ${totalFees.toFixed(2)}</p>
                                     <p><strong>عدد الرسائل:</strong> ${messageCount}</p>
+                                    <p><strong>مجموع الدفعات:</strong> ${totalPayments.toFixed(2)}</p>
+                                    <p><strong>عدد الدفعات:</strong> ${paymentCount}</p>
                                 </div>
                             </div>
                             <div class="print-date">تاريخ الطباعة: ${printDate}</div>
-                            <h2>الدفعات</h2>
-                            <div class="transactions-count">عدد الدفعات: ${filteredPayments.length}</div>
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>رقم بنكيلي</th>
-                                        <th>رقم الهاتف</th>
-                                        <th>الإسم</th>
-                                        <th>المبلغ</th>
-                                        <th>الرسوم</th>
-                                        <th>الملاحظة</th>
-                                        <th>الحالة</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
                 `);
 
-                sortPaymentsByDate();
-                filteredPayments.forEach((payment, index) => {
+                if (payments.length > 0) {
                     printWindow.document.write(`
-                        <tr>
-                            <td>${index + 1}</td>
-                            <td>${payment.bankilyNumber}</td>
-                            <td>${payment.phoneNumber}</td>
-                            <td>${payment.name}</td>
-                            <td>${parseFloat(payment.amount).toFixed(2)}</td>
-                            <td>${parseFloat(payment.fees).toFixed(2)}</td>
-                            <td>${payment.note || '-'}</td>
-                            <td>${payment.status === 'sent' ? 'تم الإرسال' : 'لم يتم الإرسال'}</td>
-                        </tr>
+                        <h2>الدفعات</h2>
+                        <div class="transactions-count">عدد الدفعات: ${payments.length}</div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>التاريخ</th>
+                                    <th>المبلغ</th>
+                                    <th>الملاحظة</th>
+                                </tr>
+                            </thead>
+                            <tbody>
                     `);
-                });
+                    sortByDate(payments);
+                    payments.forEach((payment, index) => {
+                        printWindow.document.write(`
+                            <tr>
+                                <td>${index + 1}</td>
+                                <td>${payment.date}</td>
+                                <td>${parseFloat(payment.amount).toFixed(2)}</td>
+                                <td>${payment.note || '-'}</td>
+                            </tr>
+                        `);
+                    });
+                    printWindow.document.write(`
+                            </tbody>
+                        </table>
+                    `);
+                }
+
+                if (filteredMessages.length > 0) {
+                    printWindow.document.write(`
+                        <h2>الرسائل</h2>
+                        <div class="transactions-count">عدد الرسائل: ${filteredMessages.length}</div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>التاريخ والوقت</th>
+                                    <th>رقم بنكيلي</th>
+                                    <th>رقم الهاتف</th>
+                                    <th>الإسم</th>
+                                    <th>المبلغ</th>
+                                    <th>الرسوم</th>
+                                    <th>الملاحظة</th>
+                                    <th>الحالة</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                    `);
+                    sortByDate(filteredMessages);
+                    filteredMessages.forEach((message, index) => {
+                        printWindow.document.write(`
+                            <tr>
+                                <td>${index + 1}</td>
+                                <td>${formatDateTime(message.date)}</td>
+                                <td>${message.bankilyNumber}</td>
+                                <td>${message.phoneNumber}</td>
+                                <td>${message.name}</td>
+                                <td>${parseFloat(message.amount).toFixed(2)}</td>
+                                <td>${parseFloat(message.fees).toFixed(2)}</td>
+                                <td>${message.note || '-'}</td>
+                                <td>${message.status === 'sent' ? 'تم الإرسال' : 'لم يتم الإرسال'}</td>
+                            </tr>
+                        `);
+                    });
+                    printWindow.document.write(`
+                            </tbody>
+                        </table>
+                    `);
+                }
 
                 printWindow.document.write(`
-                                </tbody>
-                            </table>
                             <div class="footer">هذا المستند من نظام طيبة المدينة تلكوم وهو موقع رقميًا</div>
                         </div>
                     </body>
@@ -1251,8 +1569,7 @@
         }
 
         window.onload = () => {
-            sortPaymentsByDate();
-            filterTable();
+            filterMessageTable();
             document.querySelectorAll('.btn').forEach(btn => {
                 btn.removeAttribute('aria-hidden');
                 if (btn.closest('[aria-hidden="true"]')) {
