@@ -224,18 +224,18 @@
             </div>
             <div class="card">
                 <i class="fas fa-arrow-up"></i>
-                <h5>الداخل (للفترة المحددة)</h5>
+                <h5>الداخل </h5>
                 <h3 id="totalIn">0.00</h3>
             </div>
             <div class="card">
                 <i class="fas fa-arrow-down"></i>
-                <h5>الخارج (للفترة المحددة)</h5>
+                <h5>الخارج </h5>
                 <h3 id="totalOut">0.00</h3>
             </div>
         </div>
 
         <div class="accounts-section">
-            <h3>الحسابات (أرصدة الفترة المحددة)</h3>
+            <h3>الحسابات  </h3>
             <div class="table-container">
                 <table class="accounts-table">
                     <thead>
@@ -254,13 +254,13 @@
         <div class="actions">
             <button class="btn" data-bs-toggle="modal" data-bs-target="#addTransactionModal"><i class="fas fa-plus"></i> إضافة معاملة</button>
             <button class="btn" data-bs-toggle="modal" data-bs-target="#addAccountModal"><i class="fas fa-user-plus"></i> إضافة حساب</button>
-            <button class="btn" onclick="exportVisibleToJSON()"><i class="fas fa-file-code"></i> تصدير المعروض JSON</button>
-            <button class="btn" onclick="exportVisibleToCSV()"><i class="fas fa-file-csv"></i> تصدير المعروض CSV</button>
+            <button class="btn" onclick="exportVisibleToJSON()"><i class="fas fa-file-code"></i> تصدير  JSON</button>
+            <button class="btn" onclick="exportVisibleToCSV()"><i class="fas fa-file-csv"></i> تصدير  CSV</button>
             <input type="file" id="importFile" accept=".json,.csv" style="display: none;" onchange="importFile(event)">
             <button class="btn" onclick="document.getElementById('importFile').click()"><i class="fas fa-file-import"></i> استيراد ملف</button>
-            <button class="btn" onclick="generateQRCodeForVisible()"><i class="fas fa-qrcode"></i> QR للمعروض</button>
+            <button class="btn" onclick="generateQRCodeForVisible()"><i class="fas fa-qrcode"></i> QR Code</button>
             <button class="btn" onclick="startQRScanner()"><i class="fas fa-camera"></i> استقبال QR</button>
-            <button class="btn" onclick="printTable()"><i class="fas fa-print"></i> طباعة المعروض</button>
+            <button class="btn" onclick="printTable()"><i class="fas fa-print"></i> طباعة </button>
         </div>
 
         <div class="filter-controls">
