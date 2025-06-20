@@ -205,6 +205,12 @@
         .btn-payment:hover {
             background: linear-gradient(90deg, #28a745, #1e7e34);
         }
+        .btn-danger {
+            background: linear-gradient(90deg, #c82333, #dc3545);
+        }
+        .btn-danger:hover {
+            background: linear-gradient(90deg, #dc3545, #c82333);
+        }
         .status-btn {
             padding: 8px 16px;
             border-radius: 20px;
@@ -477,7 +483,9 @@
             <button class="btn" onclick="exportToCSV()"><i class="fas fa-file-csv"></i> تصدير إلى CSV</button>
             <input type="file" id="importFile" accept=".json,.csv" style="display: none;" onchange="importFile(event)">
             <button class="btn" onclick="document.getElementById('importFile').click()"><i class="fas fa-file-import"></i> استيراد ملف</button>
+            <button class="btn" onclick="importFromCloud()"><i class="fas fa-cloud-download-alt"></i> استيراد من السحابة</button>
             <button class="btn" onclick="printTable()"><i class="fas fa-print"></i> طباعة</button>
+            <button class="btn btn-danger" onclick="deleteAllData()"><i class="fas fa-trash-alt"></i> حذف كل البيانات</button>
         </div>
         <div class="search-container">
             <div class="filter-group">
@@ -690,197 +698,164 @@
     </div>
 
     <script>
-        // IndexedDB Setup
-        const DB_NAME = 'HarounAccountDB';
-        const DB_VERSION = 1;
-        let db;
+        // --- IndexedDB Wrapper ---
+        const db = (() => {
+            let dbInstance;
+            const DB_NAME = 'haroonAccountDB';
+            const DB_VERSION = 1;
 
-        // Open IndexedDB and set up object stores
-        function openDB() {
-            return new Promise((resolve, reject) => {
-                const request = indexedDB.open(DB_NAME, DB_VERSION);
+            function open() {
+                return new Promise((resolve, reject) => {
+                    if (dbInstance) return resolve(dbInstance);
 
-                request.onupgradeneeded = (event) => {
-                    db = event.target.result;
-                    if (!db.objectStoreNames.contains('messages')) {
-                        const messageStore = db.createObjectStore('messages', { keyPath: 'id', autoIncrement: true });
-                        messageStore.createIndex('entryDate', 'entryDate', { unique: false });
-                    }
-                    if (!db.objectStoreNames.contains('payments')) {
-                        const paymentStore = db.createObjectStore('payments', { keyPath: 'id', autoIncrement: true });
-                        paymentStore.createIndex('date', 'date', { unique: false });
-                    }
-                };
+                    const request = indexedDB.open(DB_NAME, DB_VERSION);
+                    request.onerror = e => reject("Database error: " + e.target.error);
+                    request.onupgradeneeded = e => {
+                        const db = e.target.result;
+                        if (!db.objectStoreNames.contains('messages')) {
+                            const messagesStore = db.createObjectStore('messages', { keyPath: 'id', autoIncrement: true });
+                            messagesStore.createIndex('entryDate', 'entryDate', { unique: false });
+                            messagesStore.createIndex('status', 'status', { unique: false });
+                        }
+                        if (!db.objectStoreNames.contains('payments')) {
+                            const paymentsStore = db.createObjectStore('payments', { keyPath: 'id', autoIncrement: true });
+                            paymentsStore.createIndex('date', 'date', { unique: false });
+                        }
+                    };
+                    request.onsuccess = e => {
+                        dbInstance = e.target.result;
+                        resolve(dbInstance);
+                    };
+                });
+            }
 
-                request.onsuccess = (event) => {
-                    db = event.target.result;
-                    resolve(db);
-                };
+            function getStore(storeName, mode) {
+                const tx = dbInstance.transaction(storeName, mode);
+                return tx.objectStore(storeName);
+            }
 
-                request.onerror = (event) => {
-                    reject('Error opening database: ' + event.target.error);
-                };
-            });
-        }
+            function add(storeName, item) {
+                return new Promise((resolve, reject) => {
+                    const request = getStore(storeName, 'readwrite').add(item);
+                    request.onsuccess = e => resolve(e.target.result);
+                    request.onerror = e => reject(e.target.error);
+                });
+            }
 
-        // Fetch all records from an object store
-        async function getAllRecords(storeName) {
-            const db = await openDB();
-            return new Promise((resolve, reject) => {
-                const transaction = db.transaction([storeName], 'readonly');
-                const store = transaction.objectStore(storeName);
-                const request = store.getAll();
+            function put(storeName, item) {
+                return new Promise((resolve, reject) => {
+                    const request = getStore(storeName, 'readwrite').put(item);
+                    request.onsuccess = e => resolve(e.target.result);
+                    request.onerror = e => reject(e.target.error);
+                });
+            }
 
-                request.onsuccess = () => resolve(request.result);
-                request.onerror = () => reject('Error fetching records: ' + request.error);
-            });
-        }
+            function get(storeName, id) {
+                return new Promise((resolve, reject) => {
+                    const request = getStore(storeName, 'readonly').get(id);
+                    request.onsuccess = () => resolve(request.result);
+                    request.onerror = e => reject(e.target.error);
+                });
+            }
 
-        // Add a record to an object store
-        async function addRecord(storeName, record) {
-            const db = await openDB();
-            return new Promise((resolve, reject) => {
-                const transaction = db.transaction([storeName], 'readwrite');
-                const store = transaction.objectStore(storeName);
-                const request = store.add(record);
+            function remove(storeName, id) {
+                return new Promise((resolve, reject) => {
+                    const request = getStore(storeName, 'readwrite').delete(id);
+                    request.onsuccess = () => resolve();
+                    request.onerror = e => reject(e.target.error);
+                });
+            }
 
-                request.onsuccess = () => resolve(request.result);
-                request.onerror = () => reject('Error adding record: ' + request.error);
-            });
-        }
+            function getAll(storeName) {
+                return new Promise((resolve, reject) => {
+                    const request = getStore(storeName, 'readonly').getAll();
+                    request.onsuccess = () => resolve(request.result);
+                    request.onerror = e => reject(e.target.error);
+                });
+            }
 
-        // Update a record in an object store
-        async function updateRecord(storeName, record) {
-            const db = await openDB();
-            return new Promise((resolve, reject) => {
-                const transaction = db.transaction([storeName], 'readwrite');
-                const store = transaction.objectStore(storeName);
-                const request = store.put(record);
-
-                request.onsuccess = () => resolve();
-                request.onerror = () => reject('Error updating record: ' + request.error);
-            });
-        }
-
-        // Delete a record from an object store
-        async function deleteRecord(storeName, id) {
-            const db = await openDB();
-            return new Promise((resolve, reject) => {
-                const transaction = db.transaction([storeName], 'readwrite');
-                const store = transaction.objectStore(storeName);
-                const request = store.delete(id);
-
-                request.onsuccess = () => resolve();
-                request.onerror = () => reject('Error deleting record: ' + request.error);
-            });
-        }
-
-        // Migrate localStorage data to IndexedDB (if any)
-        async function migrateLocalStorageToIndexedDB() {
-            const messages = JSON.parse(localStorage.getItem('messages') || '[]');
-            const payments = JSON.parse(localStorage.getItem('payments') || '[]');
-
-            if (messages.length > 0) {
-                for (const msg of messages) {
-                    await addRecord('messages', {
-                        ...msg,
-                        id: undefined, // Let IndexedDB assign new ID
-                        entryDate: msg.entryDate,
-                        phoneNumber: msg.phoneNumber,
-                        name: msg.name || '',
-                        entity: msg.entity || '',
-                        amount: parseFloat(msg.amount || 0),
-                        fees: parseFloat(msg.fees || 0),
-                        status: msg.status || 'not-sent',
-                        dateTime: msg.dateTime || new Date().toISOString()
+            function bulkAdd(storeName, items) {
+                return new Promise((resolve, reject) => {
+                    const tx = dbInstance.transaction(storeName, 'readwrite');
+                    const store = tx.objectStore(storeName);
+                    items.forEach(item => {
+                        delete item.id; // Ensure new IDs are generated
+                        store.add(item)
                     });
-                }
-                localStorage.removeItem('messages');
+                    tx.oncomplete = () => resolve();
+                    tx.onerror = e => reject(e.target.error);
+                });
             }
 
-            if (payments.length > 0) {
-                for (const payment of payments) {
-                    await addRecord('payments', {
-                        ...payment,
-                        id: undefined, // Let IndexedDB assign new ID
-                        date: payment.date,
-                        amount: parseFloat(payment.amount || 0),
-                        note: payment.note || ''
-                    });
-                }
-                localStorage.removeItem('payments');
+            function clear(storeName) {
+                return new Promise((resolve, reject) => {
+                    const tx = dbInstance.transaction(storeName, 'readwrite');
+                    const store = tx.objectStore(storeName);
+                    store.clear();
+                    tx.oncomplete = () => resolve();
+                    tx.onerror = e => reject(e.target.error);
+                });
+            }
+
+            return { open, add, put, get, delete: remove, getAll, bulkAdd, clear };
+        })();
+        
+        // --- Global State ---
+        let messages = [];
+        let payments = [];
+
+        // --- Data Loading & UI Rendering ---
+        async function loadDataAndRender() {
+            try {
+                messages = await db.getAll('messages');
+                payments = await db.getAll('payments');
+                updateUI();
+            } catch (error) {
+                console.error("Failed to load data from DB:", error);
+                Swal.fire('خطأ', 'فشل في تحميل البيانات من قاعدة البيانات.', 'error');
             }
         }
 
-        // Data Migration for messages
-        async function migrateMessages() {
-            let messages = await getAllRecords('messages');
-            messages = messages.map(msg => {
-                if (msg.nameAndEntity) {
-                    const parts = msg.nameAndEntity.trim().split(/\s+/);
-                    msg.name = parts[0] || '';
-                    msg.entity = parts.slice(1).join(' ') || '';
-                    delete msg.nameAndEntity;
-                }
-                if (msg.name === undefined) msg.name = '';
-                if (msg.entity === undefined) msg.entity = '';
-                if (msg.entryDate && !msg.dateTime) msg.dateTime = new Date().toISOString();
-                return msg;
-            });
-            for (const msg of messages) {
-                await updateRecord('messages', msg);
-            }
-            return messages;
+        function updateUI() {
+            renderPaymentsTable();
+            renderMessagesTable();
+            updateDashboard();
         }
 
-        // Sort array by date
-        function sortByDate(array, key = 'entryDate') {
-            return array.sort((a, b) => new Date(b[key] || b.date) - new Date(a[key] || a.date));
+        // --- Utility Functions ---
+        function sortByDate(array) {
+            return array.sort((a, b) => new Date(b.entryDate || b.date) - new Date(a.entryDate || a.date));
         }
 
-        // Format date for display
         function formatDateOnly(dateString) {
             if (!dateString) return '-';
-            const [year, month, day] = dateString.split('-').map(Number);
-            const localDate = new Date(year, month - 1, day);
-            return localDate.toLocaleDateString('en-GB');
+            const date = new Date(dateString);
+            const userTimezoneOffset = date.getTimezoneOffset() * 60000;
+            const adjustedDate = new Date(date.getTime() + userTimezoneOffset);
+            return adjustedDate.toLocaleDateString('en-GB');
         }
 
-        // Update UI
-        async function updateUI() {
-            const messages = await getAllRecords('messages');
-            const payments = await getAllRecords('payments');
-            renderPaymentsTable(payments);
-            renderMessagesTable(messages);
-            updateDashboard(messages, payments);
-        }
-
-        // Render Payments Table
-        async function renderPaymentsTable(payments) {
+        // --- Payments CRUD ---
+        function renderPaymentsTable() {
             const searchQuery = document.getElementById('searchInput').value.toLowerCase();
             const startDate = document.getElementById('startDate').value;
             const endDate = document.getElementById('endDate').value;
             const tableBody = document.getElementById('paymentsTable');
             tableBody.innerHTML = '';
-
-            const filteredPayments = payments.filter(p => {
-                const matchesSearch = (
-                    p.amount.toString().includes(searchQuery) ||
-                    (p.note && p.note.toLowerCase().includes(searchQuery))
-                );
-                const paymentDate = p.date ? new Date(p.date) : null;
+            
+            const filteredPayments = sortByDate([...payments]).filter(p => {
+                const matchesSearch = (p.amount.toString().includes(searchQuery) || (p.note && p.note.toLowerCase().includes(searchQuery)));
+                if (!p.date) return matchesSearch;
+                const paymentDate = new Date(p.date);
                 const filterStartDate = startDate ? new Date(startDate) : null;
-                if (filterStartDate) filterStartDate.setHours(0, 0, 0, 0);
                 const filterEndDate = endDate ? new Date(endDate) : null;
-                if (filterEndDate) filterEndDate.setHours(23, 59, 59, 999);
-                const matchesDate = !p.date || (
-                    (!filterStartDate || paymentDate >= filterStartDate) &&
-                    (!filterEndDate || paymentDate <= filterEndDate)
-                );
+                if(filterStartDate) filterStartDate.setHours(0,0,0,0);
+                if(filterEndDate) filterEndDate.setHours(23,59,59,999);
+                const matchesDate = (!filterStartDate || paymentDate >= filterStartDate) && (!filterEndDate || paymentDate <= filterEndDate);
                 return matchesSearch && matchesDate;
             });
-
-            sortByDate(filteredPayments, 'date').forEach((payment, index) => {
+            
+            filteredPayments.forEach((payment, index) => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${index + 1}</td>
@@ -896,17 +871,66 @@
             });
         }
 
-        // Render Messages Table
-        async function renderMessagesTable(messages) {
+        async function addPayment() {
+            const date = document.getElementById('paymentDate').value;
+            const amount = document.getElementById('paymentAmount').value;
+            const note = document.getElementById('paymentNote').value;
+            if (date && amount) {
+                await db.add('payments', { date, amount: parseFloat(amount), note });
+                await loadDataAndRender();
+                bootstrap.Modal.getInstance(document.getElementById('addPaymentModal')).hide();
+                document.getElementById('addPaymentForm').reset();
+                Swal.fire('تم', 'تم إضافة الدفعة بنجاح!', 'success');
+            } else {
+                Swal.fire('خطأ', 'يرجى ملء حقلي التاريخ والمبلغ.', 'error');
+            }
+        }
+
+        async function editPayment(id) {
+            const payment = await db.get('payments', id);
+            document.getElementById('editPaymentId').value = payment.id;
+            document.getElementById('editPaymentDate').value = payment.date;
+            document.getElementById('editPaymentAmount').value = payment.amount;
+            document.getElementById('editPaymentNote').value = payment.note;
+            new bootstrap.Modal(document.getElementById('editPaymentModal')).show();
+        }
+
+        async function updatePayment() {
+            const id = parseInt(document.getElementById('editPaymentId').value);
+            const date = document.getElementById('editPaymentDate').value;
+            const amount = document.getElementById('editPaymentAmount').value;
+            const note = document.getElementById('editPaymentNote').value;
+            if (id && date && amount) {
+                await db.put('payments', { id, date, amount: parseFloat(amount), note });
+                await loadDataAndRender();
+                bootstrap.Modal.getInstance(document.getElementById('editPaymentModal')).hide();
+                Swal.fire('تم', 'تم تعديل الدفعة بنجاح!', 'success');
+            }
+        }
+        
+        async function deletePayment(id) {
+            const result = await Swal.fire({
+                title: 'هل أنت متأكد؟', text: 'هل تريد حذف هذه الدفعة؟', icon: 'warning',
+                showCancelButton: true, confirmButtonText: 'حذف', cancelButtonText: 'إلغاء',
+                confirmButtonColor: '#dc3545', cancelButtonColor: '#6c757d'
+            });
+            if (result.isConfirmed) {
+                await db.delete('payments', id);
+                await loadDataAndRender();
+                Swal.fire('تم الحذف', 'تم حذف الدفعة بنجاح!', 'success');
+            }
+        }
+
+        // --- Messages CRUD ---
+        function renderMessagesTable() {
             const searchQuery = document.getElementById('searchInput').value.toLowerCase();
             const startDate = document.getElementById('startDate').value;
             const endDate = document.getElementById('endDate').value;
             const statusFilter = document.getElementById('statusFilter').value;
-
             const tableBody = document.getElementById('messagesTable');
             tableBody.innerHTML = '';
-
-            const filteredMessages = messages.filter(message => {
+            
+            const filteredMessages = sortByDate([...messages]).filter(message => {
                 const matchesSearch = (
                     message.phoneNumber.toLowerCase().includes(searchQuery) ||
                     (message.name && message.name.toLowerCase().includes(searchQuery)) ||
@@ -916,37 +940,32 @@
                 );
                 const messageDate = message.entryDate ? new Date(message.entryDate) : null;
                 const filterStartDate = startDate ? new Date(startDate) : null;
-                if (filterStartDate) filterStartDate.setHours(0, 0, 0, 0);
                 const filterEndDate = endDate ? new Date(endDate) : null;
-                if (filterEndDate) filterEndDate.setHours(23, 59, 59, 999);
-                const matchesDate = !message.entryDate || (
-                    (!filterStartDate || messageDate >= filterStartDate) &&
-                    (!filterEndDate || messageDate <= filterEndDate)
-                );
-                const matchesStatus = (
-                    statusFilter === 'all' ||
-                    (statusFilter === 'sent' && message.status === 'sent') ||
-                    (statusFilter === 'not-sent' && message.status === 'not-sent')
-                );
+                if(filterStartDate) filterStartDate.setHours(0,0,0,0);
+                if(filterEndDate) filterEndDate.setHours(23,59,59,999);
+                const matchesDate = !message.entryDate || ((!filterStartDate || messageDate >= filterStartDate) && (!filterEndDate || messageDate <= filterEndDate));
+                const matchesStatus = (statusFilter === 'all' || (statusFilter === 'sent' && message.status === 'sent') || (statusFilter === 'not-sent' && message.status !== 'sent'));
                 return matchesSearch && matchesDate && matchesStatus;
             });
 
-            sortByDate(filteredMessages).forEach((message, index) => {
+            filteredMessages.forEach((message, index) => {
                 const row = document.createElement('tr');
                 row.setAttribute('data-id', message.id);
+                const statusClass = message.status === 'sent' ? 'sent' : 'not-sent';
+                const statusIcon = message.status === 'sent' ? 'fa-check-circle' : 'fa-times-circle';
+                const statusText = message.status === 'sent' ? 'تم الإرسال' : 'لم يتم الإرسال';
+                
                 row.innerHTML = `
                     <td>${index + 1}</td>
                     <td>${formatDateOnly(message.entryDate)}</td>
                     <td>${message.phoneNumber}</td>
                     <td>${message.name}</td>
-                    <td>${message.entity}</td>
+                    <td>${message.entity || '-'}</td>
                     <td>${message.amount}</td>
                     <td>${message.fees}</td>
                     <td>
-                        <button class="status-btn ${message.status === 'sent' ? 'sent' : 'not-sent'}" 
-                                onclick="toggleStatus(${message.id});event.stopPropagation();">
-                            <i class="fas ${message.status === 'sent' ? 'fa-check-circle' : 'fa-times-circle'}"></i>
-                            ${message.status === 'sent' ? 'تم الإرسال' : 'لم يتم الإرسال'}
+                        <button class="status-btn ${statusClass}" onclick="toggleStatus(${message.id});event.stopPropagation();">
+                            <i class="fas ${statusIcon}"></i> ${statusText}
                         </button>
                     </td>
                     <td>
@@ -959,79 +978,6 @@
             });
         }
 
-        // Update Dashboard
-        async function updateDashboard(messages, payments) {
-            const totalAmount = messages.reduce((sum, m) => sum + parseFloat(m.amount || 0), 0);
-            const totalFees = messages.reduce((sum, m) => sum + parseFloat(m.fees || 0), 0);
-            const totalOwed = totalAmount + totalFees;
-            const totalPayments = payments.reduce((sum, p) => sum + parseFloat(p.amount || 0), 0);
-            const balance = totalOwed - totalPayments;
-
-            document.getElementById('totalOwed').innerText = totalOwed.toFixed(2);
-            document.getElementById('totalPayments').innerText = totalPayments.toFixed(2);
-            document.getElementById('balance').innerText = balance.toFixed(2);
-            document.getElementById('messageCount').innerText = messages.length;
-            document.getElementById('paymentCount').innerText = payments.length;
-        }
-
-        // Add Payment
-        async function addPayment() {
-            const date = document.getElementById('paymentDate').value;
-            const amount = document.getElementById('paymentAmount').value;
-            const note = document.getElementById('paymentNote').value;
-            if (date && amount) {
-                await addRecord('payments', { date, amount: parseFloat(amount), note });
-                updateUI();
-                bootstrap.Modal.getInstance(document.getElementById('addPaymentModal')).hide();
-                document.getElementById('addPaymentForm').reset();
-                Swal.fire('تم', 'تم إضافة الدفعة بنجاح!', 'success');
-            } else {
-                Swal.fire('خطأ', 'يرجى ملء حقلي التاريخ والمبلغ.', 'error');
-            }
-        }
-
-        // Edit Payment
-        async function editPayment(id) {
-            const payments = await getAllRecords('payments');
-            const payment = payments.find(p => p.id === id);
-            if (payment) {
-                document.getElementById('editPaymentId').value = id;
-                document.getElementById('editPaymentDate').value = payment.date;
-                document.getElementById('editPaymentAmount').value = payment.amount;
-                document.getElementById('editPaymentNote').value = payment.note;
-                new bootstrap.Modal(document.getElementById('editPaymentModal')).show();
-            }
-        }
-
-        // Update Payment
-        async function updatePayment() {
-            const id = parseInt(document.getElementById('editPaymentId').value);
-            const date = document.getElementById('editPaymentDate').value;
-            const amount = document.getElementById('editPaymentAmount').value;
-            const note = document.getElementById('editPaymentNote').value;
-            if (date && amount) {
-                await updateRecord('payments', { id, date, amount: parseFloat(amount), note });
-                updateUI();
-                bootstrap.Modal.getInstance(document.getElementById('editPaymentModal')).hide();
-                Swal.fire('تم', 'تم تعديل الدفعة بنجاح!', 'success');
-            }
-        }
-
-        // Delete Payment
-        async function deletePayment(id) {
-            const result = await Swal.fire({
-                title: 'هل أنت متأكد؟', text: 'هل تريد حذف هذه الدفعة؟', icon: 'warning',
-                showCancelButton: true, confirmButtonText: 'حذف', cancelButtonText: 'إلغاء',
-                confirmButtonColor: '#dc3545', cancelButtonColor: '#6c757d'
-            });
-            if (result.isConfirmed) {
-                await deleteRecord('payments', id);
-                updateUI();
-                Swal.fire('تم الحذف', 'تم حذف الدفعة بنجاح!', 'success');
-            }
-        }
-
-        // Add Message
         async function addMessage() {
             const entryDate = document.getElementById('messageEntryDate').value;
             const phoneNumber = document.getElementById('phoneNumber').value;
@@ -1041,8 +987,8 @@
             const fees = document.getElementById('fees').value;
             const dateTime = new Date().toISOString();
             if (entryDate && phoneNumber && name && amount && fees) {
-                await addRecord('messages', { entryDate, phoneNumber, name, entity, amount: parseFloat(amount), fees: parseFloat(fees), status: 'not-sent', dateTime });
-                updateUI();
+                await db.add('messages', { entryDate, phoneNumber, name, entity, amount: parseFloat(amount), fees: parseFloat(fees), status: 'not-sent', dateTime });
+                await loadDataAndRender();
                 bootstrap.Modal.getInstance(document.getElementById('addMessageModal')).hide();
                 document.getElementById('addMessageForm').reset();
                 Swal.fire('تم', 'تم إضافة الرسالة بنجاح!', 'success');
@@ -1051,45 +997,40 @@
             }
         }
 
-        // Edit Message
         async function editMessage(id) {
-            const messages = await getAllRecords('messages');
-            const message = messages.find(m => m.id === id);
-            if (message) {
-                document.getElementById('editMessageId').value = id;
-                document.getElementById('editMessageEntryDate').value = message.entryDate;
-                document.getElementById('editPhoneNumber').value = message.phoneNumber;
-                document.getElementById('editName').value = message.name;
-                document.getElementById('editEntity').value = message.entity;
-                document.getElementById('editAmount').value = message.amount;
-                document.getElementById('editFees').value = message.fees;
-                new bootstrap.Modal(document.getElementById('editMessageModal')).show();
-            }
+            const message = await db.get('messages', id);
+            document.getElementById('editMessageId').value = message.id;
+            document.getElementById('editMessageEntryDate').value = message.entryDate;
+            document.getElementById('editPhoneNumber').value = message.phoneNumber;
+            document.getElementById('editName').value = message.name;
+            document.getElementById('editEntity').value = message.entity;
+            document.getElementById('editAmount').value = message.amount;
+            document.getElementById('editFees').value = message.fees;
+            new bootstrap.Modal(document.getElementById('editMessageModal')).show();
         }
 
-        // Update Message
         async function updateMessage() {
             const id = parseInt(document.getElementById('editMessageId').value);
-            const messageData = {
-                id,
+            const originalMessage = await db.get('messages', id);
+            if (!originalMessage) {
+                Swal.fire('خطأ', 'لم يتم العثور على الرسالة.', 'error');
+                return;
+            }
+            const updatedData = {
+                ...originalMessage, 
                 entryDate: document.getElementById('editMessageEntryDate').value,
                 phoneNumber: document.getElementById('editPhoneNumber').value,
                 name: document.getElementById('editName').value,
                 entity: document.getElementById('editEntity').value,
                 amount: parseFloat(document.getElementById('editAmount').value),
                 fees: parseFloat(document.getElementById('editFees').value),
-                status: (await getAllRecords('messages')).find(m => m.id === id).status,
-                dateTime: (await getAllRecords('messages')).find(m => m.id === id).dateTime
             };
-            if (Object.values(messageData).every(val => val || val === 0)) {
-                await updateRecord('messages', messageData);
-                updateUI();
-                bootstrap.Modal.getInstance(document.getElementById('editMessageModal')).hide();
-                Swal.fire('تم', 'تم تعديل الرسالة بنجاح!', 'success');
-            }
+            await db.put('messages', updatedData);
+            await loadDataAndRender();
+            bootstrap.Modal.getInstance(document.getElementById('editMessageModal')).hide();
+            Swal.fire('تم', 'تم تعديل الرسالة بنجاح!', 'success');
         }
 
-        // Delete Message
         async function deleteMessage(id) {
             const result = await Swal.fire({
                 title: 'هل أنت متأكد؟', text: 'هل تريد حذف هذه الرسالة؟', icon: 'warning',
@@ -1097,37 +1038,69 @@
                 confirmButtonColor: '#dc3545', cancelButtonColor: '#6c757d'
             });
             if (result.isConfirmed) {
-                await deleteRecord('messages', id);
-                updateUI();
+                await db.delete('messages', id);
+                await loadDataAndRender();
                 Swal.fire('تم الحذف', 'تم حذف الرسالة بنجاح!', 'success');
             }
         }
 
-        // Toggle Message Status
         async function toggleStatus(id) {
-            const messages = await getAllRecords('messages');
-            const message = messages.find(m => m.id === id);
+            const message = await db.get('messages', id);
             if (message) {
                 message.status = message.status === 'sent' ? 'not-sent' : 'sent';
-                await updateRecord('messages', message);
-                updateUI();
+                await db.put('messages', message);
+                await loadDataAndRender();
             }
         }
 
-        // Send All Messages
+        // --- Dashboard & Global Actions ---
+        function updateDashboard() {
+            const totalAmount = messages.reduce((sum, m) => sum + parseFloat(m.amount || 0), 0);
+            const totalFees = messages.reduce((sum, m) => sum + parseFloat(m.fees || 0), 0);
+            const totalOwed = totalAmount + totalFees;
+            const totalPayments = payments.reduce((sum, p) => sum + parseFloat(p.amount || 0), 0);
+            const balance = totalOwed - totalPayments;
+            
+            document.getElementById('totalOwed').innerText = totalOwed.toFixed(2);
+            document.getElementById('totalPayments').innerText = totalPayments.toFixed(2);
+            document.getElementById('balance').innerText = balance.toFixed(2);
+            document.getElementById('messageCount').innerText = messages.length;
+            document.getElementById('paymentCount').innerText = payments.length;
+        }
+        
+        async function showMessageDetails(id) {
+            const message = await db.get('messages', id);
+            if (!message) return;
+            Swal.fire({
+                title: 'تفاصيل الرسالة',
+                html: `
+                    <div style="text-align: right; font-family: 'Cairo', sans-serif; color: #3F2A56;">
+                        <p><strong>التاريخ:</strong> ${formatDateOnly(message.entryDate)}</p>
+                        <p><strong>رقم الهاتف:</strong> ${message.phoneNumber}</p>
+                        <p><strong>الإسم:</strong> ${message.name}</p>
+                        <p><strong>الجهة:</strong> ${message.entity}</p>
+                        <p><strong>المبلغ:</strong> ${message.amount}</p>
+                        <p><strong>الرسوم:</strong> ${message.fees}</p>
+                        <p><strong>الحالة:</strong> ${message.status === 'sent' ? 'تم الإرسال' : 'لم يتم الإرسال'}</p>
+                    </div>
+                `,
+                icon: 'info', confirmButtonText: 'إغلاق', confirmButtonColor: '#3F2A56'
+            });
+        }
+        
         async function sendAllMessages() {
-            const messages = await getAllRecords('messages');
-            for (const message of messages) {
-                message.status = 'sent';
-                await updateRecord('messages', message);
-            }
-            updateUI();
+            const allMessages = await db.getAll('messages');
+            const updatePromises = allMessages.map(msg => {
+                msg.status = 'sent';
+                return db.put('messages', msg);
+            });
+            await Promise.all(updatePromises);
+            await loadDataAndRender();
             Swal.fire('تم', 'تم تحديث حالة جميع الرسائل إلى "تم الإرسال"!', 'success');
         }
 
-        // Reset All Messages
         async function resetAllMessages() {
-            const result = await Swal.fire({
+             const result = await Swal.fire({
                 title: 'إعادة تعيين جميع الرسائل',
                 html: `<div style="text-align: right; font-family: 'Cairo', sans-serif;"><p>أدخل كلمة المرور لتأكيد إعادة تعيين جميع الرسائل إلى "لم يتم الإرسال":</p><input type="password" id="resetPassword" class="form-control" style="border-radius: 15px; padding: 12px;"></div>`,
                 icon: 'warning', showCancelButton: true, confirmButtonText: 'إعادة تعيين', cancelButtonText: 'إلغاء',
@@ -1142,21 +1115,20 @@
                 }
             });
             if (result.isConfirmed) {
-                const messages = await getAllRecords('messages');
-                for (const message of messages) {
-                    message.status = 'not-sent';
-                    await updateRecord('messages', message);
-                }
-                updateUI();
+                const allMessages = await db.getAll('messages');
+                const updatePromises = allMessages.map(msg => {
+                    msg.status = 'not-sent';
+                    return db.put('messages', msg);
+                });
+                await Promise.all(updatePromises);
+                await loadDataAndRender();
                 Swal.fire('تم', 'تم إعادة تعيين جميع الرسائل إلى "لم يتم الإرسال"!', 'success');
             }
         }
-
-        // Export to JSON
-        async function exportToJSON() {
-            const messages = await getAllRecords('messages');
-            const payments = await getAllRecords('payments');
-            const data = { messages: sortByDate(messages), payments: sortByDate(payments, 'date') };
+        
+        // --- Import / Export ---
+        function exportToJSON() {
+            const data = { messages: sortByDate([...messages]), payments: sortByDate([...payments]) };
             const dataStr = JSON.stringify(data, null, 2);
             const blob = new Blob([dataStr], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
@@ -1166,19 +1138,16 @@
             a.click();
             URL.revokeObjectURL(url);
         }
-
-        // Export to CSV
-        async function exportToCSV() {
-            const messages = await getAllRecords('messages');
-            const payments = await getAllRecords('payments');
+        
+        function exportToCSV() {
             const messageHeaders = 'التاريخ,رقم الهاتف,الإسم,الجهة,المبلغ,الرسوم,الحالة,تاريخ ووقت الإدخال';
             const paymentHeaders = 'التاريخ,المبلغ,ملاحظة';
 
-            const messageRows = sortByDate(messages).map(m =>
+            const messageRows = sortByDate([...messages]).map(m =>
                 `${formatDateOnly(m.entryDate)},${m.phoneNumber},"${m.name}","${m.entity}",${m.amount},${m.fees},${m.status === 'sent' ? 'تم الإرسال' : 'لم يتم الإرسال'},${m.dateTime ? new Date(m.dateTime).toLocaleString('en-GB') : '-'}`
             );
-
-            const paymentRows = sortByDate(payments, 'date').map(p =>
+            
+            const paymentRows = sortByDate([...payments]).map(p =>
                 `${formatDateOnly(p.date)},${p.amount},"${p.note || ''}"`
             );
 
@@ -1196,7 +1165,6 @@
             URL.revokeObjectURL(url);
         }
 
-        // Import File
         async function importFile(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -1210,32 +1178,14 @@
                         importedMessages = data.messages || [];
                         importedPayments = data.payments || [];
                     } else if (file.name.endsWith('.csv')) {
-                        Swal.fire('ملاحظة', 'استيراد CSV قيد التطوير وقد لا يعمل بشكل كامل.', 'info');
+                         Swal.fire('ملاحظة', 'استيراد CSV قيد التطوير وقد لا يعمل بشكل كامل.', 'info');
+                         return;
                     }
+                    
+                    if (importedMessages.length > 0) await db.bulkAdd('messages', importedMessages);
+                    if (importedPayments.length > 0) await db.bulkAdd('payments', importedPayments);
 
-                    for (const msg of importedMessages) {
-                        await addRecord('messages', {
-                            ...msg,
-                            id: undefined,
-                            amount: parseFloat(msg.amount || 0),
-                            fees: parseFloat(msg.fees || 0),
-                            name: msg.name || '',
-                            entity: msg.entity || '',
-                            status: msg.status || 'not-sent',
-                            dateTime: msg.dateTime || new Date().toISOString()
-                        });
-                    }
-
-                    for (const payment of importedPayments) {
-                        await addRecord('payments', {
-                            ...payment,
-                            id: undefined,
-                            amount: parseFloat(payment.amount || 0),
-                            note: payment.note || ''
-                        });
-                    }
-
-                    updateUI();
+                    await loadDataAndRender();
                     Swal.fire('تم', 'تم استيراد البيانات بنجاح!', 'success');
                 } catch (err) {
                     Swal.fire('خطأ', 'فشل في معالجة الملف. ' + err.message, 'error');
@@ -1246,24 +1196,113 @@
             reader.readAsText(file);
         }
 
-        // Print Table
-        async function printTable() {
+        async function importFromCloud() {
+            const { value: password } = await Swal.fire({
+                title: 'استيراد من السحابة',
+                text: 'الرجاء إدخال كلمة المرور للمتابعة',
+                input: 'password',
+                inputPlaceholder: 'أدخل كلمة المرور',
+                inputAttributes: { autocapitalize: 'off', autocorrect: 'off' },
+                showCancelButton: true,
+                cancelButtonText: 'إلغاء',
+                confirmButtonText: 'تأكيد',
+            });
+
+            if (password) {
+                if (password === '1138') {
+                    try {
+                        const response = await fetch('haroun.json');
+                        if (!response.ok) {
+                            throw new Error(`ملف haroun.json غير موجود أو لا يمكن الوصول إليه.`);
+                        }
+                        const data = await response.json();
+                        const importedMessages = data.messages || [];
+                        const importedPayments = data.payments || [];
+
+                        if (importedMessages.length > 0) await db.bulkAdd('messages', importedMessages);
+                        if (importedPayments.length > 0) await db.bulkAdd('payments', importedPayments);
+                        
+                        await loadDataAndRender();
+                        Swal.fire('نجاح', 'تم دمج البيانات من السحابة بنجاح!', 'success');
+                    } catch (error) {
+                        Swal.fire('خطأ', `فشل استيراد البيانات: ${error.message}`, 'error');
+                    }
+                } else {
+                    Swal.fire('خطأ', 'كلمة المرور غير صحيحة.', 'error');
+                }
+            }
+        }
+
+        async function deleteAllData() {
+            const { value: password } = await Swal.fire({
+                title: 'حذف كل البيانات',
+                text: 'هذه العملية لا يمكن التراجع عنها. الرجاء إدخال كلمة المرور للتأكيد.',
+                input: 'password',
+                inputPlaceholder: 'أدخل كلمة المرور',
+                icon: 'warning',
+                showCancelButton: true,
+                cancelButtonText: 'إلغاء',
+                confirmButtonText: 'تأكيد',
+                confirmButtonColor: '#dc3545',
+            });
+
+            if (password) {
+                if (password === '1138') {
+                    let timerInterval;
+                    let timeLeft = 300; // 5 minutes in seconds
+
+                    const swalResult = await Swal.fire({
+                        title: 'سيتم حذف البيانات نهائياً!',
+                        html: 'سيتم الحذف خلال <b></b> ثانية.<br>يمكنك إلغاء العملية في أي وقت.',
+                        timer: timeLeft * 1000,
+                        timerProgressBar: true,
+                        showCancelButton: true,
+                        cancelButtonText: 'إلغاء الحذف!',
+                        confirmButtonText: 'لا تفعل شيئًا',
+                        didOpen: () => {
+                            const b = Swal.getHtmlContainer().querySelector('b');
+                            timerInterval = setInterval(() => {
+                                timeLeft--;
+                                b.textContent = timeLeft;
+                            }, 1000);
+                        },
+                        willClose: () => {
+                            clearInterval(timerInterval);
+                        }
+                    });
+                    
+                    if (swalResult.dismiss === Swal.DismissReason.timer) {
+                        // Timer finished
+                        await Promise.all([db.clear('messages'), db.clear('payments')]);
+                        await loadDataAndRender();
+                        Swal.fire('تم الحذف!', 'لقد تم حذف جميع البيانات بنجاح.', 'success');
+                    } else {
+                        // User cancelled
+                        Swal.fire('تم الإلغاء', 'تم إلغاء عملية الحذف. بياناتك آمنة.', 'info');
+                    }
+                } else {
+                    Swal.fire('خطأ', 'كلمة المرور غير صحيحة.', 'error');
+                }
+            }
+        }
+
+
+        // --- Printing ---
+        function printTable() {
             const startDate = document.getElementById('startDate').value;
             const endDate = document.getElementById('endDate').value;
-            const messages = await getAllRecords('messages');
-            const payments = await getAllRecords('payments');
-
-            const filterByDate = (item, key = 'entryDate') => {
-                const itemDate = new Date(item[key] || item.date);
+            
+            const filterByDate = (item) => {
+                const itemDate = new Date(item.date || item.entryDate);
                 const filterStart = startDate ? new Date(startDate) : null;
                 const filterEnd = endDate ? new Date(endDate) : null;
-                if (filterStart) filterStart.setHours(0, 0, 0, 0);
-                if (filterEnd) filterEnd.setHours(23, 59, 59, 999);
+                if(filterStart) filterStart.setHours(0,0,0,0);
+                if(filterEnd) filterEnd.setHours(23,59,59,999);
                 return (!filterStart || itemDate >= filterStart) && (!filterEnd || itemDate <= filterEnd);
             };
 
-            const filteredMessages = messages.filter(m => filterByDate(m));
-            const filteredPayments = payments.filter(p => filterByDate(p, 'date'));
+            const filteredMessages = messages.filter(filterByDate);
+            const filteredPayments = payments.filter(filterByDate);
 
             if (filteredMessages.length === 0 && filteredPayments.length === 0) {
                 Swal.fire('لا توجد بيانات', 'لا توجد بيانات للطباعة ضمن الفلتر الزمني المحدد.', 'warning');
@@ -1275,7 +1314,7 @@
             const totalOwed = totalMsgAmount + totalMsgFees;
             const totalPayments = filteredPayments.reduce((sum, p) => sum + parseFloat(p.amount || 0), 0);
             const balance = totalOwed - totalPayments;
-
+            
             let balanceText;
             if (balance > 0) {
                 balanceText = `الرصيد (عليه): ${balance.toFixed(2)}`;
@@ -1336,7 +1375,7 @@
 
                     ${filteredPayments.length > 0 ? `<h2>جدول الدفعات</h2>
                     <table><thead><tr><th>#</th><th>التاريخ</th><th>المبلغ</th><th>ملاحظة</th></tr></thead><tbody>
-                    ${sortByDate(filteredPayments, 'date').map((p, i) => `<tr><td>${i+1}</td><td>${formatDateOnly(p.date)}</td><td>${p.amount}</td><td>${p.note||'-'}</td></tr>`).join('')}
+                    ${sortByDate(filteredPayments).map((p, i) => `<tr><td>${i+1}</td><td>${formatDateOnly(p.date)}</td><td>${p.amount}</td><td>${p.note||'-'}</td></tr>`).join('')}
                     </tbody></table>` : ''}
 
                     ${filteredMessages.length > 0 ? `<h2>جدول الرسائل</h2>
@@ -1349,42 +1388,21 @@
             printWindow.document.close();
             printWindow.focus();
         }
-
-        // Show Message Details
-        async function showMessageDetails(id) {
-            const messages = await getAllRecords('messages');
-            const message = messages.find(m => m.id === id);
-            if (message) {
-                Swal.fire({
-                    title: 'تفاصيل الرسالة',
-                    html: `
-                        <div style="text-align: right; font-family: 'Cairo', sans-serif; color: #3F2A56;">
-                            <p><strong>التاريخ:</strong> ${formatDateOnly(message.entryDate)}</p>
-                            <p><strong>رقم الهاتف:</strong> ${message.phoneNumber}</p>
-                            <p><strong>الإسم:</strong> ${message.name}</p>
-                            <p><strong>الجهة:</strong> ${message.entity}</p>
-                            <p><strong>المبلغ:</strong> ${message.amount}</p>
-                            <p><strong>الرسوم:</strong> ${message.fees}</p>
-                            <p><strong>الحالة:</strong> ${message.status === 'sent' ? 'تم الإرسال' : 'لم يتم الإرسال'}</p>
-                        </div>
-                    `,
-                    icon: 'info', confirmButtonText: 'إغلاق', confirmButtonColor: '#3F2A56'
-                });
-            }
-        }
-
-        // Initialize
+        
+        // --- Application Initialization ---
         window.onload = async () => {
             try {
-                await openDB();
-                await migrateLocalStorageToIndexedDB();
-                await migrateMessages();
+                await db.open();
+                
                 const today = new Date().toISOString().split('T')[0];
                 document.getElementById('messageEntryDate').value = today;
                 document.getElementById('paymentDate').value = today;
-                updateUI();
-            } catch (err) {
-                Swal.fire('خطأ', 'فشل في تهيئة قاعدة البيانات: ' + err, 'error');
+                
+                await loadDataAndRender();
+
+            } catch (error) {
+                console.error("Failed to initialize the application:", error);
+                Swal.fire('خطأ فادح', 'لم يتمكن من تهيئة قاعدة البيانات. يرجى تحديث الصفحة أو محاولة متصفح آخر.', 'error');
             }
         };
     </script>
