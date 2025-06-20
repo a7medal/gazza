@@ -1,1 +1,236 @@
-
+{
+  "messages": [
+    {
+      "id": 2,
+      "entryDate": "2025-06-20",
+      "phoneNumber": "46280500",
+      "name": "عمال حم--",
+      "entity": "كرفور عزيز",
+      "amount": 15000,
+      "fees": 150,
+      "status": "sent",
+      "dateTime": "2025-06-20T13:01:29.059Z"
+    },
+    {
+      "entryDate": "2025-06-20",
+      "phoneNumber": "49757078",
+      "name": "عمال سالم",
+      "entity": "كرفور عزيز",
+      "amount": 12000,
+      "fees": 150,
+      "status": "sent",
+      "dateTime": "2025-06-20T13:02:45.658Z",
+      "id": 3
+    },
+    {
+      "entryDate": "2025-06-20",
+      "phoneNumber": "46280550",
+      "name": "اعل مول",
+      "entity": "كرفور عزيز",
+      "amount": 10000,
+      "fees": 100,
+      "status": "sent",
+      "dateTime": "2025-06-20T13:04:16.626Z",
+      "id": 4
+    },
+    {
+      "entryDate": "2025-06-20",
+      "phoneNumber": "46670617",
+      "name": "عمال مكحل",
+      "entity": "كرفور الإتحادية",
+      "amount": 10000,
+      "fees": 100,
+      "status": "sent",
+      "dateTime": "2025-06-20T13:05:50.456Z",
+      "id": 5
+    },
+    {
+      "entryDate": "2025-06-20",
+      "phoneNumber": "46791245",
+      "name": "عمال احمدفال",
+      "entity": "كرفور عزيز",
+      "amount": 15000,
+      "fees": 150,
+      "status": "sent",
+      "dateTime": "2025-06-20T13:47:56.388Z",
+      "id": 6
+    },
+    {
+      "entryDate": "2025-06-20",
+      "phoneNumber": "46791245",
+      "name": "عمال الدو 1",
+      "entity": "كرفور عزيز",
+      "amount": 12000,
+      "fees": 150,
+      "status": "sent",
+      "dateTime": "2025-06-20T13:49:32.676Z",
+      "id": 7
+    },
+    {
+      "entryDate": "2025-06-20",
+      "phoneNumber": "46832770",
+      "name": "عمال بوبكر",
+      "entity": "مونكل",
+      "amount": 16000,
+      "fees": 150,
+      "status": "sent",
+      "dateTime": "2025-06-20T13:52:31.521Z",
+      "id": 8
+    },
+    {
+      "entryDate": "2025-06-20",
+      "phoneNumber": "46299092",
+      "name": "عمال ---",
+      "entity": "مونكل",
+      "amount": 15000,
+      "fees": 150,
+      "status": "sent",
+      "dateTime": "2025-06-20T13:53:46.393Z",
+      "id": 9
+    },
+    {
+      "entryDate": "2025-06-20",
+      "phoneNumber": "36877750",
+      "name": "عمال حمدي",
+      "entity": "مونكل",
+      "amount": 13000,
+      "fees": 150,
+      "status": "sent",
+      "dateTime": "2025-06-20T13:58:27.197Z",
+      "id": 11
+    },
+    {
+      "entryDate": "2025-06-20",
+      "phoneNumber": "34837643",
+      "name": "عمال الداد",
+      "entity": "كرفور ميارة",
+      "amount": 16000,
+      "fees": 150,
+      "status": "sent",
+      "dateTime": "2025-06-20T14:00:55.276Z",
+      "id": 12
+    },
+    {
+      "entryDate": "2025-06-20",
+      "phoneNumber": "49061752",
+      "name": "عمال العربي",
+      "entity": "مونكل",
+      "amount": 2000,
+      "fees": 50,
+      "status": "sent",
+      "dateTime": "2025-06-20T14:01:51.899Z",
+      "id": 13
+    },
+    {
+      "entryDate": "2025-06-20",
+      "phoneNumber": "46999680",
+      "name": "عمال مكحل",
+      "entity": "مونكل",
+      "amount": 16000,
+      "fees": 150,
+      "status": "sent",
+      "dateTime": "2025-06-20T14:03:19.042Z",
+      "id": 14
+    },
+    {
+      "entryDate": "2025-06-20",
+      "phoneNumber": "49621352",
+      "name": "عمال منه",
+      "entity": "مونكل",
+      "amount": 6000,
+      "fees": 100,
+      "status": "sent",
+      "dateTime": "2025-06-20T14:04:05.970Z",
+      "id": 15
+    },
+    {
+      "entryDate": "2025-06-20",
+      "phoneNumber": "46085300",
+      "name": "عمال الداه ---",
+      "entity": "لكصيبة 1",
+      "amount": 18000,
+      "fees": 150,
+      "status": "sent",
+      "dateTime": "2025-06-20T14:06:33.576Z",
+      "id": 16
+    },
+    {
+      "entryDate": "2025-06-20",
+      "phoneNumber": "46546320",
+      "name": "عمال صمب",
+      "entity": "انيابينا",
+      "amount": 12000,
+      "fees": 150,
+      "status": "sent",
+      "dateTime": "2025-06-20T14:08:30.351Z",
+      "id": 17
+    },
+    {
+      "entryDate": "2025-06-20",
+      "phoneNumber": "46656865",
+      "name": "الشيخ أحمد",
+      "entity": "لكصيبة 1",
+      "amount": 8000,
+      "fees": 100,
+      "status": "sent",
+      "dateTime": "2025-06-20T16:56:32.641Z",
+      "id": 18
+    },
+    {
+      "entryDate": "2025-06-20",
+      "phoneNumber": "49651813",
+      "name": "الحنى مع بكار",
+      "entity": "مونكل",
+      "amount": 2000,
+      "fees": 50,
+      "status": "sent",
+      "dateTime": "2025-06-20T16:58:11.128Z",
+      "id": 19
+    },
+    {
+      "entryDate": "2025-06-20",
+      "phoneNumber": "46519136",
+      "name": "محمد مع بكار",
+      "entity": "مونكل",
+      "amount": 2000,
+      "fees": 50,
+      "status": "sent",
+      "dateTime": "2025-06-20T16:59:34.055Z",
+      "id": 20
+    },
+    {
+      "entryDate": "2025-06-20",
+      "phoneNumber": "33953102",
+      "name": "--- مع بكار",
+      "entity": "مونكل",
+      "amount": 2000,
+      "fees": 50,
+      "status": "sent",
+      "dateTime": "2025-06-20T17:01:26.958Z",
+      "id": 21
+    },
+    {
+      "entryDate": "2025-06-20",
+      "phoneNumber": "عمال ----",
+      "name": "42600671",
+      "entity": "مونكل",
+      "amount": 15000,
+      "fees": 150,
+      "status": "sent",
+      "dateTime": "2025-06-20T17:02:23.461Z",
+      "id": 22
+    },
+    {
+      "entryDate": "2025-06-20",
+      "phoneNumber": "47641462",
+      "name": "محمد مع ---",
+      "entity": "عرفات 11",
+      "amount": 1500,
+      "fees": 50,
+      "status": "sent",
+      "dateTime": "2025-06-20T17:03:34.701Z",
+      "id": 23
+    }
+  ],
+  "payments": []
+}
