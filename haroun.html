@@ -39,7 +39,7 @@
             font-size: 1rem;
             font-weight: 600;
             font-family: 'Cairo', sans-serif;
-            box-shadow: 0 4px 15px rgba(0, 0, 0.2);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
             transition: transform 0.2s ease, background 0.3s ease, box-shadow 0.3s ease;
             position: absolute;
             top: 20px;
@@ -67,6 +67,7 @@
             .home-btn i {
                 font-size: 1rem;
             }
+        }
         .header {
             background: linear-gradient(135deg, #3F2A56, #5a3f73);
             color: white;
@@ -531,7 +532,7 @@
                         </div>
                         <div class="mb-3">
                             <label for="entity" class="form-label"><i class="fas fa-building"></i> الجهة</label>
-                            <input type="text" class="form-control" id="entity" required>
+                            <input type="text" class="form-control" id="entity">
                         </div>
                         <div class="mb-3">
                             <label for="amount" class="form-label"><i class="fas fa-money-bill"></i> المبلغ</label>
@@ -574,7 +575,7 @@
                         </div>
                         <div class="mb-3">
                             <label for="editEntity" class="form-label"><i class="fas fa-building"></i> الجهة</label>
-                            <input type="text" class="form-control" id="editEntity" required>
+                            <input type="text" class="form-control" id="editEntity">
                         </div>
                         <div class="mb-3">
                             <label for="editAmount" class="form-label"><i class="fas fa-money-bill"></i> المبلغ</label>
@@ -596,8 +597,19 @@
     <script>
         let messages = JSON.parse(localStorage.getItem('messages')) || [];
 
-        // Migrate old data if entryDate is missing
+        // Data Migration Script
         messages = messages.map(msg => {
+            // Migrate from nameAndEntity to name and entity
+            if (msg.nameAndEntity) {
+                const parts = msg.nameAndEntity.trim().split(/\s+/);
+                msg.name = parts[0] || '';
+                msg.entity = parts.slice(1).join(' ') || '';
+                delete msg.nameAndEntity;
+            }
+            if (msg.name === undefined) msg.name = '';
+            if (msg.entity === undefined) msg.entity = '';
+            
+            // Migrate old date formats
             if (!msg.entryDate && msg.dateTime) {
                 msg.entryDate = msg.dateTime.split('T')[0];
             } else if (!msg.entryDate && msg.date && typeof msg.date === 'string' && msg.date.includes('T')) {
@@ -609,13 +621,6 @@
             }
             if (msg.entryDate && !msg.dateTime) {
                 msg.dateTime = new Date().toISOString();
-            }
-            // Handle old data with nameAndEntity
-            if (msg.nameAndEntity && !msg.name && !msg.entity) {
-                const parts = msg.nameAndEntity.split(' - ');
-                msg.name = parts[0] || msg.nameAndEntity;
-                msg.entity = parts[1] || '';
-                delete msg.nameAndEntity;
             }
             return msg;
         });
@@ -645,7 +650,7 @@
             const filteredMessages = messages.filter(message => {
                 const matchesSearch = (
                     message.phoneNumber.toLowerCase().includes(searchQuery) ||
-                    message.name.toLowerCase().includes(searchQuery) ||
+                    (message.name && message.name.toLowerCase().includes(searchQuery)) ||
                     (message.entity && message.entity.toLowerCase().includes(searchQuery)) ||
                     message.amount.toString().includes(searchQuery) ||
                     message.fees.toString().includes(searchQuery)
@@ -657,7 +662,7 @@
                 const filterEndDate = endDate ? new Date(endDate) : null;
                 if (filterEndDate) filterEndDate.setHours(23, 59, 59, 999);
 
-                const matchesDate = messageDate && (
+                const matchesDate = !message.entryDate || (
                     (!filterStartDate || messageDate >= filterStartDate) &&
                     (!filterEndDate || messageDate <= filterEndDate)
                 );
@@ -680,7 +685,7 @@
                     <td>${formatDateOnly(message.entryDate)}</td>
                     <td>${message.phoneNumber}</td>
                     <td>${message.name}</td>
-                    <td>${message.entity || '-'}</td>
+                    <td>${message.entity}</td>
                     <td>${message.amount}</td>
                     <td>${message.fees}</td>
                     <td>
@@ -703,8 +708,8 @@
         }
 
         function updateDashboard() {
-            const totalAmount = messages.reduce((sum, m) => sum + parseFloat(m.amount), 0);
-            const totalFees = messages.reduce((sum, m) => sum + parseFloat(m.fees), 0);
+            const totalAmount = messages.reduce((sum, m) => sum + parseFloat(m.amount || 0), 0);
+            const totalFees = messages.reduce((sum, m) => sum + parseFloat(m.fees || 0), 0);
             const totalBalance = totalAmount + totalFees;
             const messageCount = messages.length;
 
@@ -723,7 +728,7 @@
                         <p><strong>التاريخ:</strong> ${formatDateOnly(message.entryDate)}</p>
                         <p><strong>رقم الهاتف:</strong> ${message.phoneNumber}</p>
                         <p><strong>الإسم:</strong> ${message.name}</p>
-                        <p><strong>الجهة:</strong> ${message.entity || '-'}</p>
+                        <p><strong>الجهة:</strong> ${message.entity}</p>
                         <p><strong>المبلغ:</strong> ${message.amount}</p>
                         <p><strong>الرسوم:</strong> ${message.fees}</p>
                         <p><strong>الحالة:</strong> ${message.status === 'sent' ? 'تم الإرسال' : 'لم يتم الإرسال'}</p>
@@ -749,7 +754,7 @@
             const fees = document.getElementById('fees').value;
             const dateTime = new Date().toISOString();
 
-            if (entryDate && phoneNumber && name && entity && amount && fees) {
+            if (entryDate && phoneNumber && name && amount && fees) {
                 messages.push({ entryDate, phoneNumber, name, entity, amount, fees, status: 'not-sent', dateTime });
                 localStorage.setItem('messages', JSON.stringify(messages));
                 filterMessageTable();
@@ -764,7 +769,7 @@
             } else {
                 Swal.fire({
                     title: 'خطأ',
-                    text: 'يرجى ملء جميع الحقول المطلوبة.',
+                    text: 'يرجى ملء جميع الحقول المطلوبة (الإسم، التاريخ، رقم الهاتف، المبلغ، الرسوم).',
                     icon: 'error',
                     confirmButtonColor: '#3F2A56'
                 });
@@ -776,7 +781,7 @@
             document.getElementById('editMessageEntryDate').value = messages[index].entryDate;
             document.getElementById('editPhoneNumber').value = messages[index].phoneNumber;
             document.getElementById('editName').value = messages[index].name;
-            document.getElementById('editEntity').value = messages[index].entity || '';
+            document.getElementById('editEntity').value = messages[index].entity;
             document.getElementById('editAmount').value = messages[index].amount;
             document.getElementById('editFees').value = messages[index].fees;
             new bootstrap.Modal(document.getElementById('editMessageModal')).show();
@@ -791,7 +796,7 @@
             const amount = document.getElementById('editAmount').value;
             const fees = document.getElementById('editFees').value;
 
-            if (entryDate && phoneNumber && name && entity && amount && fees) {
+            if (entryDate && phoneNumber && name && amount && fees) {
                 messages[index] = {
                     ...messages[index],
                     entryDate,
@@ -808,13 +813,6 @@
                     title: 'تم التعديل',
                     text: 'تم تعديل الرسالة بنجاح!',
                     icon: 'success',
-                    confirmButtonColor: '#3F2A56'
-                });
-            } else {
-                Swal.fire({
-                    title: 'خطأ',
-                    text: 'يرجى ملء جميع الحقول المطلوبة.',
-                    icon: 'error',
                     confirmButtonColor: '#3F2A56'
                 });
             }
@@ -937,12 +935,12 @@
             URL.revokeObjectURL(url);
         }
 
-        const messageHeadersCSV = ['التاريخ', 'رقم الهاتف', 'الإسم', 'الجهة', 'المبلغ', 'الرسوم', 'الحالة', 'تاريخ ووقت الإدخال'];
+        const messageHeadersCSV = ['التاريخ,رقم الهاتف,الإسم,الجهة,المبلغ,الرسوم,الحالة,تاريخ ووقت الإدخال'];
 
         function exportToCSV() {
             sortByDateTime(messages);
             const messageRows = messages.map(m =>
-                `"${formatDateOnly(m.entryDate)}","${m.phoneNumber}","${m.name}","${m.entity || '-'}","${m.amount}","${m.fees}","${m.status === 'sent' ? 'تم الإرسال' : 'لم يتم الإرسال'}","${m.dateTime ? new Date(m.dateTime).toLocaleString('en-GB') : ''}"`
+                `${formatDateOnly(m.entryDate)},${m.phoneNumber},"${m.name}","${m.entity}",${m.amount},${m.fees},${m.status === 'sent' ? 'تم الإرسال' : 'لم يتم الإرسال'},${m.dateTime ? new Date(m.dateTime).toLocaleString('en-GB') : '-'}`
             );
             const csv = [
                 'جدول الرسائل',
@@ -966,68 +964,72 @@
                 let data = { messages: [] };
                 try {
                     if (file.name.endsWith('.json')) {
-                        data = JSON.parse(e.target.result);
-                        if (!Array.isArray(data.messages)) data.messages = [];
+                        const importedData = JSON.parse(e.target.result);
+                        data.messages = Array.isArray(importedData.messages) ? importedData.messages : [];
                     } else if (file.name.endsWith('.csv')) {
-                        const rows = e.target.result.split('\n').map(row => row.trim()).filter(row => row);
+                         const rows = e.target.result.split('\n').map(row => row.trim()).filter(row => row);
                         let headers = [];
-                        let currentTable = '';
+                        let isMessageSection = false;
 
                         for (const row of rows) {
-                            if (row === 'جدول الرسائل') {
-                                currentTable = 'messages';
+                            if (row.includes('جدول الرسائل')) {
+                                isMessageSection = true;
                                 headers = [];
                                 continue;
                             }
+                            if (!isMessageSection) continue;
 
                             if (headers.length === 0) {
-                                headers = row.split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+                                headers = row.split(',').map(h => h.trim());
                                 continue;
                             }
+                            
+                            const values = row.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g)
+                                .map(v => v.startsWith('"') && v.endsWith('"') ? v.slice(1, -1).replace(/""/g, '"') : v.trim());
 
-                            const values = row.match(/(?:"([^"]*(?:""[^"]*)*)"|[^",]*)(?=\s*,|$)/g)
-                                .map(v => {
-                                    if (v.startsWith('"') && v.endsWith('"')) {
-                                        return v.slice(1, -1).replace(/""/g, '"');
-                                    }
-                                    return v.trim();
-                                });
+                            const headerMap = {};
+                            headers.forEach((h, i) => headerMap[h] = i);
 
-                            if (currentTable === 'messages' && values.length >= 6) {
-                                const msg = {};
-                                headers.forEach((header, i) => {
-                                    if (header === 'التاريخ') msg.entryDate = values[i] ? values[i].split('/').reverse().join('-') : null;
-                                    else if (header === 'رقم الهاتف') msg.phoneNumber = values[i] || '';
-                                    else if (header === 'الإسم') msg.name = values[i] || '';
-                                    else if (header === 'الجهة') msg.entity = values[i] === '-' ? null : values[i];
-                                    else if (header === 'المبلغ') msg.amount = parseFloat(values[i]) || 0;
-                                    else if (header === 'الرسوم') msg.fees = parseFloat(values[i]) || 0;
-                                    else if (header === 'الحالة') msg.status = values[i] === 'تم الإرسال' ? 'sent' : 'not-sent';
-                                    else if (header === 'تاريخ ووقت الإدخال') {
-                                        const parts = values[i].split(/[\s/,]+/);
-                                        if (parts.length >= 5) {
-                                            msg.dateTime = new Date(parts[2], parts[1] - 1, parts[0], parts[3], parts[4], parts[5] || 0).toISOString();
-                                        } else {
-                                            msg.dateTime = new Date().toISOString();
-                                        }
-                                    }
-                                });
-                                if (!msg.dateTime && msg.entryDate) msg.dateTime = new Date(msg.entryDate).toISOString();
-                                else if (!msg.dateTime) msg.dateTime = new Date().toISOString();
-                                if (msg.entryDate && msg.phoneNumber && msg.name) data.messages.push(msg);
+                            const msg = {};
+                            const dateStr = values[headerMap['التاريخ']];
+                            msg.entryDate = dateStr ? dateStr.split('/').reverse().join('-') : null;
+                            msg.phoneNumber = values[headerMap['رقم الهاتف']];
+                           
+                            if (headerMap['الإسم'] !== undefined && headerMap['الجهة'] !== undefined) {
+                                msg.name = values[headerMap['الإسم']];
+                                msg.entity = values[headerMap['الجهة']];
+                            } else if (headerMap['الإسم والجهة'] !== undefined) {
+                                const nameAndEntity = values[headerMap['الإسم والجهة']];
+                                const parts = nameAndEntity.trim().split(/\s+/);
+                                msg.name = parts[0] || '';
+                                msg.entity = parts.slice(1).join(' ') || '';
                             }
+
+                            msg.amount = parseFloat(values[headerMap['المبلغ']]);
+                            msg.fees = parseFloat(values[headerMap['الرسوم']]);
+                            msg.status = values[headerMap['الحالة']] === 'تم الإرسال' ? 'sent' : 'not-sent';
+
+                            const dateTimeStr = values[headerMap['تاريخ ووقت الإدخال']];
+                            if (dateTimeStr && dateTimeStr !== '-') {
+                                const parts = dateTimeStr.split(/[\s,/:]+/);
+                                msg.dateTime = new Date(parts[2], parts[1] - 1, parts[0], parts[3], parts[4], parts[5] || 0).toISOString();
+                            } else if (msg.entryDate) {
+                                msg.dateTime = new Date(msg.entryDate).toISOString();
+                            } else {
+                                msg.dateTime = new Date().toISOString();
+                            }
+                            if (msg.entryDate && msg.phoneNumber && msg.name !== undefined) data.messages.push(msg);
                         }
                     }
 
                     const validMessages = data.messages.every(m =>
-                        m.entryDate && m.phoneNumber && m.name && m.amount != null && m.fees != null && ['sent', 'not-sent'].includes(m.status) && m.dateTime
+                        m.entryDate && m.phoneNumber && m.name != null && m.entity != null && m.amount != null && m.fees != null && ['sent', 'not-sent'].includes(m.status) && m.dateTime
                     );
 
                     if (!validMessages) {
-                        console.warn("Import validation failed.", data.messages);
                         Swal.fire({
                             title: 'خطأ في الاستيراد',
-                            text: 'البيانات غير مكتملة أو غير صالحة.',
+                            text: 'البيانات في الملف غير مكتملة أو غير صالحة. يرجى التحقق من تنسيق الملف والمحتوى.',
                             icon: 'error',
                             confirmButtonColor: '#3F2A56'
                         });
@@ -1043,10 +1045,9 @@
                         confirmButtonColor: '#3F2A56'
                     });
                 } catch (err) {
-                    console.error("Error during import:", err);
                     Swal.fire({
                         title: 'خطأ',
-                        text: 'فشل في معالجة الملف. تأكد من التنسيق الصحيح (JSON أو CSV). ' + err.message,
+                        text: 'فشل في معالجة الملف. تأكد من أن الملف بالتنسيق الصحيح (JSON أو CSV). ' + err.message,
                         icon: 'error',
                         confirmButtonColor: '#3F2A56'
                     });
@@ -1064,7 +1065,7 @@
                         icon: 'warning',
                         confirmButtonColor: '#3F2A56'
                     });
-                    event.target.value = '';
+                    event.target.value = null;
                 }
             }
         }
@@ -1075,14 +1076,14 @@
                 const endDateFilter = document.getElementById('endDate').value;
                 const statusFilterVal = document.getElementById('statusFilter').value;
 
-                const filteredMessages = messages.filter(message => {
+                const filteredPrintMessages = messages.filter(message => {
                     const messageDate = message.entryDate ? new Date(message.entryDate) : null;
                     const filterStart = startDateFilter ? new Date(startDateFilter) : null;
                     if (filterStart) filterStart.setHours(0, 0, 0, 0);
                     const filterEnd = endDateFilter ? new Date(endDateFilter) : null;
                     if (filterEnd) filterEnd.setHours(23, 59, 59, 999);
 
-                    const matchesDate = messageDate && (
+                    const matchesDate = !message.entryDate || (
                         (!filterStart || messageDate >= filterStart) &&
                         (!filterEnd || messageDate <= filterEnd)
                     );
@@ -1094,7 +1095,7 @@
                     return matchesDate && matchesStatus;
                 });
 
-                if (filteredMessages.length === 0) {
+                if (filteredPrintMessages.length === 0) {
                     Swal.fire({
                         title: 'لا توجد بيانات',
                         text: 'لا توجد رسائل للطباعة بناءً على الفلاتر الحالية.',
@@ -1104,212 +1105,116 @@
                     return;
                 }
 
-                const totalAmount = filteredMessages.reduce((sum, m) => sum + parseFloat(m.amount), 0);
-                const totalFees = filteredMessages.reduce((sum, m) => sum + parseFloat(m.fees), 0);
+                const totalAmount = filteredPrintMessages.reduce((sum, m) => sum + parseFloat(m.amount || 0), 0);
+                const totalFees = filteredPrintMessages.reduce((sum, m) => sum + parseFloat(m.fees || 0), 0);
                 const totalBalance = totalAmount + totalFees;
-                const messageCount = filteredMessages.length;
+                const messageCount = filteredPrintMessages.length;
 
                 const printWindow = window.open('', '_blank', 'height=700,width=1000');
                 if (!printWindow) {
-                    throw new Error('فشل في فتح نافذة الطباعة.');
+                    throw new Error('فشل في فتح نافذة الطباعة. تحقق من إعدادات المتصفح.');
                 }
 
                 const printDate = new Date().toLocaleDateString('en-GB');
 
                 printWindow.document.write(`
                     <html>
-                        <head>
-                            <title>حساب هارون</title>
-                            <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
-                            <style>
-                                @page { size: A4; margin: 10mm; }
-                                body { 
-                                    font-family: 'Cairo', sans-serif; 
-                                    direction: rtl; 
-                                    margin: 10mm; 
-                                    background: #fff; 
-                                    color: #000; 
-                                }
-                                .container { max-width: 1000px; margin: 0 auto; }
-                                .header { 
-                                    display: flex; 
-                                    justify-content: center; 
-                                    align-items: center; 
-                                    margin-bottom: 20px; 
-                                    padding-bottom: 10px; 
-                                }
-                                .header img { 
-                                    height: 70px; 
-                                    clip-path: polygon(10% 0%, 100% 0%, 90% 100%, 0% 100%); 
-                                    margin-right: 20px; 
-                                }
-                                .header h1 { 
-                                    font-size: 1.6rem; 
-                                    font-weight: 700; 
-                                    margin: 0; 
-                                    text-align: center; 
-                                    flex-grow: 1; 
-                                }
-                                .account-card, .dashboard-card { 
-                                    border: 1px solid #000; 
-                                    padding: 15px; 
-                                    margin-bottom: 20px; 
-                                    background: #fff; 
-                                    text-align: right; 
-                                    border-radius: 5px; 
-                                }
-                                .account-card h3, .dashboard-card h3 { 
-                                    font-size: 1.3rem; 
-                                    font-weight: 700; 
-                                    margin: 0 0 10px; 
-                                    border-bottom: 1px solid #000; 
-                                    padding-bottom: 5px; 
-                                }
-                                .account-card p, .dashboard-card p { 
-                                    margin: 5px 0; 
-                                    font-size: 1rem; 
-                                    line-height: 1.5; 
-                                }
-                                .account-card strong, .dashboard-card strong { font-weight: 600; }
-                                .dashboard-container { 
-                                    display: flex; 
-                                    justify-content: space-between; 
-                                    gap: 20px; 
-                                    margin-bottom: 20px; 
-                                }
-                                .dashboard-section { 
-                                    flex: 1; 
-                                    border: 1px solid #000; 
-                                    padding: 15px; 
-                                    border-radius: 5px; 
-                                    background: #fff; 
-                                }
-                                .dashboard-section h4 { 
-                                    font-size: 1.2rem; 
-                                    font-weight: 700; 
-                                    margin: 0 0 10px; 
-                                    border-bottom: 1px solid #000; 
-                                    padding-bottom: 5px; 
-                                }
-                                h2 { 
-                                    text-align: center; 
-                                    font-size: 1.7rem; 
-                                    font-weight: 700; 
-                                    margin: 20px 0; 
-                                    border-bottom: 1px solid #000; 
-                                    padding-bottom: 5px; 
-                                }
-                                .transactions-count { 
-                                    text-align: center; 
-                                    font-size: 1.1rem; 
-                                    font-weight: 600; 
-                                    margin-bottom: 10px; 
-                                }
-                                .print-date { 
-                                    text-align: center; 
-                                    font-size: 1.1rem; 
-                                    font-weight: 600; 
-                                    margin-bottom: 20px; 
-                                }
-                                table { 
-                                    width: 100%; 
-                                    border-collapse: collapse; 
-                                    margin: 20px 0; 
-                                    border: 1px solid #000; 
-                                }
-                                th, td { 
-                                    padding: 10px; 
-                                    text-align: center; 
-                                    border: 1px solid #000; 
-                                    font-size: 0.9rem; 
-                                    word-break: break-word; 
-                                }
-                                th { 
-                                    background: #eee; 
-                                    color: black; 
-                                    font-weight: 700; 
-                                    font-size: 1rem; 
-                                }
-                                td { background: #fff; }
-                                .footer { 
-                                    text-align: center; 
-                                    font-size: 0.8rem; 
-                                    font-weight: 600; 
-                                    margin-top: 20px; 
-                                }
-                                .print-button { 
-                                    background: #3F2A56; 
-                                    color: white; 
-                                    padding: 10px 20px; 
-                                    border: none; 
-                                    border-radius: 5px; 
-                                    font-size: 1rem; 
-                                    cursor: pointer; 
-                                    margin: 10px auto; 
-                                    display: block; 
-                                    text-align: center; 
-                                }
-                                @media print {
-                                    .container { margin: 0; width: 100%; }
-                                    .print-button { display: none; }
-                                    body { margin: 5mm; font-size: 10pt; }
-                                    th, td { padding: 5px; font-size: 8pt; }
-                                    h1 { font-size: 14pt; }
-                                    h2 { font-size: 12pt; }
-                                    h3 { font-size: 11pt; }
-                                    h4 { font-size: 10pt; }
-                                    .account-card p, .dashboard-card p { font-size: 9pt; }
-                                }
-                            </style>
-                        </head>
-                        <body>
-                            <div class="container">
-                                <button class="print-button" onclick="window.print()">طباعة</button>
-                                <div class="header">
-                                    <img src="logo.png" alt="شعار طيبة المدينة تلكوم" onerror="this.style.display='none';">
-                                    <h1>طيبة المدينة تلكوم</h1>
-                                    <div style="width: 70px;"></div>
+                    <head>
+                        <title>حساب هارون</title>
+                        <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+                        <style>
+                            @page { size: A4; margin: 10mm; }
+                            body { font-family: 'Cairo', sans-serif; direction: rtl; margin: 10mm; background: #fff; color: #000; }
+                            .container { max-width: 1000px; margin: 0 auto; }
+                            .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 10px; }
+                            .header img { height: 70px; clip-path: polygon(10% 0%, 100% 0%, 90% 100%, 0% 100%); margin-right: 0; }
+                            .header h1 { font-size: 1.6rem; font-weight: 700; margin: 0; text-align: center; flex-grow: 1; }
+                            .account-card { border: 1px solid #000; padding: 15px; margin-bottom: 20px; background: #fff; text-align: right; border-radius: 5px; }
+                            .account-card h3 { font-size: 1.3rem; font-weight: 700; margin: 0 0 10px; border-bottom: 1px solid #000; padding-bottom: 5px; }
+                            .account-card p { margin: 5px 0; font-size: 1rem; line-height: 1.5; }
+                            .account-card strong { font-weight: 600; }
+                            h2 { text-align: center; font-size: 1.7rem; font-weight: 700; margin: 20px 0; border-bottom: 1px solid #000; padding-bottom: 5px; }
+                            .print-date { text-align: center; font-size: 1.1rem; font-weight: 600; margin-bottom: 20px; }
+                            table { width: 100%; border-collapse: collapse; margin: 20px 0; border: 1px solid #000; }
+                            th, td { padding: 10px; text-align: center; border: 1px solid #000; font-size: 0.9rem; word-break: break-word; }
+                            th { background: #eee; color: black; font-weight: 700; font-size: 1rem; }
+                            td { background: #fff; }
+                            .footer { text-align: center; font-size: 0.8rem; font-weight: 600; margin-top: 20px; }
+                            .print-button { background: #3F2A56; color: white; padding: 10px 20px; border: none; border-radius: 5px; font-size: 1rem; cursor: pointer; margin: 10px auto; display: block; text-align: center; }
+                            
+                            .summary-container { display: flex; gap: 20px; margin-bottom: 10px; border: 1px solid #000; padding: 10px; border-radius: 5px; }
+                            .summary-box { flex: 1; text-align: right; }
+                            .summary-box:first-child { border-left: 1px solid #ccc; padding-left: 10px; }
+                            .summary-box h4 { font-size: 1.2rem; font-weight: 700; margin: 0 0 10px; border-bottom: 1px solid #000; padding-bottom: 5px; text-align: center; }
+                            .summary-box p { margin: 5px 0; font-size: 1rem; }
+                            .total-summary-box { border: 1px solid #000; padding: 10px; margin-bottom: 20px; text-align: center; background: #eee; border-radius: 5px; }
+                            .total-summary-box h4 { margin: 0; font-size: 1.3rem; font-weight: 700; }
+
+                            @media print {
+                                .container { margin: 0; width: 100%; }
+                                .print-button { display: none; }
+                                body { margin: 5mm; font-size: 10pt; }
+                                th, td { padding: 5px; font-size: 8pt; }
+                                h1 {font-size: 14pt;} h2 {font-size: 12pt;} h3 {font-size: 11pt;} h4 {font-size: 10pt;}
+                                .account-card p, .summary-box p { font-size: 9pt; }
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="container">
+                            <button class="print-button" onclick="window.print()">طباعة</button>
+                            <div class="header">
+                                <img src="logo.png" alt="شعار طيبة المدينة تلكوم" onerror="this.style.display='none';">
+                                <h1>طيبة المدينة تلكوم</h1>
+                                <div style="width: 70px;"></div>
+                            </div>
+                            <div class="account-card">
+                                <h3>معلومات الحساب</h3>
+                                <p><strong>الإسم:</strong> هارون</p>
+                            </div>
+
+                            <div class="summary-container">
+                                <div class="summary-box">
+                                    <h4>عليه</h4>
+                                    <p><strong>إجمالي المبالغ:</strong> ${totalAmount.toFixed(2)}</p>
+                                    <p><strong>إجمالي الرسوم:</strong> ${totalFees.toFixed(2)}</p>
+                                    <p><strong>عدد الرسائل (حسب الفلتر):</strong> ${messageCount}</p>
                                 </div>
-                                <div class="account-card">
-                                    <h3>معلومات الحساب</h3>
-                                    <p><strong>الإسم:</strong> هارون</p>
+                                <div class="summary-box">
+                                    <h4>له</h4>
+                                    <p><strong>إجمالي الرسوم (الربح):</strong> ${totalFees.toFixed(2)}</p>
                                 </div>
-                                <div class="dashboard-container">
-                                    <div class="dashboard-section">
-                                        <h4>ملخص الحساب</h4>
-                                        <p><strong>المجموع الكلي:</strong> ${totalBalance.toFixed(2)}</p>
-                                        <p><strong>إجمالي مبالغ الرسائل:</strong> ${totalAmount.toFixed(2)}</p>
-                                        <p><strong>إجمالي رسوم الرسائل:</strong> ${totalFees.toFixed(2)}</p>
-                                        <p><strong>عدد الرسائل (حسب الفلتر):</strong> ${messageCount}</p>
-                                    </div>
-                                </div>
-                                <div class="print-date">تاريخ الطباعة: ${printDate}</div>
-                                <h2>الرسائل</h2>
-                                <div class="transactions-count">عدد الرسائل: ${filteredMessages.length}</div>
-                                <table>
-                                    <thead>
-                                        <tr>
-                                            <th>#</th>
-                                            <th>التاريخ</th>
-                                            <th>رقم الهاتف</th>
-                                            <th>الإسم</th>
-                                            <th>الجهة</th>
-                                            <th>المبلغ</th>
-                                            <th>الرسوم</th>
-                                            <th>الحالة</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
+                            </div>
+                            <div class="total-summary-box">
+                                <h4>المجموع الكلي (عليه): ${totalBalance.toFixed(2)}</h4>
+                            </div>
+
+                            <div class="print-date">تاريخ الطباعة: ${printDate}</div>
+                            <h2>الرسائل (عدد: ${filteredPrintMessages.length})</h2>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>التاريخ</th>
+                                        <th>رقم الهاتف</th>
+                                        <th>الإسم</th>
+                                        <th>الجهة</th>
+                                        <th>المبلغ</th>
+                                        <th>الرسوم</th>
+                                        <th>الحالة</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
                 `);
 
-                sortByDateTime(filteredMessages).forEach((message, index) => {
+                sortByDateTime(filteredPrintMessages).forEach((message, index) => {
                     printWindow.document.write(`
                         <tr>
                             <td>${index + 1}</td>
                             <td>${formatDateOnly(message.entryDate)}</td>
                             <td>${message.phoneNumber}</td>
                             <td>${message.name}</td>
-                            <td>${message.entity || '-'}</td>
+                            <td>${message.entity}</td>
                             <td>${parseFloat(message.amount).toFixed(2)}</td>
                             <td>${parseFloat(message.fees).toFixed(2)}</td>
                             <td>${message.status === 'sent' ? 'تم الإرسال' : 'لم يتم الإرسال'}</td>
@@ -1318,11 +1223,11 @@
                 });
 
                 printWindow.document.write(`
-                                    </tbody>
-                                </table>
-                                <div class="footer">هذا المستند من نظام طيبة المدينة تلكوم</div>
-                            </div>
-                        </body>
+                                </tbody>
+                            </table>
+                            <div class="footer">هذا المستند من نظام طيبة المدينة تلكوم</div>
+                        </div>
+                    </body>
                     </html>
                 `);
                 printWindow.document.close();
