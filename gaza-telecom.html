@@ -29,51 +29,51 @@
             max-width: 1200px;
             margin: 0 auto;
         }
-.home-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: linear-gradient(90deg, #3F2A56, #5a3f73);
-    color: white;
-    padding: 10px 20px;
-    border-radius: 25px;
-    text-decoration: none;
-    font-size: 1rem;
-    font-weight: 600;
-    font-family: 'Cairo', sans-serif;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    transition: transform 0.2s ease, background 0.3s ease, box-shadow 0.3s ease;
-    position: absolute;
-    top: 20px;
-    left: 20px; /* وضع الزر في الزاوية العلوية اليسرى */
-}
+        .home-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(90deg, #3F2A56, #5a3f73);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-size: 1rem;
+            font-weight: 600;
+            font-family: 'Cairo', sans-serif;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s ease, background 0.3s ease, box-shadow 0.3s ease;
+            position: absolute;
+            top: 20px;
+            left: 20px; /* وضع الزر في الزاوية العلوية اليسرى */
+        }
 
-.home-btn i {
-    font-size: 1.2rem;
-}
+        .home-btn i {
+            font-size: 1.2rem;
+        }
 
-.home-btn:hover {
-    background: linear-gradient(90deg, #5a3f73, #3F2A56);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-}
+        .home-btn:hover {
+            background: linear-gradient(90deg, #5a3f73, #3F2A56);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
 
-.home-btn:focus {
-    outline: 2px solid #3F2A56;
-    outline-offset: 2px;
-}
+        .home-btn:focus {
+            outline: 2px solid #3F2A56;
+            outline-offset: 2px;
+        }
 
-@media (max-width: 768px) {
-    .home-btn {
-        padding: 8px 16px;
-        font-size: 0.9rem;
-        top: 15px;
-        left: 15px;
-    }
-    .home-btn i {
-        font-size: 1rem;
-    }
-}
+        @media (max-width: 768px) {
+            .home-btn {
+                padding: 8px 16px;
+                font-size: 0.9rem;
+                top: 15px;
+                left: 15px;
+            }
+            .home-btn i {
+                font-size: 1rem;
+            }
+        }
         .header {
             background: linear-gradient(135deg, #3F2A56, #5a3f73);
             color: white;
@@ -210,6 +210,12 @@
         }
         .btn i {
             font-size: 1.3rem;
+        }
+        .btn-danger {
+            background: linear-gradient(90deg, #c82333, #dc3545);
+        }
+        .btn-danger:hover {
+            background: linear-gradient(90deg, #dc3545, #c82333);
         }
         .search-container {
             margin-bottom: 20px;
@@ -367,10 +373,12 @@
             <button class="btn" onclick="exportToCSV()"><i class="fas fa-file-csv"></i> تصدير إلى CSV</button>
             <input type="file" id="importFile" accept=".json,.csv" style="display: none;" onchange="importFile(event)">
             <button class="btn" onclick="document.getElementById('importFile').click()"><i class="fas fa-file-import"></i> استيراد ملف</button>
+            <button class="btn" onclick="importFromCloud()"><i class="fas fa-cloud-download-alt"></i> استيراد من السحابة</button>
             <button class="btn" onclick="generateQRCode()"><i class="fas fa-qrcode"></i> إنشاء QR Code</button>
             <button class="btn" onclick="startQRScanner()"><i class="fas fa-camera"></i> استقبال QR Code</button>
             <button class="btn" onclick="printTable()"><i class="fas fa-print"></i> طباعة</button>
             <button class="btn" onclick="showReport('weekly')"><i class="fas fa-chart-bar"></i> تقرير أسبوعي</button>
+            <button class="btn btn-danger" onclick="deleteAllData()"><i class="fas fa-trash-alt"></i> حذف كل البيانات</button>
         </div>
         <div class="search-container">
             <div class="filter-group">
@@ -533,7 +541,6 @@
 
         const DB_NAME = 'GazaTelecomDB';
         const DB_VERSION = 1; 
-
 
         const request = indexedDB.open(DB_NAME, DB_VERSION);
 
@@ -707,7 +714,6 @@
                  dateQueryEnd = null;
             }
 
-
             try {
                 let transactionsToFilterLocally;
                 if (dateQueryStart === null && dateQueryEnd === null) { 
@@ -724,7 +730,7 @@
                 transactions = transactionsToFilterLocally.filter(t => { 
                     const matchesType = typeFilterVal === 'all' || t.type === typeFilterVal;
                     const matchesSearch = (
-                        t.serialNumber.toLowerCase().includes(searchInputVal) ||
+                        (t.serialNumber ? t.serialNumber.toString() : '').toLowerCase().includes(searchInputVal) ||
                         (t.type === 'in' ? 'وارد' : 'صادر').includes(searchInputVal) ||
                         t.datetime.toLowerCase().includes(searchInputVal) ||
                         t.amount.toString().includes(searchInputVal) ||
@@ -815,7 +821,7 @@
 
             request.onsuccess = function() {
                 document.getElementById('addTransactionForm').reset();
-                document.getElementById('type').value = 'out'; // إعادة التعيين إلى "صادر"
+                document.getElementById('type').value = 'out'; 
                 setCurrentDateTime('datetime'); 
                 bootstrap.Modal.getInstance(document.getElementById('addTransactionModal')).hide();
                 loadAllTimeTransactions().then(() => filterTable()); 
@@ -849,7 +855,7 @@
             };
              request.onerror = function(event) {
                 console.error('Error fetching transaction for edit:', event.target.errorCode);
-                Swal.fire({ title: 'خطأ', text: 'فشل في جلب المعاملة للتعديل!', icon: 'error', confirmButtonColor: '#3F2A56' });
+                Swال.fire({ title: 'خطأ', text: 'فشل في جلب المعاملة للتعديل!', icon: 'error', confirmButtonColor: '#3F2A56' });
             };
         }
 
@@ -872,7 +878,6 @@
             }
             const datetime = datetimeFull.replace('T', ' ');
             const date_only = datetimeFull.split('T')[0];
-
 
             const transaction = db.transaction(['transactions'], 'readwrite');
             const objectStore = transaction.objectStore('transactions');
@@ -914,6 +919,121 @@
                     console.error('Error deleting transaction:', event.target.errorCode);
                     Swal.fire({ title: 'خطأ', text: 'فشل في حذف المعاملة!', icon: 'error', confirmButtonColor: '#3F2A56' });
                 };
+            }
+        }
+        
+        async function importFromCloud() {
+            const { value: password } = await Swal.fire({
+                title: 'استيراد من السحابة',
+                text: 'الرجاء إدخال كلمة المرور للمتابعة',
+                input: 'password',
+                inputPlaceholder: 'أدخل كلمة المرور',
+                inputAttributes: { autocapitalize: 'off', autocorrect: 'off' },
+                showCancelButton: true,
+                cancelButtonText: 'إلغاء',
+                confirmButtonText: 'تأكيد',
+            });
+
+            if (password) {
+                if (password === '1138') {
+                    try {
+                        const response = await fetch('gazza.json');
+                        if (!response.ok) {
+                            throw new Error(`ملف gazza.json غير موجود أو لا يمكن الوصول إليه.`);
+                        }
+                        const data = await response.json();
+                        const importedTransactions = data.transactions || [];
+                        
+                        if (importedTransactions.length === 0) {
+                             Swal.fire('لا توجد بيانات', 'لم يتم العثور على معاملات في الملف السحابي.', 'info');
+                             return;
+                        }
+                        
+                        const tx = db.transaction(['transactions'], 'readwrite');
+                        const store = tx.objectStore('transactions');
+                        
+                        importedTransactions.forEach(t => {
+                            const date_only = t.datetime.split(' ')[0];
+                            store.add({ ...t, date_only });
+                        });
+
+                        tx.oncomplete = () => {
+                            loadAllTimeTransactions().then(() => filterTable());
+                            Swal.fire('نجاح', `تم دمج ${importedTransactions.length} معاملة من السحابة بنجاح!`, 'success');
+                        };
+                        tx.onerror = (errEvent) => {
+                            Swal.fire('خطأ', 'فشل حفظ بعض المعاملات المستوردة: ' + errEvent.target.error, 'error');
+                        };
+
+                    } catch (error) {
+                        Swal.fire('خطأ', `فشل استيراد البيانات: ${error.message}`, 'error');
+                    }
+                } else {
+                    Swal.fire('خطأ', 'كلمة المرور غير صحيحة.', 'error');
+                }
+            }
+        }
+
+        async function deleteAllData() {
+            const { value: password } = await Swal.fire({
+                title: 'حذف كل البيانات',
+                text: 'هذه العملية لا يمكن التراجع عنها. الرجاء إدخال كلمة المرور للتأكيد.',
+                input: 'password',
+                inputPlaceholder: 'أدخل كلمة المرور',
+                icon: 'warning',
+                showCancelButton: true,
+                cancelButtonText: 'إلغاء',
+                confirmButtonText: 'تأكيد',
+                confirmButtonColor: '#dc3545',
+            });
+
+            if (password) {
+                if (password === '1138') {
+                    let timerInterval;
+                    let timeLeft = 300; // 5 minutes in seconds
+
+                    const swalResult = await Swal.fire({
+                        title: 'سيتم حذف البيانات نهائياً!',
+                        html: 'سيتم الحذف خلال <b></b> ثانية.<br>يمكنك إلغاء العملية في أي وقت.',
+                        timer: timeLeft * 1000,
+                        timerProgressBar: true,
+                        showCancelButton: true,
+                        cancelButtonText: 'إلغاء الحذف!',
+                        confirmButtonText: 'لا تفعل شيئًا',
+                        didOpen: () => {
+                            Swal.showLoading();
+                            const b = Swal.getHtmlContainer().querySelector('b');
+                            b.textContent = timeLeft;
+                            timerInterval = setInterval(() => {
+                                timeLeft--;
+                                b.textContent = timeLeft;
+                            }, 1000);
+                        },
+                        willClose: () => {
+                            clearInterval(timerInterval);
+                        }
+                    });
+                    
+                    if (swalResult.dismiss === Swal.DismissReason.timer) {
+                        // Timer finished
+                        const tx = db.transaction(['transactions'], 'readwrite');
+                        const store = tx.objectStore('transactions');
+                        const request = store.clear();
+                        
+                        request.onsuccess = () => {
+                            loadAllTimeTransactions().then(() => filterTable());
+                            Swal.fire('تم الحذف!', 'لقد تم حذف جميع البيانات بنجاح.', 'success');
+                        };
+                        request.onerror = (e) => {
+                            Swal.fire('خطأ', 'فشل مسح البيانات من قاعدة البيانات: ' + e.target.error, 'error');
+                        };
+                    } else {
+                        // User cancelled
+                        Swal.fire('تم الإلغاء', 'تم إلغاء عملية الحذف. بياناتك آمنة.', 'info');
+                    }
+                } else {
+                    Swal.fire('خطأ', 'كلمة المرور غير صحيحة.', 'error');
+                }
             }
         }
         
@@ -1028,7 +1148,6 @@
             reader.readAsText(file);
             event.target.value = null; 
         }
-
 
         function generateQRCode() { 
             const dataStr = JSON.stringify(allTimeTransactions); 
@@ -1149,7 +1268,6 @@
             startDateReport.setDate(today.getDate() - 6); 
             startDateReport.setHours(0,0,0,0);
 
-
             const weeklyTransactions = allTimeTransactions.filter(t => {
                 const transactionDate = new Date(t.datetime);
                 return transactionDate >= startDateReport && transactionDate <= endDateReport;
@@ -1215,7 +1333,6 @@
             const dashFinalBalance = document.getElementById('finalBalance').innerText;
             const dashTotalInterest = document.getElementById('totalInterest').innerText;
 
-
             const printWindow = window.open('', '_blank', 'height=700,width=1000');
             if (!printWindow) {
                 Swal.fire('خطأ', 'فشل فتح نافذة الطباعة. الرجاء التحقق من إعدادات مانع النوافذ المنبثقة.', 'error');
@@ -1255,25 +1372,9 @@
             printWindow.document.close();
             printWindow.onload = function() { 
                 printWindow.focus(); 
-                // printWindow.print(); // معلقة للسماح بالمعاينة
             };
         }
-
-        function handleEnterKey(event, inputs, currentIndex, submitFunction) {
-             if (event.key === 'Enter') {
-                event.preventDefault(); 
-                if (currentIndex < inputs.length - 1) {
-                    inputs[currentIndex + 1].focus();
-                    if(inputs[currentIndex + 1].select) inputs[currentIndex + 1].select(); 
-                } else {
-                    if (typeof submitFunction === 'function') {
-                        submitFunction();
-                    }
-                }
-            }
-        }
-
-
+        
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('filterType').value = 'today'; 
             setCurrentDateTime('datetime'); 
@@ -1281,7 +1382,6 @@
             const addTransactionModalEl = document.getElementById('addTransactionModal');
             if(addTransactionModalEl) {
                 addTransactionModalEl.addEventListener('shown.bs.modal', () => {
-                    setupModalKeyboardNavigation('addTransactionModal', addTransaction);
                     document.getElementById('type').focus(); 
                 });
             }
@@ -1289,7 +1389,6 @@
             const editTransactionModalEl = document.getElementById('editTransactionModal');
              if(editTransactionModalEl) {
                 editTransactionModalEl.addEventListener('shown.bs.modal', () => {
-                    setupModalKeyboardNavigation('editTransactionModal', updateTransaction); 
                      document.getElementById('editType').focus();
                 });
             }
