@@ -1,1284 +1,222 @@
-{
-  "transactions": [
-    {
-      "serialNumber": "3671",
-      "type": "out",
-      "datetime": "2025-06-20 18:14",
-      "amount": 1425,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "1138",
-      "type": "in",
-      "datetime": "2025-06-20 18:14",
-      "amount": 100000,
-      "interest": 0,
-      "note": ""
-    },
-    {
-      "serialNumber": "5677",
-      "type": "out",
-      "datetime": "2025-06-20 18:10",
-      "amount": 2025,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "9450",
-      "type": "out",
-      "datetime": "2025-06-20 18:09",
-      "amount": 4525,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "4320",
-      "type": "out",
-      "datetime": "2025-06-20 18:09",
-      "amount": 12050,
-      "interest": 50,
-      "note": ""
-    },
-    {
-      "serialNumber": "4320",
-      "type": "out",
-      "datetime": "2025-06-20 18:09",
-      "amount": 3025,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "9139",
-      "type": "out",
-      "datetime": "2025-06-20 18:08",
-      "amount": 1025,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "3083",
-      "type": "out",
-      "datetime": "2025-06-20 18:08",
-      "amount": 12050,
-      "interest": 50,
-      "note": ""
-    },
-    {
-      "serialNumber": "6510",
-      "type": "out",
-      "datetime": "2025-06-20 18:07",
-      "amount": 9450,
-      "interest": 50,
-      "note": ""
-    },
-    {
-      "serialNumber": "4593",
-      "type": "out",
-      "datetime": "2025-06-20 18:07",
-      "amount": 19075,
-      "interest": 75,
-      "note": ""
-    },
-    {
-      "serialNumber": "1265",
-      "type": "out",
-      "datetime": "2025-06-20 18:07",
-      "amount": 5025,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "1462",
-      "type": "out",
-      "datetime": "2025-06-20 18:06",
-      "amount": 1525,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "1886",
-      "type": "out",
-      "datetime": "2025-06-20 18:06",
-      "amount": 5025,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "3102",
-      "type": "out",
-      "datetime": "2025-06-20 18:05",
-      "amount": 2025,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "0671",
-      "type": "out",
-      "datetime": "2025-06-20 18:05",
-      "amount": 15050,
-      "interest": 50,
-      "note": ""
-    },
-    {
-      "serialNumber": "1813",
-      "type": "out",
-      "datetime": "2025-06-20 18:04",
-      "amount": 8050,
-      "interest": 50,
-      "note": ""
-    },
-    {
-      "serialNumber": "1813",
-      "type": "out",
-      "datetime": "2025-06-20 18:04",
-      "amount": 2025,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "9136",
-      "type": "out",
-      "datetime": "2025-06-20 18:04",
-      "amount": 2025,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "6320",
-      "type": "out",
-      "datetime": "2025-06-20 18:03",
-      "amount": 12050,
-      "interest": 50,
-      "note": ""
-    },
-    {
-      "serialNumber": "5300",
-      "type": "out",
-      "datetime": "2025-06-20 18:02",
-      "amount": 18050,
-      "interest": 50,
-      "note": ""
-    },
-    {
-      "serialNumber": "1352",
-      "type": "out",
-      "datetime": "2025-06-20 18:01",
-      "amount": 6050,
-      "interest": 50,
-      "note": ""
-    },
-    {
-      "serialNumber": "9680",
-      "type": "out",
-      "datetime": "2025-06-20 18:00",
-      "amount": 16050,
-      "interest": 50,
-      "note": ""
-    },
-    {
-      "serialNumber": "8616",
-      "type": "out",
-      "datetime": "2025-06-20 17:59",
-      "amount": 2525,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "0777",
-      "type": "out",
-      "datetime": "2025-06-20 17:58",
-      "amount": 3525,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "8829",
-      "type": "out",
-      "datetime": "2025-06-20 17:56",
-      "amount": 6550,
-      "interest": 50,
-      "note": ""
-    },
-    {
-      "serialNumber": "3613",
-      "type": "out",
-      "datetime": "2025-06-20 17:56",
-      "amount": 1025,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "0863",
-      "type": "out",
-      "datetime": "2025-06-20 17:56",
-      "amount": 13550,
-      "interest": 50,
-      "note": ""
-    },
-    {
-      "serialNumber": "4550",
-      "type": "out",
-      "datetime": "2025-06-20 17:55",
-      "amount": 16050,
-      "interest": 50,
-      "note": ""
-    },
-    {
-      "serialNumber": "7643",
-      "type": "out",
-      "datetime": "2025-06-20 17:54",
-      "amount": 16050,
-      "interest": 50,
-      "note": ""
-    },
-    {
-      "serialNumber": "1752",
-      "type": "out",
-      "datetime": "2025-06-20 17:54",
-      "amount": 20075,
-      "interest": 75,
-      "note": ""
-    },
-    {
-      "serialNumber": "7750",
-      "type": "out",
-      "datetime": "2025-06-20 17:53",
-      "amount": 13050,
-      "interest": 50,
-      "note": ""
-    },
-    {
-      "serialNumber": "2770",
-      "type": "out",
-      "datetime": "2025-06-20 17:52",
-      "amount": 16050,
-      "interest": 50,
-      "note": ""
-    },
-    {
-      "serialNumber": "9092",
-      "type": "out",
-      "datetime": "2025-06-20 17:52",
-      "amount": 15050,
-      "interest": 50,
-      "note": ""
-    },
-    {
-      "serialNumber": "1245",
-      "type": "out",
-      "datetime": "2025-06-20 17:51",
-      "amount": 12050,
-      "interest": 50,
-      "note": ""
-    },
-    {
-      "serialNumber": "1245",
-      "type": "out",
-      "datetime": "2025-06-20 17:50",
-      "amount": 15050,
-      "interest": 50,
-      "note": ""
-    },
-    {
-      "serialNumber": "0617",
-      "type": "out",
-      "datetime": "2025-06-20 17:49",
-      "amount": 10050,
-      "interest": 50,
-      "note": ""
-    },
-    {
-      "serialNumber": "8915",
-      "type": "out",
-      "datetime": "2025-06-20 17:44",
-      "amount": 11550,
-      "interest": 50,
-      "note": ""
-    },
-    {
-      "serialNumber": "7078",
-      "type": "out",
-      "datetime": "2025-06-20 17:27",
-      "amount": 12050,
-      "interest": 50,
-      "note": ""
-    },
-    {
-      "serialNumber": "0500",
-      "type": "out",
-      "datetime": "2025-06-20 17:27",
-      "amount": 10050,
-      "interest": 50,
-      "note": ""
-    },
-    {
-      "serialNumber": "0500",
-      "type": "out",
-      "datetime": "2025-06-20 17:25",
-      "amount": 15050,
-      "interest": 50,
-      "note": ""
-    },
-    {
-      "serialNumber": "3051",
-      "type": "out",
-      "datetime": "2025-06-17 18:54",
-      "amount": 2525,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "2402",
-      "type": "out",
-      "datetime": "2025-06-17 18:54",
-      "amount": 6050,
-      "interest": 50,
-      "note": ""
-    },
-    {
-      "serialNumber": "436",
-      "type": "out",
-      "datetime": "2025-06-16 19:08",
-      "amount": 7500,
-      "interest": 0,
-      "note": ""
-    },
-    {
-      "serialNumber": "1153",
-      "type": "out",
-      "datetime": "2025-06-16 19:08",
-      "amount": 1025,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "8034",
-      "type": "out",
-      "datetime": "2025-06-16 19:07",
-      "amount": 620,
-      "interest": 20,
-      "note": ""
-    },
-    {
-      "serialNumber": "1025",
-      "type": "out",
-      "datetime": "2025-06-15 19:06",
-      "amount": 25,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "7929",
-      "type": "out",
-      "datetime": "2025-06-15 19:05",
-      "amount": 4025,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "0849",
-      "type": "out",
-      "datetime": "2025-06-15 19:04",
-      "amount": 1525,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "4250",
-      "type": "out",
-      "datetime": "2025-06-14 19:24",
-      "amount": 1025,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "6927",
-      "type": "out",
-      "datetime": "2025-06-14 19:23",
-      "amount": 4025,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "0849",
-      "type": "out",
-      "datetime": "2025-06-14 18:51",
-      "amount": 1525,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "8566",
-      "type": "out",
-      "datetime": "2025-06-13 18:49",
-      "amount": 300,
-      "interest": 0,
-      "note": ""
-    },
-    {
-      "serialNumber": "3433",
-      "type": "out",
-      "datetime": "2025-06-13 18:47",
-      "amount": 1025,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "7281",
-      "type": "out",
-      "datetime": "2025-06-13 18:20",
-      "amount": 5075,
-      "interest": 25,
-      "note": "25"
-    },
-    {
-      "serialNumber": "4704",
-      "type": "out",
-      "datetime": "2025-06-12 19:27",
-      "amount": 2325,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "4139",
-      "type": "out",
-      "datetime": "2025-06-12 18:16",
-      "amount": 825,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "7604",
-      "type": "out",
-      "datetime": "2025-06-12 18:15",
-      "amount": 1125,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "3756",
-      "type": "out",
-      "datetime": "2025-06-11 19:39",
-      "amount": 8050,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "8710",
-      "type": "out",
-      "datetime": "2025-06-11 19:25",
-      "amount": 1025,
-      "interest": 0,
-      "note": ""
-    },
-    {
-      "serialNumber": "9634",
-      "type": "out",
-      "datetime": "2025-06-10 18:12",
-      "amount": 825,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "5391",
-      "type": "out",
-      "datetime": "2025-06-10 18:08",
-      "amount": 23100,
-      "interest": 100,
-      "note": ""
-    },
-    {
-      "serialNumber": "4082",
-      "type": "out",
-      "datetime": "2025-06-10 18:07",
-      "amount": 1725,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "7329",
-      "type": "out",
-      "datetime": "2025-06-09 20:46",
-      "amount": 1525,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "5525",
-      "type": "in",
-      "datetime": "2025-06-09 18:50",
-      "amount": 2025,
-      "interest": 0,
-      "note": ""
-    },
-    {
-      "serialNumber": "4246",
-      "type": "out",
-      "datetime": "2025-06-09 18:48",
-      "amount": 4425,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "5899",
-      "type": "out",
-      "datetime": "2025-06-09 18:47",
-      "amount": 1025,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "2259",
-      "type": "out",
-      "datetime": "2025-06-09 18:36",
-      "amount": 525,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "2925",
-      "type": "out",
-      "datetime": "2025-06-09 18:35",
-      "amount": 525,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "3453",
-      "type": "out",
-      "datetime": "2025-06-07 20:30",
-      "amount": 2125,
-      "interest": 0,
-      "note": ""
-    },
-    {
-      "serialNumber": "6391",
-      "type": "out",
-      "datetime": "2025-06-07 18:06",
-      "amount": 325,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "1138",
-      "type": "out",
-      "datetime": "2025-06-07 18:05",
-      "amount": 40000,
-      "interest": 0,
-      "note": ""
-    },
-    {
-      "serialNumber": "5812",
-      "type": "out",
-      "datetime": "2025-06-07 18:04",
-      "amount": 525,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "1153",
-      "type": "out",
-      "datetime": "2025-06-06 18:55",
-      "amount": 6025,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "3453",
-      "type": "in",
-      "datetime": "2025-06-06 18:24",
-      "amount": 2125,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "5806",
-      "type": "out",
-      "datetime": "2025-06-06 18:23",
-      "amount": 2625,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "7331",
-      "type": "out",
-      "datetime": "2025-06-06 18:23",
-      "amount": 1025,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "0604",
-      "type": "out",
-      "datetime": "2025-06-06 18:21",
-      "amount": 2025,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "6417",
-      "type": "out",
-      "datetime": "2025-06-06 18:21",
-      "amount": 1525,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "4646",
-      "type": "out",
-      "datetime": "2025-06-06 18:19",
-      "amount": 1225,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "5186",
-      "type": "out",
-      "datetime": "2025-06-06 18:17",
-      "amount": 2425,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "4250",
-      "type": "out",
-      "datetime": "2025-06-06 18:16",
-      "amount": 1025,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "3328",
-      "type": "out",
-      "datetime": "2025-06-06 18:15",
-      "amount": 2025,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "436",
-      "type": "out",
-      "datetime": "2025-06-05 17:54",
-      "amount": 9000,
-      "interest": 0,
-      "note": "غزة ابي"
-    },
-    {
-      "serialNumber": "436",
-      "type": "in",
-      "datetime": "2025-06-05 17:52",
-      "amount": 40000,
-      "interest": 0,
-      "note": "غزة ابي"
-    },
-    {
-      "serialNumber": "2533",
-      "type": "out",
-      "datetime": "2025-06-05 17:51",
-      "amount": 4025,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "0211",
-      "type": "out",
-      "datetime": "2025-06-05 17:51",
-      "amount": 8050,
-      "interest": 50,
-      "note": ""
-    },
-    {
-      "serialNumber": "8320",
-      "type": "out",
-      "datetime": "2025-06-05 17:51",
-      "amount": 2025,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "6541",
-      "type": "out",
-      "datetime": "2025-06-05 17:50",
-      "amount": 1025,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "1835",
-      "type": "out",
-      "datetime": "2025-06-05 17:49",
-      "amount": 3275,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "7604",
-      "type": "out",
-      "datetime": "2025-06-05 17:49",
-      "amount": 2225,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "3655",
-      "type": "out",
-      "datetime": "2025-06-05 17:49",
-      "amount": 4025,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "5250",
-      "type": "out",
-      "datetime": "2025-06-05 17:49",
-      "amount": 1325,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "9635",
-      "type": "out",
-      "datetime": "2025-06-05 17:48",
-      "amount": 12050,
-      "interest": 50,
-      "note": ""
-    },
-    {
-      "serialNumber": "5401",
-      "type": "out",
-      "datetime": "2025-06-05 17:47",
-      "amount": 1325,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "9868",
-      "type": "out",
-      "datetime": "2025-06-05 17:47",
-      "amount": 3025,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "4623",
-      "type": "out",
-      "datetime": "2025-06-05 17:46",
-      "amount": 1825,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "5288",
-      "type": "out",
-      "datetime": "2025-06-05 17:46",
-      "amount": 925,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "5721",
-      "type": "out",
-      "datetime": "2025-06-05 17:45",
-      "amount": 2025,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "6251",
-      "type": "in",
-      "datetime": "2025-06-04 18:59",
-      "amount": 4025,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "436",
-      "type": "in",
-      "datetime": "2025-06-04 18:52",
-      "amount": 80000,
-      "interest": 0,
-      "note": ""
-    },
-    {
-      "serialNumber": "3756",
-      "type": "out",
-      "datetime": "2025-06-04 18:51",
-      "amount": 5025,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "8573",
-      "type": "out",
-      "datetime": "2025-06-04 18:50",
-      "amount": 1225,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "8060",
-      "type": "out",
-      "datetime": "2025-06-04 18:50",
-      "amount": 4025,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "9049",
-      "type": "out",
-      "datetime": "2025-06-04 18:50",
-      "amount": 5050,
-      "interest": 50,
-      "note": ""
-    },
-    {
-      "serialNumber": "6671",
-      "type": "out",
-      "datetime": "2025-06-04 18:47",
-      "amount": 2025,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "3030",
-      "type": "out",
-      "datetime": "2025-06-04 18:47",
-      "amount": 2025,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "3398",
-      "type": "out",
-      "datetime": "2025-06-04 18:47",
-      "amount": 1025,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "0320",
-      "type": "out",
-      "datetime": "2025-06-04 18:46",
-      "amount": 10050,
-      "interest": 50,
-      "note": ""
-    },
-    {
-      "serialNumber": "1518",
-      "type": "out",
-      "datetime": "2025-06-04 18:45",
-      "amount": 10150,
-      "interest": 50,
-      "note": ""
-    },
-    {
-      "serialNumber": "5410",
-      "type": "out",
-      "datetime": "2025-06-04 18:44",
-      "amount": 15075,
-      "interest": 75,
-      "note": ""
-    },
-    {
-      "serialNumber": "2073",
-      "type": "out",
-      "datetime": "2025-06-04 18:43",
-      "amount": 2125,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "8607",
-      "type": "out",
-      "datetime": "2025-06-04 18:42",
-      "amount": 1525,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "8414",
-      "type": "out",
-      "datetime": "2025-06-04 18:42",
-      "amount": 3025,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "2431",
-      "type": "out",
-      "datetime": "2025-06-04 18:42",
-      "amount": 525,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "2975",
-      "type": "out",
-      "datetime": "2025-06-04 18:42",
-      "amount": 1725,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "1791",
-      "type": "out",
-      "datetime": "2025-06-04 18:41",
-      "amount": 525,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "3524",
-      "type": "out",
-      "datetime": "2025-06-04 18:41",
-      "amount": 30100,
-      "interest": 100,
-      "note": ""
-    },
-    {
-      "serialNumber": "1446",
-      "type": "out",
-      "datetime": "2025-06-04 18:41",
-      "amount": 10050,
-      "interest": 50,
-      "note": ""
-    },
-    {
-      "serialNumber": "8722",
-      "type": "out",
-      "datetime": "2025-06-04 18:41",
-      "amount": 5050,
-      "interest": 50,
-      "note": ""
-    },
-    {
-      "serialNumber": "1720",
-      "type": "in",
-      "datetime": "2025-06-03 18:48",
-      "amount": 4025,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "2814",
-      "type": "out",
-      "datetime": "2025-06-03 18:44",
-      "amount": 3525,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "3917",
-      "type": "out",
-      "datetime": "2025-06-03 18:44",
-      "amount": 2025,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "0841",
-      "type": "in",
-      "datetime": "2025-06-03 18:44",
-      "amount": 1025,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "1953",
-      "type": "out",
-      "datetime": "2025-06-03 18:43",
-      "amount": 1525,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "7118",
-      "type": "out",
-      "datetime": "2025-06-03 18:42",
-      "amount": 4575,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "0802",
-      "type": "out",
-      "datetime": "2025-06-03 18:41",
-      "amount": 1025,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "0136",
-      "type": "out",
-      "datetime": "2025-06-03 18:41",
-      "amount": 2025,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "9431",
-      "type": "out",
-      "datetime": "2025-06-03 18:40",
-      "amount": 7925,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "7710",
-      "type": "out",
-      "datetime": "2025-06-03 18:40",
-      "amount": 2025,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "1352",
-      "type": "out",
-      "datetime": "2025-06-03 18:39",
-      "amount": 2025,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "3588",
-      "type": "out",
-      "datetime": "2025-06-03 18:38",
-      "amount": 100,
-      "interest": 0,
-      "note": ""
-    },
-    {
-      "serialNumber": "5946",
-      "type": "out",
-      "datetime": "2025-06-03 18:33",
-      "amount": 2025,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "4073",
-      "type": "out",
-      "datetime": "2025-06-03 18:32",
-      "amount": 1825,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "7204",
-      "type": "out",
-      "datetime": "2025-06-03 18:27",
-      "amount": 1525,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "2797",
-      "type": "out",
-      "datetime": "2025-06-03 18:27",
-      "amount": 3025,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "7622",
-      "type": "out",
-      "datetime": "2025-06-03 18:27",
-      "amount": 1025,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "4410",
-      "type": "out",
-      "datetime": "2025-06-03 18:27",
-      "amount": 3225,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "1742",
-      "type": "out",
-      "datetime": "2025-06-02 19:01",
-      "amount": 2025,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "2925",
-      "type": "out",
-      "datetime": "2025-06-02 19:00",
-      "amount": 2025,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "9278",
-      "type": "out",
-      "datetime": "2025-06-02 18:56",
-      "amount": 10050,
-      "interest": 50,
-      "note": ""
-    },
-    {
-      "serialNumber": "7776",
-      "type": "out",
-      "datetime": "2025-06-02 18:56",
-      "amount": 625,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "2203",
-      "type": "out",
-      "datetime": "2025-06-02 18:55",
-      "amount": 715,
-      "interest": 15,
-      "note": ""
-    },
-    {
-      "serialNumber": "9643",
-      "type": "out",
-      "datetime": "2025-06-02 18:54",
-      "amount": 20075,
-      "interest": 75,
-      "note": ""
-    },
-    {
-      "serialNumber": "4250",
-      "type": "out",
-      "datetime": "2025-05-28 14:17",
-      "amount": 1025,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "9020",
-      "type": "out",
-      "datetime": "2025-05-28 14:17",
-      "amount": 5025,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "2575",
-      "type": "out",
-      "datetime": "2025-05-28 14:16",
-      "amount": 3525,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "8552",
-      "type": "out",
-      "datetime": "2025-05-27 14:15",
-      "amount": 6050,
-      "interest": 50,
-      "note": ""
-    },
-    {
-      "serialNumber": "8855",
-      "type": "out",
-      "datetime": "2025-05-27 14:15",
-      "amount": 4025,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "9004",
-      "type": "in",
-      "datetime": "2025-05-27 14:15",
-      "amount": 1500,
-      "interest": 0,
-      "note": ""
-    },
-    {
-      "serialNumber": "9092",
-      "type": "out",
-      "datetime": "2025-05-27 14:14",
-      "amount": 2028,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "3333",
-      "type": "out",
-      "datetime": "2025-05-27 14:14",
-      "amount": 8050,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "6753",
-      "type": "out",
-      "datetime": "2025-05-27 14:13",
-      "amount": 6025,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "1246",
-      "type": "out",
-      "datetime": "2025-05-26 14:21",
-      "amount": 1075,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "4017",
-      "type": "out",
-      "datetime": "2025-05-26 14:21",
-      "amount": 40100,
-      "interest": 100,
-      "note": ""
-    },
-    {
-      "serialNumber": "5644",
-      "type": "out",
-      "datetime": "2025-05-26 14:20",
-      "amount": 10050,
-      "interest": 50,
-      "note": ""
-    },
-    {
-      "serialNumber": "7186",
-      "type": "out",
-      "datetime": "2025-05-26 14:20",
-      "amount": 3025,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "3534",
-      "type": "out",
-      "datetime": "2025-05-26 14:19",
-      "amount": 825,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "8320",
-      "type": "out",
-      "datetime": "2025-05-26 14:19",
-      "amount": 7025,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "8342",
-      "type": "out",
-      "datetime": "2025-05-26 14:18",
-      "amount": 525,
-      "interest": 25,
-      "note": ""
-    },
-    {
-      "serialNumber": "4551",
-      "type": "out",
-      "datetime": "2025-05-26 14:17",
-      "amount": 8050,
-      "interest": 50,
-      "note": ""
-    }
-  ]
-}
+[
+  {
+    "serialNumber": "5631",
+    "type": "out",
+    "datetime": "2025-06-21 14:07",
+    "date_only": "2025-06-21",
+    "amount": 525,
+    "interest": 25,
+    "note": "",
+    "id": 180
+  },
+  {
+    "serialNumber": "5456",
+    "type": "out",
+    "datetime": "2025-06-21 14:07",
+    "date_only": "2025-06-21",
+    "amount": 1025,
+    "interest": 25,
+    "note": "",
+    "id": 181
+  },
+  {
+    "serialNumber": "4386",
+    "type": "out",
+    "datetime": "2025-06-21 14:07",
+    "date_only": "2025-06-21",
+    "amount": 2425,
+    "interest": 25,
+    "note": "",
+    "id": 182
+  },
+  {
+    "serialNumber": "4052",
+    "type": "out",
+    "datetime": "2025-06-21 14:06",
+    "date_only": "2025-06-21",
+    "amount": 2025,
+    "interest": 25,
+    "note": "",
+    "id": 176
+  },
+  {
+    "serialNumber": "1515",
+    "type": "out",
+    "datetime": "2025-06-21 14:06",
+    "date_only": "2025-06-21",
+    "amount": 10050,
+    "interest": 50,
+    "note": "",
+    "id": 177
+  },
+  {
+    "serialNumber": "4654",
+    "type": "out",
+    "datetime": "2025-06-21 14:06",
+    "date_only": "2025-06-21",
+    "amount": 1525,
+    "interest": 25,
+    "note": "",
+    "id": 178
+  },
+  {
+    "serialNumber": "2402",
+    "type": "out",
+    "datetime": "2025-06-21 14:06",
+    "date_only": "2025-06-21",
+    "amount": 5025,
+    "interest": 25,
+    "note": "",
+    "id": 179
+  },
+  {
+    "serialNumber": "6625",
+    "type": "out",
+    "datetime": "2025-06-21 14:05",
+    "date_only": "2025-06-21",
+    "amount": 2025,
+    "interest": 25,
+    "note": "",
+    "id": 174
+  },
+  {
+    "serialNumber": "8543",
+    "type": "out",
+    "datetime": "2025-06-21 14:05",
+    "date_only": "2025-06-21",
+    "amount": 2025,
+    "interest": 25,
+    "note": "",
+    "id": 175
+  },
+  {
+    "serialNumber": "3330",
+    "type": "out",
+    "datetime": "2025-06-21 14:04",
+    "date_only": "2025-06-21",
+    "amount": 2025,
+    "interest": 25,
+    "note": "",
+    "id": 170
+  },
+  {
+    "serialNumber": "2130",
+    "type": "out",
+    "datetime": "2025-06-21 14:04",
+    "date_only": "2025-06-21",
+    "amount": 4025,
+    "interest": 25,
+    "note": "",
+    "id": 171
+  },
+  {
+    "serialNumber": "6244",
+    "type": "out",
+    "datetime": "2025-06-21 14:04",
+    "date_only": "2025-06-21",
+    "amount": 10050,
+    "interest": 50,
+    "note": "",
+    "id": 172
+  },
+  {
+    "serialNumber": "4397",
+    "type": "out",
+    "datetime": "2025-06-21 14:04",
+    "date_only": "2025-06-21",
+    "amount": 2025,
+    "interest": 25,
+    "note": "",
+    "id": 173
+  },
+  {
+    "serialNumber": "8426",
+    "type": "out",
+    "datetime": "2025-06-21 14:03",
+    "date_only": "2025-06-21",
+    "amount": 12050,
+    "interest": 50,
+    "note": "",
+    "id": 167
+  },
+  {
+    "serialNumber": "5552",
+    "type": "out",
+    "datetime": "2025-06-21 14:03",
+    "date_only": "2025-06-21",
+    "amount": 2025,
+    "interest": 25,
+    "note": "",
+    "id": 168
+  },
+  {
+    "serialNumber": "5791",
+    "type": "out",
+    "datetime": "2025-06-21 14:03",
+    "date_only": "2025-06-21",
+    "amount": 4025,
+    "interest": 25,
+    "note": "",
+    "id": 169
+  },
+  {
+    "serialNumber": "1494",
+    "type": "out",
+    "datetime": "2025-06-21 14:02",
+    "date_only": "2025-06-21",
+    "amount": 4025,
+    "interest": 25,
+    "note": "",
+    "id": 166
+  },
+  {
+    "serialNumber": "7042",
+    "type": "out",
+    "datetime": "2025-06-21 14:01",
+    "date_only": "2025-06-21",
+    "amount": 1525,
+    "interest": 25,
+    "note": "",
+    "id": 163
+  },
+  {
+    "serialNumber": "3939",
+    "type": "out",
+    "datetime": "2025-06-21 14:01",
+    "date_only": "2025-06-21",
+    "amount": 1625,
+    "interest": 25,
+    "note": "",
+    "id": 164
+  },
+  {
+    "serialNumber": "4522",
+    "type": "out",
+    "datetime": "2025-06-21 14:01",
+    "date_only": "2025-06-21",
+    "amount": 6050,
+    "interest": 50,
+    "note": "",
+    "id": 165
+  },
+  {
+    "serialNumber": "1280",
+    "type": "out",
+    "datetime": "2025-06-21 14:00",
+    "date_only": "2025-06-21",
+    "amount": 2025,
+    "interest": 25,
+    "note": "",
+    "id": 162
+  },
+  {
+    "serialNumber": "9055",
+    "type": "out",
+    "datetime": "2025-06-21 12:30",
+    "date_only": "2025-06-21",
+    "amount": 6050,
+    "interest": 50,
+    "note": "",
+    "id": 161
+  }
+]
