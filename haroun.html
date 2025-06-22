@@ -508,6 +508,13 @@
                     <option value="not-sent">لم يتم الإرسال</option>
                 </select>
             </div>
+            <div class="filter-group">
+                <label for="sortOrder">ترتيب حسب التاريخ</label>
+                <select id="sortOrder" onchange="updateUI()">
+                    <option value="oldest" selected>من الأقدم إلى الأحدث</option>
+                    <option value="newest">من الأحدث إلى الأقدم</option>
+                </select>
+            </div>
         </div>
 
         <div class="table-container">
@@ -823,8 +830,12 @@
         }
 
         // --- Utility Functions ---
-        function sortByDate(array) {
-            return array.sort((a, b) => new Date(b.entryDate || b.date) - new Date(a.entryDate || a.date));
+        function sortByDate(array, order = 'oldest') {
+            return array.sort((a, b) => {
+                const dateA = new Date(a.entryDate || a.date);
+                const dateB = new Date(b.entryDate || b.date);
+                return order === 'oldest' ? dateA - dateB : dateB - dateA;
+            });
         }
 
         function formatDateOnly(dateString) {
@@ -840,10 +851,11 @@
             const searchQuery = document.getElementById('searchInput').value.toLowerCase();
             const startDate = document.getElementById('startDate').value;
             const endDate = document.getElementById('endDate').value;
+            const sortOrder = document.getElementById('sortOrder').value;
             const tableBody = document.getElementById('paymentsTable');
             tableBody.innerHTML = '';
             
-            const filteredPayments = sortByDate([...payments]).filter(p => {
+            const filteredPayments = [...payments].filter(p => {
                 const matchesSearch = (p.amount.toString().includes(searchQuery) || (p.note && p.note.toLowerCase().includes(searchQuery)));
                 if (!p.date) return matchesSearch;
                 const paymentDate = new Date(p.date);
@@ -854,6 +866,8 @@
                 const matchesDate = (!filterStartDate || paymentDate >= filterStartDate) && (!filterEndDate || paymentDate <= filterEndDate);
                 return matchesSearch && matchesDate;
             });
+            
+            sortByDate(filteredPayments, sortOrder);
             
             filteredPayments.forEach((payment, index) => {
                 const row = document.createElement('tr');
@@ -927,10 +941,11 @@
             const startDate = document.getElementById('startDate').value;
             const endDate = document.getElementById('endDate').value;
             const statusFilter = document.getElementById('statusFilter').value;
+            const sortOrder = document.getElementById('sortOrder').value;
             const tableBody = document.getElementById('messagesTable');
             tableBody.innerHTML = '';
             
-            const filteredMessages = sortByDate([...messages]).filter(message => {
+            const filteredMessages = [...messages].filter(message => {
                 const matchesSearch = (
                     message.phoneNumber.toLowerCase().includes(searchQuery) ||
                     (message.name && message.name.toLowerCase().includes(searchQuery)) ||
@@ -947,6 +962,8 @@
                 const matchesStatus = (statusFilter === 'all' || (statusFilter === 'sent' && message.status === 'sent') || (statusFilter === 'not-sent' && message.status !== 'sent'));
                 return matchesSearch && matchesDate && matchesStatus;
             });
+
+            sortByDate(filteredMessages, sortOrder);
 
             filteredMessages.forEach((message, index) => {
                 const row = document.createElement('tr');
