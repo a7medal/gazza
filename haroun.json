@@ -277,17 +277,6 @@
     },
     {
       "entryDate": "2025-06-22",
-      "phoneNumber": "44283330",
-      "name": "محمد مع الزين",
-      "entity": "لكصيبة 1",
-      "amount": 2000,
-      "fees": 50,
-      "status": "sent",
-      "dateTime": "2025-06-22T10:47:10.818Z",
-      "id": 26
-    },
-    {
-      "entryDate": "2025-06-22",
       "phoneNumber": "48562130",
       "name": "سليمان مع مولود —-",
       "entity": "مونكل",
@@ -384,6 +373,17 @@
       "status": "sent",
       "dateTime": "2025-06-22T10:58:32.313Z",
       "id": 35
+    },
+    {
+      "entryDate": "2025-06-22",
+      "phoneNumber": "48019318",
+      "name": "——",
+      "entity": "لكصيبة 1",
+      "amount": 3000,
+      "fees": 50,
+      "status": "not-sent",
+      "dateTime": "2025-06-22T11:25:11.742Z",
+      "id": 36
     }
   ],
   "payments": []
