@@ -476,7 +476,15 @@
         function openDB() {
             return new Promise((resolve, reject) => {
                 const request = indexedDB.open(DB_NAME, DB_VERSION);
-                request.onerror = (event) => reject("Database error: " + event.target.errorCode);
+                request.onerror = (event) => {
+                    let errorMessage = "Database error: Unknown error";
+                    if (event.target.error) {
+                        errorMessage = "Database error: " + (event.target.error.message || event.target.error);
+                    } else if (event.target.errorCode) {
+                        errorMessage = "Database error: Code " + event.target.errorCode;
+                    }
+                    reject(errorMessage);
+                };
                 request.onsuccess = (event) => {
                     db = event.target.result;
                     resolve(db);
