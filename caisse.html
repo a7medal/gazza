@@ -224,18 +224,18 @@
             </div>
             <div class="card">
                 <i class="fas fa-arrow-up"></i>
-                <h5>الداخل </h5>
+                <h5>الداخل (للفترة المحددة)</h5>
                 <h3 id="totalIn">0.00</h3>
             </div>
             <div class="card">
                 <i class="fas fa-arrow-down"></i>
-                <h5>الخارج </h5>
+                <h5>الخارج (للفترة المحددة)</h5>
                 <h3 id="totalOut">0.00</h3>
             </div>
         </div>
 
         <div class="accounts-section">
-            <h3>الحسابات  </h3>
+            <h3>الحسابات (أرصدة الفترة المحددة)</h3>
             <div class="table-container">
                 <table class="accounts-table">
                     <thead>
@@ -254,13 +254,13 @@
         <div class="actions">
             <button class="btn" data-bs-toggle="modal" data-bs-target="#addTransactionModal"><i class="fas fa-plus"></i> إضافة معاملة</button>
             <button class="btn" data-bs-toggle="modal" data-bs-target="#addAccountModal"><i class="fas fa-user-plus"></i> إضافة حساب</button>
-            <button class="btn" onclick="exportVisibleToJSON()"><i class="fas fa-file-code"></i> تصدير  JSON</button>
-            <button class="btn" onclick="exportVisibleToCSV()"><i class="fas fa-file-csv"></i> تصدير  CSV</button>
+            <button class="btn" onclick="exportVisibleToJSON()"><i class="fas fa-file-code"></i> تصدير المعروض JSON</button>
+            <button class="btn" onclick="exportVisibleToCSV()"><i class="fas fa-file-csv"></i> تصدير المعروض CSV</button>
             <input type="file" id="importFile" accept=".json,.csv" style="display: none;" onchange="importFile(event)">
             <button class="btn" onclick="document.getElementById('importFile').click()"><i class="fas fa-file-import"></i> استيراد ملف</button>
-            <button class="btn" onclick="generateQRCodeForVisible()"><i class="fas fa-qrcode"></i> QR Code</button>
+            <button class="btn" onclick="generateQRCodeForVisible()"><i class="fas fa-qrcode"></i> QR للمعروض</button>
             <button class="btn" onclick="startQRScanner()"><i class="fas fa-camera"></i> استقبال QR</button>
-            <button class="btn" onclick="printTable()"><i class="fas fa-print"></i> طباعة </button>
+            <button class="btn" onclick="printTable()"><i class="fas fa-print"></i> طباعة المعروض</button>
         </div>
 
         <div class="filter-controls">
@@ -460,7 +460,7 @@
 
     <script>
         const DB_NAME = 'cashBoxDB';
-        const DB_VERSION = 2;
+        const DB_VERSION = 1;
         const TRANSACTIONS_STORE_NAME = 'transactions';
         const ACCOUNTS_STORE_NAME = 'accounts';
         let db;
@@ -474,20 +474,14 @@
 
         // --- IndexedDB Helper Functions ---
         function openDB() {
-            console.log("[openDB] Attempting to open IndexedDB...");
             return new Promise((resolve, reject) => {
                 const request = indexedDB.open(DB_NAME, DB_VERSION);
-                request.onerror = (event) => {
-                    console.error("[openDB] Database error:", event.target.errorCode, event.target.error);
-                    reject("Database error: " + event.target.errorCode);
-                };
+                request.onerror = (event) => reject("Database error: " + event.target.errorCode);
                 request.onsuccess = (event) => {
                     db = event.target.result;
-                    console.log("[openDB] Database opened successfully.");
                     resolve(db);
                 };
                 request.onupgradeneeded = (event) => {
-                    console.log("[openDB] Database upgrade needed.");
                     db = event.target.result;
                     if (!db.objectStoreNames.contains(TRANSACTIONS_STORE_NAME)) {
                         const transactionStore = db.createObjectStore(TRANSACTIONS_STORE_NAME, { keyPath: 'id', autoIncrement: true });
@@ -505,34 +499,19 @@
         }
 
         function addRecord(storeName, record) {
-            console.log(`[addRecord] Attempting to add record to store: ${storeName}`, record);
             return new Promise((resolve, reject) => {
-                if (!db) {
-                    console.error("[addRecord] Database not open.");
-                    reject("Database not open");
-                    return;
-                }
+                if (!db) { reject("Database not open"); return; }
                 const transaction = db.transaction([storeName], 'readwrite');
                 const store = transaction.objectStore(storeName);
                 const request = store.add(record);
-                request.onsuccess = () => {
-                    console.log(`[addRecord] Record added successfully to ${storeName}. Key:`, request.result);
-                    resolve(request.result); // Returns the key of the new record
-                };
-                request.onerror = (event) => {
-                    console.error(`[addRecord] Error adding record to ${storeName}:`, event.target.error);
-                    reject("Error adding record: " + event.target.error);
-                };
+                request.onsuccess = () => resolve(request.result); // Returns the key of the new record
+                request.onerror = (event) => reject("Error adding record: " + event.target.error);
             });
         }
         
         function getRecord(storeName, key) {
-            // console.log(`[getRecord] Attempting to get record from store: ${storeName}, Key: ${key}`); // Optional: can be verbose
             return new Promise((resolve, reject) => {
-                if (!db) {
-                    // console.error("[getRecord] Database not open."); // Optional: can be verbose
-                    reject("Database not open"); return;
-                }
+                if (!db) { reject("Database not open"); return; }
                 const transaction = db.transaction([storeName], 'readonly');
                 const store = transaction.objectStore(storeName);
                 const request = store.get(key);
@@ -882,64 +861,29 @@
         }
         
         async function addAccount() {
-            console.log("[addAccount] Function called.");
-            const accountNameInput = document.getElementById('accountName');
-            const accountName = accountNameInput.value.trim();
-            console.log("[addAccount] Account name entered (trimmed):", accountName);
-
+            const accountName = document.getElementById('accountName').value.trim();
             if (!accountName) {
-                console.warn("[addAccount] Account name is empty.");
                 Swal.fire('خطأ', 'الرجاء إدخال اسم الحساب.', 'error');
                 return;
             }
-
             try {
-                console.log(`[addAccount] Checking if account "${accountName}" exists.`);
-                let existingAccount;
-                try {
-                    existingAccount = await getRecord(ACCOUNTS_STORE_NAME, accountName);
-                    console.log("[addAccount] getRecord result for existing account check:", existingAccount);
-                } catch (getRecordError) {
-                    console.error("[addAccount] Error calling getRecord:", getRecordError);
-                    Swal.fire('خطأ', 'حدث خطأ أثناء التحقق من الحساب الحالي. انظر وحدة التحكم لمزيد من التفاصيل.', 'error');
-                    return;
-                }
-                
+                const existingAccount = await getRecord(ACCOUNTS_STORE_NAME, accountName);
                 if (existingAccount) {
-                    console.warn(`[addAccount] Account name "${accountName}" already exists.`);
                     Swal.fire('خطأ', 'اسم الحساب موجود بالفعل.', 'error');
                     return;
                 }
-
-                console.log(`[addAccount] Attempting to add account "${accountName}".`);
-                try {
-                    await addRecord(ACCOUNTS_STORE_NAME, { name: accountName });
-                    console.log(`[addAccount] Account "${accountName}" added to store successfully.`);
-                } catch (addRecordError) {
-                    console.error(`[addAccount] Error calling addRecord for account "${accountName}":`, addRecordError);
-                    Swal.fire('خطأ', 'حدث خطأ أثناء حفظ الحساب الجديد. انظر وحدة التحكم لمزيد من التفاصيل.', 'error');
-                    return;
-                }
-
+                await addRecord(ACCOUNTS_STORE_NAME, { name: accountName });
                 allAccounts = await getAllRecords(ACCOUNTS_STORE_NAME); // Refresh local cache
-                console.log("[addAccount] Refreshed allAccounts:", allAccounts);
                 await populateAccountDropdowns();
-                console.log("[addAccount] Populated account dropdowns.");
-                await updateAccountsTable(displayedTransactions); // Re-render accounts table
-                console.log("[addAccount] Updated accounts table.");
+                await updateAccountsTable(displayedTransactions); // Re-render accounts table with current period balances
                 
-                const addAccountModalInstance = bootstrap.Modal.getInstance(document.getElementById('addAccountModal'));
-                if (addAccountModalInstance) {
-                    addAccountModalInstance.hide();
-                }
+                bootstrap.Modal.getInstance(document.getElementById('addAccountModal')).hide();
                 document.getElementById('addAccountForm').reset();
-                console.log("[addAccount] Modal hidden and form reset.");
                 Swal.fire('نجاح', `تم إضافة حساب "${accountName}" بنجاح.`, 'success');
             } catch (error) {
-                console.error("[addAccount] General error in addAccount function:", error);
-                Swal.fire('خطأ', 'حدث خطأ عام أثناء إضافة الحساب. انظر وحدة التحكم لمزيد من التفاصيل.', 'error');
+                console.error("Error adding account:", error);
+                Swal.fire('خطأ', 'حدث خطأ أثناء إضافة الحساب.', 'error');
             }
-            console.log("[addAccount] Function finished.");
         }
 
         function openEditAccountModal(accountName) {
