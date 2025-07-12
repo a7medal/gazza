@@ -312,6 +312,8 @@
             <button class="btn" data-bs-toggle="modal" data-bs-target="#addPhoneModal"><i class="fas fa-plus"></i> إضافة هاتف</button>
             <button class="btn" onclick="exportToJSON()"><i class="fas fa-file-code"></i> تصدير إلى JSON</button>
             <button class="btn" onclick="exportToCSV()"><i class="fas fa-file-csv"></i> تصدير إلى CSV</button>
+            <input type="file" id="importFile" accept=".json,.csv" style="display: none;" onchange="importFile(event)">
+            <button class="btn" onclick="document.getElementById('importFile').click()"><i class="fas fa-file-import"></i> استيراد ملف</button>
             <button class="btn" onclick="printTable()"><i class="fas fa-print"></i> طباعة</button>
             <button class="btn btn-danger" onclick="deleteAllData()"><i class="fas fa-trash-alt"></i> حذف كل البيانات</button>
         </div>
@@ -520,7 +522,20 @@
                 });
             }
 
-            return { open, add, put, get, delete: remove, getAll, clear };
+            function bulkAdd(items) {
+                return new Promise((resolve, reject) => {
+                    const tx = dbInstance.transaction('phones', 'readwrite');
+                    const store = tx.objectStore('phones');
+                    items.forEach(item => {
+                        delete item.id; // Ensure new IDs are generated
+                        store.add(item);
+                    });
+                    tx.oncomplete = () => resolve();
+                    tx.onerror = e => reject(e.target.error);
+                });
+            }
+
+            return { open, add, put, get, delete: remove, getAll, clear, bulkAdd };
         })();
 
         // --- Global State ---
@@ -663,7 +678,57 @@
             }
         }
 
-        // --- Export Functions ---
+        // --- Import / Export Functions ---
+        async function importFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                try {
+                    let importedPhones = [];
+                    if (file.name.endsWith('.json')) {
+                        const data = JSON.parse(e.target.result);
+                        importedPhones = data.phones || [];
+                    } else if (file.name.endsWith('.csv')) {
+                        const text = e.target.result;
+                        const rows = text.split('\n').slice(1); // Skip header
+                        importedPhones = rows
+                            .filter(row => row.trim())
+                            .map(row => {
+                                const [name, storage, price] = row.split(',').map(item => item.trim().replace(/^"|"$/g, ''));
+                                return {
+                                    name,
+                                    storage,
+                                    price: parseFloat(price)
+                                };
+                            })
+                            .filter(phone => phone.name && phone.storage && !isNaN(phone.price));
+                    }
+
+                    if (importedPhones.length === 0) {
+                        throw new Error('لا توجد بيانات صالحة للاستيراد.');
+                    }
+
+                    // Validate storage values
+                    const validStorages = ['64', '128', '256', '512', '1024'];
+                    importedPhones = importedPhones.filter(phone => validStorages.includes(phone.storage));
+
+                    if (importedPhones.length > 0) {
+                        await db.bulkAdd(importedPhones);
+                        await loadDataAndRender();
+                        Swal.fire('تم', 'تم استيراد البيانات بنجاح!', 'success');
+                    } else {
+                        Swal.fire('خطأ', 'البيانات المستوردة تحتوي على قيم ذاكرة غير صالحة.', 'error');
+                    }
+                } catch (err) {
+                    Swal.fire('خطأ', 'فشل في معالجة الملف: ' + err.message, 'error');
+                } finally {
+                    event.target.value = null;
+                }
+            };
+            reader.readAsText(file);
+        }
+
         function exportToJSON() {
             const data = { phones };
             const dataStr = JSON.stringify(data, null, 2);
